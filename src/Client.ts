@@ -9,7 +9,7 @@ import { Customers } from "./api/resources/customers/client/Client.js";
 import { Agents } from "./api/resources/agents/client/Client.js";
 import { Contacts } from "./api/resources/contacts/client/Client.js";
 import { Orders } from "./api/resources/orders/client/Client.js";
-import { Usage } from "./api/resources/usage/client/Client.js";
+import { Usage } from "./wrapper/BatchUsage.js";
 
 export declare namespace PaidClient {
     export interface Options {
