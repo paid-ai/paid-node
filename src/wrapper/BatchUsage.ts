@@ -12,7 +12,7 @@ export class Usage extends UsageClient {
     return this.recordBulk({ signals: this.signals }, requestOptions);
   }
 
-  public recordUsage(
+  public record(
       signal: Paid.Signal = {},
       requestOptions?: UsageClient.RequestOptions,
   ): core.HttpResponsePromise<unknown[]> {
