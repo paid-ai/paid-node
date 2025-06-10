@@ -47,9 +47,9 @@ export class PaidApiClient {
             headers: mergeHeaders(
                 {
                     "X-Fern-Language": "JavaScript",
-                    "X-Fern-SDK-Name": "paid-node",
-                    "X-Fern-SDK-Version": "0.0.3",
-                    "User-Agent": "paid-node/0.0.3",
+                    "X-Fern-SDK-Name": "@paid-ai/paid-node",
+                    "X-Fern-SDK-Version": "0.0.1",
+                    "User-Agent": "@paid-ai/paid-node/0.0.1",
                     "X-Fern-Runtime": core.RUNTIME.type,
                     "X-Fern-Runtime-Version": core.RUNTIME.version,
                 },

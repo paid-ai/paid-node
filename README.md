@@ -1,14 +1,14 @@
 # Paid TypeScript Library
 
 [![fern shield](https://img.shields.io/badge/%F0%9F%8C%BF-Built%20with%20Fern-brightgreen)](https://buildwithfern.com?utm_source=github&utm_medium=github&utm_campaign=readme&utm_source=https%3A%2F%2Fgithub.com%2FAgentPaid%2Fpaid-node)
-[![npm shield](https://img.shields.io/npm/v/paid-node)](https://www.npmjs.com/package/paid-node)
+[![npm shield](https://img.shields.io/npm/v/@paid-ai/paid-node)](https://www.npmjs.com/package/@paid-ai/paid-node)
 
 The Paid TypeScript library provides convenient access to the Paid API from TypeScript.
 
 ## Installation
 
 ```sh
-npm i -s paid-node
+npm i -s @paid-ai/paid-node
 ```
 
 ## Reference
@@ -20,7 +20,7 @@ A full reference for this library is available [here](https://github.com/AgentPa
 Instantiate and use the client with the following:
 
 ```typescript
-import { PaidApiClient } from "paid-node";
+import { PaidApiClient } from "@paid-ai/paid-node";
 
 const client = new PaidApiClient({ token: "YOUR_TOKEN" });
 await client.customers.create({
@@ -34,7 +34,7 @@ The SDK exports all request and response types as TypeScript interfaces. Simply 
 following namespace:
 
 ```typescript
-import { PaidApi } from "paid-node";
+import { PaidApi } from "@paid-ai/paid-node";
 
 const request: PaidApi.CustomerCreate = {
     ...
@@ -47,7 +47,7 @@ When the API returns a non-success status code (4xx or 5xx response), a subclass
 will be thrown.
 
 ```typescript
-import { PaidApiError } from "paid-node";
+import { PaidApiError } from "@paid-ai/paid-node";
 
 try {
     await client.customers.create(...);
@@ -147,7 +147,7 @@ The SDK provides a way for you to customize the underlying HTTP client / Fetch f
 unsupported environment, this provides a way for you to break glass and ensure the SDK works.
 
 ```typescript
-import { PaidApiClient } from "paid-node";
+import { PaidApiClient } from "@paid-ai/paid-node";
 
 const client = new PaidApiClient({
     ...
