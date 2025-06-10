@@ -3,12 +3,12 @@
  */
 
 import { mockServerPool } from "../mock-server/MockServerPool.js";
-import { PaidApiClient } from "../../src/Client";
+import { PaidClient } from "../../src/Client";
 
 describe("Orders", () => {
     test("list", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidApiClient({ token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         const rawResponseBody = [
             {
@@ -95,7 +95,7 @@ describe("Orders", () => {
 
     test("create", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidApiClient({ token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {
             customerId: "customerId",
             billingContactId: "billingContactId",
@@ -238,7 +238,7 @@ describe("Orders", () => {
 
     test("get", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidApiClient({ token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         const rawResponseBody = {
             id: "id",
@@ -362,7 +362,7 @@ describe("Orders", () => {
 
     test("delete", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidApiClient({ token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         server.mockEndpoint().delete("/orders/orderId").respondWith().statusCode(200).build();
 
@@ -372,7 +372,7 @@ describe("Orders", () => {
 
     test("activate", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidApiClient({ token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         const rawResponseBody = {
             id: "id",

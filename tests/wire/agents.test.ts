@@ -3,13 +3,13 @@
  */
 
 import { mockServerPool } from "../mock-server/MockServerPool.js";
-import { PaidApiClient } from "../../src/Client";
-import * as PaidApi from "../../src/api/index";
+import { PaidClient } from "../../src/Client";
+import * as Paid from "../../src/api/index";
 
 describe("Agents", () => {
     test("list", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidApiClient({ token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         const rawResponseBody = [
             {
@@ -68,7 +68,7 @@ describe("Agents", () => {
 
     test("create", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidApiClient({ token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = { name: "name", description: "description" };
         const rawResponseBody = {
             id: "id",
@@ -133,7 +133,7 @@ describe("Agents", () => {
 
     test("get", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidApiClient({ token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         const rawResponseBody = {
             id: "id",
@@ -188,7 +188,7 @@ describe("Agents", () => {
 
     test("update", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidApiClient({ token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
         const rawResponseBody = {
             id: "id",
@@ -250,7 +250,7 @@ describe("Agents", () => {
 
     test("delete", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidApiClient({ token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         server.mockEndpoint().delete("/agents/agentId").respondWith().statusCode(200).build();
 
@@ -260,7 +260,7 @@ describe("Agents", () => {
 
     test("getByExternalId", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidApiClient({ token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         const rawResponseBody = {
             id: "id",
@@ -321,7 +321,7 @@ describe("Agents", () => {
 
     test("updateByExternalId", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidApiClient({ token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
         const rawResponseBody = {
             id: "id",
@@ -383,7 +383,7 @@ describe("Agents", () => {
 
     test("deleteByExternalId", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidApiClient({ token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         server.mockEndpoint().delete("/agents/external/externalId").respondWith().statusCode(200).build();
 

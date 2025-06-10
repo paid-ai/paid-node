@@ -4,14 +4,14 @@
 
 import * as environments from "../../../../environments.js";
 import * as core from "../../../../core/index.js";
-import * as PaidApi from "../../../index.js";
+import * as Paid from "../../../index.js";
 import { mergeHeaders, mergeOnlyDefinedHeaders } from "../../../../core/headers.js";
 import urlJoin from "url-join";
 import * as errors from "../../../../errors/index.js";
 
 export declare namespace Usage {
     export interface Options {
-        environment?: core.Supplier<environments.PaidApiEnvironment | string>;
+        environment?: core.Supplier<environments.PaidEnvironment | string>;
         /** Specify a custom URL to connect the client to. */
         baseUrl?: core.Supplier<string>;
         token: core.Supplier<core.BearerToken>;
@@ -39,28 +39,28 @@ export class Usage {
     }
 
     /**
-     * @param {PaidApi.UsageRecordBulkRequest} request
+     * @param {Paid.UsageRecordBulkRequest} request
      * @param {Usage.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
      *     await client.usage.recordBulk()
      */
     public recordBulk(
-        request: PaidApi.UsageRecordBulkRequest = {},
+        request: Paid.UsageRecordBulkRequest = {},
         requestOptions?: Usage.RequestOptions,
     ): core.HttpResponsePromise<unknown[]> {
         return core.HttpResponsePromise.fromPromise(this.__recordBulk(request, requestOptions));
     }
 
     private async __recordBulk(
-        request: PaidApi.UsageRecordBulkRequest = {},
+        request: Paid.UsageRecordBulkRequest = {},
         requestOptions?: Usage.RequestOptions,
     ): Promise<core.WithRawResponse<unknown[]>> {
         const _response = await core.fetcher({
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidApiEnvironment.Production,
+                    environments.PaidEnvironment.Production,
                 "usage/signals/bulk",
             ),
             method: "POST",
@@ -81,7 +81,7 @@ export class Usage {
         }
 
         if (_response.error.reason === "status-code") {
-            throw new errors.PaidApiError({
+            throw new errors.PaidError({
                 statusCode: _response.error.statusCode,
                 body: _response.error.body,
                 rawResponse: _response.rawResponse,
@@ -90,15 +90,15 @@ export class Usage {
 
         switch (_response.error.reason) {
             case "non-json":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidApiTimeoutError("Timeout exceeded when calling POST /usage/signals/bulk.");
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /usage/signals/bulk.");
             case "unknown":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     message: _response.error.errorMessage,
                     rawResponse: _response.rawResponse,
                 });

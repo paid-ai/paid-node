@@ -4,14 +4,14 @@
 
 import * as environments from "../../../../../../environments.js";
 import * as core from "../../../../../../core/index.js";
-import * as PaidApi from "../../../../../index.js";
+import * as Paid from "../../../../../index.js";
 import { mergeHeaders, mergeOnlyDefinedHeaders } from "../../../../../../core/headers.js";
 import urlJoin from "url-join";
 import * as errors from "../../../../../../errors/index.js";
 
 export declare namespace Lines {
     export interface Options {
-        environment?: core.Supplier<environments.PaidApiEnvironment | string>;
+        environment?: core.Supplier<environments.PaidEnvironment | string>;
         /** Specify a custom URL to connect the client to. */
         baseUrl?: core.Supplier<string>;
         token: core.Supplier<core.BearerToken>;
@@ -40,7 +40,7 @@ export class Lines {
 
     /**
      * @param {string} orderId
-     * @param {PaidApi.orders.LinesUpdateRequest} request
+     * @param {Paid.orders.LinesUpdateRequest} request
      * @param {Lines.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
@@ -48,22 +48,22 @@ export class Lines {
      */
     public update(
         orderId: string,
-        request: PaidApi.orders.LinesUpdateRequest = {},
+        request: Paid.orders.LinesUpdateRequest = {},
         requestOptions?: Lines.RequestOptions,
-    ): core.HttpResponsePromise<PaidApi.Order> {
+    ): core.HttpResponsePromise<Paid.Order> {
         return core.HttpResponsePromise.fromPromise(this.__update(orderId, request, requestOptions));
     }
 
     private async __update(
         orderId: string,
-        request: PaidApi.orders.LinesUpdateRequest = {},
+        request: Paid.orders.LinesUpdateRequest = {},
         requestOptions?: Lines.RequestOptions,
-    ): Promise<core.WithRawResponse<PaidApi.Order>> {
+    ): Promise<core.WithRawResponse<Paid.Order>> {
         const _response = await core.fetcher({
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidApiEnvironment.Production,
+                    environments.PaidEnvironment.Production,
                 `orders/${encodeURIComponent(orderId)}/lines`,
             ),
             method: "PUT",
@@ -80,11 +80,11 @@ export class Lines {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return { data: _response.body as PaidApi.Order, rawResponse: _response.rawResponse };
+            return { data: _response.body as Paid.Order, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
-            throw new errors.PaidApiError({
+            throw new errors.PaidError({
                 statusCode: _response.error.statusCode,
                 body: _response.error.body,
                 rawResponse: _response.rawResponse,
@@ -93,15 +93,15 @@ export class Lines {
 
         switch (_response.error.reason) {
             case "non-json":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidApiTimeoutError("Timeout exceeded when calling PUT /orders/{orderId}/lines.");
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling PUT /orders/{orderId}/lines.");
             case "unknown":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     message: _response.error.errorMessage,
                     rawResponse: _response.rawResponse,
                 });

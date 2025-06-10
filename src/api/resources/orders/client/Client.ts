@@ -4,7 +4,7 @@
 
 import * as environments from "../../../../environments.js";
 import * as core from "../../../../core/index.js";
-import * as PaidApi from "../../../index.js";
+import * as Paid from "../../../index.js";
 import { mergeHeaders, mergeOnlyDefinedHeaders } from "../../../../core/headers.js";
 import urlJoin from "url-join";
 import * as errors from "../../../../errors/index.js";
@@ -12,7 +12,7 @@ import { Lines } from "../resources/lines/client/Client.js";
 
 export declare namespace Orders {
     export interface Options {
-        environment?: core.Supplier<environments.PaidApiEnvironment | string>;
+        environment?: core.Supplier<environments.PaidEnvironment | string>;
         /** Specify a custom URL to connect the client to. */
         baseUrl?: core.Supplier<string>;
         token: core.Supplier<core.BearerToken>;
@@ -50,16 +50,16 @@ export class Orders {
      * @example
      *     await client.orders.list()
      */
-    public list(requestOptions?: Orders.RequestOptions): core.HttpResponsePromise<PaidApi.Order[]> {
+    public list(requestOptions?: Orders.RequestOptions): core.HttpResponsePromise<Paid.Order[]> {
         return core.HttpResponsePromise.fromPromise(this.__list(requestOptions));
     }
 
-    private async __list(requestOptions?: Orders.RequestOptions): Promise<core.WithRawResponse<PaidApi.Order[]>> {
+    private async __list(requestOptions?: Orders.RequestOptions): Promise<core.WithRawResponse<Paid.Order[]>> {
         const _response = await core.fetcher({
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidApiEnvironment.Production,
+                    environments.PaidEnvironment.Production,
                 "orders",
             ),
             method: "GET",
@@ -73,11 +73,11 @@ export class Orders {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return { data: _response.body as PaidApi.Order[], rawResponse: _response.rawResponse };
+            return { data: _response.body as Paid.Order[], rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
-            throw new errors.PaidApiError({
+            throw new errors.PaidError({
                 statusCode: _response.error.statusCode,
                 body: _response.error.body,
                 rawResponse: _response.rawResponse,
@@ -86,15 +86,15 @@ export class Orders {
 
         switch (_response.error.reason) {
             case "non-json":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidApiTimeoutError("Timeout exceeded when calling GET /orders.");
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /orders.");
             case "unknown":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     message: _response.error.errorMessage,
                     rawResponse: _response.rawResponse,
                 });
@@ -102,7 +102,7 @@ export class Orders {
     }
 
     /**
-     * @param {PaidApi.OrderCreate} request
+     * @param {Paid.OrderCreate} request
      * @param {Orders.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
@@ -115,21 +115,21 @@ export class Orders {
      *     })
      */
     public create(
-        request: PaidApi.OrderCreate,
+        request: Paid.OrderCreate,
         requestOptions?: Orders.RequestOptions,
-    ): core.HttpResponsePromise<PaidApi.Order> {
+    ): core.HttpResponsePromise<Paid.Order> {
         return core.HttpResponsePromise.fromPromise(this.__create(request, requestOptions));
     }
 
     private async __create(
-        request: PaidApi.OrderCreate,
+        request: Paid.OrderCreate,
         requestOptions?: Orders.RequestOptions,
-    ): Promise<core.WithRawResponse<PaidApi.Order>> {
+    ): Promise<core.WithRawResponse<Paid.Order>> {
         const _response = await core.fetcher({
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidApiEnvironment.Production,
+                    environments.PaidEnvironment.Production,
                 "orders",
             ),
             method: "POST",
@@ -146,11 +146,11 @@ export class Orders {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return { data: _response.body as PaidApi.Order, rawResponse: _response.rawResponse };
+            return { data: _response.body as Paid.Order, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
-            throw new errors.PaidApiError({
+            throw new errors.PaidError({
                 statusCode: _response.error.statusCode,
                 body: _response.error.body,
                 rawResponse: _response.rawResponse,
@@ -159,15 +159,15 @@ export class Orders {
 
         switch (_response.error.reason) {
             case "non-json":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidApiTimeoutError("Timeout exceeded when calling POST /orders.");
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /orders.");
             case "unknown":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     message: _response.error.errorMessage,
                     rawResponse: _response.rawResponse,
                 });
@@ -181,19 +181,19 @@ export class Orders {
      * @example
      *     await client.orders.get("orderId")
      */
-    public get(orderId: string, requestOptions?: Orders.RequestOptions): core.HttpResponsePromise<PaidApi.Order> {
+    public get(orderId: string, requestOptions?: Orders.RequestOptions): core.HttpResponsePromise<Paid.Order> {
         return core.HttpResponsePromise.fromPromise(this.__get(orderId, requestOptions));
     }
 
     private async __get(
         orderId: string,
         requestOptions?: Orders.RequestOptions,
-    ): Promise<core.WithRawResponse<PaidApi.Order>> {
+    ): Promise<core.WithRawResponse<Paid.Order>> {
         const _response = await core.fetcher({
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidApiEnvironment.Production,
+                    environments.PaidEnvironment.Production,
                 `orders/${encodeURIComponent(orderId)}`,
             ),
             method: "GET",
@@ -207,11 +207,11 @@ export class Orders {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return { data: _response.body as PaidApi.Order, rawResponse: _response.rawResponse };
+            return { data: _response.body as Paid.Order, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
-            throw new errors.PaidApiError({
+            throw new errors.PaidError({
                 statusCode: _response.error.statusCode,
                 body: _response.error.body,
                 rawResponse: _response.rawResponse,
@@ -220,15 +220,15 @@ export class Orders {
 
         switch (_response.error.reason) {
             case "non-json":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidApiTimeoutError("Timeout exceeded when calling GET /orders/{orderId}.");
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /orders/{orderId}.");
             case "unknown":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     message: _response.error.errorMessage,
                     rawResponse: _response.rawResponse,
                 });
@@ -254,7 +254,7 @@ export class Orders {
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidApiEnvironment.Production,
+                    environments.PaidEnvironment.Production,
                 `orders/${encodeURIComponent(orderId)}`,
             ),
             method: "DELETE",
@@ -272,7 +272,7 @@ export class Orders {
         }
 
         if (_response.error.reason === "status-code") {
-            throw new errors.PaidApiError({
+            throw new errors.PaidError({
                 statusCode: _response.error.statusCode,
                 body: _response.error.body,
                 rawResponse: _response.rawResponse,
@@ -281,15 +281,15 @@ export class Orders {
 
         switch (_response.error.reason) {
             case "non-json":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidApiTimeoutError("Timeout exceeded when calling DELETE /orders/{orderId}.");
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling DELETE /orders/{orderId}.");
             case "unknown":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     message: _response.error.errorMessage,
                     rawResponse: _response.rawResponse,
                 });
@@ -303,19 +303,19 @@ export class Orders {
      * @example
      *     await client.orders.activate("orderId")
      */
-    public activate(orderId: string, requestOptions?: Orders.RequestOptions): core.HttpResponsePromise<PaidApi.Order> {
+    public activate(orderId: string, requestOptions?: Orders.RequestOptions): core.HttpResponsePromise<Paid.Order> {
         return core.HttpResponsePromise.fromPromise(this.__activate(orderId, requestOptions));
     }
 
     private async __activate(
         orderId: string,
         requestOptions?: Orders.RequestOptions,
-    ): Promise<core.WithRawResponse<PaidApi.Order>> {
+    ): Promise<core.WithRawResponse<Paid.Order>> {
         const _response = await core.fetcher({
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidApiEnvironment.Production,
+                    environments.PaidEnvironment.Production,
                 `orders/${encodeURIComponent(orderId)}/activate`,
             ),
             method: "POST",
@@ -329,11 +329,11 @@ export class Orders {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return { data: _response.body as PaidApi.Order, rawResponse: _response.rawResponse };
+            return { data: _response.body as Paid.Order, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
-            throw new errors.PaidApiError({
+            throw new errors.PaidError({
                 statusCode: _response.error.statusCode,
                 body: _response.error.body,
                 rawResponse: _response.rawResponse,
@@ -342,15 +342,15 @@ export class Orders {
 
         switch (_response.error.reason) {
             case "non-json":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidApiTimeoutError("Timeout exceeded when calling POST /orders/{orderId}/activate.");
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /orders/{orderId}/activate.");
             case "unknown":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     message: _response.error.errorMessage,
                     rawResponse: _response.rawResponse,
                 });

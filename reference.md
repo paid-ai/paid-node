@@ -2,7 +2,7 @@
 
 ## Customers
 
-<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">list</a>() -> PaidApi.Customer[]</code></summary>
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">list</a>() -> Paid.Customer[]</code></summary>
 <dl>
 <dd>
 
@@ -42,7 +42,7 @@ await client.customers.list();
 </dl>
 </details>
 
-<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">create</a>({ ...params }) -> PaidApi.Customer</code></summary>
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">create</a>({ ...params }) -> Paid.Customer</code></summary>
 <dl>
 <dd>
 
@@ -73,7 +73,7 @@ await client.customers.create({
 <dl>
 <dd>
 
-**request:** `PaidApi.CustomerCreate`
+**request:** `Paid.CustomerCreate`
 
 </dd>
 </dl>
@@ -92,7 +92,7 @@ await client.customers.create({
 </dl>
 </details>
 
-<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">get</a>(customerId) -> PaidApi.Customer</code></summary>
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">get</a>(customerId) -> Paid.Customer</code></summary>
 <dl>
 <dd>
 
@@ -140,7 +140,7 @@ await client.customers.get("customerId");
 </dl>
 </details>
 
-<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">update</a>(customerId, { ...params }) -> PaidApi.Customer</code></summary>
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">update</a>(customerId, { ...params }) -> Paid.Customer</code></summary>
 <dl>
 <dd>
 
@@ -177,7 +177,7 @@ await client.customers.update("customerId", {});
 <dl>
 <dd>
 
-**request:** `PaidApi.CustomerUpdate`
+**request:** `Paid.CustomerUpdate`
 
 </dd>
 </dl>
@@ -244,7 +244,7 @@ await client.customers.delete("customerId");
 </dl>
 </details>
 
-<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">getByExternalId</a>(externalId) -> PaidApi.Customer</code></summary>
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">getByExternalId</a>(externalId) -> Paid.Customer</code></summary>
 <dl>
 <dd>
 
@@ -292,7 +292,7 @@ await client.customers.getByExternalId("externalId");
 </dl>
 </details>
 
-<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">updateByExternalId</a>(externalId, { ...params }) -> PaidApi.Customer</code></summary>
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">updateByExternalId</a>(externalId, { ...params }) -> Paid.Customer</code></summary>
 <dl>
 <dd>
 
@@ -329,7 +329,7 @@ await client.customers.updateByExternalId("externalId", {});
 <dl>
 <dd>
 
-**request:** `PaidApi.CustomerUpdate`
+**request:** `Paid.CustomerUpdate`
 
 </dd>
 </dl>
@@ -398,7 +398,7 @@ await client.customers.deleteByExternalId("externalId");
 
 ## Agents
 
-<details><summary><code>client.agents.<a href="/src/api/resources/agents/client/Client.ts">list</a>() -> PaidApi.Agent[]</code></summary>
+<details><summary><code>client.agents.<a href="/src/api/resources/agents/client/Client.ts">list</a>() -> Paid.Agent[]</code></summary>
 <dl>
 <dd>
 
@@ -438,7 +438,7 @@ await client.agents.list();
 </dl>
 </details>
 
-<details><summary><code>client.agents.<a href="/src/api/resources/agents/client/Client.ts">create</a>({ ...params }) -> PaidApi.Agent</code></summary>
+<details><summary><code>client.agents.<a href="/src/api/resources/agents/client/Client.ts">create</a>({ ...params }) -> Paid.Agent</code></summary>
 <dl>
 <dd>
 
@@ -470,7 +470,7 @@ await client.agents.create({
 <dl>
 <dd>
 
-**request:** `PaidApi.AgentCreate`
+**request:** `Paid.AgentCreate`
 
 </dd>
 </dl>
@@ -489,7 +489,7 @@ await client.agents.create({
 </dl>
 </details>
 
-<details><summary><code>client.agents.<a href="/src/api/resources/agents/client/Client.ts">get</a>(agentId) -> PaidApi.Agent</code></summary>
+<details><summary><code>client.agents.<a href="/src/api/resources/agents/client/Client.ts">get</a>(agentId) -> Paid.Agent</code></summary>
 <dl>
 <dd>
 
@@ -537,7 +537,7 @@ await client.agents.get("agentId");
 </dl>
 </details>
 
-<details><summary><code>client.agents.<a href="/src/api/resources/agents/client/Client.ts">update</a>(agentId, { ...params }) -> PaidApi.Agent</code></summary>
+<details><summary><code>client.agents.<a href="/src/api/resources/agents/client/Client.ts">update</a>(agentId, { ...params }) -> Paid.Agent</code></summary>
 <dl>
 <dd>
 
@@ -574,7 +574,7 @@ await client.agents.update("agentId", {});
 <dl>
 <dd>
 
-**request:** `PaidApi.AgentUpdate`
+**request:** `Paid.AgentUpdate`
 
 </dd>
 </dl>
@@ -641,7 +641,7 @@ await client.agents.delete("agentId");
 </dl>
 </details>
 
-<details><summary><code>client.agents.<a href="/src/api/resources/agents/client/Client.ts">getByExternalId</a>(externalId) -> PaidApi.Agent</code></summary>
+<details><summary><code>client.agents.<a href="/src/api/resources/agents/client/Client.ts">getByExternalId</a>(externalId) -> Paid.Agent</code></summary>
 <dl>
 <dd>
 
@@ -689,7 +689,7 @@ await client.agents.getByExternalId("externalId");
 </dl>
 </details>
 
-<details><summary><code>client.agents.<a href="/src/api/resources/agents/client/Client.ts">updateByExternalId</a>(externalId, { ...params }) -> PaidApi.Agent</code></summary>
+<details><summary><code>client.agents.<a href="/src/api/resources/agents/client/Client.ts">updateByExternalId</a>(externalId, { ...params }) -> Paid.Agent</code></summary>
 <dl>
 <dd>
 
@@ -726,7 +726,7 @@ await client.agents.updateByExternalId("externalId", {});
 <dl>
 <dd>
 
-**request:** `PaidApi.AgentUpdate`
+**request:** `Paid.AgentUpdate`
 
 </dd>
 </dl>
@@ -795,7 +795,7 @@ await client.agents.deleteByExternalId("externalId");
 
 ## Contacts
 
-<details><summary><code>client.contacts.<a href="/src/api/resources/contacts/client/Client.ts">list</a>() -> PaidApi.Contact[]</code></summary>
+<details><summary><code>client.contacts.<a href="/src/api/resources/contacts/client/Client.ts">list</a>() -> Paid.Contact[]</code></summary>
 <dl>
 <dd>
 
@@ -835,7 +835,7 @@ await client.contacts.list();
 </dl>
 </details>
 
-<details><summary><code>client.contacts.<a href="/src/api/resources/contacts/client/Client.ts">create</a>({ ...params }) -> PaidApi.Contact</code></summary>
+<details><summary><code>client.contacts.<a href="/src/api/resources/contacts/client/Client.ts">create</a>({ ...params }) -> Paid.Contact</code></summary>
 <dl>
 <dd>
 
@@ -873,7 +873,7 @@ await client.contacts.create({
 <dl>
 <dd>
 
-**request:** `PaidApi.ContactCreate`
+**request:** `Paid.ContactCreate`
 
 </dd>
 </dl>
@@ -892,7 +892,7 @@ await client.contacts.create({
 </dl>
 </details>
 
-<details><summary><code>client.contacts.<a href="/src/api/resources/contacts/client/Client.ts">get</a>(contactId) -> PaidApi.Contact</code></summary>
+<details><summary><code>client.contacts.<a href="/src/api/resources/contacts/client/Client.ts">get</a>(contactId) -> Paid.Contact</code></summary>
 <dl>
 <dd>
 
@@ -988,7 +988,7 @@ await client.contacts.delete("contactId");
 </dl>
 </details>
 
-<details><summary><code>client.contacts.<a href="/src/api/resources/contacts/client/Client.ts">getByExternalId</a>(externalId) -> PaidApi.Contact</code></summary>
+<details><summary><code>client.contacts.<a href="/src/api/resources/contacts/client/Client.ts">getByExternalId</a>(externalId) -> Paid.Contact</code></summary>
 <dl>
 <dd>
 
@@ -1086,7 +1086,7 @@ await client.contacts.deleteByExternalId("externalId");
 
 ## Orders
 
-<details><summary><code>client.orders.<a href="/src/api/resources/orders/client/Client.ts">list</a>() -> PaidApi.Order[]</code></summary>
+<details><summary><code>client.orders.<a href="/src/api/resources/orders/client/Client.ts">list</a>() -> Paid.Order[]</code></summary>
 <dl>
 <dd>
 
@@ -1126,7 +1126,7 @@ await client.orders.list();
 </dl>
 </details>
 
-<details><summary><code>client.orders.<a href="/src/api/resources/orders/client/Client.ts">create</a>({ ...params }) -> PaidApi.Order</code></summary>
+<details><summary><code>client.orders.<a href="/src/api/resources/orders/client/Client.ts">create</a>({ ...params }) -> Paid.Order</code></summary>
 <dl>
 <dd>
 
@@ -1161,7 +1161,7 @@ await client.orders.create({
 <dl>
 <dd>
 
-**request:** `PaidApi.OrderCreate`
+**request:** `Paid.OrderCreate`
 
 </dd>
 </dl>
@@ -1180,7 +1180,7 @@ await client.orders.create({
 </dl>
 </details>
 
-<details><summary><code>client.orders.<a href="/src/api/resources/orders/client/Client.ts">get</a>(orderId) -> PaidApi.Order</code></summary>
+<details><summary><code>client.orders.<a href="/src/api/resources/orders/client/Client.ts">get</a>(orderId) -> Paid.Order</code></summary>
 <dl>
 <dd>
 
@@ -1276,7 +1276,7 @@ await client.orders.delete("orderId");
 </dl>
 </details>
 
-<details><summary><code>client.orders.<a href="/src/api/resources/orders/client/Client.ts">activate</a>(orderId) -> PaidApi.Order</code></summary>
+<details><summary><code>client.orders.<a href="/src/api/resources/orders/client/Client.ts">activate</a>(orderId) -> Paid.Order</code></summary>
 <dl>
 <dd>
 
@@ -1355,7 +1355,7 @@ await client.usage.recordBulk();
 <dl>
 <dd>
 
-**request:** `PaidApi.UsageRecordBulkRequest`
+**request:** `Paid.UsageRecordBulkRequest`
 
 </dd>
 </dl>
@@ -1376,7 +1376,7 @@ await client.usage.recordBulk();
 
 ## Orders Lines
 
-<details><summary><code>client.orders.lines.<a href="/src/api/resources/orders/resources/lines/client/Client.ts">update</a>(orderId, { ...params }) -> PaidApi.Order</code></summary>
+<details><summary><code>client.orders.lines.<a href="/src/api/resources/orders/resources/lines/client/Client.ts">update</a>(orderId, { ...params }) -> Paid.Order</code></summary>
 <dl>
 <dd>
 
@@ -1413,7 +1413,7 @@ await client.orders.lines.update("orderId");
 <dl>
 <dd>
 
-**request:** `PaidApi.orders.LinesUpdateRequest`
+**request:** `Paid.orders.LinesUpdateRequest`
 
 </dd>
 </dl>

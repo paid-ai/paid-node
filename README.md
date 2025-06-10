@@ -20,9 +20,9 @@ A full reference for this library is available [here](https://github.com/AgentPa
 Instantiate and use the client with the following:
 
 ```typescript
-import { PaidApiClient } from "@paid-ai/paid-node";
+import { PaidClient } from "@paid-ai/paid-node";
 
-const client = new PaidApiClient({ token: "YOUR_TOKEN" });
+const client = new PaidClient({ token: "YOUR_TOKEN" });
 await client.customers.create({
     name: "name",
 });
@@ -34,9 +34,9 @@ The SDK exports all request and response types as TypeScript interfaces. Simply 
 following namespace:
 
 ```typescript
-import { PaidApi } from "@paid-ai/paid-node";
+import { Paid } from "@paid-ai/paid-node";
 
-const request: PaidApi.CustomerCreate = {
+const request: Paid.CustomerCreate = {
     ...
 };
 ```
@@ -47,12 +47,12 @@ When the API returns a non-success status code (4xx or 5xx response), a subclass
 will be thrown.
 
 ```typescript
-import { PaidApiError } from "@paid-ai/paid-node";
+import { PaidError } from "@paid-ai/paid-node";
 
 try {
     await client.customers.create(...);
 } catch (err) {
-    if (err instanceof PaidApiError) {
+    if (err instanceof PaidError) {
         console.log(err.statusCode);
         console.log(err.message);
         console.log(err.body);
@@ -147,9 +147,9 @@ The SDK provides a way for you to customize the underlying HTTP client / Fetch f
 unsupported environment, this provides a way for you to break glass and ensure the SDK works.
 
 ```typescript
-import { PaidApiClient } from "@paid-ai/paid-node";
+import { PaidClient } from "@paid-ai/paid-node";
 
-const client = new PaidApiClient({
+const client = new PaidClient({
     ...
     fetcher: // provide your implementation here
 });

@@ -4,14 +4,14 @@
 
 import * as environments from "../../../../environments.js";
 import * as core from "../../../../core/index.js";
-import * as PaidApi from "../../../index.js";
+import * as Paid from "../../../index.js";
 import { mergeHeaders, mergeOnlyDefinedHeaders } from "../../../../core/headers.js";
 import urlJoin from "url-join";
 import * as errors from "../../../../errors/index.js";
 
 export declare namespace Agents {
     export interface Options {
-        environment?: core.Supplier<environments.PaidApiEnvironment | string>;
+        environment?: core.Supplier<environments.PaidEnvironment | string>;
         /** Specify a custom URL to connect the client to. */
         baseUrl?: core.Supplier<string>;
         token: core.Supplier<core.BearerToken>;
@@ -44,16 +44,16 @@ export class Agents {
      * @example
      *     await client.agents.list()
      */
-    public list(requestOptions?: Agents.RequestOptions): core.HttpResponsePromise<PaidApi.Agent[]> {
+    public list(requestOptions?: Agents.RequestOptions): core.HttpResponsePromise<Paid.Agent[]> {
         return core.HttpResponsePromise.fromPromise(this.__list(requestOptions));
     }
 
-    private async __list(requestOptions?: Agents.RequestOptions): Promise<core.WithRawResponse<PaidApi.Agent[]>> {
+    private async __list(requestOptions?: Agents.RequestOptions): Promise<core.WithRawResponse<Paid.Agent[]>> {
         const _response = await core.fetcher({
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidApiEnvironment.Production,
+                    environments.PaidEnvironment.Production,
                 "agents",
             ),
             method: "GET",
@@ -67,11 +67,11 @@ export class Agents {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return { data: _response.body as PaidApi.Agent[], rawResponse: _response.rawResponse };
+            return { data: _response.body as Paid.Agent[], rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
-            throw new errors.PaidApiError({
+            throw new errors.PaidError({
                 statusCode: _response.error.statusCode,
                 body: _response.error.body,
                 rawResponse: _response.rawResponse,
@@ -80,15 +80,15 @@ export class Agents {
 
         switch (_response.error.reason) {
             case "non-json":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidApiTimeoutError("Timeout exceeded when calling GET /agents.");
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /agents.");
             case "unknown":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     message: _response.error.errorMessage,
                     rawResponse: _response.rawResponse,
                 });
@@ -96,7 +96,7 @@ export class Agents {
     }
 
     /**
-     * @param {PaidApi.AgentCreate} request
+     * @param {Paid.AgentCreate} request
      * @param {Agents.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
@@ -106,21 +106,21 @@ export class Agents {
      *     })
      */
     public create(
-        request: PaidApi.AgentCreate,
+        request: Paid.AgentCreate,
         requestOptions?: Agents.RequestOptions,
-    ): core.HttpResponsePromise<PaidApi.Agent> {
+    ): core.HttpResponsePromise<Paid.Agent> {
         return core.HttpResponsePromise.fromPromise(this.__create(request, requestOptions));
     }
 
     private async __create(
-        request: PaidApi.AgentCreate,
+        request: Paid.AgentCreate,
         requestOptions?: Agents.RequestOptions,
-    ): Promise<core.WithRawResponse<PaidApi.Agent>> {
+    ): Promise<core.WithRawResponse<Paid.Agent>> {
         const _response = await core.fetcher({
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidApiEnvironment.Production,
+                    environments.PaidEnvironment.Production,
                 "agents",
             ),
             method: "POST",
@@ -137,11 +137,11 @@ export class Agents {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return { data: _response.body as PaidApi.Agent, rawResponse: _response.rawResponse };
+            return { data: _response.body as Paid.Agent, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
-            throw new errors.PaidApiError({
+            throw new errors.PaidError({
                 statusCode: _response.error.statusCode,
                 body: _response.error.body,
                 rawResponse: _response.rawResponse,
@@ -150,15 +150,15 @@ export class Agents {
 
         switch (_response.error.reason) {
             case "non-json":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidApiTimeoutError("Timeout exceeded when calling POST /agents.");
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /agents.");
             case "unknown":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     message: _response.error.errorMessage,
                     rawResponse: _response.rawResponse,
                 });
@@ -172,19 +172,19 @@ export class Agents {
      * @example
      *     await client.agents.get("agentId")
      */
-    public get(agentId: string, requestOptions?: Agents.RequestOptions): core.HttpResponsePromise<PaidApi.Agent> {
+    public get(agentId: string, requestOptions?: Agents.RequestOptions): core.HttpResponsePromise<Paid.Agent> {
         return core.HttpResponsePromise.fromPromise(this.__get(agentId, requestOptions));
     }
 
     private async __get(
         agentId: string,
         requestOptions?: Agents.RequestOptions,
-    ): Promise<core.WithRawResponse<PaidApi.Agent>> {
+    ): Promise<core.WithRawResponse<Paid.Agent>> {
         const _response = await core.fetcher({
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidApiEnvironment.Production,
+                    environments.PaidEnvironment.Production,
                 `agents/${encodeURIComponent(agentId)}`,
             ),
             method: "GET",
@@ -198,11 +198,11 @@ export class Agents {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return { data: _response.body as PaidApi.Agent, rawResponse: _response.rawResponse };
+            return { data: _response.body as Paid.Agent, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
-            throw new errors.PaidApiError({
+            throw new errors.PaidError({
                 statusCode: _response.error.statusCode,
                 body: _response.error.body,
                 rawResponse: _response.rawResponse,
@@ -211,15 +211,15 @@ export class Agents {
 
         switch (_response.error.reason) {
             case "non-json":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidApiTimeoutError("Timeout exceeded when calling GET /agents/{agentId}.");
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /agents/{agentId}.");
             case "unknown":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     message: _response.error.errorMessage,
                     rawResponse: _response.rawResponse,
                 });
@@ -228,7 +228,7 @@ export class Agents {
 
     /**
      * @param {string} agentId
-     * @param {PaidApi.AgentUpdate} request
+     * @param {Paid.AgentUpdate} request
      * @param {Agents.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
@@ -236,22 +236,22 @@ export class Agents {
      */
     public update(
         agentId: string,
-        request: PaidApi.AgentUpdate,
+        request: Paid.AgentUpdate,
         requestOptions?: Agents.RequestOptions,
-    ): core.HttpResponsePromise<PaidApi.Agent> {
+    ): core.HttpResponsePromise<Paid.Agent> {
         return core.HttpResponsePromise.fromPromise(this.__update(agentId, request, requestOptions));
     }
 
     private async __update(
         agentId: string,
-        request: PaidApi.AgentUpdate,
+        request: Paid.AgentUpdate,
         requestOptions?: Agents.RequestOptions,
-    ): Promise<core.WithRawResponse<PaidApi.Agent>> {
+    ): Promise<core.WithRawResponse<Paid.Agent>> {
         const _response = await core.fetcher({
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidApiEnvironment.Production,
+                    environments.PaidEnvironment.Production,
                 `agents/${encodeURIComponent(agentId)}`,
             ),
             method: "PUT",
@@ -268,11 +268,11 @@ export class Agents {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return { data: _response.body as PaidApi.Agent, rawResponse: _response.rawResponse };
+            return { data: _response.body as Paid.Agent, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
-            throw new errors.PaidApiError({
+            throw new errors.PaidError({
                 statusCode: _response.error.statusCode,
                 body: _response.error.body,
                 rawResponse: _response.rawResponse,
@@ -281,15 +281,15 @@ export class Agents {
 
         switch (_response.error.reason) {
             case "non-json":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidApiTimeoutError("Timeout exceeded when calling PUT /agents/{agentId}.");
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling PUT /agents/{agentId}.");
             case "unknown":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     message: _response.error.errorMessage,
                     rawResponse: _response.rawResponse,
                 });
@@ -315,7 +315,7 @@ export class Agents {
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidApiEnvironment.Production,
+                    environments.PaidEnvironment.Production,
                 `agents/${encodeURIComponent(agentId)}`,
             ),
             method: "DELETE",
@@ -333,7 +333,7 @@ export class Agents {
         }
 
         if (_response.error.reason === "status-code") {
-            throw new errors.PaidApiError({
+            throw new errors.PaidError({
                 statusCode: _response.error.statusCode,
                 body: _response.error.body,
                 rawResponse: _response.rawResponse,
@@ -342,15 +342,15 @@ export class Agents {
 
         switch (_response.error.reason) {
             case "non-json":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidApiTimeoutError("Timeout exceeded when calling DELETE /agents/{agentId}.");
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling DELETE /agents/{agentId}.");
             case "unknown":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     message: _response.error.errorMessage,
                     rawResponse: _response.rawResponse,
                 });
@@ -367,19 +367,19 @@ export class Agents {
     public getByExternalId(
         externalId: string,
         requestOptions?: Agents.RequestOptions,
-    ): core.HttpResponsePromise<PaidApi.Agent> {
+    ): core.HttpResponsePromise<Paid.Agent> {
         return core.HttpResponsePromise.fromPromise(this.__getByExternalId(externalId, requestOptions));
     }
 
     private async __getByExternalId(
         externalId: string,
         requestOptions?: Agents.RequestOptions,
-    ): Promise<core.WithRawResponse<PaidApi.Agent>> {
+    ): Promise<core.WithRawResponse<Paid.Agent>> {
         const _response = await core.fetcher({
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidApiEnvironment.Production,
+                    environments.PaidEnvironment.Production,
                 `agents/external/${encodeURIComponent(externalId)}`,
             ),
             method: "GET",
@@ -393,11 +393,11 @@ export class Agents {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return { data: _response.body as PaidApi.Agent, rawResponse: _response.rawResponse };
+            return { data: _response.body as Paid.Agent, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
-            throw new errors.PaidApiError({
+            throw new errors.PaidError({
                 statusCode: _response.error.statusCode,
                 body: _response.error.body,
                 rawResponse: _response.rawResponse,
@@ -406,17 +406,15 @@ export class Agents {
 
         switch (_response.error.reason) {
             case "non-json":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidApiTimeoutError(
-                    "Timeout exceeded when calling GET /agents/external/{externalId}.",
-                );
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /agents/external/{externalId}.");
             case "unknown":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     message: _response.error.errorMessage,
                     rawResponse: _response.rawResponse,
                 });
@@ -425,7 +423,7 @@ export class Agents {
 
     /**
      * @param {string} externalId
-     * @param {PaidApi.AgentUpdate} request
+     * @param {Paid.AgentUpdate} request
      * @param {Agents.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
@@ -433,22 +431,22 @@ export class Agents {
      */
     public updateByExternalId(
         externalId: string,
-        request: PaidApi.AgentUpdate,
+        request: Paid.AgentUpdate,
         requestOptions?: Agents.RequestOptions,
-    ): core.HttpResponsePromise<PaidApi.Agent> {
+    ): core.HttpResponsePromise<Paid.Agent> {
         return core.HttpResponsePromise.fromPromise(this.__updateByExternalId(externalId, request, requestOptions));
     }
 
     private async __updateByExternalId(
         externalId: string,
-        request: PaidApi.AgentUpdate,
+        request: Paid.AgentUpdate,
         requestOptions?: Agents.RequestOptions,
-    ): Promise<core.WithRawResponse<PaidApi.Agent>> {
+    ): Promise<core.WithRawResponse<Paid.Agent>> {
         const _response = await core.fetcher({
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidApiEnvironment.Production,
+                    environments.PaidEnvironment.Production,
                 `agents/external/${encodeURIComponent(externalId)}`,
             ),
             method: "PUT",
@@ -465,11 +463,11 @@ export class Agents {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return { data: _response.body as PaidApi.Agent, rawResponse: _response.rawResponse };
+            return { data: _response.body as Paid.Agent, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
-            throw new errors.PaidApiError({
+            throw new errors.PaidError({
                 statusCode: _response.error.statusCode,
                 body: _response.error.body,
                 rawResponse: _response.rawResponse,
@@ -478,17 +476,15 @@ export class Agents {
 
         switch (_response.error.reason) {
             case "non-json":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidApiTimeoutError(
-                    "Timeout exceeded when calling PUT /agents/external/{externalId}.",
-                );
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling PUT /agents/external/{externalId}.");
             case "unknown":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     message: _response.error.errorMessage,
                     rawResponse: _response.rawResponse,
                 });
@@ -517,7 +513,7 @@ export class Agents {
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidApiEnvironment.Production,
+                    environments.PaidEnvironment.Production,
                 `agents/external/${encodeURIComponent(externalId)}`,
             ),
             method: "DELETE",
@@ -535,7 +531,7 @@ export class Agents {
         }
 
         if (_response.error.reason === "status-code") {
-            throw new errors.PaidApiError({
+            throw new errors.PaidError({
                 statusCode: _response.error.statusCode,
                 body: _response.error.body,
                 rawResponse: _response.rawResponse,
@@ -544,17 +540,17 @@ export class Agents {
 
         switch (_response.error.reason) {
             case "non-json":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidApiTimeoutError(
+                throw new errors.PaidTimeoutError(
                     "Timeout exceeded when calling DELETE /agents/external/{externalId}.",
                 );
             case "unknown":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     message: _response.error.errorMessage,
                     rawResponse: _response.rawResponse,
                 });

@@ -4,14 +4,14 @@
 
 import * as environments from "../../../../environments.js";
 import * as core from "../../../../core/index.js";
-import * as PaidApi from "../../../index.js";
+import * as Paid from "../../../index.js";
 import { mergeHeaders, mergeOnlyDefinedHeaders } from "../../../../core/headers.js";
 import urlJoin from "url-join";
 import * as errors from "../../../../errors/index.js";
 
 export declare namespace Contacts {
     export interface Options {
-        environment?: core.Supplier<environments.PaidApiEnvironment | string>;
+        environment?: core.Supplier<environments.PaidEnvironment | string>;
         /** Specify a custom URL to connect the client to. */
         baseUrl?: core.Supplier<string>;
         token: core.Supplier<core.BearerToken>;
@@ -44,16 +44,16 @@ export class Contacts {
      * @example
      *     await client.contacts.list()
      */
-    public list(requestOptions?: Contacts.RequestOptions): core.HttpResponsePromise<PaidApi.Contact[]> {
+    public list(requestOptions?: Contacts.RequestOptions): core.HttpResponsePromise<Paid.Contact[]> {
         return core.HttpResponsePromise.fromPromise(this.__list(requestOptions));
     }
 
-    private async __list(requestOptions?: Contacts.RequestOptions): Promise<core.WithRawResponse<PaidApi.Contact[]>> {
+    private async __list(requestOptions?: Contacts.RequestOptions): Promise<core.WithRawResponse<Paid.Contact[]>> {
         const _response = await core.fetcher({
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidApiEnvironment.Production,
+                    environments.PaidEnvironment.Production,
                 "contacts",
             ),
             method: "GET",
@@ -67,11 +67,11 @@ export class Contacts {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return { data: _response.body as PaidApi.Contact[], rawResponse: _response.rawResponse };
+            return { data: _response.body as Paid.Contact[], rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
-            throw new errors.PaidApiError({
+            throw new errors.PaidError({
                 statusCode: _response.error.statusCode,
                 body: _response.error.body,
                 rawResponse: _response.rawResponse,
@@ -80,15 +80,15 @@ export class Contacts {
 
         switch (_response.error.reason) {
             case "non-json":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidApiTimeoutError("Timeout exceeded when calling GET /contacts.");
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /contacts.");
             case "unknown":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     message: _response.error.errorMessage,
                     rawResponse: _response.rawResponse,
                 });
@@ -96,7 +96,7 @@ export class Contacts {
     }
 
     /**
-     * @param {PaidApi.ContactCreate} request
+     * @param {Paid.ContactCreate} request
      * @param {Contacts.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
@@ -112,21 +112,21 @@ export class Contacts {
      *     })
      */
     public create(
-        request: PaidApi.ContactCreate,
+        request: Paid.ContactCreate,
         requestOptions?: Contacts.RequestOptions,
-    ): core.HttpResponsePromise<PaidApi.Contact> {
+    ): core.HttpResponsePromise<Paid.Contact> {
         return core.HttpResponsePromise.fromPromise(this.__create(request, requestOptions));
     }
 
     private async __create(
-        request: PaidApi.ContactCreate,
+        request: Paid.ContactCreate,
         requestOptions?: Contacts.RequestOptions,
-    ): Promise<core.WithRawResponse<PaidApi.Contact>> {
+    ): Promise<core.WithRawResponse<Paid.Contact>> {
         const _response = await core.fetcher({
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidApiEnvironment.Production,
+                    environments.PaidEnvironment.Production,
                 "contacts",
             ),
             method: "POST",
@@ -143,11 +143,11 @@ export class Contacts {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return { data: _response.body as PaidApi.Contact, rawResponse: _response.rawResponse };
+            return { data: _response.body as Paid.Contact, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
-            throw new errors.PaidApiError({
+            throw new errors.PaidError({
                 statusCode: _response.error.statusCode,
                 body: _response.error.body,
                 rawResponse: _response.rawResponse,
@@ -156,15 +156,15 @@ export class Contacts {
 
         switch (_response.error.reason) {
             case "non-json":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidApiTimeoutError("Timeout exceeded when calling POST /contacts.");
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /contacts.");
             case "unknown":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     message: _response.error.errorMessage,
                     rawResponse: _response.rawResponse,
                 });
@@ -178,19 +178,19 @@ export class Contacts {
      * @example
      *     await client.contacts.get("contactId")
      */
-    public get(contactId: string, requestOptions?: Contacts.RequestOptions): core.HttpResponsePromise<PaidApi.Contact> {
+    public get(contactId: string, requestOptions?: Contacts.RequestOptions): core.HttpResponsePromise<Paid.Contact> {
         return core.HttpResponsePromise.fromPromise(this.__get(contactId, requestOptions));
     }
 
     private async __get(
         contactId: string,
         requestOptions?: Contacts.RequestOptions,
-    ): Promise<core.WithRawResponse<PaidApi.Contact>> {
+    ): Promise<core.WithRawResponse<Paid.Contact>> {
         const _response = await core.fetcher({
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidApiEnvironment.Production,
+                    environments.PaidEnvironment.Production,
                 `contacts/${encodeURIComponent(contactId)}`,
             ),
             method: "GET",
@@ -204,11 +204,11 @@ export class Contacts {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return { data: _response.body as PaidApi.Contact, rawResponse: _response.rawResponse };
+            return { data: _response.body as Paid.Contact, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
-            throw new errors.PaidApiError({
+            throw new errors.PaidError({
                 statusCode: _response.error.statusCode,
                 body: _response.error.body,
                 rawResponse: _response.rawResponse,
@@ -217,15 +217,15 @@ export class Contacts {
 
         switch (_response.error.reason) {
             case "non-json":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidApiTimeoutError("Timeout exceeded when calling GET /contacts/{contactId}.");
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /contacts/{contactId}.");
             case "unknown":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     message: _response.error.errorMessage,
                     rawResponse: _response.rawResponse,
                 });
@@ -251,7 +251,7 @@ export class Contacts {
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidApiEnvironment.Production,
+                    environments.PaidEnvironment.Production,
                 `contacts/${encodeURIComponent(contactId)}`,
             ),
             method: "DELETE",
@@ -269,7 +269,7 @@ export class Contacts {
         }
 
         if (_response.error.reason === "status-code") {
-            throw new errors.PaidApiError({
+            throw new errors.PaidError({
                 statusCode: _response.error.statusCode,
                 body: _response.error.body,
                 rawResponse: _response.rawResponse,
@@ -278,15 +278,15 @@ export class Contacts {
 
         switch (_response.error.reason) {
             case "non-json":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidApiTimeoutError("Timeout exceeded when calling DELETE /contacts/{contactId}.");
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling DELETE /contacts/{contactId}.");
             case "unknown":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     message: _response.error.errorMessage,
                     rawResponse: _response.rawResponse,
                 });
@@ -303,19 +303,19 @@ export class Contacts {
     public getByExternalId(
         externalId: string,
         requestOptions?: Contacts.RequestOptions,
-    ): core.HttpResponsePromise<PaidApi.Contact> {
+    ): core.HttpResponsePromise<Paid.Contact> {
         return core.HttpResponsePromise.fromPromise(this.__getByExternalId(externalId, requestOptions));
     }
 
     private async __getByExternalId(
         externalId: string,
         requestOptions?: Contacts.RequestOptions,
-    ): Promise<core.WithRawResponse<PaidApi.Contact>> {
+    ): Promise<core.WithRawResponse<Paid.Contact>> {
         const _response = await core.fetcher({
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidApiEnvironment.Production,
+                    environments.PaidEnvironment.Production,
                 `contacts/external/${encodeURIComponent(externalId)}`,
             ),
             method: "GET",
@@ -329,11 +329,11 @@ export class Contacts {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return { data: _response.body as PaidApi.Contact, rawResponse: _response.rawResponse };
+            return { data: _response.body as Paid.Contact, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
-            throw new errors.PaidApiError({
+            throw new errors.PaidError({
                 statusCode: _response.error.statusCode,
                 body: _response.error.body,
                 rawResponse: _response.rawResponse,
@@ -342,17 +342,15 @@ export class Contacts {
 
         switch (_response.error.reason) {
             case "non-json":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidApiTimeoutError(
-                    "Timeout exceeded when calling GET /contacts/external/{externalId}.",
-                );
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /contacts/external/{externalId}.");
             case "unknown":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     message: _response.error.errorMessage,
                     rawResponse: _response.rawResponse,
                 });
@@ -381,7 +379,7 @@ export class Contacts {
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidApiEnvironment.Production,
+                    environments.PaidEnvironment.Production,
                 `contacts/external/${encodeURIComponent(externalId)}`,
             ),
             method: "DELETE",
@@ -399,7 +397,7 @@ export class Contacts {
         }
 
         if (_response.error.reason === "status-code") {
-            throw new errors.PaidApiError({
+            throw new errors.PaidError({
                 statusCode: _response.error.statusCode,
                 body: _response.error.body,
                 rawResponse: _response.rawResponse,
@@ -408,17 +406,17 @@ export class Contacts {
 
         switch (_response.error.reason) {
             case "non-json":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidApiTimeoutError(
+                throw new errors.PaidTimeoutError(
                     "Timeout exceeded when calling DELETE /contacts/external/{externalId}.",
                 );
             case "unknown":
-                throw new errors.PaidApiError({
+                throw new errors.PaidError({
                     message: _response.error.errorMessage,
                     rawResponse: _response.rawResponse,
                 });

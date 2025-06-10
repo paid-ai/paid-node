@@ -1,4 +1,4 @@
-export * as PaidApi from "./api/index.js";
-export { PaidApiClient } from "./Client.js";
-export { PaidApiEnvironment } from "./environments.js";
-export { PaidApiError, PaidApiTimeoutError } from "./errors/index.js";
+export * as Paid from "./api/index.js";
+export { PaidClient } from "./Client.js";
+export { PaidEnvironment } from "./environments.js";
+export { PaidError, PaidTimeoutError } from "./errors/index.js";

@@ -1,2 +1,2 @@
-export { PaidApiError } from "./PaidApiError.js";
-export { PaidApiTimeoutError } from "./PaidApiTimeoutError.js";
+export { PaidError } from "./PaidError.js";
+export { PaidTimeoutError } from "./PaidTimeoutError.js";

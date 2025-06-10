@@ -3,12 +3,12 @@
  */
 
 import { mockServerPool } from "../../mock-server/MockServerPool.js";
-import { PaidApiClient } from "../../../src/Client";
+import { PaidClient } from "../../../src/Client";
 
 describe("Lines", () => {
     test("update", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidApiClient({ token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
         const rawResponseBody = {
             id: "id",

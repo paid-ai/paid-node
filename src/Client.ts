@@ -11,9 +11,9 @@ import { Contacts } from "./api/resources/contacts/client/Client.js";
 import { Orders } from "./api/resources/orders/client/Client.js";
 import { Usage } from "./api/resources/usage/client/Client.js";
 
-export declare namespace PaidApiClient {
+export declare namespace PaidClient {
     export interface Options {
-        environment?: core.Supplier<environments.PaidApiEnvironment | string>;
+        environment?: core.Supplier<environments.PaidEnvironment | string>;
         /** Specify a custom URL to connect the client to. */
         baseUrl?: core.Supplier<string>;
         token: core.Supplier<core.BearerToken>;
@@ -33,23 +33,23 @@ export declare namespace PaidApiClient {
     }
 }
 
-export class PaidApiClient {
-    protected readonly _options: PaidApiClient.Options;
+export class PaidClient {
+    protected readonly _options: PaidClient.Options;
     protected _customers: Customers | undefined;
     protected _agents: Agents | undefined;
     protected _contacts: Contacts | undefined;
     protected _orders: Orders | undefined;
     protected _usage: Usage | undefined;
 
-    constructor(_options: PaidApiClient.Options) {
+    constructor(_options: PaidClient.Options) {
         this._options = {
             ..._options,
             headers: mergeHeaders(
                 {
                     "X-Fern-Language": "JavaScript",
                     "X-Fern-SDK-Name": "@paid-ai/paid-node",
-                    "X-Fern-SDK-Version": "0.0.5",
-                    "User-Agent": "@paid-ai/paid-node/0.0.5",
+                    "X-Fern-SDK-Version": "0.0.6",
+                    "User-Agent": "@paid-ai/paid-node/0.0.6",
                     "X-Fern-Runtime": core.RUNTIME.type,
                     "X-Fern-Runtime-Version": core.RUNTIME.version,
                 },
