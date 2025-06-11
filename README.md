@@ -1,28 +1,45 @@
-# Paid TypeScript Library
 
-[![fern shield](https://img.shields.io/badge/%F0%9F%8C%BF-Built%20with%20Fern-brightgreen)](https://buildwithfern.com?utm_source=github&utm_medium=github&utm_campaign=readme&utm_source=https%3A%2F%2Fgithub.com%2FAgentPaid%2Fpaid-node)
-[![npm shield](https://img.shields.io/npm/v/@paid-ai/paid-node)](https://www.npmjs.com/package/@paid-ai/paid-node)
+<div align="center">
+    <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="./assets/paid_light.svg" width=600>
+        <source media="(prefers-color-scheme: light)" srcset="./assets/paid_dark.svg" width=600>
+        <img alt="Fallback image description" src="./assets/paid_light.svg" width=600>
+    </picture>
+</div>
 
-The Paid TypeScript library provides convenient access to the Paid API from TypeScript.
+# 
+
+<div align="center">
+    <a href="https://buildwithfern.com?utm_source=github&utm_medium=github&utm_campaign=readme&utm_source=https%3A%2F%2Fgithub.com%2FAgentPaid%2Fpaid-node">
+        <img src="https://img.shields.io/badge/%F0%9F%8C%BF-Built%20with%20Fern-brightgreen" alt="fern shield">
+    </a>
+    <a href="https://www.npmjs.com/package/@paid-ai/paid-node">
+        <img src="https://img.shields.io/npm/v/@paid-ai/paid-node" alt="npm shield">
+    </a>
+</div>
+
+Paid is the all-in-one, drop-in Business Engine for AI Agents that handles your pricing, subscriptions, margins, billing, and renewals with just 5 lines of code. 
+The Paid TypeScript library provides convenient access to the Paid API from TypeScript. 
+
+## Documentation
+
+See the full API docs [here](https://paid.docs.buildwithfern.com/api-reference/api-reference/customers/list)
 
 ## Installation
 
 ```sh
-npm i -s @paid-ai/paid-node
+npm install -s @paid-ai/paid-node
 ```
-
-## Reference
-
-A full reference for this library is available [here](https://github.com/AgentPaid/paid-node/blob/HEAD/./reference.md).
 
 ## Usage
 
-Instantiate and use the client with the following:
+The client needs to be configured with your account's API key, which is available in the [Paid dashboard](https://app.paid.ai/agent-integration/api-keys). 
 
 ```typescript
 import { PaidClient } from "@paid-ai/paid-node";
 
-const client = new PaidClient({ token: "YOUR_TOKEN" });
+const client = new PaidClient({ token: "API_KEY" });
+
 await client.customers.create({
     name: "name",
 });
