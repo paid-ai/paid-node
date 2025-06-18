@@ -78,6 +78,31 @@ try {
 }
 ```
 
+## Manual Cost Tracking
+
+When using `client.usage.recordUsage()` API, it's possible to create cost traces manually
+just by passing in the cost data.
+
+```typescript
+const additionalData = {
+    costData: {
+        vendor: "<vendor_name>", // can be anything
+        cost : {
+            amount: 0.0001,
+            currency: "USD"
+        }
+    }
+};
+await client.usage.recordUsage({
+    agent_id: "<your_agent_id>",
+    event_name: "<your_signal_name>",
+    customer_id: "<your_customer_id>",
+    data: additionalData,
+})
+
+await client.usage.flush(); // need to flush to send usage immediately
+```
+
 ## Advanced
 
 ### Additional Headers
