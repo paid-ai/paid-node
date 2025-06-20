@@ -16,8 +16,8 @@ export function initializeTracing(apiKey: string) {
     setToken(apiKey);
     const sdk = new NodeSDK({
         traceExporter: new OTLPTraceExporter({
-            // url: 'https://collector.agentpaid.io:4318/v1/traces',
-            url: 'http://localhost:4318/v1/traces',
+            url: 'https://collector.agentpaid.io:4318/v1/traces',
+            // url: 'http://localhost:4318/v1/traces',
         }),
     });
 
