@@ -78,6 +78,48 @@ try {
 }
 ```
 
+## Cost Tracking
+
+It's possible to track usage costs by using Paid wrappers around you AI provider API.
+As of now, the following OpenAI APIs are supported:
+
+```
+chat.completions.create()
+responses.create()
+images.generate()
+embeddings.create()
+```
+
+Example usage:
+
+```typescript
+import { PaidClient, PaidOpenAI } from "@paid-ai/paid-node";
+import OpenAI from "openai";
+
+async function main() {
+    const client = new PaidClient({ token: "<your_paid_api_key>" });
+    const openaiClient = new OpenAI({ apiKey: "<your_openai_api_key" });
+
+    // initialize cost tracking
+    await client.initializeTracing()
+
+    // wrap openai in paid wrapper
+    const paidOpenAiWrapper = new PaidOpenAI(openaiClient);
+
+    // capture the call
+    await client.capture("<your_external_customer_id>", async () => {
+        const response = await paidOpenAiWrapper.images.generate({
+            prompt: "A beautiful sunset over the mountains",
+            n: 1,
+            size: "256x256"
+        });
+        if (response.data) {
+            console.log("Image generation:", response.data[0].url);
+        }
+    });
+}
+```
+
 ## Manual Cost Tracking
 
 When using `client.usage.recordUsage()` API, it's possible to create cost traces manually
