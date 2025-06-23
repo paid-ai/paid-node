@@ -2,6 +2,11 @@ import { NodeSDK } from '@opentelemetry/sdk-node';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { trace, SpanStatusCode } from "@opentelemetry/api";
 import { AsyncLocalStorage } from 'async_hooks';
+import pino from "pino";
+
+export const logger = pino({
+    level: process.env.PAID_LOG_LEVEL || "silent",
+});
 
 const customerIdStorage = new AsyncLocalStorage<string | null>();
 const tokenStorage = new AsyncLocalStorage<string | null>();
@@ -27,7 +32,7 @@ export function initializeTracing(apiKey: string) {
     ["SIGINT", "SIGTERM", "beforeExit"].forEach((event) => {
         process.on(event, () => {
             sdk.shutdown()
-                .then(() => console.log("Paid tracing SDK shut down"))
+                .then(() => {})
                 .catch((error) => console.error("Error shutting down Paid tracing SDK", error));
         });
     });
@@ -42,7 +47,7 @@ export async function capture<T extends (...args: any[]) => any>(
     const token = getToken();
     
     if (!token) {
-        console.warn('No token found - tracing will not be captured');
+        logger.warn('No token found - tracing will not be captured');
         return fn(...args) as ReturnType<T>;
     }
 

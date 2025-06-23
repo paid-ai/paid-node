@@ -39,11 +39,12 @@
         "@opentelemetry/api": "^1.9.0",
         "@opentelemetry/exporter-trace-otlp-http": "^0.202.0",
         "@opentelemetry/sdk-node": "^0.202.0",
-        "openai": "^5.5.1",
         "form-data": "^4.0.0",
         "formdata-node": "^6.0.3",
         "js-base64": "3.7.7",
         "node-fetch": "^2.7.0",
+        "openai": "^5.5.1",
+        "pino": "^9.7.0",
         "qs": "^6.13.1",
         "readable-stream": "^4.5.2",
         "url-join": "4.0.1"

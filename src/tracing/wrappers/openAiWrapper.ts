@@ -5,6 +5,7 @@ import { ChatCompletion, ChatCompletionCreateParams } from "openai/resources/cha
 import { EmbeddingCreateParams } from "openai/resources/embeddings";
 import { ImagesResponse, ImageGenerateParams } from "openai/resources/images";
 import { CreateEmbeddingResponse } from "openai/resources/embeddings";
+import { logger } from "../tracing";
 
 export class PaidOpenAI {
     private readonly openai: OpenAI;
@@ -46,7 +47,7 @@ class ChatCompletionsWrapper {
     public async create(params: ChatCompletionCreateParams): Promise<ChatCompletion> {
         const currentSpan = trace.getSpan(context.active());
         if (!currentSpan) {
-            console.warn("No active span found, calling OpenAI directly without tracing.");
+            logger.warn("No active span found, calling OpenAI directly without tracing.");
             return this.openai.chat.completions.create(params) as Promise<ChatCompletion>;
         }
 
@@ -100,7 +101,7 @@ class ResponsesWrapper {
     public async create(params: ResponseCreateParams): Promise<Response> {
         const currentSpan = trace.getSpan(context.active());
         if (!currentSpan) {
-            console.warn("No active span found, calling OpenAI directly without tracing.");
+            logger.warn("No active span found, calling OpenAI directly without tracing.");
             return this.openai.responses.create(params);
         }
 
@@ -152,7 +153,7 @@ class EmbeddingsWrapper {
     public async create(params: EmbeddingCreateParams): Promise<CreateEmbeddingResponse> {
         const currentSpan = trace.getSpan(context.active());
         if (!currentSpan) {
-            console.warn("No active span found, calling OpenAI directly without tracing.");
+            logger.warn("No active span found, calling OpenAI directly without tracing.");
             return this.openai.embeddings.create(params);
         }
 
@@ -203,7 +204,7 @@ class ImagesWrapper {
     public async generate(params: ImageGenerateParams): Promise<ImagesResponse> {
         const currentSpan = trace.getSpan(context.active());
         if (!currentSpan) {
-            console.warn("No active span found, calling OpenAI directly without tracing.");
+            logger.warn("No active span found, calling OpenAI directly without tracing.");
             return this.openai.images.generate(params);
         }
 
