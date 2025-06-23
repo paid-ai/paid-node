@@ -145,6 +145,15 @@ await client.usage.recordUsage({
 await client.usage.flush(); // need to flush to send usage immediately
 ```
 
+## Logs
+
+Logs are off by default.
+
+To enable logs, set the `PAID_LOG_LEVEL` environment variable. Available levels include:
+`fatal`, `error`, `warn`, `info`, `debug`, and `trace`.
+
+Example: `PAID_LOG_LEVEL=debug node your-app.js`
+
 ## Advanced
 
 ### Additional Headers
