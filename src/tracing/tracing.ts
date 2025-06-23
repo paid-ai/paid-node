@@ -24,11 +24,11 @@ export function initializeTracing(apiKey: string) {
     sdk.start();
 
     // Graceful shutdown
-    ['SIGINT', 'SIGTERM'].forEach(signal => {
-        process.on(signal, () => {
+    ["SIGINT", "SIGTERM", "beforeExit"].forEach((event) => {
+        process.on(event, () => {
             sdk.shutdown()
-                .then(() => console.log('Paid tracing SDK shut down'))
-                .catch(error => console.error('Error shutting down Paid tracing SDK', error));
+                .then(() => console.log("Paid tracing SDK shut down"))
+                .catch((error) => console.error("Error shutting down Paid tracing SDK", error));
         });
     });
 }
