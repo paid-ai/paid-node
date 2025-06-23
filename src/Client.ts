@@ -10,6 +10,7 @@ import { Agents } from "./api/resources/agents/client/Client.js";
 import { Contacts } from "./api/resources/contacts/client/Client.js";
 import { Orders } from "./api/resources/orders/client/Client.js";
 import { Usage } from "./wrapper/BatchUsage.js";
+import { capture, initializeTracing } from "./tracing/tracing.js";
 
 export declare namespace PaidClient {
     export interface Options {
@@ -76,5 +77,20 @@ export class PaidClient {
 
     public get usage(): Usage {
         return (this._usage ??= new Usage(this._options));
+    }
+
+    public async initializeTracing(): Promise<void> {
+        const tokenSupplier = this._options.token;
+        const token = typeof tokenSupplier === "function" ? await tokenSupplier() : tokenSupplier;
+        const resolvedToken = await Promise.resolve(token);
+        initializeTracing(resolvedToken);
+    }
+
+    public async capture<T extends (...args: any[]) => any>(
+        externalCustomerId: string,
+        fn: T,
+        ...args: Parameters<T>
+    ): Promise<ReturnType<T>> {
+        return await capture(externalCustomerId, fn, ...args);
     }
 }
