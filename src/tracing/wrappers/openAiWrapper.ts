@@ -106,10 +106,8 @@ class ResponsesWrapper {
 
         const externalCustomerId = getCustomerId();
         const token = getTokenStorage();
-        const model = params.model ?? "unknown";
-        const spanName = `trace.responses ${model}`;
 
-        return this.tracer.startActiveSpan(spanName, async (span) => {
+        return this.tracer.startActiveSpan("trace.openai.responses", async (span) => {
             const attributes: Record<string, any> = {
                 "gen_ai.system": "openai",
                 "gen_ai.operation.name": "chat", // Equivalent to chat.completions
@@ -127,10 +125,16 @@ class ResponsesWrapper {
 
                 if (response.usage) {
                     span.setAttributes({
-                        "gen_ai.usage.input_tokens": response.usage.prompt_tokens,
-                        "gen_ai.usage.output_tokens": response.usage.completion_tokens,
+                        "gen_ai.usage.input_tokens": response.usage.input_tokens,
+                        "gen_ai.usage.output_tokens": response.usage.output_tokens,
                         "gen_ai.response.model": response.model,
                     });
+                    if (response.usage.input_tokens_details?.cached_tokens) {
+                        span.setAttribute("gen_ai.usage.cached_input_tokens", response.usage.input_tokens_details.cached_tokens);
+                    }
+                    if (response.usage.output_tokens_details?.reasoning_tokens) {
+                        span.setAttribute("gen_ai.usage.reasoning_output_tokens", response.usage.output_tokens_details.reasoning_tokens);
+                    }
                 }
 
                 span.setStatus({ code: SpanStatusCode.OK });
