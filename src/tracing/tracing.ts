@@ -40,7 +40,7 @@ export async function capture<T extends (...args: any[]) => any>(
 ): Promise<ReturnType<T>> {
     const tracer = trace.getTracer('paid.node');
     const token = getToken();
-    
+
     if (!token) {
         console.warn('No token found - tracing will not be captured');
         return fn(...args) as ReturnType<T>;
@@ -49,14 +49,14 @@ export async function capture<T extends (...args: any[]) => any>(
     return tracer.startActiveSpan("paid.node", async (span) => {
         span.setAttribute('external_customer_id', externalCustomerId);
         span.setAttribute('token', token);
-        
+
         try {
             const result = await customerIdStorage.run(externalCustomerId, async () => {
                 return await tokenStorage.run(token, async () => {
                     return await fn(...args);
                 });
             });
-            
+
             span.setStatus({ code: SpanStatusCode.OK });
             return result;
         } catch (error: any) {
@@ -71,4 +71,3 @@ export async function capture<T extends (...args: any[]) => any>(
         }
     });
 }
-
