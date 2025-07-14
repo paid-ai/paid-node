@@ -10,7 +10,7 @@ import { Agents } from "./api/resources/agents/client/Client.js";
 import { Contacts } from "./api/resources/contacts/client/Client.js";
 import { Orders } from "./api/resources/orders/client/Client.js";
 import { Usage } from "./wrapper/BatchUsage.js";
-import { _trace, _initializeTracing } from "./tracing/tracing.js";
+import { _trace, _initializeTracing, _signal } from "./tracing/tracing.js";
 
 export declare namespace PaidClient {
     export interface Options {
@@ -93,5 +93,9 @@ export class PaidClient {
         ...args: Parameters<T>
     ): Promise<ReturnType<T>> {
         return await _trace(externalCustomerId, fn, externalAgentId, ...args);
+    }
+
+    public signal(eventName: string, data?: Record<string, any>): void {
+        return _signal(eventName, data);
     }
 }

@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import { trace, SpanStatusCode, context, Tracer } from "@opentelemetry/api";
-import { getCustomerId, getAgentId, getTokenStorage } from "../tracing.js";
+import { getCustomerIdStorage, getAgentIdStorage, getTokenStorage } from "../tracing.js";
 import { ChatCompletion, ChatCompletionCreateParams } from "openai/resources/chat/completions";
 import { EmbeddingCreateParams } from "openai/resources/embeddings";
 import { ImagesResponse, ImageGenerateParams } from "openai/resources/images";
@@ -55,8 +55,8 @@ class ChatCompletionsWrapper {
             throw new Error("No active span found, make sure to call this inside of a callback to paid.trace().");
         }
 
-        const externalCustomerId = getCustomerId();
-        const externalAgentId = getAgentId();
+        const externalCustomerId = getCustomerIdStorage();
+        const externalAgentId = getAgentIdStorage();
         const token = getTokenStorage();
 
         if (!token || !externalCustomerId) {
@@ -115,8 +115,8 @@ class ResponsesWrapper {
             throw new Error("No active span found, make sure to call this inside of a callback to paid.trace().");
         }
 
-        const externalCustomerId = getCustomerId();
-        const externalAgentId = getAgentId();
+        const externalCustomerId = getCustomerIdStorage();
+        const externalAgentId = getAgentIdStorage();
         const token = getTokenStorage();
 
         if (!token || !externalCustomerId) {
@@ -185,8 +185,8 @@ class EmbeddingsWrapper {
             throw new Error("No active span found, make sure to call this inside of a callback to paid.trace().");
         }
 
-        const externalCustomerId = getCustomerId();
-        const externalAgentId = getAgentId();
+        const externalCustomerId = getCustomerIdStorage();
+        const externalAgentId = getAgentIdStorage();
         const token = getTokenStorage();
 
         if (!token || !externalCustomerId) {
@@ -242,8 +242,8 @@ class ImagesWrapper {
             throw new Error("No active span found, make sure to call this inside of a callback to paid.trace().");
         }
 
-        const externalCustomerId = getCustomerId();
-        const externalAgentId = getAgentId();
+        const externalCustomerId = getCustomerIdStorage();
+        const externalAgentId = getAgentIdStorage();
         const token = getTokenStorage();
         const model = params.model ?? "dall-e-3";
 
