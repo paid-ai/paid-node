@@ -1,5 +1,5 @@
 import * as core from "../core/index.js";
-import { Usage as UsageClient } from "../api/resources/usage/client/Client";
+import { Usage as UsageClient } from "../api/resources/usage/client/Client.js";
 import * as Paid from "../api/types/Signal.js";
 
 export class Usage extends UsageClient {

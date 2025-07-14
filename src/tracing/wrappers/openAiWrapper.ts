@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import { trace, SpanStatusCode, context, Tracer } from "@opentelemetry/api";
-import { getCustomerId, getTokenStorage } from "../tracing";
+import { getCustomerId, getTokenStorage } from "../tracing.js";
 import { ChatCompletion, ChatCompletionCreateParams } from "openai/resources/chat/completions";
 import { EmbeddingCreateParams } from "openai/resources/embeddings";
 import { ImagesResponse, ImageGenerateParams } from "openai/resources/images";
