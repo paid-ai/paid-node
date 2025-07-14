@@ -4,8 +4,10 @@ import { trace, SpanStatusCode } from "@opentelemetry/api";
 import { AsyncLocalStorage } from 'async_hooks';
 
 const customerIdStorage = new AsyncLocalStorage<string | null>();
+const agentIdStorage = new AsyncLocalStorage<string | null>();
 const tokenStorage = new AsyncLocalStorage<string | null>();
 export const getCustomerId = (): string | null | undefined => customerIdStorage.getStore();
+export const getAgentId = (): string | null | undefined => agentIdStorage.getStore();
 export const getTokenStorage = (): string | null | undefined => tokenStorage.getStore();
 
 let _token: string | undefined;
@@ -14,11 +16,14 @@ const getToken = () => { return _token; };
 
 let _isShuttingDown = false;
 
-export function initializeTracing(apiKey: string, collectorEndpoint: string) {
+export function _initializeTracing(apiKey: string, collectorEndpoint: string) {
     try {
         if (getToken()) {
-            console.warn('Tracing SDK already initialized with a token. Skipping re-initialization.');
-            return;
+            throw new Error('Tracing SDK is already initialized.');
+        }
+
+        if (!apiKey) {
+            throw new Error('Cannot initialize tracing SDK - first initialize the PaidClient with an API key');
         }
 
         try {
@@ -57,27 +62,32 @@ export function initializeTracing(apiKey: string, collectorEndpoint: string) {
     console.log('Paid tracing SDK initialized with collector endpoint:', collectorEndpoint);
 }
 
-export async function capture<T extends (...args: any[]) => any>(
+export async function _trace<T extends (...args: any[]) => any>(
     externalCustomerId: string,
     fn: T,
+    externalAgentId: string | undefined,
     ...args: Parameters<T>
 ): Promise<ReturnType<T>> {
     const tracer = trace.getTracer('paid.node');
     const token = getToken();
 
-    if (!token) {
-        console.warn('No token found - tracing will not be captured');
-        return fn(...args) as ReturnType<T>;
+    if (!token || !externalCustomerId) {
+        throw new Error(`Token [${token}] or external customer ID [${externalCustomerId}] is missing`);
     }
 
     return tracer.startActiveSpan("paid.node", async (span) => {
         span.setAttribute('external_customer_id', externalCustomerId);
         span.setAttribute('token', token);
+        if (externalAgentId) {
+            span.setAttribute('external_agent_id', externalAgentId);
+        }
 
         try {
             const result = await customerIdStorage.run(externalCustomerId, async () => {
-                return await tokenStorage.run(token, async () => {
-                    return await fn(...args);
+                return await agentIdStorage.run(externalAgentId ?? null, async () => {
+                    return await tokenStorage.run(token, async () => {
+                        return await fn(...args);
+                    });
                 });
             });
 
