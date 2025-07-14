@@ -12,25 +12,49 @@ let _token: string | undefined;
 const setToken = (token: string) => { _token = token; };
 const getToken = () => { return _token; };
 
-export function initializeTracing(apiKey: string) {
-    setToken(apiKey);
-    const sdk = new NodeSDK({
-        traceExporter: new OTLPTraceExporter({
-            url: 'https://collector.agentpaid.io:4318/v1/traces',
-            // url: 'http://localhost:4318/v1/traces',
-        }),
-    });
+let _isShuttingDown = false;
 
-    sdk.start();
+export function initializeTracing(apiKey: string, collectorEndpoint: string) {
+    try {
+        if (getToken()) {
+            console.warn('Tracing SDK already initialized with a token. Skipping re-initialization.');
+            return;
+        }
 
-    // Graceful shutdown
-    ['SIGINT', 'SIGTERM'].forEach(signal => {
-        process.on(signal, () => {
-            sdk.shutdown()
-                .then(() => console.log('Paid tracing SDK shut down'))
-                .catch(error => console.error('Error shutting down Paid tracing SDK', error));
+        try {
+            new URL(collectorEndpoint);
+        } catch {
+            throw new Error(`Collector endpoint [${collectorEndpoint}] must be a valid URL`);
+        }
+
+        setToken(apiKey);
+        const sdk = new NodeSDK({
+            traceExporter: new OTLPTraceExporter({
+                url: collectorEndpoint,
+            }),
         });
-    });
+
+        sdk.start();
+
+        // Graceful shutdown
+        ['SIGINT', 'SIGTERM', 'beforeExit', 'uncaughtException', 'unhandledRejection'].forEach(signal => {
+            process.on(signal, () => {
+                if (_isShuttingDown) {
+                    console.warn('Paid tracing SDK is already shutting down. Ignoring signal:', signal);
+                    return;
+                }
+                _isShuttingDown = true;
+                sdk.shutdown()
+                    .then(() => console.log('Paid tracing SDK shut down from signal:', signal))
+                    .catch(error => console.error('Error shutting down Paid tracing SDK', error));
+            });
+        });
+    } catch (error) {
+        console.error('Error initializing Paid tracing SDK:', error);
+        throw error;
+    }
+
+    console.log('Paid tracing SDK initialized with collector endpoint:', collectorEndpoint);
 }
 
 export async function capture<T extends (...args: any[]) => any>(

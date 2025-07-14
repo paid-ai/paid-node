@@ -79,11 +79,11 @@ export class PaidClient {
         return (this._usage ??= new Usage(this._options));
     }
 
-    public async initializeTracing(): Promise<void> {
+    public async initializeTracing(collectorEndpoint: string = "https://collector.agentpaid.io:4318/v1/traces"): Promise<void> {
         const tokenSupplier = this._options.token;
         const token = typeof tokenSupplier === "function" ? await tokenSupplier() : tokenSupplier;
         const resolvedToken = await Promise.resolve(token);
-        initializeTracing(resolvedToken);
+        initializeTracing(resolvedToken, collectorEndpoint);
     }
 
     public async capture<T extends (...args: any[]) => any>(
