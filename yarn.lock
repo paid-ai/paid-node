@@ -617,6 +617,13 @@
   resolved "https://registry.yarnpkg.com/@js-sdsl/ordered-map/-/ordered-map-4.4.2.tgz#9299f82874bab9e4c7f9c48d865becbfe8d6907c"
   integrity sha512-iUKgm52T8HOE/makSxjqoWhe95ZJA1/G1sYsGev2JDKUSS14KAgg1LHb+Ba+IPow0xflbnSkOsZcO08C7w1gYw==
 
+"@mistralai/mistralai@^1.7.4":
+  version "1.7.4"
+  resolved "https://registry.yarnpkg.com/@mistralai/mistralai/-/mistralai-1.7.4.tgz#6101b3ff8a12daa147f8ddf923ce817b5a3d2297"
+  integrity sha512-wty9hHEvIJ5RS8+75NY+a1zXtCCqYQgI26e8R2N7O9ZvD16ep2kF6ciJD2EiWOgS/K+iycRGsrI3nqgkPLG/Xw==
+  dependencies:
+    zod-to-json-schema "^3.24.1"
+
 "@mswjs/interceptors@^0.39.1":
   version "0.39.2"
   resolved "https://registry.yarnpkg.com/@mswjs/interceptors/-/interceptors-0.39.2.tgz#de9de0ab23f99d387c7904df7219a92157d1d666"
@@ -3990,3 +3997,8 @@ yoctocolors-cjs@^2.1.2:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/yoctocolors-cjs/-/yoctocolors-cjs-2.1.2.tgz#f4b905a840a37506813a7acaa28febe97767a242"
   integrity sha512-cYVsTjKl8b+FrnidjibDWskAv7UKOfcwaVZdp/it9n1s9fU3IkgDbhdIRKCW4JDsAlECJY0ytoVPT3sK6kideA==
+
+zod-to-json-schema@^3.24.1:
+  version "3.24.6"
+  resolved "https://registry.yarnpkg.com/zod-to-json-schema/-/zod-to-json-schema-3.24.6.tgz#5920f020c4d2647edfbb954fa036082b92c9e12d"
+  integrity sha512-h/z3PKvcTcTetyjl1fkj79MHNEjm+HpD6NXheWjzOekY7kV+lwDYnHw+ivHkijnCSMz1yJaWBD9vu/Fcmk+vEg==
