@@ -1,7 +1,7 @@
-import Anthropic from '@anthropic-ai/sdk';
+import Anthropic from "@anthropic-ai/sdk";
 import { trace, SpanStatusCode, context, Tracer } from "@opentelemetry/api";
 import { getCustomerIdStorage, getAgentIdStorage, getTokenStorage } from "../tracing.js";
-import { Message, MessageCreateParams } from '@anthropic-ai/sdk/resources/messages';
+import { Message, MessageCreateParams } from "@anthropic-ai/sdk/resources/messages";
 
 export class PaidAnthropic {
     private readonly anthropic: Anthropic;
@@ -43,8 +43,8 @@ class MessagesWrapper {
             const attributes: Record<string, any> = {
                 "gen_ai.system": "anthropic",
                 "gen_ai.operation.name": "messages",
-                "external_customer_id": externalCustomerId,
-                "token": token,
+                external_customer_id: externalCustomerId,
+                token: token,
             };
 
             if (externalAgentId) {
@@ -59,7 +59,7 @@ class MessagesWrapper {
             span.setAttributes(attributes);
 
             try {
-                const response = await this.anthropic.messages.create(params) as any;
+                const response = (await this.anthropic.messages.create(params)) as any;
 
                 // Add usage information from response
                 if (response.usage) {
@@ -70,11 +70,17 @@ class MessagesWrapper {
                     });
 
                     // Add Anthropic-specific cache usage if available
-                    if ('cache_creation_input_tokens' in response.usage && response.usage.cache_creation_input_tokens) {
-                        span.setAttribute("gen_ai.usage.cache_creation_input_tokens", response.usage.cache_creation_input_tokens);
+                    if ("cache_creation_input_tokens" in response.usage && response.usage.cache_creation_input_tokens) {
+                        span.setAttribute(
+                            "gen_ai.usage.cache_creation_input_tokens",
+                            response.usage.cache_creation_input_tokens,
+                        );
                     }
-                    if ('cache_read_input_tokens' in response.usage && response.usage.cache_read_input_tokens) {
-                        span.setAttribute("gen_ai.usage.cache_read_input_tokens", response.usage.cache_read_input_tokens);
+                    if ("cache_read_input_tokens" in response.usage && response.usage.cache_read_input_tokens) {
+                        span.setAttribute(
+                            "gen_ai.usage.cache_read_input_tokens",
+                            response.usage.cache_read_input_tokens,
+                        );
                     }
                 }
 

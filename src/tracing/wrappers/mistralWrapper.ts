@@ -1,8 +1,8 @@
-import { Mistral } from '@mistralai/mistralai';
+import { Mistral } from "@mistralai/mistralai";
 import { trace, SpanStatusCode, context, Tracer } from "@opentelemetry/api";
 import { getCustomerIdStorage, getAgentIdStorage, getTokenStorage } from "../tracing.js";
-import { OCRRequest, OCRResponse } from '@mistralai/mistralai/models/components';
-import { RequestOptions } from '@mistralai/mistralai/lib/sdks';
+import { OCRRequest, OCRResponse } from "@mistralai/mistralai/models/components";
+import { RequestOptions } from "@mistralai/mistralai/lib/sdks";
 
 export class PaidMistral {
     private readonly mistral: Mistral;
@@ -24,10 +24,7 @@ class OCRWrapper {
         private tracer: Tracer,
     ) {}
 
-    public async process(
-        request: OCRRequest,
-        options?: RequestOptions
-    ): Promise<OCRResponse> {
+    public async process(request: OCRRequest, options?: RequestOptions): Promise<OCRResponse> {
         const currentSpan = trace.getSpan(context.active());
         if (!currentSpan) {
             throw new Error("No active span found, make sure to call this inside of a callback to paid.trace().");
@@ -47,8 +44,8 @@ class OCRWrapper {
             const attributes: Record<string, any> = {
                 "gen_ai.system": "mistral",
                 "gen_ai.operation.name": "ocr",
-                "external_customer_id": externalCustomerId,
-                "token": token,
+                external_customer_id: externalCustomerId,
+                token: token,
             };
 
             if (externalAgentId) {

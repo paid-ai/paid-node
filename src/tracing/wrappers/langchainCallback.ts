@@ -132,8 +132,7 @@ export class PaidLangChainCallback extends BaseCallbackHandler {
             } else if (output.llmOutput?.model_name) {
                 attributes["gen_ai.response.model"] = output.llmOutput.model_name;
             } else if (output.generations?.[0]?.[0]?.message?.["response_metadata"]?.model_name) {
-                attributes["gen_ai.response.model"] =
-                    output.generations[0][0].message["response_metadata"].model_name;
+                attributes["gen_ai.response.model"] = output.generations[0][0].message["response_metadata"].model_name;
             }
 
             span.setAttributes(attributes);

@@ -195,7 +195,7 @@ class EmbeddingsWrapper {
             );
         }
 
-        return this.tracer.startActiveSpan('trace.openai.embeddings', async (span) => {
+        return this.tracer.startActiveSpan("trace.openai.embeddings", async (span) => {
             const attributes: Record<string, any> = {
                 "gen_ai.system": "openai",
                 "gen_ai.operation.name": "embeddings",
@@ -253,7 +253,7 @@ class ImagesWrapper {
             );
         }
 
-        return this.tracer.startActiveSpan('trace.openai.images', async (span) => {
+        return this.tracer.startActiveSpan("trace.openai.images", async (span) => {
             const attributes: Record<string, any> = {
                 "gen_ai.request.model": model,
                 "gen_ai.system": "openai",
