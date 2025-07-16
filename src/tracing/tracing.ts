@@ -3,7 +3,19 @@ import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { BatchSpanProcessor, SpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { trace, SpanStatusCode } from "@opentelemetry/api";
 import { AsyncLocalStorage } from "async_hooks";
+import winston from "winston";
 
+export const logger = winston.createLogger({
+    level: "silent", // Default to 'silent' to avoid logging unless set via environment variable
+    format: winston.format.simple(),
+    transports: [new winston.transports.Console()],
+});
+const logLevel = process.env.PAID_LOG_LEVEL;
+if (logLevel) {
+    logger.level = logLevel;
+}
+
+// storage for passing info to child spans
 const customerIdStorage = new AsyncLocalStorage<string | null>();
 const agentIdStorage = new AsyncLocalStorage<string | null>();
 const tokenStorage = new AsyncLocalStorage<string | null>();
@@ -25,13 +37,13 @@ function setupGracefulShutdown(shuttable: NodeSDK | SpanProcessor) {
     ["SIGINT", "SIGTERM", "beforeExit", "uncaughtException", "unhandledRejection"].forEach((signal) => {
         process.on(signal, () => {
             if (_isShuttingDown) {
-                console.warn("Paid tracing SDK is already shutting down. Ignoring signal:", signal);
                 return;
             }
             _isShuttingDown = true;
-            shuttable.shutdown()
-                .then(() => console.log("Paid tracing SDK shut down from signal:", signal))
-                .catch((error) => console.error("Error shutting down Paid tracing SDK", error));
+            shuttable
+                .shutdown()
+                .then(() => logger.info(`Paid tracing SDK shut down from signal: ${signal}`))
+                .catch((error) => logger.error(`Error shutting down Paid tracing SDK ${error}`));
         });
     });
 }
@@ -66,9 +78,9 @@ export function _initializeTracing(apiKey: string, collectorEndpoint: string) {
     if (isOTELInitialized()) {
         throw new Error(
             "OTEL SDK is already initialized with a different provider.\n" +
-            "If you're already using OTEL in your code - " +
-            "please use function Paid.getSpanProcessorAndInitialize() " +
-            "and add the span processor to your OTEL SDK initialization",
+                "If you're already using OTEL in your code - " +
+                "please use function Paid.getSpanProcessorAndInitialize() " +
+                "and add the span processor to your OTEL SDK initialization",
         );
     }
 
@@ -82,13 +94,13 @@ export function _initializeTracing(apiKey: string, collectorEndpoint: string) {
     setupGracefulShutdown(sdk);
 
     setToken(apiKey);
-    console.log("Paid tracing SDK initialized with collector endpoint:", collectorEndpoint);
+    logger.info(`Paid tracing SDK initialized with collector endpoint: ${collectorEndpoint}`);
 }
 
 export function _getSpanProcessorAndInitialize(apiKey: string, collectorEndpoint: string): SpanProcessor {
     setToken(apiKey);
     const spanProcessor = new BatchSpanProcessor(new OTLPTraceExporter({ url: collectorEndpoint }));
-    setupGracefulShutdown(spanProcessor)
+    setupGracefulShutdown(spanProcessor);
     return spanProcessor;
 }
 
