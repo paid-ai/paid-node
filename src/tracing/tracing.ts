@@ -1,5 +1,6 @@
 import { NodeSDK } from "@opentelemetry/sdk-node";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
+import { BatchSpanProcessor, SpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { trace, SpanStatusCode } from "@opentelemetry/api";
 import { AsyncLocalStorage } from "async_hooks";
 
@@ -20,50 +21,75 @@ const getToken = () => {
 
 let _isShuttingDown = false;
 
+function setupGracefulShutdown(shuttable: NodeSDK | SpanProcessor) {
+    ["SIGINT", "SIGTERM", "beforeExit", "uncaughtException", "unhandledRejection"].forEach((signal) => {
+        process.on(signal, () => {
+            if (_isShuttingDown) {
+                console.warn("Paid tracing SDK is already shutting down. Ignoring signal:", signal);
+                return;
+            }
+            _isShuttingDown = true;
+            shuttable.shutdown()
+                .then(() => console.log("Paid tracing SDK shut down from signal:", signal))
+                .catch((error) => console.error("Error shutting down Paid tracing SDK", error));
+        });
+    });
+}
+
+function isOTELInitialized(): boolean {
+    const provider = trace.getTracerProvider();
+    if (!provider) {
+        return false;
+    }
+    if (provider.constructor.name !== "ProxyTracerProvider" && provider.constructor.name !== "NodeTracerProvider") {
+        return true;
+    }
+    if ((provider as any)._delegate) {
+        return (provider as any)._delegate.constructor.name !== "NoopTracerProvider";
+    }
+    return false;
+}
+
 export function _initializeTracing(apiKey: string, collectorEndpoint: string) {
+    if (getToken()) {
+        throw new Error("Tracing SDK is already initialized.");
+    }
+    if (!apiKey) {
+        throw new Error("Cannot initialize tracing SDK - first initialize the PaidClient with an API key");
+    }
     try {
-        if (getToken()) {
-            throw new Error("Tracing SDK is already initialized.");
-        }
-
-        if (!apiKey) {
-            throw new Error("Cannot initialize tracing SDK - first initialize the PaidClient with an API key");
-        }
-
-        try {
-            new URL(collectorEndpoint);
-        } catch {
-            throw new Error(`Collector endpoint [${collectorEndpoint}] must be a valid URL`);
-        }
-
-        setToken(apiKey);
-        const sdk = new NodeSDK({
-            traceExporter: new OTLPTraceExporter({
-                url: collectorEndpoint,
-            }),
-        });
-
-        sdk.start();
-
-        // Graceful shutdown
-        ["SIGINT", "SIGTERM", "beforeExit", "uncaughtException", "unhandledRejection"].forEach((signal) => {
-            process.on(signal, () => {
-                if (_isShuttingDown) {
-                    console.warn("Paid tracing SDK is already shutting down. Ignoring signal:", signal);
-                    return;
-                }
-                _isShuttingDown = true;
-                sdk.shutdown()
-                    .then(() => console.log("Paid tracing SDK shut down from signal:", signal))
-                    .catch((error) => console.error("Error shutting down Paid tracing SDK", error));
-            });
-        });
-    } catch (error) {
-        console.error("Error initializing Paid tracing SDK:", error);
-        throw error;
+        new URL(collectorEndpoint);
+    } catch {
+        throw new Error(`Collector endpoint [${collectorEndpoint}] must be a valid URL`);
     }
 
+    if (isOTELInitialized()) {
+        throw new Error(
+            "OTEL SDK is already initialized with a different provider.\n" +
+            "If you're already using OTEL in your code - " +
+            "please use function Paid.getSpanProcessorAndInitialize() " +
+            "and add the span processor to your OTEL SDK initialization",
+        );
+    }
+
+    const sdk = new NodeSDK({
+        traceExporter: new OTLPTraceExporter({
+            url: collectorEndpoint,
+        }),
+    });
+    sdk.start();
+
+    setupGracefulShutdown(sdk);
+
+    setToken(apiKey);
     console.log("Paid tracing SDK initialized with collector endpoint:", collectorEndpoint);
+}
+
+export function _getSpanProcessorAndInitialize(apiKey: string, collectorEndpoint: string): SpanProcessor {
+    setToken(apiKey);
+    const spanProcessor = new BatchSpanProcessor(new OTLPTraceExporter({ url: collectorEndpoint }));
+    setupGracefulShutdown(spanProcessor)
+    return spanProcessor;
 }
 
 export async function _trace<T extends (...args: any[]) => any>(
@@ -104,57 +130,6 @@ export async function _trace<T extends (...args: any[]) => any>(
             });
             span.recordException(error);
             throw error;
-        } finally {
-            span.end();
-        }
-    });
-}
-
-export function _signal(eventName: string, data?: Record<string, any>): void {
-    if (!eventName) {
-        throw new Error("Event name is required for signal.");
-    }
-
-    // Check if there's an active span (from _trace())
-    const currentSpan = trace.getActiveSpan();
-    if (!currentSpan) {
-        throw new Error("Cannot send signal: you should call signal() within trace()");
-    }
-
-    const externalCustomerId = getCustomerIdStorage();
-    const externalAgentId = getAgentIdStorage();
-    const token = getTokenStorage();
-
-    if (!externalCustomerId || !externalAgentId || !token) {
-        throw new Error(
-            `Missing some of: external_customer_id: ${externalCustomerId}, external_agent_id: ${externalAgentId}, or token. Make sure to call signal() within trace()`,
-        );
-    }
-
-    const tracer = trace.getTracer("paid.node");
-    tracer.startActiveSpan("trace.signal", (span) => {
-        try {
-            const attributes: Record<string, string | number | boolean> = {
-                external_customer_id: externalCustomerId,
-                external_agent_id: externalAgentId,
-                event_name: eventName,
-                token: token,
-            };
-
-            // Optional data (ex. manual cost tracking)
-            if (data) {
-                attributes["data"] = JSON.stringify(data);
-            }
-
-            span.setAttributes(attributes);
-            // Mark span as successful
-            span.setStatus({ code: SpanStatusCode.OK });
-        } catch (error: any) {
-            span.setStatus({
-                code: SpanStatusCode.ERROR,
-                message: error.message,
-            });
-            span.recordException(error);
         } finally {
             span.end();
         }
