@@ -10,7 +10,8 @@ import { Agents } from "./api/resources/agents/client/Client.js";
 import { Contacts } from "./api/resources/contacts/client/Client.js";
 import { Orders } from "./api/resources/orders/client/Client.js";
 import { Usage } from "./wrapper/BatchUsage.js";
-import { capture, initializeTracing } from "./tracing/tracing.js";
+import { _trace, _initializeTracing, _getSpanProcessorAndInitialize } from "./tracing/tracing.js";
+import { _signal } from "./tracing/signal.js";
 
 export declare namespace PaidClient {
     export interface Options {
@@ -79,18 +80,37 @@ export class PaidClient {
         return (this._usage ??= new Usage(this._options));
     }
 
-    public async initializeTracing(): Promise<void> {
+    // Use this method if you want paid to initialize tracing automatically.
+    public async initializeTracing(
+        collectorEndpoint: string = "https://collector.agentpaid.io:4318/v1/traces",
+    ): Promise<void> {
         const tokenSupplier = this._options.token;
         const token = typeof tokenSupplier === "function" ? await tokenSupplier() : tokenSupplier;
         const resolvedToken = await Promise.resolve(token);
-        initializeTracing(resolvedToken);
+        _initializeTracing(resolvedToken, collectorEndpoint);
     }
 
-    public async capture<T extends (...args: any[]) => any>(
+    // Use this method to track actions like LLM usage and sending signals.
+    // The callback to this function is the work that you want to trace.
+    public async trace<T extends (...args: any[]) => any>(
         externalCustomerId: string,
         fn: T,
+        externalAgentId?: string,
         ...args: Parameters<T>
     ): Promise<ReturnType<T>> {
-        return await capture(externalCustomerId, fn, ...args);
+        return await _trace(externalCustomerId, fn, externalAgentId, ...args);
+    }
+
+    // sends Paid signal. This needs to called as part of callback to Paid.trace()
+    public signal(eventName: string, data?: Record<string, any>): void {
+        return _signal(eventName, data);
+    }
+
+    // Use this method if you're setting up OTEL SDK in your code and want to add Paid's span processor.
+    public async getSpanProcessorAndInitialize(collectorEndpoint: string = "https://collector.agentpaid.io:4318/v1/traces") {
+        const tokenSupplier = this._options.token;
+        const token = typeof tokenSupplier === "function" ? await tokenSupplier() : tokenSupplier;
+        const resolvedToken = await Promise.resolve(token);
+        return _getSpanProcessorAndInitialize(resolvedToken, collectorEndpoint);
     }
 }
