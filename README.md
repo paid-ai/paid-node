@@ -7,7 +7,7 @@
     </picture>
 </div>
 
-# 
+#
 
 <div align="center">
     <a href="https://buildwithfern.com?utm_source=github&utm_medium=github&utm_campaign=readme&utm_source=https%3A%2F%2Fgithub.com%2FAgentPaid%2Fpaid-node">
@@ -18,8 +18,8 @@
     </a>
 </div>
 
-Paid is the all-in-one, drop-in Business Engine for AI Agents that handles your pricing, subscriptions, margins, billing, and renewals with just 5 lines of code. 
-The Paid TypeScript library provides convenient access to the Paid API from TypeScript. 
+Paid is the all-in-one, drop-in Business Engine for AI Agents that handles your pricing, subscriptions, margins, billing, and renewals with just 5 lines of code.
+The Paid TypeScript library provides convenient access to the Paid API from TypeScript.
 
 ## Documentation
 
@@ -33,7 +33,7 @@ npm install -s @paid-ai/paid-node
 
 ## Usage
 
-The client needs to be configured with your account's API key, which is available in the [Paid dashboard](https://app.paid.ai/agent-integration/api-keys). 
+The client needs to be configured with your account's API key, which is available in the [Paid dashboard](https://app.paid.ai/agent-integration/api-keys).
 
 ```typescript
 import { PaidClient } from "@paid-ai/paid-node";
@@ -78,17 +78,18 @@ try {
 }
 ```
 
+## Logging
+Logs are silent by default.
+
+To enable logs, set the `PAID_LOG_LEVEL` environment variable. Available levels include:
+`error`, `warn`, `info`, `http`, `verbose`, `debug`, and `silly`.
+
+Example: `PAID_LOG_LEVEL=debug node your-app.js`
+
 ## Cost Tracking
 
 It's possible to track usage costs by using Paid wrappers around you AI provider API.
-As of now, the following OpenAI APIs are supported:
-
-```
-chat.completions.create()
-responses.create()
-images.generate()
-embeddings.create()
-```
+As of now, the following AI providers are supported: `OpenAI`, `Anthropic`, `Mistral` (OCR), and `Langchain`.
 
 Example usage:
 
@@ -98,16 +99,16 @@ import OpenAI from "openai";
 
 async function main() {
     const client = new PaidClient({ token: "<your_paid_api_key>" });
-    const openaiClient = new OpenAI({ apiKey: "<your_openai_api_key" });
 
     // initialize cost tracking
     await client.initializeTracing()
 
     // wrap openai in paid wrapper
+    const openaiClient = new OpenAI({ apiKey: "<your_openai_api_key" });
     const paidOpenAiWrapper = new PaidOpenAI(openaiClient);
 
-    // capture the call
-    await client.capture("<your_external_customer_id>", async () => {
+    // trace the call
+    await client.trace("<your_external_customer_id>", async () => {
         const response = await paidOpenAiWrapper.images.generate({
             prompt: "A beautiful sunset over the mountains",
             n: 1,
@@ -116,7 +117,7 @@ async function main() {
         if (response.data) {
             console.log("Image generation:", response.data[0].url);
         }
-    });
+    }, "<optional_external_agent_id>");
 }
 ```
 
