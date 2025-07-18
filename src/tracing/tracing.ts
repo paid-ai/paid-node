@@ -1,7 +1,8 @@
 import { NodeSDK } from "@opentelemetry/sdk-node";
+import { NodeTracerProvider } from "@opentelemetry/sdk-trace-node";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { BatchSpanProcessor, SpanProcessor } from "@opentelemetry/sdk-trace-base";
-import { trace, SpanStatusCode } from "@opentelemetry/api";
+import { SpanStatusCode } from "@opentelemetry/api";
 import { AsyncLocalStorage } from "async_hooks";
 import winston from "winston";
 
@@ -14,6 +15,14 @@ const logLevel = process.env.PAID_LOG_LEVEL;
 if (logLevel) {
     logger.level = logLevel;
 }
+
+const COLLECTOR_ENDPOINT = process.env.PAID_COLLECTOR_ENDPOINT || "https://collector.agentpaid.io:4318/v1/traces";
+
+// set up default tracing provider
+let paidExporter = new OTLPTraceExporter({ url: COLLECTOR_ENDPOINT });
+let spanProcessor = new BatchSpanProcessor(paidExporter);
+let paidTracerProvider = new NodeTracerProvider({ spanProcessors: [spanProcessor] });
+export let paidTracer = paidTracerProvider.getTracer("paid.node");
 
 // storage for passing info to child spans
 const customerIdStorage = new AsyncLocalStorage<string | null>();
@@ -48,60 +57,26 @@ function setupGracefulShutdown(shuttable: NodeSDK | SpanProcessor) {
     });
 }
 
-function isOTELInitialized(): boolean {
-    const provider = trace.getTracerProvider();
-    if (!provider) {
-        return false;
-    }
-    if (provider.constructor.name !== "ProxyTracerProvider" && provider.constructor.name !== "NodeTracerProvider") {
-        return true;
-    }
-    if ((provider as any)._delegate) {
-        return (provider as any)._delegate.constructor.name !== "NoopTracerProvider";
-    }
-    return false;
-}
-
-export function _initializeTracing(apiKey: string, collectorEndpoint: string) {
+export function _initializeTracing(apiKey: string, collectorEndpoint?: string) {
     if (getToken()) {
         throw new Error("Tracing SDK is already initialized.");
     }
     if (!apiKey) {
         throw new Error("Cannot initialize tracing SDK - first initialize the PaidClient with an API key");
     }
-    try {
-        new URL(collectorEndpoint);
-    } catch {
-        throw new Error(`Collector endpoint [${collectorEndpoint}] must be a valid URL`);
+
+    if (collectorEndpoint) {
+        paidExporter = new OTLPTraceExporter({ url: collectorEndpoint });
+        spanProcessor = new BatchSpanProcessor(paidExporter);
+        paidTracerProvider = new NodeTracerProvider({ spanProcessors: [spanProcessor] });
+        paidTracer = paidTracerProvider.getTracer("paid.node");
     }
 
-    if (isOTELInitialized()) {
-        throw new Error(
-            "OTEL SDK is already initialized with a different provider.\n" +
-                "If you're already using OTEL in your code - " +
-                "please use function Paid.getSpanProcessorAndInitialize() " +
-                "and add the span processor to your OTEL SDK initialization",
-        );
-    }
-
-    const sdk = new NodeSDK({
-        traceExporter: new OTLPTraceExporter({
-            url: collectorEndpoint,
-        }),
-    });
-    sdk.start();
-
-    setupGracefulShutdown(sdk);
-
-    setToken(apiKey);
-    logger.info(`Paid tracing SDK initialized with collector endpoint: ${collectorEndpoint}`);
-}
-
-export function _getSpanProcessorAndInitialize(apiKey: string, collectorEndpoint: string): SpanProcessor {
-    setToken(apiKey);
-    const spanProcessor = new BatchSpanProcessor(new OTLPTraceExporter({ url: collectorEndpoint }));
     setupGracefulShutdown(spanProcessor);
-    return spanProcessor;
+
+    setToken(apiKey);
+    const collectorAddress = collectorEndpoint || COLLECTOR_ENDPOINT;
+    logger.info(`Paid tracing SDK initialized with collector endpoint: ${collectorAddress}`);
 }
 
 export async function _trace<T extends (...args: any[]) => any>(
@@ -110,11 +85,11 @@ export async function _trace<T extends (...args: any[]) => any>(
     externalAgentId: string | undefined,
     ...args: Parameters<T>
 ): Promise<ReturnType<T>> {
-    const tracer = trace.getTracer("paid.node");
+    const tracer = paidTracer;
     const token = getToken();
 
     if (!token || !externalCustomerId) {
-        throw new Error(`Token [${token}] or external customer ID [${externalCustomerId}] is missing`);
+        throw new Error(`Paid tracing is not initialized. Make sure to call initializeTracing() first.`);
     }
 
     return tracer.startActiveSpan("paid.node", async (span) => {
