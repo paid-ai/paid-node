@@ -1,7 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { trace, SpanStatusCode, context, Tracer } from "@opentelemetry/api";
-import { getCustomerIdStorage, getAgentIdStorage, getTokenStorage } from "../tracing.js";
-import { Message, MessageCreateParams } from "@anthropic-ai/sdk/resources/messages";
+import { SpanStatusCode, Tracer } from "@opentelemetry/api";
+import { getCustomerIdStorage, getAgentIdStorage, getTokenStorage, paidTracer } from "../tracing.js";
+import { MessageCreateParams } from "@anthropic-ai/sdk/resources/messages";
 
 export class PaidAnthropic {
     private readonly anthropic: Anthropic;
@@ -9,7 +9,7 @@ export class PaidAnthropic {
 
     constructor(anthropicClient: Anthropic) {
         this.anthropic = anthropicClient;
-        this.tracer = trace.getTracer("paid.node");
+        this.tracer = paidTracer;
     }
 
     public get messages(): MessagesWrapper {
@@ -24,11 +24,6 @@ class MessagesWrapper {
     ) {}
 
     public async create(params: MessageCreateParams): Promise<any> {
-        const currentSpan = trace.getSpan(context.active());
-        if (!currentSpan) {
-            throw new Error("No active span found, make sure to call this inside of a callback to paid.trace().");
-        }
-
         const externalCustomerId = getCustomerIdStorage();
         const externalAgentId = getAgentIdStorage();
         const token = getTokenStorage();

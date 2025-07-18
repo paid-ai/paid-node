@@ -10,7 +10,7 @@ import { Agents } from "./api/resources/agents/client/Client.js";
 import { Contacts } from "./api/resources/contacts/client/Client.js";
 import { Orders } from "./api/resources/orders/client/Client.js";
 import { Usage } from "./wrapper/BatchUsage.js";
-import { _trace, _initializeTracing, _getSpanProcessorAndInitialize } from "./tracing/tracing.js";
+import { _trace, _initializeTracing } from "./tracing/tracing.js";
 import { _signal } from "./tracing/signal.js";
 
 export declare namespace PaidClient {
@@ -80,10 +80,8 @@ export class PaidClient {
         return (this._usage ??= new Usage(this._options));
     }
 
-    // Use this method if you want paid to initialize tracing automatically.
-    public async initializeTracing(
-        collectorEndpoint: string = "https://collector.agentpaid.io:4318/v1/traces",
-    ): Promise<void> {
+    // Need to call this method before using tracing or creating wrappers.
+    public async initializeTracing(collectorEndpoint?: string): Promise<void> {
         const tokenSupplier = this._options.token;
         const token = typeof tokenSupplier === "function" ? await tokenSupplier() : tokenSupplier;
         const resolvedToken = await Promise.resolve(token);
@@ -104,13 +102,5 @@ export class PaidClient {
     // sends Paid signal. This needs to called as part of callback to Paid.trace()
     public signal(eventName: string, data?: Record<string, any>): void {
         return _signal(eventName, data);
-    }
-
-    // Use this method if you're setting up OTEL SDK in your code and want to add Paid's span processor.
-    public async getSpanProcessorAndInitialize(collectorEndpoint: string = "https://collector.agentpaid.io:4318/v1/traces") {
-        const tokenSupplier = this._options.token;
-        const token = typeof tokenSupplier === "function" ? await tokenSupplier() : tokenSupplier;
-        const resolvedToken = await Promise.resolve(token);
-        return _getSpanProcessorAndInitialize(resolvedToken, collectorEndpoint);
     }
 }

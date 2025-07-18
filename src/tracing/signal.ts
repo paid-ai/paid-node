@@ -1,15 +1,10 @@
-import { trace, SpanStatusCode} from "@opentelemetry/api";
+import { SpanStatusCode } from "@opentelemetry/api";
 import { getCustomerIdStorage, getAgentIdStorage, getTokenStorage } from "./tracing.js";
+import { paidTracer } from "./tracing.js";
 
 export function _signal(eventName: string, data?: Record<string, any>): void {
     if (!eventName) {
         throw new Error("Event name is required for signal.");
-    }
-
-    // Check if there's an active span (from _trace())
-    const currentSpan = trace.getActiveSpan();
-    if (!currentSpan) {
-        throw new Error("Cannot send signal: you should call signal() within trace()");
     }
 
     const externalCustomerId = getCustomerIdStorage();
@@ -22,7 +17,7 @@ export function _signal(eventName: string, data?: Record<string, any>): void {
         );
     }
 
-    const tracer = trace.getTracer("paid.node");
+    const tracer = paidTracer;
     tracer.startActiveSpan("trace.signal", (span) => {
         try {
             const attributes: Record<string, string | number | boolean> = {

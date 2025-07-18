@@ -1,7 +1,7 @@
 import { BaseCallbackHandler } from "@langchain/core/callbacks/base";
 import { LLMResult } from "@langchain/core/outputs";
-import { trace, SpanStatusCode, context, Tracer, Span } from "@opentelemetry/api";
-import { getCustomerIdStorage, getAgentIdStorage, getTokenStorage } from "../tracing.js";
+import { SpanStatusCode, Tracer, Span } from "@opentelemetry/api";
+import { getCustomerIdStorage, getAgentIdStorage, getTokenStorage, paidTracer } from "../tracing.js";
 
 interface SerializedData {
     id?: string[];
@@ -21,7 +21,7 @@ export class PaidLangChainCallback extends BaseCallbackHandler {
 
     constructor() {
         super();
-        this.tracer = trace.getTracer("paid.node");
+        this.tracer = paidTracer;
     }
 
     private extractProvider(serialized: SerializedData): string {
@@ -48,11 +48,6 @@ export class PaidLangChainCallback extends BaseCallbackHandler {
         tags?: string[],
         metadata?: Metadata,
     ): Promise<void> {
-        const currentSpan = trace.getSpan(context.active());
-        if (!currentSpan) {
-            throw new Error("No active span found, make sure to call this inside of a callback to paid.trace().");
-        }
-
         const externalCustomerId = getCustomerIdStorage();
         const externalAgentId = getAgentIdStorage();
         const token = getTokenStorage();
