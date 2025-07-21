@@ -225,7 +225,7 @@ class ImagesWrapper {
         const externalCustomerId = getCustomerIdStorage();
         const externalAgentId = getAgentIdStorage();
         const token = getTokenStorage();
-        const model = params.model ?? "dall-e-3";
+        const model = params.model || "";
 
         if (!token || !externalCustomerId) {
             throw new Error(
@@ -251,8 +251,8 @@ class ImagesWrapper {
 
                 span.setAttributes({
                     "gen_ai.image.count": params.n ?? 1,
-                    "gen_ai.image.size": params.size ?? "1024x1024",
-                    "gen_ai.image.quality": params.quality ?? "standard",
+                    "gen_ai.image.size": params.size || "",
+                    "gen_ai.image.quality": params.quality || "",
                 });
 
                 span.setStatus({ code: SpanStatusCode.OK });
