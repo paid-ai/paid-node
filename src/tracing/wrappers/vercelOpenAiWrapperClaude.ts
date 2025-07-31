@@ -6,7 +6,7 @@ import {
   streamObject,
   embed,
   embedMany,
-  generateImage,
+  experimental_generateImage,
   LanguageModel,
   EmbeddingModel,
   ImageModel,
@@ -16,14 +16,8 @@ import {
   StreamObjectResult,
   EmbedResult,
   EmbedManyResult,
-  GenerateImageResult,
-  GenerateTextParams,
-  StreamTextParams,
-  GenerateObjectParams,
-  StreamObjectParams,
-  EmbedParams,
-  EmbedManyParams,
-  GenerateImageParams
+  Experimental_GenerateImageResult,
+  ToolSet
 } from "ai";
 
 import { SpanStatusCode, Tracer } from "@opentelemetry/api";
@@ -41,9 +35,9 @@ export class PaidAISDKOpenAI {
   /**
    * Generate text using the AI SDK with OpenTelemetry tracing
    */
-  public async generateText<TOOLS extends Record<string, any> = {}>(
-    params: GenerateTextParams<TOOLS>
-  ): Promise<GenerateTextResult<TOOLS>> {
+  public async generateText<TOOLS extends ToolSet = {}>(
+    params: any
+  ): Promise<any> {
     const externalCustomerId = getCustomerIdStorage();
     const externalAgentId = getAgentIdStorage();
     const token = getTokenStorage();
@@ -98,9 +92,9 @@ export class PaidAISDKOpenAI {
   /**
    * Stream text using the AI SDK with OpenTelemetry tracing
    */
-  public async streamText<TOOLS extends Record<string, any> = {}>(
-    params: StreamTextParams<TOOLS>
-  ): Promise<StreamTextResult<TOOLS>> {
+  public async streamText<TOOLS extends ToolSet = {}>(
+    params: any
+  ): Promise<any> {
     const externalCustomerId = getCustomerIdStorage();
     const externalAgentId = getAgentIdStorage();
     const token = getTokenStorage();
@@ -168,8 +162,8 @@ export class PaidAISDKOpenAI {
    * Generate structured object using the AI SDK with OpenTelemetry tracing
    */
   public async generateObject<T>(
-    params: GenerateObjectParams<T>
-  ): Promise<GenerateObjectResult<T>> {
+    params: any
+  ): Promise<any> {
     const externalCustomerId = getCustomerIdStorage();
     const externalAgentId = getAgentIdStorage();
     const token = getTokenStorage();
@@ -225,8 +219,8 @@ export class PaidAISDKOpenAI {
    * Stream structured object using the AI SDK with OpenTelemetry tracing
    */
   public async streamObject<T>(
-    params: StreamObjectParams<T>
-  ): Promise<StreamObjectResult<T>> {
+    params: any
+  ): Promise<any> {
     const externalCustomerId = getCustomerIdStorage();
     const externalAgentId = getAgentIdStorage();
     const token = getTokenStorage();
@@ -293,7 +287,7 @@ export class PaidAISDKOpenAI {
   /**
    * Generate embeddings using the AI SDK with OpenTelemetry tracing
    */
-  public async embed(params: EmbedParams): Promise<EmbedResult> {
+  public async embed(params: any): Promise<any> {
     const externalCustomerId = getCustomerIdStorage();
     const externalAgentId = getAgentIdStorage();
     const token = getTokenStorage();
@@ -347,7 +341,7 @@ export class PaidAISDKOpenAI {
   /**
    * Generate multiple embeddings using the AI SDK with OpenTelemetry tracing
    */
-  public async embedMany(params: EmbedManyParams): Promise<EmbedManyResult> {
+  public async embedMany(params: any): Promise<any> {
     const externalCustomerId = getCustomerIdStorage();
     const externalAgentId = getAgentIdStorage();
     const token = getTokenStorage();
@@ -401,7 +395,7 @@ export class PaidAISDKOpenAI {
   /**
    * Generate images using the AI SDK with OpenTelemetry tracing
    */
-  public async generateImage(params: GenerateImageParams): Promise<GenerateImageResult> {
+  public async generateImage(params: any): Promise<any> {
     const externalCustomerId = getCustomerIdStorage();
     const externalAgentId = getAgentIdStorage();
     const token = getTokenStorage();
@@ -438,7 +432,7 @@ export class PaidAISDKOpenAI {
       span.setAttributes(attributes);
 
       try {
-        const response = await generateImage(params);
+        const response = await experimental_generateImage(params);
 
         // Update attributes with actual values from response if available
         span.setAttributes({
