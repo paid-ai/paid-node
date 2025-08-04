@@ -43,7 +43,7 @@
         "@opentelemetry/api": "^1.9.0",
         "@opentelemetry/exporter-trace-otlp-http": "^0.202.0",
         "@opentelemetry/sdk-node": "^0.202.0",
-        "ai": "^4.3.19",
+        "ai": "^5.0.2",
         "form-data": "^4.0.0",
         "formdata-node": "^6.0.3",
         "js-base64": "3.7.7",
