@@ -257,34 +257,30 @@ export async function streamObject(params: StreamObjectParams): Promise<ReturnTy
     span.setAttributes(attributes);
 
     try {
-      const result = await originalStreamObject(params);
-
-      // Create a new result object with wrapped usage promise to avoid mutation
-      const wrappedResult = {
-        ...result,
-        usage: result.usage.then((usage) => {
-          if (usage) {
-            // Create a child span for usage tracking after streaming completes
-            return paidTracer.startActiveSpan("trace.ai-sdk.streamObject.usage", (usageSpan) => {
-              const usageAttrs = extractUsageMetrics(usage);
-              usageSpan.setAttributes(usageAttrs);
-              usageSpan.setStatus({ code: SpanStatusCode.OK });
-              usageSpan.end();
-              return usage;
-            });
+      const originalOnFinish = params.onFinish;
+      const wrappedParams = {
+        ...params,
+        onFinish: (result: any) => {
+          if (result.usage) {
+            const usageAttrs = extractUsageMetrics(result.usage);
+            span.setAttributes(usageAttrs);
           }
-          return usage;
-        })
+
+          if (originalOnFinish) {
+            originalOnFinish(result);
+          }
+
+          span.setStatus({ code: SpanStatusCode.OK });
+          span.end();
+        }
       };
 
-      span.setStatus({ code: SpanStatusCode.OK });
-      return wrappedResult;
+      const result = originalStreamObject(wrappedParams);
+      return result;
     } catch (error: any) {
       span.setStatus({ code: SpanStatusCode.ERROR, message: error.message });
       span.recordException(error);
       throw error;
-    } finally {
-      span.end();
     }
   });
 }
@@ -375,7 +371,6 @@ export async function embedMany(params: EmbedManyParams): Promise<ReturnType<typ
   });
 }
 
-// Export a wrapped version of all functions as default
 export default {
   generateText,
   streamText,

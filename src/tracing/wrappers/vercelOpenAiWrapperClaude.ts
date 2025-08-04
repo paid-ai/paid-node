@@ -92,9 +92,9 @@ export class PaidAISDKOpenAI {
   /**
    * Stream text using the AI SDK with OpenTelemetry tracing
    */
-  public async streamText<TOOLS extends ToolSet = {}>(
+  public streamText<TOOLS extends ToolSet = {}>(
     params: any
-  ): Promise<any> {
+  ): StreamTextResult<TOOLS, never> {
     const externalCustomerId = getCustomerIdStorage();
     const externalAgentId = getAgentIdStorage();
     const token = getTokenStorage();
@@ -105,7 +105,7 @@ export class PaidAISDKOpenAI {
       );
     }
 
-    return this.tracer.startActiveSpan("trace.ai-sdk.streamText", async (span) => {
+    return this.tracer.startActiveSpan("trace.ai-sdk.streamText", (span) => {
       const modelId = this.extractModelId(params.model);
 
       const attributes: Record<string, any> = {
@@ -147,7 +147,7 @@ export class PaidAISDKOpenAI {
           }
         };
 
-        const response = await streamText(wrappedParams);
+        const response = streamText(wrappedParams);
         return response;
       } catch (error: any) {
         span.setStatus({ code: SpanStatusCode.ERROR, message: error.message });
