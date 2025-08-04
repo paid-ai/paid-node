@@ -9,7 +9,6 @@ import {
   embedMany as originalEmbedMany,
 } from "ai";
 
-// Use the same parameter and return types as the original functions
 type GenerateTextParams = Parameters<typeof originalGenerateText>[0];
 type StreamTextParams = Parameters<typeof originalStreamText>[0];
 type GenerateObjectParams = Parameters<typeof originalGenerateObject>[0];
@@ -18,7 +17,6 @@ type EmbedParams = Parameters<typeof originalEmbed>[0];
 type EmbedManyParams = Parameters<typeof originalEmbedMany>[0];
 
 function getModelInfo(model: any): { system: string; modelName?: string } {
-  // Extract vendor and model name from the model object
   if (model?.modelId) {
     const modelId = model.modelId;
     if (modelId.startsWith('gpt-') || modelId.startsWith('text-embedding-') || modelId.startsWith('dall-e-')) {
@@ -35,7 +33,6 @@ function getModelInfo(model: any): { system: string; modelName?: string } {
     }
   }
 
-  // Fallback to provider info if available
   if (model?.provider) {
     return { system: model.provider, modelName: model.modelId };
   }
@@ -45,8 +42,6 @@ function getModelInfo(model: any): { system: string; modelName?: string } {
 
 function extractUsageMetrics(usage: any): Record<string, any> {
   const usageAttrs: Record<string, any> = {};
-
-  // Handle different property naming conventions
   const inputTokens = usage.promptTokens || usage.prompt_tokens || usage.inputTokens;
   const outputTokens = usage.completionTokens || usage.completion_tokens || usage.outputTokens;
   const cachedTokens = usage.cachedPromptTokens || usage.cached_prompt_tokens || usage.cachedInputTokens;
@@ -61,7 +56,6 @@ function extractUsageMetrics(usage: any): Record<string, any> {
     usageAttrs["gen_ai.usage.cached_input_tokens"] = cachedTokens;
   }
 
-  // Handle embedding-specific usage (single tokens field)
   if (usage.tokens !== undefined && inputTokens === undefined) {
     usageAttrs["gen_ai.usage.input_tokens"] = usage.tokens;
   }
@@ -111,13 +105,11 @@ export async function generateText(params: GenerateTextParams): Promise<ReturnTy
     try {
       const result = await originalGenerateText(params);
 
-      // Extract usage information from the result
       if (result.usage) {
         const usageAttrs = extractUsageMetrics(result.usage);
         span.setAttributes(usageAttrs);
       }
 
-      // Set response model if available
       if (result.response?.modelId) {
         span.setAttribute("gen_ai.response.model", result.response.modelId);
       }
@@ -194,7 +186,7 @@ export async function generateObject(params: GenerateObjectParams): Promise<Retu
   return paidTracer.startActiveSpan("trace.ai-sdk.generateObject", async (span) => {
     const attributes: Record<string, any> = {
       "gen_ai.system": aiSystem,
-      "gen_ai.operation.name": "chat", // Object generation uses chat models
+      "gen_ai.operation.name": "chat",
       "external_customer_id": context.externalCustomerId,
       "token": context.token,
     };
@@ -212,7 +204,6 @@ export async function generateObject(params: GenerateObjectParams): Promise<Retu
     try {
       const result = await originalGenerateObject(params);
 
-      // Extract usage information
       if (result.usage) {
         const usageAttrs = extractUsageMetrics(result.usage);
         span.setAttributes(usageAttrs);
@@ -310,7 +301,6 @@ export async function embed(params: EmbedParams): Promise<ReturnType<typeof orig
     try {
       const result = await originalEmbed(params);
 
-      // Extract usage information for embeddings
       if (result.usage) {
         const usageAttrs = extractUsageMetrics(result.usage);
         span.setAttributes(usageAttrs);
@@ -353,7 +343,6 @@ export async function embedMany(params: EmbedManyParams): Promise<ReturnType<typ
     try {
       const result = await originalEmbedMany(params);
 
-      // Extract usage information for batch embeddings
       if (result.usage) {
         const usageAttrs = extractUsageMetrics(result.usage);
         span.setAttributes(usageAttrs);
