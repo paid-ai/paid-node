@@ -20,6 +20,18 @@
             },
             "default": "./dist/cjs/index.js"
         },
+        "./vercel": {
+           "types": "./dist/cjs/vercel/index.d.ts",
+           "import": {
+               "types": "./dist/esm/vercel/index.d.mts",
+               "default": "./dist/esm/vercel/index.mjs"
+           },
+           "require": {
+               "types": "./dist/cjs/vercel/index.d.ts",
+               "default": "./dist/cjs/vercel/index.js"
+           },
+           "default": "./dist/cjs/vercel/index.js"
+       },
         "./package.json": "./package.json"
     },
     "files": [
