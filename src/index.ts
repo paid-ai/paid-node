@@ -3,7 +3,6 @@ export { PaidClient } from "./Client.js";
 export { PaidError, PaidTimeoutError } from "./errors/index.js";
 export { PaidEnvironment } from "./environments.js";
 export { PaidOpenAI } from "./tracing/wrappers/openAiWrapper.js";
-export { PaidAISDKOpenAI } from "./tracing/wrappers/vercelOpenAiWrapperClaude.js";
 export {
   generateText as paidGenerateText,
   streamText as paidStreamText,
