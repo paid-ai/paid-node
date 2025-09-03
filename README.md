@@ -167,7 +167,7 @@ async function main() {
     // trace the call
     await client.trace("<your_external_customer_id>", async () => {
         // ... your app logic, cost tracking LLM wrapper calls
-        paid.signal("signal_name", { "optional": "data" });
+        client.signal("signal_name", { "data": { // ... additional data, e.g. costs } });
     }, "<optional_external_agent_id>");
 }
 ```
