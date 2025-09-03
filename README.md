@@ -136,11 +136,13 @@ const additionalData = {
         }
     }
 };
-await client.usage.recordUsage({
-    agent_id: "<your_agent_id>",
-    event_name: "<your_signal_name>",
-    customer_id: "<your_customer_id>",
-    data: additionalData,
+await client.usage.recordBulk({
+    signals: [{
+        agent_id: "<your_agent_id>",
+        event_name: "<your_signal_name>",
+        customer_id: "<your_customer_id>",
+        data: additionalData,
+    }]
 })
 
 await client.usage.flush(); // need to flush to send usage immediately
