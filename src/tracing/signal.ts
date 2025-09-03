@@ -2,7 +2,7 @@ import { SpanStatusCode } from "@opentelemetry/api";
 import { getCustomerIdStorage, getAgentIdStorage, getTokenStorage } from "./tracing.js";
 import { paidTracer } from "./tracing.js";
 
-export function _signal(eventName: string, data?: Record<string, any>): void {
+export function _signal(eventName: string, enableCostTracing: boolean, data?: Record<string, any>): void {
     if (!eventName) {
         throw new Error("Event name is required for signal.");
     }
@@ -17,8 +17,7 @@ export function _signal(eventName: string, data?: Record<string, any>): void {
         );
     }
 
-    const tracer = paidTracer;
-    tracer.startActiveSpan("trace.signal", (span) => {
+    paidTracer.startActiveSpan("trace.signal", (span) => {
         try {
             const attributes: Record<string, string | number | boolean> = {
                 external_customer_id: externalCustomerId,
@@ -26,6 +25,11 @@ export function _signal(eventName: string, data?: Record<string, any>): void {
                 event_name: eventName,
                 token: token,
             };
+
+            if (enableCostTracing) {
+                // let the app know to associate this signal with cost traces
+                attributes["enable_cost_tracing"] = true;
+            }
 
             // Optional data (ex. manual cost tracking)
             if (data) {

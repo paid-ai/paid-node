@@ -22,6 +22,7 @@ const COLLECTOR_ENDPOINT = process.env.PAID_COLLECTOR_ENDPOINT || "https://colle
 let paidExporter = new OTLPTraceExporter({ url: COLLECTOR_ENDPOINT });
 let spanProcessor = new BatchSpanProcessor(paidExporter);
 let paidTracerProvider = new NodeTracerProvider({ spanProcessors: [spanProcessor] });
+paidTracerProvider.register();
 export let paidTracer = paidTracerProvider.getTracer("paid.node");
 
 // storage for passing info to child spans
@@ -69,6 +70,7 @@ export function _initializeTracing(apiKey: string, collectorEndpoint?: string) {
         paidExporter = new OTLPTraceExporter({ url: collectorEndpoint });
         spanProcessor = new BatchSpanProcessor(paidExporter);
         paidTracerProvider = new NodeTracerProvider({ spanProcessors: [spanProcessor] });
+        paidTracerProvider.register();
         paidTracer = paidTracerProvider.getTracer("paid.node");
     }
 
@@ -85,14 +87,13 @@ export async function _trace<T extends (...args: any[]) => any>(
     externalAgentId: string | undefined,
     ...args: Parameters<T>
 ): Promise<ReturnType<T>> {
-    const tracer = paidTracer;
     const token = getToken();
 
     if (!token || !externalCustomerId) {
         throw new Error(`Paid tracing is not initialized. Make sure to call initializeTracing() first.`);
     }
 
-    return tracer.startActiveSpan("paid.node", async (span) => {
+    return paidTracer.startActiveSpan("paid.node", async (span) => {
         span.setAttribute("external_customer_id", externalCustomerId);
         span.setAttribute("token", token);
         if (externalAgentId) {
