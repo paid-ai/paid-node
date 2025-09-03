@@ -146,6 +146,30 @@ await client.usage.recordUsage({
 await client.usage.flush(); // need to flush to send usage immediately
 ```
 
+## Send signals over OTLP
+
+Besides sending signals over REST, it's also possible to send signals as part or tracing
+context, just like with cost tracking.
+
+Example usage:
+
+```typescript
+import { PaidClient } from "@paid-ai/paid-node";
+
+async function main() {
+    const client = new PaidClient({ token: "<your_paid_api_key>" });
+
+    // initialize cost tracking
+    await client.initializeTracing()
+
+    // trace the call
+    await client.trace("<your_external_customer_id>", async () => {
+        // ... your app logic, cost tracking LLM wrapper calls
+        paid.signal("signal_name", { "optional": "data" });
+    }, "<optional_external_agent_id>");
+}
+```
+
 ## Advanced
 
 ### Additional Headers
