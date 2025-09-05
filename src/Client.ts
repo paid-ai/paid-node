@@ -88,7 +88,7 @@ export class PaidClient {
         _initializeTracing(resolvedToken, collectorEndpoint);
     }
 
-    // Use this method to track actions like LLM usage and sending signals.
+    // Use this method to track actions like LLM costs and sending signals.
     // The callback to this function is the work that you want to trace.
     public async trace<T extends (...args: any[]) => any>(
         externalCustomerId: string,
@@ -99,16 +99,24 @@ export class PaidClient {
         return await _trace(externalCustomerId, fn, externalAgentId, ...args);
     }
 
-    // Sends Paid signal. This needs to called as part of callback to Paid.trace()
-    public signal(eventName: string, data?: Record<string, any>): void {
-        return _signal(eventName, false, data);
-    }
-
-    // Sends Paid signal. This needs to called as part of callback to Paid.trace().
-    // The signal will be associated with cost traces within the same Paid.trace() context.
-    // It is advised to only make one call to this function per Paid.trace() context.
-    // Otherwise, there will be multiple signals that refer to the same costs.
-    public signalCosts(eventName: string, data?: Record<string, any>): void {
-        return _signal(eventName, true, data);
+    /**
+     * Sends Paid signal. Needs to be called as part of callback to Paid.trace().
+     * When enableCostTracing flag is on, signal is associated
+     * with cost traces from the same Paid.trace() context.
+     *
+     * @param eventName - The name of the signal.
+     * @param enableCostTracing - Whether to associate this signal with cost traces
+     * from the current Paid.trace() context (default: false)
+     * @param data - Optional additional data to include with the signal
+     *
+     * @remarks
+     * When enableCostTracing is on, the signal will be associated with cost
+     * traces within the same Paid.trace() context.
+     * It is advised to only make one call to this function
+     * with enableCostTracing per Paid.trace() context.
+     * Otherwise, there will be multiple signals that refer to the same costs.
+     */
+    public signal(eventName: string, enableCostTracing: boolean = false, data?: Record<string, any>): void {
+        return _signal(eventName, enableCostTracing, data);
     }
 }
