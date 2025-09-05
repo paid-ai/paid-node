@@ -99,8 +99,16 @@ export class PaidClient {
         return await _trace(externalCustomerId, fn, externalAgentId, ...args);
     }
 
-    // sends Paid signal. This needs to called as part of callback to Paid.trace()
+    // Sends Paid signal. This needs to called as part of callback to Paid.trace()
     public signal(eventName: string, data?: Record<string, any>): void {
-        return _signal(eventName, data);
+        return _signal(eventName, false, data);
+    }
+
+    // Sends Paid signal. This needs to called as part of callback to Paid.trace().
+    // The signal will be associated with cost traces within the same Paid.trace() context.
+    // It is advised to only make one call to this function per Paid.trace() context.
+    // Otherwise, there will be multiple signals that refer to the same costs.
+    public signalCosts(eventName: string, data?: Record<string, any>): void {
+        return _signal(eventName, true, data);
     }
 }
