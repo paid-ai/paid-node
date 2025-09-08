@@ -6,3 +6,11 @@ export { PaidOpenAI } from "./tracing/wrappers/openAiWrapper.js";
 export { PaidAnthropic } from "./tracing/wrappers/anthropicWrapper.js";
 export { PaidMistral } from "./tracing/wrappers/mistralWrapper.js";
 export { PaidLangChainCallback } from "./tracing/wrappers/langchainCallback.js";
+export {
+  generateText as paidVercelGenerateText,
+  streamText as paidVercelStreamText,
+  generateObject as paidVercelGenerateObject,
+  streamObject as paidVercelStreamObject,
+  embed as paidVercelEmbed,
+  embedMany as paidVercelEmbedMany,
+} from "./tracing/wrappers/vercelAIWrapper.js";
