@@ -29,6 +29,11 @@ export function _signal(eventName: string, enableCostTracing: boolean, data?: Re
             if (enableCostTracing) {
                 // let the app know to associate this signal with cost traces
                 attributes["enable_cost_tracing"] = true;
+                if (data === undefined) {
+                    data = { paid: { enable_cost_tracing: true } };
+                } else {
+                    data["paid"] = { enable_cost_tracing: true };
+                }
             }
 
             // Optional data (ex. manual cost tracking)
