@@ -116,7 +116,29 @@ export class PaidClient {
      * with enableCostTracing per Paid.trace() context.
      * Otherwise, there will be multiple signals that refer to the same costs.
      */
-    public signal(eventName: string, enableCostTracing: boolean = false, data?: Record<string, any>): void {
-        return _signal(eventName, enableCostTracing, data);
+    public signal(eventName: string): void;
+    public signal(eventName: string, data: Record<string, any>): void;
+    public signal(eventName: string, enableCostTracing: boolean, data?: Record<string, any>): void;
+    public signal(
+        eventName: string, 
+        enableCostTracingOrData?: boolean | Record<string, any>, 
+        data?: Record<string, any>
+    ): void {
+        let enableCostTracing: boolean = false;
+        let finalData: Record<string, any> | undefined;
+
+        if (typeof enableCostTracingOrData === 'boolean') {
+            // Case: signal(eventName, boolean, data?)
+            enableCostTracing = enableCostTracingOrData;
+            finalData = data;
+        } else if (typeof enableCostTracingOrData === 'object') {
+            // Case: signal(eventName, data)
+            enableCostTracing = false;
+            finalData = enableCostTracingOrData;
+        }
+        // Case: signal(eventName) - both remain default/undefined
+
+        return _signal(eventName, enableCostTracing, finalData);
     }
+
 }
