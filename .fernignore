@@ -1,7 +1,5 @@
-README.md
+LICENCE
 
-src/wrapper
-src/Client.ts
-src/index.ts
-src/tracing/
-package.json
+assets/**
+src/wrapper/**
+src/tracing/**
