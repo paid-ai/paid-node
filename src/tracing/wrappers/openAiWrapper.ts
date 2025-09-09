@@ -247,7 +247,7 @@ class ImagesWrapper {
             span.setAttributes(attributes);
 
             try {
-                const response = await this.openai.images.generate(params);
+                const response = await this.openai.images.generate(params) as ImagesResponse;
 
                 span.setAttributes({
                     "gen_ai.image.count": params.n ?? 1,
