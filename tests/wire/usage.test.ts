@@ -9,18 +9,19 @@ describe("Usage", () => {
     test("recordBulk", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = {};
-        const rawResponseBody = [];
+        const rawRequestBody = { signals: [{}, {}, {}] };
+
         server
             .mockEndpoint()
             .post("/usage/signals/bulk")
             .jsonBody(rawRequestBody)
             .respondWith()
             .statusCode(200)
-            .jsonBody(rawResponseBody)
             .build();
 
-        const response = await client.usage.recordBulk();
-        expect(response).toEqual([]);
+        const response = await client.usage.recordBulk({
+            signals: [{}, {}, {}],
+        });
+        expect(response).toEqual(undefined);
     });
 });

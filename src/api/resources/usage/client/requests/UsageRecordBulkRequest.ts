@@ -6,7 +6,9 @@ import * as Paid from "../../../../index.js";
 
 /**
  * @example
- *     {}
+ *     {
+ *         signals: [{}, {}, {}]
+ *     }
  */
 export interface UsageRecordBulkRequest {
     signals?: Paid.Signal[];

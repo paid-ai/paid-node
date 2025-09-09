@@ -43,19 +43,21 @@ export class Usage {
      * @param {Usage.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
-     *     await client.usage.recordBulk()
+     *     await client.usage.recordBulk({
+     *         signals: [{}, {}, {}]
+     *     })
      */
     public recordBulk(
         request: Paid.UsageRecordBulkRequest = {},
         requestOptions?: Usage.RequestOptions,
-    ): core.HttpResponsePromise<unknown[]> {
+    ): core.HttpResponsePromise<void> {
         return core.HttpResponsePromise.fromPromise(this.__recordBulk(request, requestOptions));
     }
 
     private async __recordBulk(
         request: Paid.UsageRecordBulkRequest = {},
         requestOptions?: Usage.RequestOptions,
-    ): Promise<core.WithRawResponse<unknown[]>> {
+    ): Promise<core.WithRawResponse<void>> {
         const _response = await core.fetcher({
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
@@ -77,7 +79,7 @@ export class Usage {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return { data: _response.body as unknown[], rawResponse: _response.rawResponse };
+            return { data: undefined, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {

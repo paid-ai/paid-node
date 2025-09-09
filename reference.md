@@ -56,7 +56,8 @@ await client.customers.list();
 
 ```typescript
 await client.customers.create({
-    name: "name",
+    name: "Acme, Inc.",
+    externalId: "acme-inc",
 });
 ```
 
@@ -153,7 +154,12 @@ await client.customers.get("customerId");
 <dd>
 
 ```typescript
-await client.customers.update("customerId", {});
+await client.customers.update("customerId", {
+    name: "Acme, Inc. (Updated)",
+    phone: "123-456-7890",
+    employeeCount: 101,
+    annualRevenue: 1000001,
+});
 ```
 
 </dd>
@@ -452,8 +458,9 @@ await client.agents.list();
 
 ```typescript
 await client.agents.create({
-    name: "name",
-    description: "description",
+    name: "Acme Agent",
+    description: "Acme Agent is an AI agent that does things.",
+    externalId: "acme-agent",
 });
 ```
 
@@ -550,7 +557,42 @@ await client.agents.get("agentId");
 <dd>
 
 ```typescript
-await client.agents.update("agentId", {});
+await client.agents.update("agentId", {
+    name: "Acme Agent (Updated)",
+    agentAttributes: [
+        {
+            name: "Emails sent signal",
+            active: true,
+            pricing: {
+                eventName: "emails_sent",
+                taxable: true,
+                chargeType: "usage",
+                pricingModel: "PerUnit",
+                billingFrequency: "monthly",
+                pricePoints: {
+                    USD: {
+                        tiers: [
+                            {
+                                minQuantity: 0,
+                                maxQuantity: 10,
+                                unitPrice: 100,
+                            },
+                            {
+                                minQuantity: 11,
+                                maxQuantity: 100,
+                                unitPrice: 90,
+                            },
+                            {
+                                minQuantity: 101,
+                                unitPrice: 80,
+                            },
+                        ],
+                    },
+                },
+            },
+        },
+    ],
+});
 ```
 
 </dd>
@@ -702,7 +744,27 @@ await client.agents.getByExternalId("externalId");
 <dd>
 
 ```typescript
-await client.agents.updateByExternalId("externalId", {});
+await client.agents.updateByExternalId("externalId", {
+    name: "Acme Agent (Updated)",
+    agentAttributes: [
+        {
+            name: "Emails sent signal",
+            active: true,
+            pricing: {
+                eventName: "emails_sent",
+                taxable: true,
+                chargeType: "usage",
+                pricingModel: "PerUnit",
+                billingFrequency: "monthly",
+                pricePoints: {
+                    USD: {
+                        unitPrice: 150,
+                    },
+                },
+            },
+        },
+    ],
+});
 ```
 
 </dd>
@@ -849,14 +911,11 @@ await client.contacts.list();
 
 ```typescript
 await client.contacts.create({
+    customerExternalId: "acme-inc",
     salutation: "Mr.",
-    firstName: "firstName",
-    lastName: "lastName",
-    email: "email",
-    billingStreet: "billingStreet",
-    billingCity: "billingCity",
-    billingCountry: "billingCountry",
-    billingPostalCode: "billingPostalCode",
+    firstName: "John",
+    lastName: "Doe",
+    email: "john.doe@example.com",
 });
 ```
 
@@ -1140,11 +1199,12 @@ await client.orders.list();
 
 ```typescript
 await client.orders.create({
-    customerId: "customerId",
-    billingContactId: "billingContactId",
-    name: "name",
-    startDate: "startDate",
-    currency: "currency",
+    customerExternalId: "acme-inc",
+    name: "Acme Order",
+    description: "Acme Order is an order for Acme, Inc.",
+    startDate: "2025-01-01",
+    endDate: "2026-01-01",
+    currency: "USD",
 });
 ```
 
@@ -1326,7 +1386,7 @@ await client.orders.activate("orderId");
 
 ## Usage
 
-<details><summary><code>client.usage.<a href="/src/api/resources/usage/client/Client.ts">recordBulk</a>({ ...params }) -> unknown[]</code></summary>
+<details><summary><code>client.usage.<a href="/src/api/resources/usage/client/Client.ts">recordBulk</a>({ ...params }) -> void</code></summary>
 <dl>
 <dd>
 
@@ -1339,7 +1399,9 @@ await client.orders.activate("orderId");
 <dd>
 
 ```typescript
-await client.usage.recordBulk();
+await client.usage.recordBulk({
+    signals: [{}, {}, {}],
+});
 ```
 
 </dd>
@@ -1389,7 +1451,20 @@ await client.usage.recordBulk();
 <dd>
 
 ```typescript
-await client.orders.lines.update("orderId");
+await client.orders.lines.update("orderId", {
+    lines: [
+        {
+            agentExternalId: "acme-agent",
+            name: "Order Line One",
+            description: "Order Line One is an order line for Acme, Inc.",
+        },
+        {
+            agentExternalId: "acme-agent-2",
+            name: "Order Line Two",
+            description: "Order Line Two is an order line for Acme, Inc.",
+        },
+    ],
+});
 ```
 
 </dd>

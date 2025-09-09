@@ -101,14 +101,11 @@ export class Contacts {
      *
      * @example
      *     await client.contacts.create({
+     *         customerExternalId: "acme-inc",
      *         salutation: "Mr.",
-     *         firstName: "firstName",
-     *         lastName: "lastName",
-     *         email: "email",
-     *         billingStreet: "billingStreet",
-     *         billingCity: "billingCity",
-     *         billingCountry: "billingCountry",
-     *         billingPostalCode: "billingPostalCode"
+     *         firstName: "John",
+     *         lastName: "Doe",
+     *         email: "john.doe@example.com"
      *     })
      */
     public create(

@@ -9,7 +9,20 @@ describe("Lines", () => {
     test("update", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = {};
+        const rawRequestBody = {
+            lines: [
+                {
+                    agentExternalId: "acme-agent",
+                    name: "Order Line One",
+                    description: "Order Line One is an order line for Acme, Inc.",
+                },
+                {
+                    agentExternalId: "acme-agent-2",
+                    name: "Order Line Two",
+                    description: "Order Line Two is an order line for Acme, Inc.",
+                },
+            ],
+        };
         const rawResponseBody = {
             id: "id",
             name: "name",
@@ -74,7 +87,20 @@ describe("Lines", () => {
             .jsonBody(rawResponseBody)
             .build();
 
-        const response = await client.orders.lines.update("orderId");
+        const response = await client.orders.lines.update("orderId", {
+            lines: [
+                {
+                    agentExternalId: "acme-agent",
+                    name: "Order Line One",
+                    description: "Order Line One is an order line for Acme, Inc.",
+                },
+                {
+                    agentExternalId: "acme-agent-2",
+                    name: "Order Line Two",
+                    description: "Order Line Two is an order line for Acme, Inc.",
+                },
+            ],
+        });
         expect(response).toEqual({
             id: "id",
             name: "name",

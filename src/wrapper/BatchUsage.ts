@@ -8,14 +8,14 @@ export class Usage extends UsageClient {
 
   public flush(
       requestOptions?: UsageClient.RequestOptions,
-  ): core.HttpResponsePromise<unknown[]> {
+  ): core.HttpResponsePromise<void> {
     return this.recordBulk({ signals: this.signals }, requestOptions);
   }
 
   public record(
       signal: Paid.Signal = {},
       requestOptions?: UsageClient.RequestOptions,
-  ): core.HttpResponsePromise<unknown[]> {
+  ): core.HttpResponsePromise<void> {
     if (!this.signals) {
       this.signals = [];
     }
@@ -29,7 +29,7 @@ export class Usage extends UsageClient {
       return response;
     }
 
-    return core.HttpResponsePromise.fromResult({ data: [], rawResponse: {} as core.RawResponse });
+    return core.HttpResponsePromise.fromResult({ data: undefined, rawResponse: {} as core.RawResponse });
   }
 
 }

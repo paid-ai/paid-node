@@ -5,6 +5,7 @@
 export interface Signal {
     event_name?: string;
     agent_id?: string;
+    external_agent_id?: string;
     customer_id?: string;
     data?: Record<string, unknown>;
 }

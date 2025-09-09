@@ -7,14 +7,11 @@ import * as Paid from "../../../../index.js";
 /**
  * @example
  *     {
+ *         customerExternalId: "acme-inc",
  *         salutation: "Mr.",
- *         firstName: "firstName",
- *         lastName: "lastName",
- *         email: "email",
- *         billingStreet: "billingStreet",
- *         billingCity: "billingCity",
- *         billingCountry: "billingCountry",
- *         billingPostalCode: "billingPostalCode"
+ *         firstName: "John",
+ *         lastName: "Doe",
+ *         email: "john.doe@example.com"
  *     }
  */
 export interface ContactCreate {
@@ -26,9 +23,9 @@ export interface ContactCreate {
     lastName: string;
     email: string;
     phone?: string;
-    billingStreet: string;
-    billingCity: string;
+    billingStreet?: string;
+    billingCity?: string;
     billingStateProvince?: string;
-    billingCountry: string;
-    billingPostalCode: string;
+    billingCountry?: string;
+    billingPostalCode?: string;
 }
