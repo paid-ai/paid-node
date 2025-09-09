@@ -7,6 +7,7 @@ import * as Paid from "../index.js";
 export interface Pricing {
     eventName?: string;
     taxable: boolean;
+    creditCost?: number;
     chargeType: Paid.ChargeType;
     pricingModel: Paid.PricingModelType;
     billingFrequency: Paid.BillingFrequency;

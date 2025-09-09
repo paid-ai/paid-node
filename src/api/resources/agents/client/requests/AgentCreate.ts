@@ -5,8 +5,9 @@
 /**
  * @example
  *     {
- *         name: "name",
- *         description: "description"
+ *         name: "Acme Agent",
+ *         description: "Acme Agent is an AI agent that does things.",
+ *         externalId: "acme-agent"
  *     }
  */
 export interface AgentCreate {
@@ -14,4 +15,5 @@ export interface AgentCreate {
     description: string;
     agentCode?: string;
     externalId?: string;
+    active?: boolean;
 }

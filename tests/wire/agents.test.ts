@@ -4,7 +4,6 @@
 
 import { mockServerPool } from "../mock-server/MockServerPool.js";
 import { PaidClient } from "../../src/Client";
-import * as Paid from "../../src/api/index";
 
 describe("Agents", () => {
     test("list", async () => {
@@ -28,7 +27,7 @@ describe("Agents", () => {
                             taxable: true,
                             chargeType: "oneTime",
                             pricingModel: "PerUnit",
-                            billingFrequency: "Monthly",
+                            billingFrequency: "monthly",
                             pricePoints: { key: {} },
                         },
                     },
@@ -55,7 +54,7 @@ describe("Agents", () => {
                             taxable: true,
                             chargeType: "oneTime",
                             pricingModel: "PerUnit",
-                            billingFrequency: "Monthly",
+                            billingFrequency: "monthly",
                             pricePoints: {
                                 key: {},
                             },
@@ -69,13 +68,17 @@ describe("Agents", () => {
     test("create", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = { name: "name", description: "description" };
+        const rawRequestBody = {
+            name: "Acme Agent",
+            description: "Acme Agent is an AI agent that does things.",
+            externalId: "acme-agent",
+        };
         const rawResponseBody = {
-            id: "id",
-            externalId: "externalId",
+            id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
+            externalId: "acme-agent",
             organizationId: "organizationId",
-            name: "name",
-            description: "description",
+            name: "Acme Agent",
+            description: "Acme Agent is an AI agent that does things.",
             active: true,
             agentCode: "agentCode",
             agentAttributes: [
@@ -86,7 +89,7 @@ describe("Agents", () => {
                         taxable: true,
                         chargeType: "oneTime",
                         pricingModel: "PerUnit",
-                        billingFrequency: "Monthly",
+                        billingFrequency: "monthly",
                         pricePoints: { key: {} },
                     },
                 },
@@ -102,15 +105,16 @@ describe("Agents", () => {
             .build();
 
         const response = await client.agents.create({
-            name: "name",
-            description: "description",
+            name: "Acme Agent",
+            description: "Acme Agent is an AI agent that does things.",
+            externalId: "acme-agent",
         });
         expect(response).toEqual({
-            id: "id",
-            externalId: "externalId",
+            id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
+            externalId: "acme-agent",
             organizationId: "organizationId",
-            name: "name",
-            description: "description",
+            name: "Acme Agent",
+            description: "Acme Agent is an AI agent that does things.",
             active: true,
             agentCode: "agentCode",
             agentAttributes: [
@@ -121,7 +125,7 @@ describe("Agents", () => {
                         taxable: true,
                         chargeType: "oneTime",
                         pricingModel: "PerUnit",
-                        billingFrequency: "Monthly",
+                        billingFrequency: "monthly",
                         pricePoints: {
                             key: {},
                         },
@@ -136,23 +140,24 @@ describe("Agents", () => {
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         const rawResponseBody = {
-            id: "id",
-            externalId: "externalId",
-            organizationId: "organizationId",
-            name: "name",
-            description: "description",
+            id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
+            externalId: "acme-agent",
+            organizationId: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
+            name: "Acme Agent",
+            description: "Acme Agent is an AI agent that does things.",
             active: true,
             agentCode: "agentCode",
             agentAttributes: [
                 {
-                    name: "name",
+                    name: "Emails sent signal",
                     active: true,
                     pricing: {
+                        eventName: "emails_sent",
                         taxable: true,
-                        chargeType: "oneTime",
+                        chargeType: "usage",
                         pricingModel: "PerUnit",
-                        billingFrequency: "Monthly",
-                        pricePoints: { key: {} },
+                        billingFrequency: "monthly",
+                        pricePoints: { USD: { unitPrice: 100 } },
                     },
                 },
             ],
@@ -161,24 +166,27 @@ describe("Agents", () => {
 
         const response = await client.agents.get("agentId");
         expect(response).toEqual({
-            id: "id",
-            externalId: "externalId",
-            organizationId: "organizationId",
-            name: "name",
-            description: "description",
+            id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
+            externalId: "acme-agent",
+            organizationId: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
+            name: "Acme Agent",
+            description: "Acme Agent is an AI agent that does things.",
             active: true,
             agentCode: "agentCode",
             agentAttributes: [
                 {
-                    name: "name",
+                    name: "Emails sent signal",
                     active: true,
                     pricing: {
+                        eventName: "emails_sent",
                         taxable: true,
-                        chargeType: "oneTime",
+                        chargeType: "usage",
                         pricingModel: "PerUnit",
-                        billingFrequency: "Monthly",
+                        billingFrequency: "monthly",
                         pricePoints: {
-                            key: {},
+                            USD: {
+                                unitPrice: 100,
+                            },
                         },
                     },
                 },
@@ -189,25 +197,58 @@ describe("Agents", () => {
     test("update", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = {};
+        const rawRequestBody = {
+            name: "Acme Agent (Updated)",
+            agentAttributes: [
+                {
+                    name: "Emails sent signal",
+                    active: true,
+                    pricing: {
+                        eventName: "emails_sent",
+                        taxable: true,
+                        chargeType: "usage",
+                        pricingModel: "PerUnit",
+                        billingFrequency: "monthly",
+                        pricePoints: {
+                            USD: {
+                                tiers: [
+                                    { minQuantity: 0, maxQuantity: 10, unitPrice: 100 },
+                                    { minQuantity: 11, maxQuantity: 100, unitPrice: 90 },
+                                    { minQuantity: 101, unitPrice: 80 },
+                                ],
+                            },
+                        },
+                    },
+                },
+            ],
+        };
         const rawResponseBody = {
-            id: "id",
-            externalId: "externalId",
+            id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
+            externalId: "acme-agent",
             organizationId: "organizationId",
-            name: "name",
-            description: "description",
+            name: "Acme Agent (Updated)",
+            description: "Acme Agent is an AI agent that does things.",
             active: true,
             agentCode: "agentCode",
             agentAttributes: [
                 {
-                    name: "name",
+                    name: "Emails sent signal",
                     active: true,
                     pricing: {
+                        eventName: "emails_sent",
                         taxable: true,
-                        chargeType: "oneTime",
+                        chargeType: "usage",
                         pricingModel: "PerUnit",
-                        billingFrequency: "Monthly",
-                        pricePoints: { key: {} },
+                        billingFrequency: "monthly",
+                        pricePoints: {
+                            USD: {
+                                tiers: [
+                                    { minQuantity: 0, maxQuantity: 10, unitPrice: 100 },
+                                    { minQuantity: 11, maxQuantity: 100, unitPrice: 90 },
+                                    { minQuantity: 101, unitPrice: 80 },
+                                ],
+                            },
+                        },
                     },
                 },
             ],
@@ -221,26 +262,79 @@ describe("Agents", () => {
             .jsonBody(rawResponseBody)
             .build();
 
-        const response = await client.agents.update("agentId", {});
+        const response = await client.agents.update("agentId", {
+            name: "Acme Agent (Updated)",
+            agentAttributes: [
+                {
+                    name: "Emails sent signal",
+                    active: true,
+                    pricing: {
+                        eventName: "emails_sent",
+                        taxable: true,
+                        chargeType: "usage",
+                        pricingModel: "PerUnit",
+                        billingFrequency: "monthly",
+                        pricePoints: {
+                            USD: {
+                                tiers: [
+                                    {
+                                        minQuantity: 0,
+                                        maxQuantity: 10,
+                                        unitPrice: 100,
+                                    },
+                                    {
+                                        minQuantity: 11,
+                                        maxQuantity: 100,
+                                        unitPrice: 90,
+                                    },
+                                    {
+                                        minQuantity: 101,
+                                        unitPrice: 80,
+                                    },
+                                ],
+                            },
+                        },
+                    },
+                },
+            ],
+        });
         expect(response).toEqual({
-            id: "id",
-            externalId: "externalId",
+            id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
+            externalId: "acme-agent",
             organizationId: "organizationId",
-            name: "name",
-            description: "description",
+            name: "Acme Agent (Updated)",
+            description: "Acme Agent is an AI agent that does things.",
             active: true,
             agentCode: "agentCode",
             agentAttributes: [
                 {
-                    name: "name",
+                    name: "Emails sent signal",
                     active: true,
                     pricing: {
+                        eventName: "emails_sent",
                         taxable: true,
-                        chargeType: "oneTime",
+                        chargeType: "usage",
                         pricingModel: "PerUnit",
-                        billingFrequency: "Monthly",
+                        billingFrequency: "monthly",
                         pricePoints: {
-                            key: {},
+                            USD: {
+                                tiers: [
+                                    {
+                                        minQuantity: 0,
+                                        maxQuantity: 10,
+                                        unitPrice: 100,
+                                    },
+                                    {
+                                        minQuantity: 11,
+                                        maxQuantity: 100,
+                                        unitPrice: 90,
+                                    },
+                                    {
+                                        minQuantity: 101,
+                                        unitPrice: 80,
+                                    },
+                                ],
+                            },
                         },
                     },
                 },
@@ -263,23 +357,24 @@ describe("Agents", () => {
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         const rawResponseBody = {
-            id: "id",
-            externalId: "externalId",
-            organizationId: "organizationId",
-            name: "name",
-            description: "description",
+            id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
+            externalId: "acme-agent",
+            organizationId: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
+            name: "Acme Agent",
+            description: "Acme Agent is an AI agent that does things.",
             active: true,
             agentCode: "agentCode",
             agentAttributes: [
                 {
-                    name: "name",
+                    name: "Emails sent signal",
                     active: true,
                     pricing: {
+                        eventName: "emails_sent",
                         taxable: true,
-                        chargeType: "oneTime",
+                        chargeType: "usage",
                         pricingModel: "PerUnit",
-                        billingFrequency: "Monthly",
-                        pricePoints: { key: {} },
+                        billingFrequency: "monthly",
+                        pricePoints: { USD: { unitPrice: 100 } },
                     },
                 },
             ],
@@ -294,24 +389,27 @@ describe("Agents", () => {
 
         const response = await client.agents.getByExternalId("externalId");
         expect(response).toEqual({
-            id: "id",
-            externalId: "externalId",
-            organizationId: "organizationId",
-            name: "name",
-            description: "description",
+            id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
+            externalId: "acme-agent",
+            organizationId: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
+            name: "Acme Agent",
+            description: "Acme Agent is an AI agent that does things.",
             active: true,
             agentCode: "agentCode",
             agentAttributes: [
                 {
-                    name: "name",
+                    name: "Emails sent signal",
                     active: true,
                     pricing: {
+                        eventName: "emails_sent",
                         taxable: true,
-                        chargeType: "oneTime",
+                        chargeType: "usage",
                         pricingModel: "PerUnit",
-                        billingFrequency: "Monthly",
+                        billingFrequency: "monthly",
                         pricePoints: {
-                            key: {},
+                            USD: {
+                                unitPrice: 100,
+                            },
                         },
                     },
                 },
@@ -322,25 +420,42 @@ describe("Agents", () => {
     test("updateByExternalId", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = {};
+        const rawRequestBody = {
+            name: "Acme Agent (Updated)",
+            agentAttributes: [
+                {
+                    name: "Emails sent signal",
+                    active: true,
+                    pricing: {
+                        eventName: "emails_sent",
+                        taxable: true,
+                        chargeType: "usage",
+                        pricingModel: "PerUnit",
+                        billingFrequency: "monthly",
+                        pricePoints: { USD: { unitPrice: 150 } },
+                    },
+                },
+            ],
+        };
         const rawResponseBody = {
-            id: "id",
-            externalId: "externalId",
+            id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
+            externalId: "acme-agent",
             organizationId: "organizationId",
-            name: "name",
-            description: "description",
+            name: "Acme Agent (Updated)",
+            description: "Acme Agent is an AI agent that does things.",
             active: true,
             agentCode: "agentCode",
             agentAttributes: [
                 {
-                    name: "name",
+                    name: "Emails sent signal",
                     active: true,
                     pricing: {
+                        eventName: "emails_sent",
                         taxable: true,
-                        chargeType: "oneTime",
+                        chargeType: "usage",
                         pricingModel: "PerUnit",
-                        billingFrequency: "Monthly",
-                        pricePoints: { key: {} },
+                        billingFrequency: "monthly",
+                        pricePoints: { USD: { unitPrice: 150 } },
                     },
                 },
             ],
@@ -354,26 +469,49 @@ describe("Agents", () => {
             .jsonBody(rawResponseBody)
             .build();
 
-        const response = await client.agents.updateByExternalId("externalId", {});
+        const response = await client.agents.updateByExternalId("externalId", {
+            name: "Acme Agent (Updated)",
+            agentAttributes: [
+                {
+                    name: "Emails sent signal",
+                    active: true,
+                    pricing: {
+                        eventName: "emails_sent",
+                        taxable: true,
+                        chargeType: "usage",
+                        pricingModel: "PerUnit",
+                        billingFrequency: "monthly",
+                        pricePoints: {
+                            USD: {
+                                unitPrice: 150,
+                            },
+                        },
+                    },
+                },
+            ],
+        });
         expect(response).toEqual({
-            id: "id",
-            externalId: "externalId",
+            id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
+            externalId: "acme-agent",
             organizationId: "organizationId",
-            name: "name",
-            description: "description",
+            name: "Acme Agent (Updated)",
+            description: "Acme Agent is an AI agent that does things.",
             active: true,
             agentCode: "agentCode",
             agentAttributes: [
                 {
-                    name: "name",
+                    name: "Emails sent signal",
                     active: true,
                     pricing: {
+                        eventName: "emails_sent",
                         taxable: true,
-                        chargeType: "oneTime",
+                        chargeType: "usage",
                         pricingModel: "PerUnit",
-                        billingFrequency: "Monthly",
+                        billingFrequency: "monthly",
                         pricePoints: {
-                            key: {},
+                            USD: {
+                                unitPrice: 150,
+                            },
                         },
                     },
                 },

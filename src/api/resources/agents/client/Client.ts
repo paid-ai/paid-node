@@ -101,8 +101,9 @@ export class Agents {
      *
      * @example
      *     await client.agents.create({
-     *         name: "name",
-     *         description: "description"
+     *         name: "Acme Agent",
+     *         description: "Acme Agent is an AI agent that does things.",
+     *         externalId: "acme-agent"
      *     })
      */
     public create(
@@ -232,7 +233,36 @@ export class Agents {
      * @param {Agents.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
-     *     await client.agents.update("agentId", {})
+     *     await client.agents.update("agentId", {
+     *         name: "Acme Agent (Updated)",
+     *         agentAttributes: [{
+     *                 name: "Emails sent signal",
+     *                 active: true,
+     *                 pricing: {
+     *                     eventName: "emails_sent",
+     *                     taxable: true,
+     *                     chargeType: "usage",
+     *                     pricingModel: "PerUnit",
+     *                     billingFrequency: "monthly",
+     *                     pricePoints: {
+     *                         "USD": {
+     *                             tiers: [{
+     *                                     minQuantity: 0,
+     *                                     maxQuantity: 10,
+     *                                     unitPrice: 100
+     *                                 }, {
+     *                                     minQuantity: 11,
+     *                                     maxQuantity: 100,
+     *                                     unitPrice: 90
+     *                                 }, {
+     *                                     minQuantity: 101,
+     *                                     unitPrice: 80
+     *                                 }]
+     *                         }
+     *                     }
+     *                 }
+     *             }]
+     *     })
      */
     public update(
         agentId: string,
@@ -427,7 +457,25 @@ export class Agents {
      * @param {Agents.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
-     *     await client.agents.updateByExternalId("externalId", {})
+     *     await client.agents.updateByExternalId("externalId", {
+     *         name: "Acme Agent (Updated)",
+     *         agentAttributes: [{
+     *                 name: "Emails sent signal",
+     *                 active: true,
+     *                 pricing: {
+     *                     eventName: "emails_sent",
+     *                     taxable: true,
+     *                     chargeType: "usage",
+     *                     pricingModel: "PerUnit",
+     *                     billingFrequency: "monthly",
+     *                     pricePoints: {
+     *                         "USD": {
+     *                             unitPrice: 150
+     *                         }
+     *                     }
+     *                 }
+     *             }]
+     *     })
      */
     public updateByExternalId(
         externalId: string,

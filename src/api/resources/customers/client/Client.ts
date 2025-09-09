@@ -101,7 +101,8 @@ export class Customers {
      *
      * @example
      *     await client.customers.create({
-     *         name: "name"
+     *         name: "Acme, Inc.",
+     *         externalId: "acme-inc"
      *     })
      */
     public create(
@@ -231,7 +232,12 @@ export class Customers {
      * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
-     *     await client.customers.update("customerId", {})
+     *     await client.customers.update("customerId", {
+     *         name: "Acme, Inc. (Updated)",
+     *         phone: "123-456-7890",
+     *         employeeCount: 101,
+     *         annualRevenue: 1000001
+     *     })
      */
     public update(
         customerId: string,

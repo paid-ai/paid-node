@@ -65,12 +65,12 @@ describe("Customers", () => {
     test("create", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = { name: "name" };
+        const rawRequestBody = { name: "Acme, Inc.", externalId: "acme-inc" };
         const rawResponseBody = {
-            id: "id",
+            id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
             organizationId: "organizationId",
-            name: "name",
-            externalId: "externalId",
+            name: "Acme, Inc.",
+            externalId: "acme-inc",
             phone: "phone",
             employeeCount: 1.1,
             annualRevenue: 1.1,
@@ -97,13 +97,14 @@ describe("Customers", () => {
             .build();
 
         const response = await client.customers.create({
-            name: "name",
+            name: "Acme, Inc.",
+            externalId: "acme-inc",
         });
         expect(response).toEqual({
-            id: "id",
+            id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
             organizationId: "organizationId",
-            name: "name",
-            externalId: "externalId",
+            name: "Acme, Inc.",
+            externalId: "acme-inc",
             phone: "phone",
             employeeCount: 1.1,
             annualRevenue: 1.1,
@@ -127,24 +128,24 @@ describe("Customers", () => {
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         const rawResponseBody = {
-            id: "id",
+            id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
             organizationId: "organizationId",
-            name: "name",
-            externalId: "externalId",
-            phone: "phone",
-            employeeCount: 1.1,
-            annualRevenue: 1.1,
-            taxExemptStatus: "none",
-            creationSource: "manual",
+            name: "Acme, Inc.",
+            externalId: "acme-inc",
+            phone: "123-456-7890",
+            employeeCount: 100,
+            annualRevenue: 1000000,
+            taxExemptStatus: "exempt",
+            creationSource: "api",
             creationState: "active",
-            website: "website",
+            website: "https://acme.com",
             billingAddress: {
-                line1: "line1",
-                line2: "line2",
-                city: "city",
-                state: "state",
-                zipCode: "zipCode",
-                country: "country",
+                line1: "123 Main St",
+                line2: "Apt 4B",
+                city: "Anytown",
+                state: "CA",
+                zipCode: "12345",
+                country: "US",
             },
         };
         server
@@ -157,24 +158,24 @@ describe("Customers", () => {
 
         const response = await client.customers.get("customerId");
         expect(response).toEqual({
-            id: "id",
+            id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
             organizationId: "organizationId",
-            name: "name",
-            externalId: "externalId",
-            phone: "phone",
-            employeeCount: 1.1,
-            annualRevenue: 1.1,
-            taxExemptStatus: "none",
-            creationSource: "manual",
+            name: "Acme, Inc.",
+            externalId: "acme-inc",
+            phone: "123-456-7890",
+            employeeCount: 100,
+            annualRevenue: 1000000,
+            taxExemptStatus: "exempt",
+            creationSource: "api",
             creationState: "active",
-            website: "website",
+            website: "https://acme.com",
             billingAddress: {
-                line1: "line1",
-                line2: "line2",
-                city: "city",
-                state: "state",
-                zipCode: "zipCode",
-                country: "country",
+                line1: "123 Main St",
+                line2: "Apt 4B",
+                city: "Anytown",
+                state: "CA",
+                zipCode: "12345",
+                country: "US",
             },
         });
     });
@@ -182,15 +183,20 @@ describe("Customers", () => {
     test("update", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = {};
+        const rawRequestBody = {
+            name: "Acme, Inc. (Updated)",
+            phone: "123-456-7890",
+            employeeCount: 101,
+            annualRevenue: 1000001,
+        };
         const rawResponseBody = {
-            id: "id",
+            id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
             organizationId: "organizationId",
-            name: "name",
-            externalId: "externalId",
-            phone: "phone",
-            employeeCount: 1.1,
-            annualRevenue: 1.1,
+            name: "Acme, Inc. (Updated)",
+            externalId: "acme-inc",
+            phone: "123-456-7890",
+            employeeCount: 101,
+            annualRevenue: 1000001,
             taxExemptStatus: "none",
             creationSource: "manual",
             creationState: "active",
@@ -213,15 +219,20 @@ describe("Customers", () => {
             .jsonBody(rawResponseBody)
             .build();
 
-        const response = await client.customers.update("customerId", {});
+        const response = await client.customers.update("customerId", {
+            name: "Acme, Inc. (Updated)",
+            phone: "123-456-7890",
+            employeeCount: 101,
+            annualRevenue: 1000001,
+        });
         expect(response).toEqual({
-            id: "id",
+            id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
             organizationId: "organizationId",
-            name: "name",
-            externalId: "externalId",
-            phone: "phone",
-            employeeCount: 1.1,
-            annualRevenue: 1.1,
+            name: "Acme, Inc. (Updated)",
+            externalId: "acme-inc",
+            phone: "123-456-7890",
+            employeeCount: 101,
+            annualRevenue: 1000001,
             taxExemptStatus: "none",
             creationSource: "manual",
             creationState: "active",
@@ -252,24 +263,24 @@ describe("Customers", () => {
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         const rawResponseBody = {
-            id: "id",
+            id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
             organizationId: "organizationId",
-            name: "name",
-            externalId: "externalId",
-            phone: "phone",
-            employeeCount: 1.1,
-            annualRevenue: 1.1,
-            taxExemptStatus: "none",
-            creationSource: "manual",
+            name: "Acme, Inc.",
+            externalId: "acme-inc",
+            phone: "123-456-7890",
+            employeeCount: 100,
+            annualRevenue: 1000000,
+            taxExemptStatus: "exempt",
+            creationSource: "api",
             creationState: "active",
-            website: "website",
+            website: "https://acme.com",
             billingAddress: {
-                line1: "line1",
-                line2: "line2",
-                city: "city",
-                state: "state",
-                zipCode: "zipCode",
-                country: "country",
+                line1: "123 Main St",
+                line2: "Apt 4B",
+                city: "Anytown",
+                state: "CA",
+                zipCode: "12345",
+                country: "US",
             },
         };
         server
@@ -282,24 +293,24 @@ describe("Customers", () => {
 
         const response = await client.customers.getByExternalId("externalId");
         expect(response).toEqual({
-            id: "id",
+            id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
             organizationId: "organizationId",
-            name: "name",
-            externalId: "externalId",
-            phone: "phone",
-            employeeCount: 1.1,
-            annualRevenue: 1.1,
-            taxExemptStatus: "none",
-            creationSource: "manual",
+            name: "Acme, Inc.",
+            externalId: "acme-inc",
+            phone: "123-456-7890",
+            employeeCount: 100,
+            annualRevenue: 1000000,
+            taxExemptStatus: "exempt",
+            creationSource: "api",
             creationState: "active",
-            website: "website",
+            website: "https://acme.com",
             billingAddress: {
-                line1: "line1",
-                line2: "line2",
-                city: "city",
-                state: "state",
-                zipCode: "zipCode",
-                country: "country",
+                line1: "123 Main St",
+                line2: "Apt 4B",
+                city: "Anytown",
+                state: "CA",
+                zipCode: "12345",
+                country: "US",
             },
         });
     });

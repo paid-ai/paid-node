@@ -7,7 +7,8 @@ import * as Paid from "../../../../index.js";
 /**
  * @example
  *     {
- *         name: "name"
+ *         name: "Acme, Inc.",
+ *         externalId: "acme-inc"
  *     }
  */
 export interface CustomerCreate {

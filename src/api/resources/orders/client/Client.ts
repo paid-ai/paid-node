@@ -107,11 +107,12 @@ export class Orders {
      *
      * @example
      *     await client.orders.create({
-     *         customerId: "customerId",
-     *         billingContactId: "billingContactId",
-     *         name: "name",
-     *         startDate: "startDate",
-     *         currency: "currency"
+     *         customerExternalId: "acme-inc",
+     *         name: "Acme Order",
+     *         description: "Acme Order is an order for Acme, Inc.",
+     *         startDate: "2025-01-01",
+     *         endDate: "2026-01-01",
+     *         currency: "USD"
      *     })
      */
     public create(
