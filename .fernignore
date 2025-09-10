@@ -6,4 +6,3 @@ src/wrapper/
 src/tracing/
 
 src/Client.ts
-src/index.ts
