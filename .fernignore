@@ -4,5 +4,6 @@ LICENSE
 assets/
 src/wrapper/
 src/tracing/
+src/*-wrapper/
 
 src/Client.ts
