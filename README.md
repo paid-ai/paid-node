@@ -86,30 +86,41 @@ To enable logs, set the `PAID_LOG_LEVEL` environment variable. Available levels 
 
 Example: `PAID_LOG_LEVEL=debug node your-app.js`
 
-## Cost Tracking
+## Cost Tracking via OTEL tracing
 
-It's possible to track usage costs by using Paid wrappers around you AI provider API.
-As of now, the following AI providers are supported: `OpenAI`, `Anthropic`, `Mistral` (OCR), and `Langchain`.
+You can track usage costs by using Paid wrappers around your AI provider's SDK.
+As of now, the following SDKs' APIs are wrapped:
 
-Example usage:
+```
+openai
+anthropic
+mistral
+langchain (as a callback)
+vercel (Vercel AI SDK)
+```
+
+### Using the Paid wrappers
+
+Example usage with OpenAI:
 
 ```typescript
-import { PaidClient, PaidOpenAI } from "@paid-ai/paid-node";
+import { PaidClient } from "@paid-ai/paid-node";
+import { PaidOpenAI } from "@paid-ai/paid-node/openai";
 import OpenAI from "openai";
 
 async function main() {
     const client = new PaidClient({ token: "<your_paid_api_key>" });
 
-    // initialize cost tracking
-    await client.initializeTracing()
+    // Initialize cost tracking
+    await client.initializeTracing();
 
-    // wrap openai in paid wrapper
-    const openaiClient = new OpenAI({ apiKey: "<your_openai_api_key" });
-    const paidOpenAiWrapper = new PaidOpenAI(openaiClient);
+    // Wrap OpenAI in paid wrapper
+    const openaiClient = new OpenAI({ apiKey: "<your_openai_api_key>" });
+    const paidOpenAI = new PaidOpenAI(openaiClient);
 
-    // trace the call
+    // Trace the call
     await client.trace("<your_external_customer_id>", async () => {
-        const response = await paidOpenAiWrapper.images.generate({
+        const response = await paidOpenAI.images.generate({
             prompt: "A beautiful sunset over the mountains",
             n: 1,
             size: "256x256"
@@ -121,39 +132,15 @@ async function main() {
 }
 ```
 
-## Manual Cost Tracking
+## Signaling via OTEL tracing
 
-When using `client.usage.recordUsage()` API, it's possible to create cost traces manually
-just by passing in the cost data.
+A more reliable and user-friendly way to send signals is to send them via OTEL tracing.
+This allows you to send signals with less arguments and boilerplate as the information is available in the tracing context `Paid.trace()`.
+The interface is `Paid.signal()`, which takes in signal name, optional data, and a flag that attaches costs from the same trace.
+`Paid.signal()` has to be called within a trace - meaning inside of a callback to `Paid.trace()`.
+In contrast to `Paid.usage.recordBulk()`, `Paid.signal()` is using OpenTelemetry to provide reliable delivery.
 
-```typescript
-const additionalData = {
-    costData: {
-        vendor: "<vendor_name>", // can be anything
-        cost : {
-            amount: 0.0001,
-            currency: "USD"
-        }
-    }
-};
-await client.usage.recordBulk({
-    signals: [{
-        agent_id: "<your_agent_id>",
-        event_name: "<your_signal_name>",
-        customer_id: "<your_customer_id>",
-        data: additionalData,
-    }]
-})
-
-await client.usage.flush(); // need to flush to send usage immediately
-```
-
-## Send signals over OTLP
-
-Besides sending signals over REST, it's also possible to send signals as part or tracing
-context, just like with cost tracking.
-
-Example usage:
+Here's an example of how to use it:
 
 ```typescript
 import { PaidClient } from "@paid-ai/paid-node";
@@ -161,14 +148,168 @@ import { PaidClient } from "@paid-ai/paid-node";
 async function main() {
     const client = new PaidClient({ token: "<your_paid_api_key>" });
 
-    // initialize cost tracking
-    await client.initializeTracing()
+    // Initialize tracing
+    await client.initializeTracing();
 
-    // trace the call
+    // Trace the call
     await client.trace("<your_external_customer_id>", async () => {
-        // ... your app logic, cost tracking LLM wrapper calls
-        client.signal("signal_name", { "data": { // ... additional data, e.g. costs } });
-    }, "<optional_external_agent_id>");
+        // ...do some work...
+        client.signal("<your_signal_name>", { /* optional data */ });
+    }, "<your_external_agent_id>"); // external_agent_id is required for signals
+}
+```
+
+### Signal-costs - Attaching cost traces to a signal
+
+If you want a signal to carry information about costs,
+then the signal should be sent from the same tracing context
+as the wrappers that recorded those costs.
+
+This will look something like this:
+
+```typescript
+import { PaidClient } from "@paid-ai/paid-node";
+import { PaidOpenAI } from "@paid-ai/paid-node/openai";
+import OpenAI from "openai";
+
+async function main() {
+    const client = new PaidClient({ token: "<your_paid_api_key>" });
+    await client.initializeTracing();
+
+    const openaiClient = new OpenAI({ apiKey: "<your_openai_api_key>" });
+    const paidOpenAI = new PaidOpenAI(openaiClient);
+
+    await client.trace("<your_external_customer_id>", async () => {
+        // ... your workflow logic
+        // ... your AI calls made through Paid wrappers
+        const response = await paidOpenAI.chat.completions.create({
+            model: "gpt-4",
+            messages: [{ role: "user", content: "Hello!" }]
+        });
+
+        // Send signal with cost tracing enabled
+        client.signal(
+            "<your_signal_name>",
+            true, // enableCostTracing - set this flag to associate it with costs
+            { /* optional data */ }
+        );
+
+        // ... your workflow logic
+        // ... your AI calls made through Paid wrappers (can be sent after the signal too)
+    }, "<your_external_agent_id>");
+}
+```
+
+Then, all of the costs traced in `client.trace()` context are related to that signal.
+
+## Manual Cost Tracking
+
+If you would prefer to not use Paid to track your costs automatically but you want to send us the costs yourself,
+then you can use manual cost tracking mechanism. Just attach the cost information in the following format to a signal payload:
+
+```typescript
+import { PaidClient, Paid } from "@paid-ai/paid-node";
+
+const client = new PaidClient({ token: "<your_paid_api_key>" });
+
+const signal: Paid.Signal = {
+    event_name: "<your_signal_name>",
+    agent_id: "<your_agent_id>",
+    customer_id: "<your_external_customer_id>",
+    data: {
+        costData: {
+            vendor: "<any_vendor_name>", // can be anything, traces are grouped by vendors in the UI
+            cost: {
+                amount: 0.002,
+                currency: "USD"
+            },
+            "gen_ai.response.model": "<ai_model_name>",
+        }
+    }
+};
+
+await client.usage.recordBulk({ signals: [signal] });
+await client.usage.flush(); // need to flush to send usage immediately
+```
+
+Alternatively the same `costData` payload can be passed to OTLP signaling mechanism:
+
+```typescript
+import { PaidClient } from "@paid-ai/paid-node";
+
+async function main() {
+    const client = new PaidClient({ token: "<your_paid_api_key>" });
+    await client.initializeTracing();
+
+    await client.trace("<your_external_customer_id>", async () => {
+        // ...do some work...
+        client.signal("<your_signal_name>", {
+            costData: {
+                vendor: "<any_vendor_name>", // can be anything, traces are grouped by vendors in the UI
+                cost: {
+                    amount: 0.002,
+                    currency: "USD"
+                },
+                "gen_ai.response.model": "<ai_model_name>",
+            }
+        });
+    }, "<your_external_agent_id>");
+}
+```
+
+### Manual Usage Tracking
+
+If you would prefer to send us raw usage manually (without wrappers) and have us compute the cost, you can attach usage data in the following format:
+
+```typescript
+import { PaidClient, Paid } from "@paid-ai/paid-node";
+
+const client = new PaidClient({ token: "<your_paid_api_key>" });
+
+const signal: Paid.Signal = {
+    event_name: "<your_signal_name>",
+    agent_id: "<your_agent_id>",
+    customer_id: "<your_external_customer_id>",
+    data: {
+        costData: {
+            vendor: "<any_vendor_name>", // can be anything, traces are grouped by vendors in the UI
+            attributes: {
+                "gen_ai.response.model": "gpt-4-turbo",
+                "gen_ai.usage.input_tokens": 100,
+                "gen_ai.usage.output_tokens": 300,
+                "gen_ai.usage.cached_input_tokens": 600,
+            },
+        }
+    }
+};
+
+await client.usage.recordBulk({ signals: [signal] });
+await client.usage.flush();
+```
+
+Same but via OTEL signaling:
+
+```typescript
+import { PaidClient } from "@paid-ai/paid-node";
+
+async function main() {
+    const client = new PaidClient({ token: "<your_paid_api_key>" });
+    await client.initializeTracing();
+
+    await client.trace("<your_external_customer_id>", async () => {
+        // ...do some work...
+        client.signal("<your_signal_name>", {
+            costData: {
+                vendor: "<any_vendor_name>", // can be anything, traces are grouped by vendors in the UI
+                attributes: {
+                    "gen_ai.response.model": "gpt-4-turbo",
+                    "gen_ai.usage.input_tokens": 100,
+                    "gen_ai.usage.output_tokens": 300,
+                    "gen_ai.usage.cached_input_tokens": 600,
+                },
+            }
+        });
+    }, "<your_external_agent_id>");
 }
 ```
 
