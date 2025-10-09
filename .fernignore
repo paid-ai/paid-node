@@ -4,6 +4,10 @@ LICENSE
 assets/
 src/wrapper/
 src/tracing/
-src/*-wrapper/
+src/anthropic-wrapper/
+src/langchain-wrapper/
+src/mistral-wrapper/
+src/openai-wrapper/
+src/vercel-wrapper/
 
 src/Client.ts
