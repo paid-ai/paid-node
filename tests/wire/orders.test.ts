@@ -295,7 +295,7 @@ describe("Orders", () => {
                     },
                     orderLineAttributes: [
                         {
-                            agentAttributeId: "emails_sent",
+                            agentAttributeId: "a1b2c3d4-5678-90ab-cdef-1234567890ab",
                             quantity: 1,
                             currency: "USD",
                             pricing: {
@@ -390,7 +390,7 @@ describe("Orders", () => {
                     },
                     orderLineAttributes: [
                         {
-                            agentAttributeId: "emails_sent",
+                            agentAttributeId: "a1b2c3d4-5678-90ab-cdef-1234567890ab",
                             quantity: 1,
                             currency: "USD",
                             pricing: {

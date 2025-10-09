@@ -22,6 +22,8 @@ export * from "./OrderLineAttributePricing.js";
 export * from "./PricePoint.js";
 export * from "./Tier.js";
 export * from "./OrderLineCreate.js";
+export * from "./OrderLineAttributeCreate.js";
 export * from "./Signal.js";
 export * from "./Error_.js";
 export * from "./ApiError.js";
+export * from "./EntitlementUsage.js";

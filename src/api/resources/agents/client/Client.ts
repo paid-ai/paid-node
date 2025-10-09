@@ -14,7 +14,7 @@ export declare namespace Agents {
         environment?: core.Supplier<environments.PaidEnvironment | string>;
         /** Specify a custom URL to connect the client to. */
         baseUrl?: core.Supplier<string>;
-        token: core.Supplier<core.BearerToken>;
+        token?: core.Supplier<core.BearerToken | undefined>;
         /** Additional headers to include in requests. */
         headers?: Record<string, string | core.Supplier<string | undefined> | undefined>;
     }
@@ -34,7 +34,7 @@ export declare namespace Agents {
 export class Agents {
     protected readonly _options: Agents.Options;
 
-    constructor(_options: Agents.Options) {
+    constructor(_options: Agents.Options = {}) {
         this._options = _options;
     }
 
@@ -605,7 +605,12 @@ export class Agents {
         }
     }
 
-    protected async _getAuthorizationHeader(): Promise<string> {
-        return `Bearer ${await core.Supplier.get(this._options.token)}`;
+    protected async _getAuthorizationHeader(): Promise<string | undefined> {
+        const bearer = await core.Supplier.get(this._options.token);
+        if (bearer != null) {
+            return `Bearer ${bearer}`;
+        }
+
+        return undefined;
     }
 }

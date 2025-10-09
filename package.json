@@ -1,6 +1,6 @@
 {
     "name": "@paid-ai/paid-node",
-    "version": "0.2.1",
+    "version": "0.2.2",
     "private": false,
     "repository": "https://github.com/paid-ai/paid-node",
     "type": "commonjs",
@@ -19,66 +19,6 @@
                 "default": "./dist/cjs/index.js"
             },
             "default": "./dist/cjs/index.js"
-        },
-        "./openai": {
-            "types": "./dist/cjs/openai-wrapper/index.d.ts",
-            "import": {
-                "types": "./dist/esm/openai-wrapper/index.d.mts",
-                "default": "./dist/esm/openai-wrapper/index.mjs"
-            },
-            "require": {
-                "types": "./dist/cjs/openai-wrapper/index.d.ts",
-                "default": "./dist/cjs/openai-wrapper/index.js"
-            },
-            "default": "./dist/cjs/openai-wrapper/index.js"
-        },
-        "./anthropic": {
-            "types": "./dist/cjs/anthropic-wrapper/index.d.ts",
-            "import": {
-                "types": "./dist/esm/anthropic-wrapper/index.d.mts",
-                "default": "./dist/esm/anthropic-wrapper/index.mjs"
-            },
-            "require": {
-                "types": "./dist/cjs/anthropic-wrapper/index.d.ts",
-                "default": "./dist/cjs/anthropic-wrapper/index.js"
-            },
-            "default": "./dist/cjs/anthropic-wrapper/index.js"
-        },
-        "./mistral": {
-            "types": "./dist/cjs/mistral-wrapper/index.d.ts",
-            "import": {
-                "types": "./dist/esm/mistral-wrapper/index.d.mts",
-                "default": "./dist/esm/mistral-wrapper/index.mjs"
-            },
-            "require": {
-                "types": "./dist/cjs/mistral-wrapper/index.d.ts",
-                "default": "./dist/cjs/mistral-wrapper/index.js"
-            },
-            "default": "./dist/cjs/mistral-wrapper/index.js"
-        },
-        "./langchain": {
-            "types": "./dist/cjs/langchain-wrapper/index.d.ts",
-            "import": {
-                "types": "./dist/esm/langchain-wrapper/index.d.mts",
-                "default": "./dist/esm/langchain-wrapper/index.mjs"
-            },
-            "require": {
-                "types": "./dist/cjs/langchain-wrapper/index.d.ts",
-                "default": "./dist/cjs/langchain-wrapper/index.js"
-            },
-            "default": "./dist/cjs/langchain-wrapper/index.js"
-        },
-        "./vercel": {
-            "types": "./dist/cjs/vercel-wrapper/index.d.ts",
-            "import": {
-                "types": "./dist/esm/vercel-wrapper/index.d.mts",
-                "default": "./dist/esm/vercel-wrapper/index.mjs"
-            },
-            "require": {
-                "types": "./dist/cjs/vercel-wrapper/index.d.ts",
-                "default": "./dist/cjs/vercel-wrapper/index.js"
-            },
-            "default": "./dist/cjs/vercel-wrapper/index.js"
         },
         "./package.json": "./package.json"
     },

@@ -14,7 +14,7 @@ export declare namespace Customers {
         environment?: core.Supplier<environments.PaidEnvironment | string>;
         /** Specify a custom URL to connect the client to. */
         baseUrl?: core.Supplier<string>;
-        token: core.Supplier<core.BearerToken>;
+        token?: core.Supplier<core.BearerToken | undefined>;
         /** Additional headers to include in requests. */
         headers?: Record<string, string | core.Supplier<string | undefined> | undefined>;
     }
@@ -34,7 +34,7 @@ export declare namespace Customers {
 export class Customers {
     protected readonly _options: Customers.Options;
 
-    constructor(_options: Customers.Options) {
+    constructor(_options: Customers.Options = {}) {
         this._options = _options;
     }
 
@@ -363,6 +363,79 @@ export class Customers {
     }
 
     /**
+     * @param {string} customerId - The customer ID
+     * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.ForbiddenError}
+     *
+     * @example
+     *     await client.customers.getEntitlements("customerId")
+     */
+    public getEntitlements(
+        customerId: string,
+        requestOptions?: Customers.RequestOptions,
+    ): core.HttpResponsePromise<Paid.EntitlementUsage[]> {
+        return core.HttpResponsePromise.fromPromise(this.__getEntitlements(customerId, requestOptions));
+    }
+
+    private async __getEntitlements(
+        customerId: string,
+        requestOptions?: Customers.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.EntitlementUsage[]>> {
+        const _response = await core.fetcher({
+            url: urlJoin(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Production,
+                `customers/${encodeURIComponent(customerId)}/credit-bundles`,
+            ),
+            method: "GET",
+            headers: mergeHeaders(
+                this._options?.headers,
+                mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+                requestOptions?.headers,
+            ),
+            timeoutMs: requestOptions?.timeoutInSeconds != null ? requestOptions.timeoutInSeconds * 1000 : 60000,
+            maxRetries: requestOptions?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.EntitlementUsage[], rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as Paid.Error_, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError(
+                    "Timeout exceeded when calling GET /customers/{customerId}/credit-bundles.",
+                );
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
      * @param {string} externalId
      * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
      *
@@ -566,7 +639,12 @@ export class Customers {
         }
     }
 
-    protected async _getAuthorizationHeader(): Promise<string> {
-        return `Bearer ${await core.Supplier.get(this._options.token)}`;
+    protected async _getAuthorizationHeader(): Promise<string | undefined> {
+        const bearer = await core.Supplier.get(this._options.token);
+        if (bearer != null) {
+            return `Bearer ${bearer}`;
+        }
+
+        return undefined;
     }
 }
