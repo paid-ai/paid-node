@@ -14,6 +14,16 @@ import * as Paid from "../../../../index.js";
  *         endDate: "2026-01-01",
  *         currency: "USD"
  *     }
+ *
+ * @example
+ *     {
+ *         customerExternalId: "acme-inc",
+ *         name: "Acme Order with Custom Pricing",
+ *         description: "Order with customized attribute pricing",
+ *         startDate: "2025-01-01",
+ *         endDate: "2026-01-01",
+ *         currency: "USD"
+ *     }
  */
 export interface OrderCreate {
     customerId?: string;

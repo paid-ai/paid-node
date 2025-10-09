@@ -258,6 +258,53 @@ describe("Customers", () => {
         expect(response).toEqual(undefined);
     });
 
+    test("getEntitlements", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = [
+            {
+                id: "id",
+                createdAt: "2024-01-15T09:30:00Z",
+                updatedAt: "2024-01-15T09:30:00Z",
+                organizationId: "organizationId",
+                productId: "productId",
+                entitlementId: "entitlementId",
+                customerId: "customerId",
+                startDate: "2024-01-15T09:30:00Z",
+                endDate: "2024-01-15T09:30:00Z",
+                total: 1000000,
+                available: 1000000,
+                used: 1000000,
+            },
+        ];
+        server
+            .mockEndpoint()
+            .get("/customers/customerId/credit-bundles")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.customers.getEntitlements("customerId");
+        expect(response).toEqual([
+            {
+                id: "id",
+                createdAt: "2024-01-15T09:30:00Z",
+                updatedAt: "2024-01-15T09:30:00Z",
+                organizationId: "organizationId",
+                productId: "productId",
+                entitlementId: "entitlementId",
+                customerId: "customerId",
+                startDate: "2024-01-15T09:30:00Z",
+                endDate: "2024-01-15T09:30:00Z",
+                total: 1000000,
+                available: 1000000,
+                used: 1000000,
+            },
+        ]);
+    });
+
     test("getByExternalId", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });

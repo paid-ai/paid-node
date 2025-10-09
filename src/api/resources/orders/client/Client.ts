@@ -15,7 +15,7 @@ export declare namespace Orders {
         environment?: core.Supplier<environments.PaidEnvironment | string>;
         /** Specify a custom URL to connect the client to. */
         baseUrl?: core.Supplier<string>;
-        token: core.Supplier<core.BearerToken>;
+        token?: core.Supplier<core.BearerToken | undefined>;
         /** Additional headers to include in requests. */
         headers?: Record<string, string | core.Supplier<string | undefined> | undefined>;
     }
@@ -36,7 +36,7 @@ export class Orders {
     protected readonly _options: Orders.Options;
     protected _lines: Lines | undefined;
 
-    constructor(_options: Orders.Options) {
+    constructor(_options: Orders.Options = {}) {
         this._options = _options;
     }
 
@@ -110,6 +110,16 @@ export class Orders {
      *         customerExternalId: "acme-inc",
      *         name: "Acme Order",
      *         description: "Acme Order is an order for Acme, Inc.",
+     *         startDate: "2025-01-01",
+     *         endDate: "2026-01-01",
+     *         currency: "USD"
+     *     })
+     *
+     * @example
+     *     await client.orders.create({
+     *         customerExternalId: "acme-inc",
+     *         name: "Acme Order with Custom Pricing",
+     *         description: "Order with customized attribute pricing",
      *         startDate: "2025-01-01",
      *         endDate: "2026-01-01",
      *         currency: "USD"
@@ -358,7 +368,12 @@ export class Orders {
         }
     }
 
-    protected async _getAuthorizationHeader(): Promise<string> {
-        return `Bearer ${await core.Supplier.get(this._options.token)}`;
+    protected async _getAuthorizationHeader(): Promise<string | undefined> {
+        const bearer = await core.Supplier.get(this._options.token);
+        if (bearer != null) {
+            return `Bearer ${bearer}`;
+        }
+
+        return undefined;
     }
 }
