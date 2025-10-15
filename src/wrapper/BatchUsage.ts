@@ -9,7 +9,9 @@ export class Usage extends UsageClient {
   public flush(
       requestOptions?: UsageClient.RequestOptions,
   ): core.HttpResponsePromise<void> {
-    return this.recordBulk({ signals: this.signals }, requestOptions);
+    const response = this.recordBulk({ signals: this.signals }, requestOptions);
+    this.signals = [];
+    return response;
   }
 
   public record(
