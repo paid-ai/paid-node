@@ -8,4 +8,6 @@ export interface Signal {
     external_agent_id?: string;
     customer_id?: string;
     data?: Record<string, unknown>;
+    /** A unique key to ensure idempotent signal processing */
+    idempotency_key?: string;
 }
