@@ -450,6 +450,67 @@ await client.customers.deleteByExternalId("externalId");
 </dl>
 </details>
 
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">getCostsByExternalId</a>(externalId, { ...params }) -> Paid.CostTracesResponse</code></summary>
+<dl>
+<dd>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.customers.getCostsByExternalId("externalId", {
+    limit: 1,
+    offset: 1,
+    startTime: "2024-01-15T09:30:00Z",
+    endTime: "2024-01-15T09:30:00Z",
+});
+```
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**externalId:** `string` — The external ID of the customer
+
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request:** `Paid.CustomersGetCostsByExternalIdRequest`
+
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Customers.RequestOptions`
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+</dd>
+</dl>
+</details>
+
 ## Agents
 
 <details><summary><code>client.agents.<a href="/src/api/resources/agents/client/Client.ts">list</a>() -> Paid.Agent[]</code></summary>
