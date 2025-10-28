@@ -6,8 +6,13 @@ export interface Signal {
     event_name?: string;
     agent_id?: string;
     external_agent_id?: string;
+    /** Deprecated. The external customer id. Use `external_customer_id` or `internal_customer_id` instead. */
     customer_id?: string;
     data?: Record<string, unknown>;
     /** A unique key to ensure idempotent signal processing */
     idempotency_key?: string;
+    /** Paid's internal customer ID */
+    internal_customer_id?: string;
+    /** Your system's customer ID */
+    external_customer_id?: string;
 }
