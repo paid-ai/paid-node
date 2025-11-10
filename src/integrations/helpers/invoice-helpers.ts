@@ -1,48 +1,39 @@
-/**
- * Invoice helpers for Paid SDK
- * Simplifies invoice payment and billing status operations
- */
+import { paidApiFetch } from "../utils/api-fetch.js";
+import { createHandler } from "../utils/base-handler.js";
 
 export interface PayInvoiceConfig {
-    apiUrl: string;
-    apiKey: string;
-    organizationId: string;
+  apiUrl: string;
+  apiKey: string;
+  organizationId: string;
 }
 
 export interface BillingStatus {
-    customerId: string;
-    hasUnpaidInvoices: boolean;
-    daysPastDue: number;
-    totalOutstanding: number;
-    unpaidInvoicesCount: number;
-    totalInvoices: number;
-    hasActiveOrders: boolean;
-}
-
-interface InvoiceData {
-    paymentStatus: "pending" | "paid" | "overdue" | "partiallyPaid";
-    dueDate: string;
-    amountDue: number;
+  customerId: string;
+  hasUnpaidInvoices: boolean;
+  daysPastDue: number;
+  totalOutstanding: number;
+  unpaidInvoicesCount: number;
+  totalInvoices: number;
+  hasActiveOrders: boolean;
 }
 
 export interface PayInvoiceRequest {
-    invoiceId: string;
-    confirmationToken: string;
-    returnUrl?: string;
+  invoiceId: string;
+  confirmationToken: string;
+  returnUrl?: string;
 }
 
 export interface PayInvoiceResult {
-    success: boolean;
-    data?: any;
+  success: boolean;
+  data?: any;
 }
 
 export interface CustomerInvoicesResult {
-    data: any[];
+  data: any[];
 }
 
 /**
  * Pay an invoice with a payment confirmation token
- *
  * This helper processes payment for an existing invoice using a Stripe confirmation token.
  *
  * @param config - API configuration with organization context
@@ -66,47 +57,32 @@ export interface CustomerInvoicesResult {
  * ```
  */
 export async function payInvoice(
-    config: PayInvoiceConfig,
-    request: PayInvoiceRequest
+  config: PayInvoiceConfig,
+  request: PayInvoiceRequest
 ): Promise<PayInvoiceResult> {
-    const { invoiceId, confirmationToken, returnUrl } = request;
+  const { invoiceId, confirmationToken, returnUrl } = request;
 
-    if (!invoiceId || !confirmationToken) {
-        throw new Error("invoiceId and confirmationToken are required");
+  if (!invoiceId || !confirmationToken) {
+    throw new Error("invoiceId and confirmationToken are required");
+  }
+
+  const data = await paidApiFetch(
+    config,
+    `/api/organizations/${config.organizationId}/invoices/${invoiceId}/pay`,
+    {
+      method: "PUT",
+      body: {
+        confirmationToken,
+        ...(returnUrl && { returnUrl }),
+      },
     }
+  );
 
-    try {
-        const response = await fetch(
-            `${config.apiUrl}/api/organizations/${config.organizationId}/invoices/${invoiceId}/pay`,
-            {
-                method: "PUT",
-                headers: {
-                    Authorization: `Bearer ${config.apiKey}`,
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    confirmationToken,
-                    ...(returnUrl && { returnUrl }),
-                }),
-            }
-        );
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Failed to pay invoice: ${errorText}`);
-        }
-
-        const data = await response.json();
-        return { success: true, data };
-    } catch (error) {
-        console.error("Error paying invoice:", error);
-        throw error;
-    }
+  return { success: true, data };
 }
 
 /**
  * Get customer invoices
- *
  * Fetches all invoices for a customer by their external ID.
  *
  * @param config - API configuration with organization context
@@ -128,33 +104,108 @@ export async function payInvoice(
  * ```
  */
 export async function getCustomerInvoices(
-    config: PayInvoiceConfig,
-    customerExternalId: string
+  config: PayInvoiceConfig,
+  customerExternalId: string
 ): Promise<CustomerInvoicesResult> {
-    if (!customerExternalId) {
-        throw new Error("customerExternalId is required");
-    }
+  if (!customerExternalId) {
+    throw new Error("customerExternalId is required");
+  }
 
-    try {
-        const url = `${config.apiUrl}/api/organizations/${config.organizationId}/customer/external/${customerExternalId}/invoices`;
+  const data = await paidApiFetch(
+    config,
+    `/api/organizations/${config.organizationId}/customer/external/${customerExternalId}/invoices`,
+    { method: "GET" }
+  );
 
-        const response = await fetch(url, {
-            method: "GET",
-            headers: {
-                Authorization: `Bearer ${config.apiKey}`,
-                "Content-Type": "application/json",
-            },
-        });
+  return { data: data.data || data || [] };
+}
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Failed to fetch customer invoices: ${errorText}`);
-        }
+interface CustomerInvoicesRequest {
+  customerExternalId: string;
+}
 
-        const data = await response.json();
-        return { data: data.data || data || [] };
-    } catch (error) {
-        console.error("Error fetching customer invoices:", error);
-        throw error;
-    }
+/**
+ * Create a framework-agnostic handler for fetching customer invoices
+ *
+ * This handler can be used with any framework adapter.
+ * Organization ID is automatically fetched from the API key.
+ *
+ * @returns Handler function
+ */
+export function createCustomerInvoicesHandler() {
+  return createHandler<CustomerInvoicesRequest, any>(
+    async (_client, _body, params, organizationId) => {
+      if (!organizationId) {
+        return { success: false, error: 'Organization ID not found', status: 500 };
+      }
+
+      const customerExternalId = params?.customerExternalId;
+      if (!customerExternalId) {
+        return { success: false, error: 'customerExternalId is required', status: 400 };
+      }
+
+      const apiKey = process.env.PAID_API_KEY || '';
+      const apiUrl = process.env.PAID_API_URL || 'https://api.agentpaid.io';
+
+      const result = await getCustomerInvoices(
+        { apiUrl, apiKey, organizationId },
+        customerExternalId
+      );
+
+      return {
+        success: true,
+        data: result.data,
+      };
+    },
+    { allowedMethods: ['GET'], requireOrganizationId: true }
+  );
+}
+
+interface PayInvoiceRequestWithBody {
+  invoiceId?: string;
+  confirmationToken: string;
+  returnUrl?: string;
+}
+
+/**
+ * Create a framework-agnostic handler for invoice payment
+ *
+ * This handler can be used with any framework adapter.
+ * Organization ID is automatically fetched from the API key.
+ *
+ * @returns Handler function
+ */
+export function createPayInvoiceHandler() {
+  return createHandler<PayInvoiceRequestWithBody, any>(
+    async (_client, body, params, organizationId) => {
+      if (!organizationId) {
+        return { success: false, error: 'Organization ID not found', status: 500 };
+      }
+
+      const invoiceId = params?.invoiceId || body.invoiceId;
+      const { confirmationToken, returnUrl } = body;
+
+      if (!invoiceId) {
+        return { success: false, error: 'invoiceId is required', status: 400 };
+      }
+
+      if (!confirmationToken) {
+        return { success: false, error: 'confirmationToken is required', status: 400 };
+      }
+
+      const apiKey = process.env.PAID_API_KEY || '';
+      const apiUrl = process.env.PAID_API_URL || 'https://api.agentpaid.io';
+
+      const result = await payInvoice(
+        { apiUrl, apiKey, organizationId },
+        { invoiceId, confirmationToken, returnUrl }
+      );
+
+      return {
+        success: true,
+        data: result.data,
+      };
+    },
+    { requiredFields: ['confirmationToken'], requireOrganizationId: true }
+  );
 }

@@ -1,3 +1,4 @@
+import { PaidClient } from "Client.js";
 import type {
   CustomerData,
   CompleteCustomerData,
@@ -5,7 +6,6 @@ import type {
   Address
 } from "../types.js";
 import { createHandler } from "../utils/base-handler.js";
-import { PaidClient } from "../../Client.js";
 
 /**
  * Generate placeholder values for missing customer fields
