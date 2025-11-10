@@ -104,3 +104,33 @@ export interface OrderCreationResult {
   id: string;
   creationState?: string;
 }
+
+export interface ProvisioningConfig {
+  /**
+   * Customer data (externalId required)
+   */
+  customer: CustomerData;
+
+  /**
+   * Contact data (optional, will use customer email if not provided)
+   */
+  contact?: Partial<ContactData>;
+
+  /**
+   * Agent external ID for order creation (optional)
+   * If not provided, no order will be created
+   */
+  agentExternalId?: string;
+
+  /**
+   * Options for order creation
+   */
+  orderOptions?: OrderOptions;
+}
+
+export interface ProvisioningResult {
+  customer: CustomerCreationResult;
+  contact: ContactCreationResult;
+  order?: OrderCreationResult;
+}
+

@@ -28,8 +28,6 @@
 
 export * from "./controllers/index.js";
 
-export { initializePaidClient, getOrganizationId, type PaidClientConfig } from "./client.js";
-
 export type {
   Address,
   CustomerData,
@@ -42,9 +40,6 @@ export type {
   CustomerCreationResult,
   ContactCreationResult,
   OrderCreationResult,
-} from "./types.js";
-
-export type {
   ProvisioningConfig,
   ProvisioningResult,
-} from "./controllers/provision-users.js";
+} from "./types.js";

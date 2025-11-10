@@ -9,48 +9,12 @@ import { createContactWithDefaults } from "./contacts.js";
 import { createOrderWithDefaults } from "./orders.js";
 import { createHandler } from "../utils/base-handler.js";
 import type {
-  CustomerData,
   ContactData,
-  CustomerCreationResult,
-  ContactCreationResult,
   OrderCreationResult,
-  OrderOptions
+  OrderOptions,
+  ProvisioningConfig,
+  ProvisioningResult
 } from "../types.js";
-
-/**
- * Configuration for user provisioning
- */
-export interface ProvisioningConfig {
-  /**
-   * Customer data (externalId required)
-   */
-  customer: CustomerData;
-
-  /**
-   * Contact data (optional, will use customer email if not provided)
-   */
-  contact?: Partial<ContactData>;
-
-  /**
-   * Agent external ID for order creation (optional)
-   * If not provided, no order will be created
-   */
-  agentExternalId?: string;
-
-  /**
-   * Options for order creation
-   */
-  orderOptions?: OrderOptions;
-}
-
-/**
- * Result from user provisioning
- */
-export interface ProvisioningResult {
-  customer: CustomerCreationResult;
-  contact: ContactCreationResult;
-  order?: OrderCreationResult;
-}
 
 /**
  * Provision a new user with customer, contact, and optionally order
