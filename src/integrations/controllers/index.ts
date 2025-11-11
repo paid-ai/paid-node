@@ -37,6 +37,5 @@ export {
 
 export {
   provisionNewUser,
-  provisionUserByEmail,
   createProvisioningHandler,
 } from "./provision-users.js";

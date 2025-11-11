@@ -1,4 +1,4 @@
-import { PaidClient } from "Client.js";
+import { PaidClient } from "../../Client.js";
 import type {
   CustomerData,
   CompleteCustomerData,

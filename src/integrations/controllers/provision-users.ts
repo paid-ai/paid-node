@@ -10,6 +10,7 @@ import { createOrderWithDefaults } from "./orders.js";
 import { createHandler } from "../utils/base-handler.js";
 import type {
   ContactData,
+  CustomerData,
   OrderCreationResult,
   OrderOptions,
   ProvisioningConfig,
@@ -78,84 +79,69 @@ export async function provisionNewUser(
 }
 
 /**
- * Simplified provisioning using just email
- *
- * This is the most minimal provisioning method, taking only an email
- * and optional agent ID.
- *
- * @param client - PaidClient instance
- * @param email - User email (used as externalId)
- * @param agentExternalId - Optional agent external ID for order creation
- * @param orderOptions - Optional order creation options
- * @returns Result with created customer, contact, and optional order
- *
- * @example
- * ```typescript
- * const result = await provisionUserByEmail(client, 'user@example.com', 'agent-prod');
- * // Creates everything with minimal input
- * ```
- */
-export async function provisionUserByEmail(
-  client: PaidClient,
-  email: string,
-  agentExternalId?: string,
-  orderOptions?: OrderOptions
-): Promise<ProvisioningResult> {
-  if (!email) {
-    throw new Error("email is required");
-  }
-
-  return provisionNewUser(client, {
-    customer: {
-      externalId: email,
-      email,
-    },
-    agentExternalId,
-    orderOptions,
-  });
-}
-
-/**
- * Internal request body type for the handler
- */
-interface ProvisioningRequestBody {
-  email: string;
-  agentExternalId?: string;
-}
-
-/**
  * Create a framework-agnostic handler for user provisioning
  *
  * This handler can be used with any framework adapter.
+ * Accepts partial provisioning configuration and fills in defaults for missing fields.
  *
- * @param orderOptions - Optional order creation options
+ * @param orderOptions - Optional default order creation options
  * @param defaultAgentExternalId - Optional default agent external ID
  * @returns Handler function
+ *
+ * @example
+ * ```typescript
+ * // Minimal - just externalId and email
+ * {
+ *   customer: { externalId: 'org-123', email: 'user@example.com' }
+ * }
+ *
+ * // With full customer data
+ * {
+ *   customer: {
+ *     externalId: 'org-123',
+ *     email: 'user@example.com',
+ *     name: 'Acme Corp',
+ *     billingAddress: { line1: '123 Main St', city: 'NYC', ... }
+ *   },
+ *   contact: {
+ *     firstName: 'John',
+ *     lastName: 'Doe'
+ *   }
+ * }
+ * ```
  */
 export function createProvisioningHandler(
   orderOptions?: OrderOptions,
   defaultAgentExternalId?: string
 ) {
-  return createHandler<ProvisioningRequestBody, ProvisioningResult>(
+  return createHandler<Partial<ProvisioningConfig>, ProvisioningResult>(
     async (client, body) => {
+      if (!body.customer) {
+        return {
+          success: false,
+          error: "'customer' is required",
+          status: 400,
+        };
+      }
+
       const effectiveAgentId =
         body.agentExternalId ||
         defaultAgentExternalId ||
         process.env.NEXT_PUBLIC_PAID_AGENT_ID ||
         process.env.PAID_AGENT_ID;
 
-      const result = await provisionUserByEmail(
-        client,
-        body.email,
-        effectiveAgentId,
-        orderOptions
-      );
+      const result = await provisionNewUser(client, {
+        customer: body.customer,
+        contact: body.contact,
+        agentExternalId: effectiveAgentId,
+        orderOptions: body.orderOptions || orderOptions,
+      });
 
       return {
         success: true,
         data: result,
       };
     },
-    { requiredFields: ['email'] }
+    { requiredFields: [] }
   );
 }
