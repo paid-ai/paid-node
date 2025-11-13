@@ -80,6 +80,30 @@
             },
             "default": "./dist/cjs/vercel-wrapper/index.js"
         },
+        "./integrations": {
+            "types": "./dist/cjs/integrations/index.d.ts",
+            "import": {
+                "types": "./dist/esm/integrations/index.d.mts",
+                "default": "./dist/esm/integrations/index.mjs"
+            },
+            "require": {
+                "types": "./dist/cjs/integrations/index.d.ts",
+                "default": "./dist/cjs/integrations/index.js"
+            },
+            "default": "./dist/cjs/integrations/index.js"
+        },
+        "./integrations/nextjs": {
+            "types": "./dist/cjs/integrations/adapters/nextjs/index.d.ts",
+            "import": {
+                "types": "./dist/esm/integrations/adapters/nextjs/index.d.mts",
+                "default": "./dist/esm/integrations/adapters/nextjs/index.mjs"
+            },
+            "require": {
+                "types": "./dist/cjs/integrations/adapters/nextjs/index.d.ts",
+                "default": "./dist/cjs/integrations/adapters/nextjs/index.js"
+            },
+            "default": "./dist/cjs/integrations/adapters/nextjs/index.js"
+        },
         "./package.json": "./package.json"
     },
     "files": [
@@ -114,7 +138,8 @@
         "@langchain/core": ">=0.3.0",
         "@mistralai/mistralai": ">=1.0.0",
         "ai": ">=5.0.0",
-        "openai": ">=4.85.4"
+        "openai": ">=4.85.4",
+        "next": ">=13.0.0"
     },
     "peerDependenciesMeta": {
         "@ai-sdk/openai": {
@@ -133,6 +158,9 @@
             "optional": true
         },
         "openai": {
+            "optional": true
+        },
+        "next": {
             "optional": true
         }
     },
@@ -157,7 +185,8 @@
         "@langchain/core": ">=0.3.0",
         "@mistralai/mistralai": ">=1.0.0",
         "ai": ">=5.0.0",
-        "openai": ">=4.85.4"
+        "openai": ">=4.85.4",
+        "next": ">=13.0.0"
     },
     "browser": {
         "fs": false,

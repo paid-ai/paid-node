@@ -11,3 +11,4 @@ src/openai-wrapper/
 src/vercel-wrapper/
 
 src/Client.ts
+src/integrations
