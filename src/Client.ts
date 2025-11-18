@@ -50,8 +50,8 @@ export class PaidClient {
                 {
                     "X-Fern-Language": "JavaScript",
                     "X-Fern-SDK-Name": "@paid-ai/paid-node",
-                    "X-Fern-SDK-Version": "0.5.0-alpha1",
-                    "User-Agent": "@paid-ai/paid-node/0.5.0-alpha1",
+                    "X-Fern-SDK-Version": "0.5.0-alpha2",
+                    "User-Agent": "@paid-ai/paid-node/0.5.0-alpha2",
                     "X-Fern-Runtime": core.RUNTIME.type,
                     "X-Fern-Runtime-Version": core.RUNTIME.version,
                 },
