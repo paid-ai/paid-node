@@ -39,7 +39,6 @@ export const expressjsAdapter = createFrameworkAdapter<Request, Response>({
     });
     return query;
   },
-  },
   sendJson: (data, status) => {
     throw new Error("ExpressJS adapter requires using response context from handler");
   },
