@@ -1,6 +1,8 @@
 export {
   createCustomer,
   createCustomerWithDefaults,
+  getCustomer,
+  createGetCustomerHandler,
   createCustomersHandler,
 } from "./customers.js";
 
@@ -27,6 +29,11 @@ export {
   type ActivateOrderSyncConfig,
   type ActivateOrderSyncRequest,
   type ActivateOrderSyncResult,
+  createSetupIntent,
+  createSetupIntentHandler,
+  type SetupIntentConfig,
+  type SetupIntentRequest,
+  type SetupIntentResponse,
 } from "./billing.js";
 
 export {

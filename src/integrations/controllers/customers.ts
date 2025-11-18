@@ -161,3 +161,66 @@ export function createCustomersHandler() {
     { requiredFields: ['externalId'] }
   );
 }
+
+/**
+ * Get a customer by external ID
+ *
+ * @param client - PaidClient instance
+ * @param customerExternalId - Customer's external ID
+ * @returns Customer data
+ *
+ * @example
+ * ```typescript
+ * const customer = await getCustomer(client, 'user-123');
+ * console.log(customer.name, customer.email);
+ * ```
+ */
+export async function getCustomer(
+  client: PaidClient,
+  customerExternalId: string
+): Promise<any> {
+  const customer = await client.customers.getByExternalId(customerExternalId);
+  return customer;
+}
+
+/**
+ * Create a framework-agnostic handler for fetching a customer by external ID
+ *
+ * This handler can be used with any framework adapter.
+ * The customer external ID should be provided either in params or query string.
+ *
+ * @returns Handler function
+ *
+ * @example
+ * ```typescript
+ * // In Next.js route: /api/customers/[customerExternalId]/route.ts
+ * import { createGetCustomerHandler } from '@paid-ai/paid-node/integrations';
+ * import { nextjsAdapter } from '@paid-ai/paid-node/integrations/nextjs';
+ *
+ * const handler = createGetCustomerHandler();
+ * export const GET = nextjsAdapter(handler);
+ * ```
+ */
+export function createGetCustomerHandler() {
+  return createHandler<any, any>(
+    async (client, _body, params) => {
+      const customerExternalId = params?.customerExternalId;
+
+      if (!customerExternalId) {
+        return {
+          success: false,
+          error: "customerExternalId is required",
+          status: 400,
+        };
+      }
+
+      const customer = await getCustomer(client, customerExternalId);
+      return { success: true, data: customer };
+    },
+    {
+      allowedMethods: ['GET'],
+      requireOrganizationId: false,
+    }
+  );
+}
+

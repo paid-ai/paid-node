@@ -176,7 +176,7 @@ export async function activateOrderSync(
 
   const data = await paidApiFetch(
     config,
-    `/api/organizations/${config.organizationId}/orders/${orderId}/activate-sync`,
+    `/api/organizations/${config.organizationId}/orders/${orderId}/activate-and-pay`,
     {
       method: "POST",
       body: {
@@ -240,6 +240,154 @@ export function createActivateOrderSyncHandler(defaultReturnUrl?: string) {
     },
     {
       requiredFields: ['confirmationToken'],
+      requireOrganizationId: true,
+    }
+  );
+}
+
+export interface SetupIntentRequest {
+  customerId: string;
+  confirmationToken: string;
+  returnUrl?: string;
+  metadata?: Record<string, any>;
+}
+
+export interface SetupIntentResponse {
+  setupIntent: {
+    id: string;
+    client_secret: string;
+    status: string;
+    usage: string;
+    customer: string;
+  };
+  message: string;
+}
+
+
+export interface SetupIntentConfig {
+  apiUrl: string;
+  apiKey: string;
+  organizationId: string;
+}
+
+/**
+ * Create a setup intent for adding payment methods without immediate charge
+ *
+ * Setup intents are used to save payment methods for future use without
+ * charging the customer immediately. This is useful for:
+ * - Adding payment methods for subscription billing
+ * - Updating payment methods
+ * - Pre-authorizing payment methods
+ *
+ * @param config - API configuration with organization context
+ * @param request - Setup intent request with customer ID and confirmation token
+ * @returns Setup intent result with payment method details
+ *
+ * @example
+ * ```typescript
+ * const result = await createSetupIntent(
+ *   {
+ *     apiUrl: 'https://api.agentpaid.io',
+ *     apiKey: process.env.PAID_API_KEY,
+ *     organizationId: 'org_123'
+ *   },
+ *   {
+ *     customerId: 'cus_123',
+ *     confirmationToken: 'seti_123_secret_456',
+ *     returnUrl: 'https://example.com/return',
+ *     metadata: { source: 'web' }
+ *   }
+ * );
+ * ```
+ */
+export async function createSetupIntent(
+  config: SetupIntentConfig,
+  request: SetupIntentRequest
+): Promise<SetupIntentResponse> {
+  const { customerId, confirmationToken, returnUrl, metadata } = request;
+
+  if (!customerId) {
+    throw new Error("customerId is required");
+  }
+
+  if (!confirmationToken) {
+    throw new Error("confirmationToken is required");
+  }
+
+  const data = await paidApiFetch(
+    config,
+    `/api/organizations/${config.organizationId}/payments/setup-intents-external`,
+    {
+      method: "POST",
+      body: {
+        customerId,
+        confirmationToken,
+        ...(returnUrl && { returnUrl }),
+        ...(metadata && { metadata }),
+      },
+    }
+  );
+
+  return {
+    setupIntent: data.setupIntent || data,
+    message: "Setup intent created successfully",
+  };
+}
+
+/**
+ * Create a framework-agnostic handler for setup intent creation
+ *
+ * This handler can be used with any framework adapter.
+ *
+ * @param defaultReturnUrl - Optional default return URL
+ * @returns Handler function
+ *
+ * @example
+ * ```typescript
+ * // Next.js API route
+ * import { createSetupIntentHandler } from '@paid-ai/paid-node/integrations';
+ *
+ * const handler = createSetupIntentHandler('https://myapp.com/billing');
+ *
+ * export async function POST(req: Request) {
+ *   return handler(
+ *     {
+ *       body: await req.json(),
+ *       headers: Object.fromEntries(req.headers),
+ *       method: 'POST'
+ *     },
+ *     {
+ *       json: (data, status = 200) => Response.json(data, { status }),
+ *       error: (message, status) => Response.json({ error: message }, { status })
+ *     }
+ *   );
+ * }
+ * ```
+ */
+export function createSetupIntentHandler(defaultReturnUrl?: string) {
+  return createHandler<SetupIntentRequest, SetupIntentResponse>(
+    async (client, body, _params, organizationId) => {
+      const apiKey = (client as any)._options?.token;
+      const baseUrl = (client as any)._options?.baseUrl || 'https://api.agentpaid.io/api/v1';
+      const apiUrl = baseUrl.replace('/api/v1', '');
+
+      const result = await createSetupIntent(
+        { apiUrl, apiKey, organizationId: organizationId! },
+        {
+          customerId: body.customerId,
+          confirmationToken: body.confirmationToken,
+          returnUrl: body.returnUrl || defaultReturnUrl,
+          metadata: body.metadata,
+        }
+      );
+
+      return {
+        success: true,
+        data: result,
+      };
+    },
+    {
+      requiredFields: ['customerId', 'confirmationToken'],
       requireOrganizationId: true,
     }
   );
