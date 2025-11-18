@@ -3,7 +3,7 @@ import { nextjsAdapter } from "./base-adapter.js";
 import { OrderOptions } from "../../types.js";
 import { createContactsHandler } from "../../controllers/contacts.js";
 import { createCustomerInvoicesHandler } from "../../controllers/invoices.js";
-import { createCustomersHandler } from "../../controllers/customers.js";
+import { createCustomersHandler, createGetCustomerHandler } from "../../controllers/customers.js";
 import { createOrdersHandler } from "../../controllers/orders.js";
 import { createProvisioningHandler } from "../../controllers/provision-users.js";
 import { createActivateOrderSyncHandler, createPayInvoiceHandler } from "../../controllers/billing.js";
@@ -94,6 +94,23 @@ export function createContactsRoute(config: BaseHandlerConfig = {}) {
  */
 export function createCustomerInvoicesRoute(config: BaseHandlerConfig = {}) {
   const handler = createCustomerInvoicesHandler();
+  const adaptedHandler = nextjsAdapter(handler);
+  return (request: any, context?: any) => adaptedHandler(request, context, config);
+}
+
+/**
+ * Create a Next.js API route handler for fetching a customer by external ID
+ *
+ * @example
+ * ```typescript
+ * // src/app/api/customers/[customerExternalId]/route.ts
+ * import { createGetCustomerRoute } from '@paid-ai/paid-node/integrations/nextjs';
+ *
+ * export const GET = createGetCustomerRoute();
+ * ```
+ */
+export function createGetCustomerRoute(config: BaseHandlerConfig = {}) {
+  const handler = createGetCustomerHandler();
   const adaptedHandler = nextjsAdapter(handler);
   return (request: any, context?: any) => adaptedHandler(request, context, config);
 }
