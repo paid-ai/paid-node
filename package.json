@@ -104,6 +104,30 @@
             },
             "default": "./dist/cjs/integrations/adapters/nextjs/index.js"
         },
+        "./integrations/express": {
+            "types": "./dist/cjs/integrations/adapters/expressjs/index.d.ts",
+            "import": {
+                "types": "./dist/esm/integrations/adapters/expressjs/index.d.mts",
+                "default": "./dist/esm/integrations/adapters/expressjs/index.mjs"
+            },
+            "require": {
+                "types": "./dist/cjs/integrations/adapters/expressjs/index.d.ts",
+                "default": "./dist/cjs/integrations/adapters/expressjs/index.js"
+            },
+            "default": "./dist/cjs/integrations/adapters/expressjs/index.js"
+        },
+        "./integrations/nestjs": {
+            "types": "./dist/cjs/integrations/adapters/nestjs/index.d.ts",
+            "import": {
+                "types": "./dist/esm/integrations/adapters/nestjs/index.d.mts",
+                "default": "./dist/esm/integrations/adapters/nestjs/index.mjs"
+            },
+            "require": {
+                "types": "./dist/cjs/integrations/adapters/nestjs/index.d.ts",
+                "default": "./dist/cjs/integrations/adapters/nestjs/index.js"
+            },
+            "default": "./dist/cjs/integrations/adapters/nestjs/index.js"
+        },
         "./package.json": "./package.json"
     },
     "files": [
@@ -137,6 +161,7 @@
         "@anthropic-ai/sdk": ">=0.36.3",
         "@langchain/core": ">=0.3.0",
         "@mistralai/mistralai": ">=1.0.0",
+        "@types/express": ">=4.17.0",
         "ai": ">=5.0.0",
         "openai": ">=4.85.4",
         "next": ">=13.0.0"
@@ -154,6 +179,9 @@
         "@mistralai/mistralai": {
             "optional": true
         },
+        "@types/express": {
+            "optional": true
+        },
         "ai": {
             "optional": true
         },
@@ -169,6 +197,7 @@
         "@types/qs": "^6.9.17",
         "@types/node-fetch": "^2.6.12",
         "@types/readable-stream": "^4.0.18",
+        "@types/express": "^4.17.21",
         "webpack": "^5.97.1",
         "ts-loader": "^9.5.1",
         "jest": "^29.7.0",
