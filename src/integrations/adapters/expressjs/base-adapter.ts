@@ -33,9 +33,12 @@ export const expressjsAdapter = createFrameworkAdapter<Request, Response>({
     Object.entries(req.query).forEach(([key, value]) => {
       if (typeof value === "string") {
         query[key] = value;
+      } else if (Array.isArray(value)) {
+        query[key] = value.join(", ");
       }
     });
     return query;
+  },
   },
   sendJson: (data, status) => {
     throw new Error("ExpressJS adapter requires using response context from handler");
