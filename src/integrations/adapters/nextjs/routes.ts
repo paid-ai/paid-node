@@ -6,7 +6,7 @@ import { createCustomerInvoicesHandler } from "../../controllers/invoices.js";
 import { createCustomersHandler, createGetCustomerHandler } from "../../controllers/customers.js";
 import { createOrdersHandler } from "../../controllers/orders.js";
 import { createProvisioningHandler } from "../../controllers/provision-users.js";
-import { createActivateOrderSyncHandler, createPayInvoiceHandler } from "../../controllers/billing.js";
+import { createActivateOrderSyncHandler, createPayInvoiceHandler, createSetupIntentHandler } from "../../controllers/billing.js";
 
 export interface ActivateOrderSyncRouteConfig extends BaseHandlerConfig {
   /**
@@ -235,6 +235,51 @@ export function createProvisioningRoute(config: ProvisioningRouteConfig = {}) {
     config.orderOptions,
     config.defaultAgentExternalId
   );
+  const adaptedHandler = nextjsAdapter(handler);
+  return (request: any, context?: any) => adaptedHandler(request, context, config);
+}
+
+export interface SetupIntentRouteConfig extends BaseHandlerConfig {
+  /**
+   * Default return URL for setup flow
+   * Can be overridden by request body
+   */
+  defaultReturnUrl?: string;
+}
+
+/**
+ * Create a Next.js API route handler for setup intent creation
+ *
+ * Setup intents are used to add payment methods without immediate charge.
+ * This is useful for saving payment methods for future billing.
+ *
+ * Organization ID is automatically fetched from the API key.
+ *
+ * @example
+ * ```typescript
+ * // src/app/api/payment-methods/setup/route.ts
+ * import { createSetupIntentRoute } from '@paid-ai/paid-node/integrations/nextjs';
+ *
+ * export const POST = createSetupIntentRoute({
+ *   defaultReturnUrl: process.env.NEXT_PUBLIC_BASE_URL + '/billing'
+ * });
+ * ```
+ *
+ * @example Client-side usage
+ * ```typescript
+ * await fetch('/api/payment-methods/setup', {
+ *   method: 'POST',
+ *   body: JSON.stringify({
+ *     customerId: 'cus_123',
+ *     confirmationToken: 'seti_123_secret_456',
+ *     returnUrl: 'https://example.com/billing',
+ *     metadata: { source: 'settings_page' }
+ *   })
+ * });
+ * ```
+ */
+export function createSetupIntentRoute(config: SetupIntentRouteConfig = {}) {
+  const handler = createSetupIntentHandler(config.defaultReturnUrl);
   const adaptedHandler = nextjsAdapter(handler);
   return (request: any, context?: any) => adaptedHandler(request, context, config);
 }

@@ -8,10 +8,13 @@ export {
   createContactsRoute,
   createCustomerInvoicesRoute,
   createCustomersRoute,
+  createGetCustomerRoute,
   createOrdersRoute,
   createPayInvoiceRoute,
   createProvisioningRoute,
+  createSetupIntentRoute,
   type ActivateOrderSyncRouteConfig,
   type OrdersRouteConfig,
   type ProvisioningRouteConfig,
+  type SetupIntentRouteConfig,
 } from './routes.js';
