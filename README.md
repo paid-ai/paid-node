@@ -159,7 +159,7 @@ openai
 anthropic
 bedrock
 bedrockAgentRuntime
-langchain (only manul instrumentation)
+langchain (only manual instrumentation)
 ```
 
 #### Manual instrumentation
