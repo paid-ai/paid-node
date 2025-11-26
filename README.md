@@ -156,6 +156,10 @@ Auto-instrumentation supports the following AI libraries:
 
 ```
 openai
+anthropic
+bedrock
+bedrockAgentRuntime
+langchain (only manul instrumentation)
 ```
 
 #### Manual instrumentation
@@ -169,6 +173,17 @@ import openai from "openai";
 // This only needs to be called once
 paidAutoInstrument({openai})
 ```
+
+
+Langchain has a non standard module structure. To instrument it you will need to pass the callback manager module:
+
+``` typescript
+import { paidAutoInstrument } from "@paid-ai/paid-node";
+import * as langchainCallbackManagerModule from "@langchain/core/callbacks/manager";
+
+paidAutoInstrument({langchainCallbackManagerModule)}
+```
+
 
 
 
