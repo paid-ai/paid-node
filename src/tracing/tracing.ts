@@ -42,7 +42,7 @@ let _token: string | undefined;
 const setToken = (token: string) => {
     _token = token;
 };
-const getToken = () => {
+export const getToken = () => {
     return _token;
 };
 
