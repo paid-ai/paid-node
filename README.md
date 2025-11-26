@@ -147,7 +147,7 @@ paidAutoInstrument()
 import openai from "openai";
 
 // All OpenAI calls will be automatically traced
-const openAIclient = new openai.OpenAI({apiKey: "API_KEY"})
+const openAIclient = new openai.OpenAI({ apiKey: "API_KEY" })
 ```
 
 #### Supported libraries
@@ -171,7 +171,7 @@ import openai from "openai";
 // There are some complex module resolution configurations that make the first approach impossible
 // for these cases you can pass the library directly in to the autoinstrumentation for it to be patched.
 // This only needs to be called once
-paidAutoInstrument({openai})
+paidAutoInstrument({ openai })
 ```
 
 
@@ -181,7 +181,7 @@ Langchain has a non standard module structure. To instrument it you will need to
 import { paidAutoInstrument } from "@paid-ai/paid-node";
 import * as langchainCallbackManagerModule from "@langchain/core/callbacks/manager";
 
-paidAutoInstrument({langchainCallbackManagerModule)}
+paidAutoInstrument({ langchainCallbackManagerModule })
 ```
 
 
