@@ -1,6 +1,12 @@
 import { Context, SpanAttributeValue } from "@opentelemetry/api";
 import { SpanProcessor, Span } from "@opentelemetry/sdk-trace-base";
-import { getAgentIdStorage, getCustomerIdStorage, getStorePromptStorage, getTokenStorage } from "./tracing.js";
+import {
+    getAgentIdStorage,
+    getCustomerIdStorage,
+    getStorePromptStorage,
+    getToken,
+    getTokenStorage,
+} from "./tracing.js";
 
 export class PaidSpanProcessor implements SpanProcessor {
     private static readonly SPAN_NAME_PREFIX = "paid.trace.";
@@ -41,7 +47,9 @@ export class PaidSpanProcessor implements SpanProcessor {
         if (agentId) {
             span.setAttribute("external_agent_id", agentId);
         }
-        const token = getTokenStorage();
+
+        const token = getTokenStorage() || getToken();
+
         if (token) {
             span.setAttribute("token", token);
         }
