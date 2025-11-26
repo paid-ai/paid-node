@@ -88,7 +88,7 @@ Example: `PAID_LOG_LEVEL=debug node your-app.js`
 
 ## Cost Tracking via OTEL tracing
 
-You can track usage costs by using Paid wrappers around your AI provider's SDK.
+You can track usage costs by either using autoinstrumentation or using Paid wrappers around your AI provider's SDK.
 As of now, the following SDKs' APIs are wrapped:
 
 ```
@@ -131,6 +131,52 @@ async function main() {
     }, "<optional_external_agent_id>");
 }
 ```
+
+### Auto-Instrumentation (OpenTelemetry Instrumentors)
+
+For maximum convenience, you can use OpenTelemetry auto-instrumentation to automatically track costs without modifying your AI library calls. This approach uses official OpenTelemetry instrumentors for supported AI libraries.
+
+#### Quick start
+
+``` typescript
+import { paidAutoInstrument } from "@paid-ai/paid-node";
+
+// Due to how Javascript works, autoinstrumentation has to be called *before* your llm library imports
+paidAutoInstrument()
+/*
+Instruments all of the following:
+
+- openai
+
+ */
+
+import openai from "openai";
+
+// All OpenAI calls are will be automatically traced
+const openAIclient = new openai.OpenAI({apiKey: "API_KEY"})
+```
+
+#### Supported libraries
+
+Auto-instrumentation supports the following AI libraries:
+
+```
+openai
+```
+
+#### Manual instrumentation
+
+``` typescript
+import { paidAutoInstrument } from "@paid-ai/paid-node";
+import openai from "openai";
+
+// There are some complex module resolution configurations that make the first approach impossible
+// for these cases you can pass the library directly in to the autoinstrumentation for it to be patched.
+// This only needs to be called once
+paidAutoInstrument({openai})
+```
+
+
 
 ## Signaling via OTEL tracing
 
