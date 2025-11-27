@@ -1,60 +1,40 @@
 import { Instrumentation, registerInstrumentations } from "@opentelemetry/instrumentation";
 import { OpenAIInstrumentation } from "@arizeai/openinference-instrumentation-openai";
+import { AnthropicInstrumentation } from "@arizeai/openinference-instrumentation-anthropic";
 import { TracerProvider } from "@opentelemetry/api";
 import { paidTracerProvider } from "./tracing";
-import { BedrockInstrumentation } from "@arizeai/openinference-instrumentation-bedrock";
-import { BedrockAgentInstrumentation } from "@arizeai/openinference-instrumentation-bedrock-agent-runtime";
-import { LangChainInstrumentation } from "@arizeai/openinference-instrumentation-langchain";
-import { AnthropicInstrumentation } from "@arizeai/openinference-instrumentation-anthropic";
+
+import type * as openai from "openai";
+import type * as anthropic from "@anthropic-ai/sdk";
 
 let IS_INITIALIZED = false;
 
 interface SupportedLibraries {
-    openai?: any;
-    bedrock?: any;
-    bedrockAgentRuntime?: any;
-    langchainCallbackManagerModule?: any;
-    anthropic?: any;
+    openai?: typeof openai.OpenAI;
+    anthropic?: typeof anthropic.Anthropic;
 }
 
 const getInstrumentations = (tracerProvider: TracerProvider): Instrumentation[] => {
     const instrumentations = [
         new OpenAIInstrumentation({ tracerProvider }),
-        new BedrockInstrumentation({ tracerProvider }),
-        new BedrockAgentInstrumentation({ tracerProvider }),
         new AnthropicInstrumentation({ tracerProvider }),
     ];
     return instrumentations;
 };
 
 const getManualInstrumentations = (tracerProvider: TracerProvider, libraries: SupportedLibraries) => {
-    const { openai, bedrock, bedrockAgentRuntime, langchainCallbackManagerModule, anthropic } = libraries;
     const instrumentations = [];
 
-    if (openai !== undefined) {
+    if (libraries.openai) {
         const openaiInstrumentation = new OpenAIInstrumentation({ tracerProvider });
         instrumentations.push(openaiInstrumentation);
-        openaiInstrumentation.manuallyInstrument(openai);
+        openaiInstrumentation.manuallyInstrument(libraries.openai);
     }
 
-    if (bedrock !== undefined) {
-        const bedrockInstrumentation = new BedrockInstrumentation({ tracerProvider });
-        bedrockInstrumentation.manuallyInstrument(bedrock);
-    }
-
-    if (bedrockAgentRuntime !== undefined) {
-        const bedrockAgentInstrumentation = new BedrockAgentInstrumentation({ tracerProvider });
-        bedrockAgentInstrumentation.manuallyInstrument(bedrockAgentRuntime);
-    }
-
-    if (langchainCallbackManagerModule !== undefined) {
-        const lcInstrumentation = new LangChainInstrumentation({ tracerProvider });
-        lcInstrumentation.manuallyInstrument(langchainCallbackManagerModule);
-    }
-
-    if (anthropic !== undefined) {
+    if (libraries.anthropic) {
         const anthropicInstrumentation = new AnthropicInstrumentation({ tracerProvider });
-        anthropicInstrumentation.manuallyInstrument(anthropic);
+        instrumentations.push(anthropicInstrumentation);
+        anthropicInstrumentation.manuallyInstrument(libraries.anthropic);
     }
 
     return instrumentations;
