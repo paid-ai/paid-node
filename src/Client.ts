@@ -94,9 +94,10 @@ export class PaidClient {
         externalCustomerId: string,
         fn: T,
         externalAgentId?: string,
+        storePrompt: boolean = false,
         ...args: Parameters<T>
     ): Promise<ReturnType<T>> {
-        return await _trace(externalCustomerId, fn, externalAgentId, ...args);
+        return await _trace(externalCustomerId, fn, externalAgentId, storePrompt, ...args);
     }
 
     /**
@@ -120,18 +121,18 @@ export class PaidClient {
     public signal(eventName: string, data: Record<string, any>): void;
     public signal(eventName: string, enableCostTracing: boolean, data?: Record<string, any>): void;
     public signal(
-        eventName: string, 
-        enableCostTracingOrData?: boolean | Record<string, any>, 
-        data?: Record<string, any>
+        eventName: string,
+        enableCostTracingOrData?: boolean | Record<string, any>,
+        data?: Record<string, any>,
     ): void {
         let enableCostTracing: boolean = false;
         let finalData: Record<string, any> | undefined;
 
-        if (typeof enableCostTracingOrData === 'boolean') {
+        if (typeof enableCostTracingOrData === "boolean") {
             // Case: signal(eventName, boolean, data?)
             enableCostTracing = enableCostTracingOrData;
             finalData = data;
-        } else if (typeof enableCostTracingOrData === 'object') {
+        } else if (typeof enableCostTracingOrData === "object") {
             // Case: signal(eventName, data)
             enableCostTracing = false;
             finalData = enableCostTracingOrData;
@@ -140,5 +141,4 @@ export class PaidClient {
 
         return _signal(eventName, enableCostTracing, finalData);
     }
-
 }
