@@ -407,6 +407,16 @@ const client = new PaidClient({
 });
 ```
 
+### Paid OTEL Tracer Provider
+
+If you would like to use the Paid OTEL tracer provider, you can access it via the `tracerProvider` property on the client.
+
+```typescript
+import { PaidClient } from "@paid-ai/paid-node";
+const client = new PaidClient({ token: "<your_paid_api_key>" });
+const tracerProvider = client.tracerProvider;
+```
+
 ## Contributing
 
 While we value open-source contributions to this SDK, this library is generated programmatically.
