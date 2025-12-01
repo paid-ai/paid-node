@@ -43,6 +43,10 @@ const getToken = () => {
 
 let _isShuttingDown = false;
 
+export function _getPaidTracerProvider(): NodeTracerProvider {
+    return paidTracerProvider;
+}
+
 function setupGracefulShutdown(shuttable: NodeSDK | SpanProcessor) {
     ["SIGINT", "SIGTERM", "beforeExit", "uncaughtException", "unhandledRejection"].forEach((signal) => {
         process.on(signal, () => {

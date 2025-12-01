@@ -12,6 +12,8 @@ import { Orders } from "./api/resources/orders/client/Client.js";
 import { Usage } from "./wrapper/BatchUsage.js";
 import { _trace, _initializeTracing } from "./tracing/tracing.js";
 import { _signal } from "./tracing/signal.js";
+import { NodeTracerProvider } from "@opentelemetry/sdk-trace-node";
+import { _getPaidTracerProvider } from "./tracing/tracing.js";
 
 export declare namespace PaidClient {
     export interface Options {
@@ -120,18 +122,18 @@ export class PaidClient {
     public signal(eventName: string, data: Record<string, any>): void;
     public signal(eventName: string, enableCostTracing: boolean, data?: Record<string, any>): void;
     public signal(
-        eventName: string, 
-        enableCostTracingOrData?: boolean | Record<string, any>, 
-        data?: Record<string, any>
+        eventName: string,
+        enableCostTracingOrData?: boolean | Record<string, any>,
+        data?: Record<string, any>,
     ): void {
         let enableCostTracing: boolean = false;
         let finalData: Record<string, any> | undefined;
 
-        if (typeof enableCostTracingOrData === 'boolean') {
+        if (typeof enableCostTracingOrData === "boolean") {
             // Case: signal(eventName, boolean, data?)
             enableCostTracing = enableCostTracingOrData;
             finalData = data;
-        } else if (typeof enableCostTracingOrData === 'object') {
+        } else if (typeof enableCostTracingOrData === "object") {
             // Case: signal(eventName, data)
             enableCostTracing = false;
             finalData = enableCostTracingOrData;
@@ -141,4 +143,11 @@ export class PaidClient {
         return _signal(eventName, enableCostTracing, finalData);
     }
 
+
+    /**
+     * Export the tracer provider which user can use for his own tracing.
+     */
+    public get tracerProvider(): NodeTracerProvider {
+        return _getPaidTracerProvider();
+    }
 }
