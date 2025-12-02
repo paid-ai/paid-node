@@ -1,6 +1,6 @@
 {
     "name": "@paid-ai/paid-node",
-    "version": "0.5.0-alpha3",
+    "version": "0.4.2",
     "private": false,
     "repository": "https://github.com/paid-ai/paid-node",
     "type": "commonjs",
@@ -19,114 +19,6 @@
                 "default": "./dist/cjs/index.js"
             },
             "default": "./dist/cjs/index.js"
-        },
-        "./openai": {
-            "types": "./dist/cjs/openai-wrapper/index.d.ts",
-            "import": {
-                "types": "./dist/esm/openai-wrapper/index.d.mts",
-                "default": "./dist/esm/openai-wrapper/index.mjs"
-            },
-            "require": {
-                "types": "./dist/cjs/openai-wrapper/index.d.ts",
-                "default": "./dist/cjs/openai-wrapper/index.js"
-            },
-            "default": "./dist/cjs/openai-wrapper/index.js"
-        },
-        "./anthropic": {
-            "types": "./dist/cjs/anthropic-wrapper/index.d.ts",
-            "import": {
-                "types": "./dist/esm/anthropic-wrapper/index.d.mts",
-                "default": "./dist/esm/anthropic-wrapper/index.mjs"
-            },
-            "require": {
-                "types": "./dist/cjs/anthropic-wrapper/index.d.ts",
-                "default": "./dist/cjs/anthropic-wrapper/index.js"
-            },
-            "default": "./dist/cjs/anthropic-wrapper/index.js"
-        },
-        "./mistral": {
-            "types": "./dist/cjs/mistral-wrapper/index.d.ts",
-            "import": {
-                "types": "./dist/esm/mistral-wrapper/index.d.mts",
-                "default": "./dist/esm/mistral-wrapper/index.mjs"
-            },
-            "require": {
-                "types": "./dist/cjs/mistral-wrapper/index.d.ts",
-                "default": "./dist/cjs/mistral-wrapper/index.js"
-            },
-            "default": "./dist/cjs/mistral-wrapper/index.js"
-        },
-        "./langchain": {
-            "types": "./dist/cjs/langchain-wrapper/index.d.ts",
-            "import": {
-                "types": "./dist/esm/langchain-wrapper/index.d.mts",
-                "default": "./dist/esm/langchain-wrapper/index.mjs"
-            },
-            "require": {
-                "types": "./dist/cjs/langchain-wrapper/index.d.ts",
-                "default": "./dist/cjs/langchain-wrapper/index.js"
-            },
-            "default": "./dist/cjs/langchain-wrapper/index.js"
-        },
-        "./vercel": {
-            "types": "./dist/cjs/vercel-wrapper/index.d.ts",
-            "import": {
-                "types": "./dist/esm/vercel-wrapper/index.d.mts",
-                "default": "./dist/esm/vercel-wrapper/index.mjs"
-            },
-            "require": {
-                "types": "./dist/cjs/vercel-wrapper/index.d.ts",
-                "default": "./dist/cjs/vercel-wrapper/index.js"
-            },
-            "default": "./dist/cjs/vercel-wrapper/index.js"
-        },
-        "./integrations": {
-            "types": "./dist/cjs/integrations/index.d.ts",
-            "import": {
-                "types": "./dist/esm/integrations/index.d.mts",
-                "default": "./dist/esm/integrations/index.mjs"
-            },
-            "require": {
-                "types": "./dist/cjs/integrations/index.d.ts",
-                "default": "./dist/cjs/integrations/index.js"
-            },
-            "default": "./dist/cjs/integrations/index.js"
-        },
-        "./integrations/nextjs": {
-            "types": "./dist/cjs/integrations/adapters/nextjs/index.d.ts",
-            "import": {
-                "types": "./dist/esm/integrations/adapters/nextjs/index.d.mts",
-                "default": "./dist/esm/integrations/adapters/nextjs/index.mjs"
-            },
-            "require": {
-                "types": "./dist/cjs/integrations/adapters/nextjs/index.d.ts",
-                "default": "./dist/cjs/integrations/adapters/nextjs/index.js"
-            },
-            "default": "./dist/cjs/integrations/adapters/nextjs/index.js"
-        },
-        "./integrations/express": {
-            "types": "./dist/cjs/integrations/adapters/expressjs/index.d.ts",
-            "import": {
-                "types": "./dist/esm/integrations/adapters/expressjs/index.d.mts",
-                "default": "./dist/esm/integrations/adapters/expressjs/index.mjs"
-            },
-            "require": {
-                "types": "./dist/cjs/integrations/adapters/expressjs/index.d.ts",
-                "default": "./dist/cjs/integrations/adapters/expressjs/index.js"
-            },
-            "default": "./dist/cjs/integrations/adapters/expressjs/index.js"
-        },
-        "./integrations/nestjs": {
-            "types": "./dist/cjs/integrations/adapters/nestjs/index.d.ts",
-            "import": {
-                "types": "./dist/esm/integrations/adapters/nestjs/index.d.mts",
-                "default": "./dist/esm/integrations/adapters/nestjs/index.mjs"
-            },
-            "require": {
-                "types": "./dist/cjs/integrations/adapters/nestjs/index.d.ts",
-                "default": "./dist/cjs/integrations/adapters/nestjs/index.js"
-            },
-            "default": "./dist/cjs/integrations/adapters/nestjs/index.js"
         },
         "./package.json": "./package.json"
     },
@@ -161,10 +53,8 @@
         "@anthropic-ai/sdk": ">=0.36.3",
         "@langchain/core": ">=0.3.0",
         "@mistralai/mistralai": ">=1.0.0",
-        "@types/express": ">=4.17.0",
         "ai": ">=5.0.0",
-        "openai": ">=4.85.4",
-        "next": ">=13.0.0"
+        "openai": ">=4.85.4"
     },
     "peerDependenciesMeta": {
         "@ai-sdk/openai": {
@@ -179,16 +69,10 @@
         "@mistralai/mistralai": {
             "optional": true
         },
-        "@types/express": {
-            "optional": true
-        },
         "ai": {
             "optional": true
         },
         "openai": {
-            "optional": true
-        },
-        "next": {
             "optional": true
         }
     },
@@ -197,7 +81,6 @@
         "@types/qs": "^6.9.17",
         "@types/node-fetch": "^2.6.12",
         "@types/readable-stream": "^4.0.18",
-        "@types/express": "^4.17.21",
         "webpack": "^5.97.1",
         "ts-loader": "^9.5.1",
         "jest": "^29.7.0",
@@ -214,8 +97,7 @@
         "@langchain/core": ">=0.3.0",
         "@mistralai/mistralai": ">=1.0.0",
         "ai": ">=5.0.0",
-        "openai": ">=4.85.4",
-        "next": ">=13.0.0"
+        "openai": ">=4.85.4"
     },
     "browser": {
         "fs": false,
