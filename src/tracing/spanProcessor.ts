@@ -11,13 +11,14 @@ import {
 export class PaidSpanProcessor implements SpanProcessor {
     private static readonly SPAN_NAME_PREFIX = "paid.trace.";
     private static readonly PROMPT_ATTRIBUTES_SUBSTRINGS: string[] = [
-        "prompt",
         "gen_ai.completion",
         "gen_ai.request.messages",
         "gen_ai.response.messages",
         "llm.output_message",
         "llm.input_message",
         "llm.invocation_parameters",
+        "gen_ai.prompt",
+        "langchain.prompt",
         "output.value",
         "input.value",
     ];
@@ -41,9 +42,8 @@ export class PaidSpanProcessor implements SpanProcessor {
                     const isPromptRelated = PaidSpanProcessor.PROMPT_ATTRIBUTES_SUBSTRINGS.some((substr) =>
                         key.includes(substr),
                     );
-                    if (isPromptRelated) {
-                        return acc;
-                    }
+
+                    if (isPromptRelated) return acc;
                     return { ...acc, [key]: value };
                 }, {});
 
