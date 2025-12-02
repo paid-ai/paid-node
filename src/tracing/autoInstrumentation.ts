@@ -50,7 +50,6 @@ const getManualInstrumentations = (tracerProvider: TracerProvider, libraries: Su
     return instrumentations;
 };
 
-const COLLECTOR_ENDPOINT = process.env.PAID_COLLECTOR_ENDPOINT || "http://localhost:4318/v1/traces";
 export function paidAutoInstrument(libraries?: SupportedLibraries) {
     if (IS_INITIALIZED) return;
     const tracerProvider = paidTracerProvider;

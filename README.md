@@ -156,6 +156,7 @@ Auto-instrumentation supports the following AI libraries:
 ```
 openai
 anthropic
+bedrock
 ```
 
 #### Manual instrumentation
