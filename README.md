@@ -139,9 +139,8 @@ For maximum convenience, you can use OpenTelemetry auto-instrumentation to autom
 #### Quick start
 
 ``` typescript
+// Import and call auto-instrumentation before importing instrumented libraries
 import { paidAutoInstrument } from "@paid-ai/paid-node";
-
-// Due to how Javascript works, auto-instrumentation has to be called *before* your llm library imports
 paidAutoInstrument()
 
 import openai from "openai";
@@ -165,9 +164,8 @@ anthropic
 import { paidAutoInstrument } from "@paid-ai/paid-node";
 import openai from "openai";
 
-// There are some complex module resolution configurations that make the first approach impossible
-// for these cases you can pass the library directly in to the autoinstrumentation for it to be patched.
-// This only needs to be called once
+// If your module management is too complex and the previous approach didn't work
+// you can provide libraries directly 
 paidAutoInstrument({ openai })
 ```
 
