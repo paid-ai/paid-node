@@ -96,9 +96,10 @@ export class PaidClient {
         externalCustomerId: string,
         fn: T,
         externalAgentId?: string,
+        storePrompt: boolean = false,
         ...args: Parameters<T>
     ): Promise<ReturnType<T>> {
-        return await _trace(externalCustomerId, fn, externalAgentId, ...args);
+        return await _trace(externalCustomerId, fn, externalAgentId, storePrompt, ...args);
     }
 
     /**
@@ -142,7 +143,6 @@ export class PaidClient {
 
         return _signal(eventName, enableCostTracing, finalData);
     }
-
 
     /**
      * Export the tracer provider which user can use for his own tracing.

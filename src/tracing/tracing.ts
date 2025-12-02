@@ -1,10 +1,11 @@
 import { NodeSDK } from "@opentelemetry/sdk-node";
 import { NodeTracerProvider } from "@opentelemetry/sdk-trace-node";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
-import { BatchSpanProcessor, SpanProcessor } from "@opentelemetry/sdk-trace-base";
+import { SimpleSpanProcessor, SpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { SpanStatusCode } from "@opentelemetry/api";
 import { AsyncLocalStorage } from "async_hooks";
 import winston from "winston";
+import { PaidSpanProcessor } from "./spanProcessor";
 
 export const logger = winston.createLogger({
     level: "silent", // Default to 'silent' to avoid logging unless set via environment variable
@@ -20,8 +21,10 @@ const COLLECTOR_ENDPOINT = process.env.PAID_COLLECTOR_ENDPOINT || "https://colle
 
 // set up default tracing provider
 let paidExporter = new OTLPTraceExporter({ url: COLLECTOR_ENDPOINT });
-let spanProcessor = new BatchSpanProcessor(paidExporter);
-let paidTracerProvider = new NodeTracerProvider({ spanProcessors: [spanProcessor] });
+let spanProcessor = new SimpleSpanProcessor(paidExporter);
+export let paidTracerProvider = new NodeTracerProvider({
+    spanProcessors: [spanProcessor, new PaidSpanProcessor()],
+});
 paidTracerProvider.register();
 export let paidTracer = paidTracerProvider.getTracer("paid.node");
 
@@ -29,15 +32,17 @@ export let paidTracer = paidTracerProvider.getTracer("paid.node");
 const customerIdStorage = new AsyncLocalStorage<string | null>();
 const agentIdStorage = new AsyncLocalStorage<string | null>();
 const tokenStorage = new AsyncLocalStorage<string | null>();
+const storePromptStorage = new AsyncLocalStorage<boolean>();
 export const getCustomerIdStorage = (): string | null | undefined => customerIdStorage.getStore();
 export const getAgentIdStorage = (): string | null | undefined => agentIdStorage.getStore();
 export const getTokenStorage = (): string | null | undefined => tokenStorage.getStore();
+export const getStorePromptStorage = (): boolean => storePromptStorage.getStore() || false;
 
 let _token: string | undefined;
 const setToken = (token: string) => {
     _token = token;
 };
-const getToken = () => {
+export const getToken = () => {
     return _token;
 };
 
@@ -72,8 +77,10 @@ export function _initializeTracing(apiKey: string, collectorEndpoint?: string) {
 
     if (collectorEndpoint) {
         paidExporter = new OTLPTraceExporter({ url: collectorEndpoint });
-        spanProcessor = new BatchSpanProcessor(paidExporter);
-        paidTracerProvider = new NodeTracerProvider({ spanProcessors: [spanProcessor] });
+        spanProcessor = new SimpleSpanProcessor(paidExporter);
+        paidTracerProvider = new NodeTracerProvider({
+            spanProcessors: [spanProcessor, new PaidSpanProcessor()],
+        });
         paidTracerProvider.register();
         paidTracer = paidTracerProvider.getTracer("paid.node");
     }
@@ -85,10 +92,21 @@ export function _initializeTracing(apiKey: string, collectorEndpoint?: string) {
     logger.info(`Paid tracing SDK initialized with collector endpoint: ${collectorAddress}`);
 }
 
+async function wrapWithStorages(storageValues: [AsyncLocalStorage<any>, any][], fn: () => Promise<any>) {
+    let wrapped = fn;
+    for (const [storage, value] of storageValues.reverse()) {
+        const prev = wrapped;
+        wrapped = async () => await storage.run(value, prev);
+    }
+
+    return wrapped();
+}
+
 export async function _trace<T extends (...args: any[]) => any>(
     externalCustomerId: string,
     fn: T,
     externalAgentId: string | undefined,
+    storePrompt: boolean = false,
     ...args: Parameters<T>
 ): Promise<ReturnType<T>> {
     const token = getToken();
@@ -97,7 +115,7 @@ export async function _trace<T extends (...args: any[]) => any>(
         throw new Error(`Paid tracing is not initialized. Make sure to call initializeTracing() first.`);
     }
 
-    return paidTracer.startActiveSpan("paid.node", async (span) => {
+    return paidTracer.startActiveSpan("parent_span", async (span) => {
         span.setAttribute("external_customer_id", externalCustomerId);
         span.setAttribute("token", token);
         if (externalAgentId) {
@@ -105,13 +123,15 @@ export async function _trace<T extends (...args: any[]) => any>(
         }
 
         try {
-            const result = await customerIdStorage.run(externalCustomerId, async () => {
-                return await agentIdStorage.run(externalAgentId ?? null, async () => {
-                    return await tokenStorage.run(token, async () => {
-                        return await fn(...args);
-                    });
-                });
-            });
+            const result = await wrapWithStorages(
+                [
+                    [customerIdStorage, externalCustomerId],
+                    [agentIdStorage, externalAgentId ?? null],
+                    [tokenStorage, token],
+                    [storePromptStorage, storePrompt],
+                ],
+                () => fn(...args),
+            );
 
             span.setStatus({ code: SpanStatusCode.OK });
             return result;

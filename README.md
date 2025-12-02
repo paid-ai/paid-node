@@ -132,6 +132,46 @@ async function main() {
 }
 ```
 
+### Auto-Instrumentation (OpenTelemetry Instrumentors)
+
+For maximum convenience, you can use OpenTelemetry auto-instrumentation to automatically track costs without modifying your AI library calls. This approach uses official OpenTelemetry instrumentors for supported AI libraries.
+
+#### Quick start
+
+``` typescript
+// Import and call auto-instrumentation before importing instrumented libraries
+import { paidAutoInstrument } from "@paid-ai/paid-node";
+paidAutoInstrument()
+
+import openai from "openai";
+
+// All OpenAI calls will be automatically traced
+const openAIclient = new openai.OpenAI({ apiKey: "API_KEY" })
+```
+
+#### Supported libraries
+
+Auto-instrumentation supports the following AI libraries:
+
+```
+openai
+anthropic
+bedrock
+```
+
+#### Manual instrumentation
+
+``` typescript
+import { paidAutoInstrument } from "@paid-ai/paid-node";
+import openai from "openai";
+
+// If your module management is too complex and the previous approach didn't work
+// you can provide libraries directly 
+paidAutoInstrument({ openai })
+```
+
+
+
 ## Signaling via OTEL tracing
 
 A more reliable and user-friendly way to send signals is to send them via OTEL tracing.
