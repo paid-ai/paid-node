@@ -144,15 +144,16 @@
         "wire:test": "yarn test:wire"
     },
     "dependencies": {
-        "@arizeai/openinference-instrumentation-anthropic": "^0.1.2",
-        "@arizeai/openinference-instrumentation-openai": "^4.0.0",
-        "@arizeai/openinference-semantic-conventions": "^2.1.2",
+        "@arizeai/openinference-instrumentation-anthropic": ">=0.1.2",
+        "@arizeai/openinference-instrumentation-openai": ">=4.0.0",
+        "@arizeai/openinference-semantic-conventions": ">=2.1.2",
         "@opentelemetry/api": ">=1.9.0",
         "@opentelemetry/exporter-trace-otlp-http": ">=0.202.0",
         "@opentelemetry/exporter-trace-otlp-proto": "^0.208.0",
         "@opentelemetry/sdk-node": "^0.208.0",
         "@opentelemetry/sdk-trace-node": "^2.2.0",
-        "@opentelemetry/semantic-conventions": "^1.38.0",
+        "@opentelemetry/semantic-conventions": ">=1.38.0",
+        "@traceloop/instrumentation-bedrock": ">=0.22.0",
         "form-data": "^4.0.0",
         "formdata-node": "^6.0.3",
         "js-base64": "3.7.7",
@@ -201,6 +202,7 @@
     "devDependencies": {
         "@ai-sdk/openai": ">=1.0.0",
         "@anthropic-ai/sdk": "^0.71.0",
+        "@aws-sdk/client-bedrock-runtime": "^3.941.0",
         "@jest/globals": "^29.7.0",
         "@langchain/core": ">=0.3.0",
         "@mistralai/mistralai": ">=1.0.0",
