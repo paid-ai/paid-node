@@ -639,6 +639,112 @@ export class Customers {
         }
     }
 
+    /**
+     * @param {string} externalId - The external ID of the customer
+     * @param {Paid.CustomersGetCostsByExternalIdRequest} request
+     * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     *
+     * @example
+     *     await client.customers.getCostsByExternalId("externalId", {
+     *         limit: 1,
+     *         offset: 1,
+     *         startTime: "2024-01-15T09:30:00Z",
+     *         endTime: "2024-01-15T09:30:00Z"
+     *     })
+     */
+    public getCostsByExternalId(
+        externalId: string,
+        request: Paid.CustomersGetCostsByExternalIdRequest = {},
+        requestOptions?: Customers.RequestOptions,
+    ): core.HttpResponsePromise<Paid.CostTracesResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__getCostsByExternalId(externalId, request, requestOptions));
+    }
+
+    private async __getCostsByExternalId(
+        externalId: string,
+        request: Paid.CustomersGetCostsByExternalIdRequest = {},
+        requestOptions?: Customers.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.CostTracesResponse>> {
+        const { limit, offset, startTime, endTime } = request;
+        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
+        if (limit != null) {
+            _queryParams["limit"] = limit.toString();
+        }
+
+        if (offset != null) {
+            _queryParams["offset"] = offset.toString();
+        }
+
+        if (startTime != null) {
+            _queryParams["startTime"] = startTime;
+        }
+
+        if (endTime != null) {
+            _queryParams["endTime"] = endTime;
+        }
+
+        const _response = await core.fetcher({
+            url: urlJoin(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Production,
+                `customers/external/${encodeURIComponent(externalId)}/costs`,
+            ),
+            method: "GET",
+            headers: mergeHeaders(
+                this._options?.headers,
+                mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+                requestOptions?.headers,
+            ),
+            queryParameters: _queryParams,
+            timeoutMs: requestOptions?.timeoutInSeconds != null ? requestOptions.timeoutInSeconds * 1000 : 60000,
+            maxRetries: requestOptions?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.CostTracesResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as Paid.Error_, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as Paid.Error_, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError(
+                    "Timeout exceeded when calling GET /customers/external/{externalId}/costs.",
+                );
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
     protected async _getAuthorizationHeader(): Promise<string | undefined> {
         const bearer = await core.Supplier.get(this._options.token);
         if (bearer != null) {

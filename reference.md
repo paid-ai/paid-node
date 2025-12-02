@@ -450,6 +450,67 @@ await client.customers.deleteByExternalId("externalId");
 </dl>
 </details>
 
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">getCostsByExternalId</a>(externalId, { ...params }) -> Paid.CostTracesResponse</code></summary>
+<dl>
+<dd>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.customers.getCostsByExternalId("externalId", {
+    limit: 1,
+    offset: 1,
+    startTime: "2024-01-15T09:30:00Z",
+    endTime: "2024-01-15T09:30:00Z",
+});
+```
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**externalId:** `string` — The external ID of the customer
+
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request:** `Paid.CustomersGetCostsByExternalIdRequest`
+
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Customers.RequestOptions`
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+</dd>
+</dl>
+</details>
+
 ## Agents
 
 <details><summary><code>client.agents.<a href="/src/api/resources/agents/client/Client.ts">list</a>() -> Paid.Agent[]</code></summary>
@@ -1474,6 +1535,115 @@ await client.usage.recordBulk({
 <dd>
 
 **requestOptions:** `Usage.RequestOptions`
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.usage.<a href="/src/api/resources/usage/client/Client.ts">checkUsage</a>({ ...params }) -> Paid.UsageCheckUsageResponse</code></summary>
+<dl>
+<dd>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.usage.checkUsage({
+    externalCustomerId: "acme-inc",
+    productId: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
+});
+```
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.UsageCheckUsageRequest`
+
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Usage.RequestOptions`
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+</dd>
+</dl>
+</details>
+
+## Traces
+
+<details><summary><code>client.traces.<a href="/src/api/resources/traces/client/Client.ts">getTraces</a>({ ...params }) -> Paid.TracesResponse</code></summary>
+<dl>
+<dd>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.traces.getTraces({
+    limit: 1,
+    offset: 1,
+    startTime: "2024-01-15T09:30:00Z",
+    endTime: "2024-01-15T09:30:00Z",
+    externalCustomerId: "externalCustomerId",
+    externalAgentId: "externalAgentId",
+    metadata: "metadata",
+});
+```
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.GetTracesRequest`
+
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Traces.RequestOptions`
 
 </dd>
 </dl>
