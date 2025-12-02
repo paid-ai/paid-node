@@ -1,7 +1,7 @@
 import { NodeSDK } from "@opentelemetry/sdk-node";
 import { NodeTracerProvider } from "@opentelemetry/sdk-trace-node";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
-import { BatchSpanProcessor, SpanProcessor } from "@opentelemetry/sdk-trace-base";
+import { SimpleSpanProcessor, SpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { SpanStatusCode } from "@opentelemetry/api";
 import { AsyncLocalStorage } from "async_hooks";
 import winston from "winston";
@@ -21,7 +21,7 @@ const COLLECTOR_ENDPOINT = process.env.PAID_COLLECTOR_ENDPOINT || "https://colle
 
 // set up default tracing provider
 let paidExporter = new OTLPTraceExporter({ url: COLLECTOR_ENDPOINT });
-let spanProcessor = new BatchSpanProcessor(paidExporter);
+let spanProcessor = new SimpleSpanProcessor(paidExporter);
 export let paidTracerProvider = new NodeTracerProvider({
     spanProcessors: [spanProcessor, new PaidSpanProcessor()],
 });
@@ -77,7 +77,7 @@ export function _initializeTracing(apiKey: string, collectorEndpoint?: string) {
 
     if (collectorEndpoint) {
         paidExporter = new OTLPTraceExporter({ url: collectorEndpoint });
-        spanProcessor = new BatchSpanProcessor(paidExporter);
+        spanProcessor = new SimpleSpanProcessor(paidExporter);
         paidTracerProvider = new NodeTracerProvider({
             spanProcessors: [spanProcessor, new PaidSpanProcessor()],
         });
