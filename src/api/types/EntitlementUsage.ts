@@ -10,7 +10,7 @@ export interface EntitlementUsage {
     createdAt?: string;
     updatedAt?: string;
     organizationId: string;
-    productId: string;
+    externalProductId: string;
     entitlementId: string;
     customerId: string;
     startDate: string;

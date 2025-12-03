@@ -6,24 +6,24 @@
  * @example
  *     {
  *         externalCustomerId: "acme-inc",
- *         productId: "63fd642c-569d-44f9-8d67-5cf4944a16cc"
+ *         externalProductId: "acme-agent"
  *     }
  *
  * @example
  *     {
  *         externalCustomerId: "acme-inc",
- *         productId: "63fd642c-569d-44f9-8d67-5cf4944a16cc"
+ *         externalProductId: "acme-agent"
  *     }
  *
  * @example
  *     {
  *         externalCustomerId: "acme-inc",
- *         productId: "63fd642c-569d-44f9-8d67-5cf4944a16cc"
+ *         externalProductId: "acme-agent"
  *     }
  */
 export interface UsageCheckUsageRequest {
     /** External customer ID */
     externalCustomerId: string;
-    /** Product ID to check usage for */
-    productId: string;
+    /** External product ID to check usage for */
+    externalProductId: string;
 }

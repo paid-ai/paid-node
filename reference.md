@@ -1560,7 +1560,7 @@ await client.usage.recordBulk({
 ```typescript
 await client.usage.checkUsage({
     externalCustomerId: "acme-inc",
-    productId: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
+    externalProductId: "acme-agent",
 });
 ```
 

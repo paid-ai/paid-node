@@ -28,7 +28,7 @@ describe("Usage", () => {
     test("checkUsage", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = { externalCustomerId: "acme-inc", productId: "63fd642c-569d-44f9-8d67-5cf4944a16cc" };
+        const rawRequestBody = { externalCustomerId: "acme-inc", externalProductId: "acme-agent" };
         const rawResponseBody = {
             allowed: true,
             message: "usage within allowance",
@@ -48,7 +48,7 @@ describe("Usage", () => {
 
         const response = await client.usage.checkUsage({
             externalCustomerId: "acme-inc",
-            productId: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
+            externalProductId: "acme-agent",
         });
         expect(response).toEqual({
             allowed: true,
