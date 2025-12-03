@@ -76,6 +76,7 @@ describe("Lines", () => {
                     zipCode: "zipCode",
                     country: "country",
                 },
+                metadata: { key: "value" },
             },
         };
         server
@@ -158,6 +159,9 @@ describe("Lines", () => {
                     state: "state",
                     zipCode: "zipCode",
                     country: "country",
+                },
+                metadata: {
+                    key: "value",
                 },
             },
         });
