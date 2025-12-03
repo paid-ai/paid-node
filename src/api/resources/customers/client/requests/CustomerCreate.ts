@@ -21,6 +21,4 @@ export interface CustomerCreate {
     creationSource?: Paid.CreationSource;
     website?: string;
     billingAddress?: Paid.Address;
-    /** Flexible JSON field for storing custom metadata about the customer */
-    metadata?: Record<string, unknown>;
 }
