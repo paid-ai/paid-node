@@ -32,7 +32,6 @@ describe("Customers", () => {
                     zipCode: "zipCode",
                     country: "country",
                 },
-                metadata: { key: "value" },
             },
         ];
         server.mockEndpoint().get("/customers").respondWith().statusCode(200).jsonBody(rawResponseBody).build();
@@ -58,9 +57,6 @@ describe("Customers", () => {
                     state: "state",
                     zipCode: "zipCode",
                     country: "country",
-                },
-                metadata: {
-                    key: "value",
                 },
             },
         ]);
@@ -90,7 +86,6 @@ describe("Customers", () => {
                 zipCode: "zipCode",
                 country: "country",
             },
-            metadata: { key: "value" },
         };
         server
             .mockEndpoint()
@@ -125,9 +120,6 @@ describe("Customers", () => {
                 zipCode: "zipCode",
                 country: "country",
             },
-            metadata: {
-                key: "value",
-            },
         });
     });
 
@@ -155,7 +147,6 @@ describe("Customers", () => {
                 zipCode: "12345",
                 country: "US",
             },
-            metadata: { key: "value" },
         };
         server
             .mockEndpoint()
@@ -185,9 +176,6 @@ describe("Customers", () => {
                 state: "CA",
                 zipCode: "12345",
                 country: "US",
-            },
-            metadata: {
-                key: "value",
             },
         });
     });
@@ -221,7 +209,6 @@ describe("Customers", () => {
                 zipCode: "zipCode",
                 country: "country",
             },
-            metadata: { key: "value" },
         };
         server
             .mockEndpoint()
@@ -257,9 +244,6 @@ describe("Customers", () => {
                 state: "state",
                 zipCode: "zipCode",
                 country: "country",
-            },
-            metadata: {
-                key: "value",
             },
         });
     });
@@ -345,7 +329,6 @@ describe("Customers", () => {
                 zipCode: "12345",
                 country: "US",
             },
-            metadata: { key: "value" },
         };
         server
             .mockEndpoint()
@@ -376,9 +359,6 @@ describe("Customers", () => {
                 zipCode: "12345",
                 country: "US",
             },
-            metadata: {
-                key: "value",
-            },
         });
     });
 
@@ -406,7 +386,6 @@ describe("Customers", () => {
                 zipCode: "zipCode",
                 country: "country",
             },
-            metadata: { key: "value" },
         };
         server
             .mockEndpoint()
@@ -438,9 +417,6 @@ describe("Customers", () => {
                 zipCode: "zipCode",
                 country: "country",
             },
-            metadata: {
-                key: "value",
-            },
         });
     });
 
@@ -452,129 +428,5 @@ describe("Customers", () => {
 
         const response = await client.customers.deleteByExternalId("externalId");
         expect(response).toEqual(undefined);
-    });
-
-    test("getCostsByExternalId", async () => {
-        const server = mockServerPool.createServer();
-        const client = new PaidClient({ token: "test", environment: server.baseUrl });
-
-        const rawResponseBody = {
-            traces: [
-                {
-                    name: "trace.openai.agents.on_agent",
-                    vendor: "openai",
-                    model: "model",
-                    cost: { amount: 0.00001725, currency: "USD" },
-                    startTimeUnixNano: "1759774597906209000",
-                    endTimeUnixNano: "1759774599194165000",
-                    attributes: {
-                        gen_ai: {
-                            system: "openai",
-                            operation: { name: "on_agent" },
-                            request: { model: "gpt-4o-mini" },
-                            usage: { input_tokens: 27, output_tokens: 22 },
-                        },
-                        external_customer_id: "your_external_customer_id",
-                        external_agent_id: "your_external_agent_id",
-                    },
-                },
-                {
-                    name: "trace.openai.agents.on_agent",
-                    vendor: "openai",
-                    model: "model",
-                    cost: { amount: 0.0000219, currency: "USD" },
-                    startTimeUnixNano: "1759774599472853000",
-                    endTimeUnixNano: "1759774600619994000",
-                    attributes: { gen_ai: { system: "openai", request: { model: "gpt-4o-mini" } } },
-                },
-            ],
-            meta: {
-                limit: 100,
-                offset: 0,
-                count: 2,
-                hasMore: false,
-                startTime: "2024-01-15T09:30:00Z",
-                endTime: "2024-01-15T09:30:00Z",
-                externalCustomerId: "externalCustomerId",
-                externalAgentId: "externalAgentId",
-                metadata: "metadata",
-            },
-        };
-        server
-            .mockEndpoint()
-            .get("/customers/external/externalId/costs")
-            .respondWith()
-            .statusCode(200)
-            .jsonBody(rawResponseBody)
-            .build();
-
-        const response = await client.customers.getCostsByExternalId("externalId", {
-            limit: 1,
-            offset: 1,
-            startTime: "2024-01-15T09:30:00Z",
-            endTime: "2024-01-15T09:30:00Z",
-        });
-        expect(response).toEqual({
-            traces: [
-                {
-                    name: "trace.openai.agents.on_agent",
-                    vendor: "openai",
-                    model: "model",
-                    cost: {
-                        amount: 0.00001725,
-                        currency: "USD",
-                    },
-                    startTimeUnixNano: "1759774597906209000",
-                    endTimeUnixNano: "1759774599194165000",
-                    attributes: {
-                        gen_ai: {
-                            system: "openai",
-                            operation: {
-                                name: "on_agent",
-                            },
-                            request: {
-                                model: "gpt-4o-mini",
-                            },
-                            usage: {
-                                input_tokens: 27,
-                                output_tokens: 22,
-                            },
-                        },
-                        external_customer_id: "your_external_customer_id",
-                        external_agent_id: "your_external_agent_id",
-                    },
-                },
-                {
-                    name: "trace.openai.agents.on_agent",
-                    vendor: "openai",
-                    model: "model",
-                    cost: {
-                        amount: 0.0000219,
-                        currency: "USD",
-                    },
-                    startTimeUnixNano: "1759774599472853000",
-                    endTimeUnixNano: "1759774600619994000",
-                    attributes: {
-                        gen_ai: {
-                            system: "openai",
-                            request: {
-                                model: "gpt-4o-mini",
-                            },
-                        },
-                    },
-                },
-            ],
-            meta: {
-                limit: 100,
-                offset: 0,
-                count: 2,
-                hasMore: false,
-                startTime: "2024-01-15T09:30:00Z",
-                endTime: "2024-01-15T09:30:00Z",
-                externalCustomerId: "externalCustomerId",
-                externalAgentId: "externalAgentId",
-                metadata: "metadata",
-            },
-        });
     });
 });
