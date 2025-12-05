@@ -1,8 +1,9 @@
+export * as usage from "./usage/index.js";
+export * from "./usage/types/index.js";
 export * as customers from "./customers/index.js";
 export * as agents from "./agents/index.js";
 export * as contacts from "./contacts/index.js";
 export * as orders from "./orders/index.js";
-export * as usage from "./usage/index.js";
 export * from "./customers/client/requests/index.js";
 export * from "./agents/client/requests/index.js";
 export * from "./contacts/client/requests/index.js";

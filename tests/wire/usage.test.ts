@@ -24,4 +24,39 @@ describe("Usage", () => {
         });
         expect(response).toEqual(undefined);
     });
+
+    test("checkUsage", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { externalCustomerId: "acme-inc", externalProductId: "acme-agent" };
+        const rawResponseBody = {
+            allowed: true,
+            message: "usage within allowance",
+            eventName: "eventName",
+            available: 1.1,
+            eventsQuantity: 1.1,
+            limit: 1.1,
+        };
+        server
+            .mockEndpoint()
+            .post("/usage/check-usage")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.usage.checkUsage({
+            externalCustomerId: "acme-inc",
+            externalProductId: "acme-agent",
+        });
+        expect(response).toEqual({
+            allowed: true,
+            message: "usage within allowance",
+            eventName: "eventName",
+            available: 1.1,
+            eventsQuantity: 1.1,
+            limit: 1.1,
+        });
+    });
 });

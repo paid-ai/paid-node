@@ -46,6 +46,7 @@ describe("Orders", () => {
                         zipCode: "zipCode",
                         country: "country",
                     },
+                    metadata: { key: "value" },
                 },
             },
         ];
@@ -87,6 +88,9 @@ describe("Orders", () => {
                         state: "state",
                         zipCode: "zipCode",
                         country: "country",
+                    },
+                    metadata: {
+                        key: "value",
                     },
                 },
             },
@@ -157,6 +161,7 @@ describe("Orders", () => {
                     zipCode: "zipCode",
                     country: "country",
                 },
+                metadata: { key: "value" },
             },
         };
         server
@@ -233,6 +238,9 @@ describe("Orders", () => {
                     state: "state",
                     zipCode: "zipCode",
                     country: "country",
+                },
+                metadata: {
+                    key: "value",
                 },
             },
         });
@@ -328,6 +336,7 @@ describe("Orders", () => {
                     zipCode: "zipCode",
                     country: "country",
                 },
+                metadata: { key: "value" },
             },
         };
         server.mockEndpoint().get("/orders/orderId").respondWith().statusCode(200).jsonBody(rawResponseBody).build();
@@ -423,6 +432,9 @@ describe("Orders", () => {
                     zipCode: "zipCode",
                     country: "country",
                 },
+                metadata: {
+                    key: "value",
+                },
             },
         });
     });
@@ -494,6 +506,7 @@ describe("Orders", () => {
                     zipCode: "zipCode",
                     country: "country",
                 },
+                metadata: { key: "value" },
             },
         };
         server
@@ -562,6 +575,9 @@ describe("Orders", () => {
                     state: "state",
                     zipCode: "zipCode",
                     country: "country",
+                },
+                metadata: {
+                    key: "value",
                 },
             },
         });
