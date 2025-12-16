@@ -12,3 +12,4 @@ src/vercel-wrapper/
 
 src/Client.ts
 src/integrations
+jest.config.ms
