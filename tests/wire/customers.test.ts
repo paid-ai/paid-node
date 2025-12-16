@@ -32,6 +32,7 @@ describe("Customers", () => {
                     zipCode: "zipCode",
                     country: "country",
                 },
+                metadata: { key: "value" },
             },
         ];
         server.mockEndpoint().get("/customers").respondWith().statusCode(200).jsonBody(rawResponseBody).build();
@@ -57,6 +58,9 @@ describe("Customers", () => {
                     state: "state",
                     zipCode: "zipCode",
                     country: "country",
+                },
+                metadata: {
+                    key: "value",
                 },
             },
         ]);
@@ -86,6 +90,7 @@ describe("Customers", () => {
                 zipCode: "zipCode",
                 country: "country",
             },
+            metadata: { key: "value" },
         };
         server
             .mockEndpoint()
@@ -120,6 +125,9 @@ describe("Customers", () => {
                 zipCode: "zipCode",
                 country: "country",
             },
+            metadata: {
+                key: "value",
+            },
         });
     });
 
@@ -147,6 +155,7 @@ describe("Customers", () => {
                 zipCode: "12345",
                 country: "US",
             },
+            metadata: { key: "value" },
         };
         server
             .mockEndpoint()
@@ -176,6 +185,9 @@ describe("Customers", () => {
                 state: "CA",
                 zipCode: "12345",
                 country: "US",
+            },
+            metadata: {
+                key: "value",
             },
         });
     });
@@ -209,6 +221,7 @@ describe("Customers", () => {
                 zipCode: "zipCode",
                 country: "country",
             },
+            metadata: { key: "value" },
         };
         server
             .mockEndpoint()
@@ -244,6 +257,9 @@ describe("Customers", () => {
                 state: "state",
                 zipCode: "zipCode",
                 country: "country",
+            },
+            metadata: {
+                key: "value",
             },
         });
     });
@@ -329,6 +345,7 @@ describe("Customers", () => {
                 zipCode: "12345",
                 country: "US",
             },
+            metadata: { key: "value" },
         };
         server
             .mockEndpoint()
@@ -359,6 +376,9 @@ describe("Customers", () => {
                 zipCode: "12345",
                 country: "US",
             },
+            metadata: {
+                key: "value",
+            },
         });
     });
 
@@ -386,6 +406,7 @@ describe("Customers", () => {
                 zipCode: "zipCode",
                 country: "country",
             },
+            metadata: { key: "value" },
         };
         server
             .mockEndpoint()
@@ -417,6 +438,9 @@ describe("Customers", () => {
                 zipCode: "zipCode",
                 country: "country",
             },
+            metadata: {
+                key: "value",
+            },
         });
     });
 
@@ -428,5 +452,248 @@ describe("Customers", () => {
 
         const response = await client.customers.deleteByExternalId("externalId");
         expect(response).toEqual(undefined);
+    });
+
+    test("getCostsByExternalId", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = {
+            traces: [
+                {
+                    name: "trace.openai.agents.on_agent",
+                    vendor: "openai",
+                    model: "model",
+                    cost: { amount: 0.00001725, currency: "USD" },
+                    startTimeUnixNano: "1759774597906209000",
+                    endTimeUnixNano: "1759774599194165000",
+                    attributes: {
+                        gen_ai: {
+                            system: "openai",
+                            operation: { name: "on_agent" },
+                            request: { model: "gpt-4o-mini" },
+                            usage: { input_tokens: 27, output_tokens: 22 },
+                        },
+                        external_customer_id: "your_external_customer_id",
+                        external_agent_id: "your_external_agent_id",
+                    },
+                },
+                {
+                    name: "trace.openai.agents.on_agent",
+                    vendor: "openai",
+                    model: "model",
+                    cost: { amount: 0.0000219, currency: "USD" },
+                    startTimeUnixNano: "1759774599472853000",
+                    endTimeUnixNano: "1759774600619994000",
+                    attributes: { gen_ai: { system: "openai", request: { model: "gpt-4o-mini" } } },
+                },
+            ],
+            meta: {
+                limit: 100,
+                offset: 0,
+                count: 2,
+                hasMore: false,
+                startTime: "2024-01-15T09:30:00Z",
+                endTime: "2024-01-15T09:30:00Z",
+                externalCustomerId: "externalCustomerId",
+                externalAgentId: "externalAgentId",
+                metadata: "metadata",
+            },
+        };
+        server
+            .mockEndpoint()
+            .get("/customers/external/externalId/costs")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.customers.getCostsByExternalId("externalId", {
+            limit: 1,
+            offset: 1,
+            startTime: "2024-01-15T09:30:00Z",
+            endTime: "2024-01-15T09:30:00Z",
+        });
+        expect(response).toEqual({
+            traces: [
+                {
+                    name: "trace.openai.agents.on_agent",
+                    vendor: "openai",
+                    model: "model",
+                    cost: {
+                        amount: 0.00001725,
+                        currency: "USD",
+                    },
+                    startTimeUnixNano: "1759774597906209000",
+                    endTimeUnixNano: "1759774599194165000",
+                    attributes: {
+                        gen_ai: {
+                            system: "openai",
+                            operation: {
+                                name: "on_agent",
+                            },
+                            request: {
+                                model: "gpt-4o-mini",
+                            },
+                            usage: {
+                                input_tokens: 27,
+                                output_tokens: 22,
+                            },
+                        },
+                        external_customer_id: "your_external_customer_id",
+                        external_agent_id: "your_external_agent_id",
+                    },
+                },
+                {
+                    name: "trace.openai.agents.on_agent",
+                    vendor: "openai",
+                    model: "model",
+                    cost: {
+                        amount: 0.0000219,
+                        currency: "USD",
+                    },
+                    startTimeUnixNano: "1759774599472853000",
+                    endTimeUnixNano: "1759774600619994000",
+                    attributes: {
+                        gen_ai: {
+                            system: "openai",
+                            request: {
+                                model: "gpt-4o-mini",
+                            },
+                        },
+                    },
+                },
+            ],
+            meta: {
+                limit: 100,
+                offset: 0,
+                count: 2,
+                hasMore: false,
+                startTime: "2024-01-15T09:30:00Z",
+                endTime: "2024-01-15T09:30:00Z",
+                externalCustomerId: "externalCustomerId",
+                externalAgentId: "externalAgentId",
+                metadata: "metadata",
+            },
+        });
+    });
+
+    test("getUsageByExternalId", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = {
+            data: [
+                {
+                    id: "550e8400-e29b-41d4-a716-446655440000",
+                    eventName: "api_calls",
+                    eventsQuantity: 1500,
+                    startDate: "2024-01-01T00:00:00Z",
+                    endDate: "2024-01-31T23:59:59Z",
+                    subtotal: 50000,
+                    nextBillingDate: "2024-02-01T00:00:00Z",
+                    customerId: "7d0b6fce-d82a-433d-8315-c994f8f1d68d",
+                    orderId: "8e1c7fdf-e93b-52e5-b827-557766661111",
+                    orderLineId: "9f2d8eeg-f04c-63f6-c938-668877772222",
+                    orderLineAttributeId: "0a3e9ffh-g15d-74g7-d049-779988883333",
+                    invoiceId: "1b4f0ggi-h26e-85h8-e15a-880099994444",
+                    invoiceLineId: "2c5g1hhj-i37f-96i9-f26b-991100005555",
+                    createdAt: "2024-01-15T10:30:00Z",
+                    updatedAt: "2024-01-15T10:30:00Z",
+                    order: { id: "8e1c7fdf-e93b-52e5-b827-557766661111", displayId: "ORD-12345" },
+                    orderLine: { id: "9f2d8eeg-f04c-63f6-c938-668877772222", displayId: "OL-67890" },
+                },
+                {
+                    id: "660f9511-f3ac-52e6-b827-557766662222",
+                    eventName: "api_calls",
+                    eventsQuantity: 2000,
+                    startDate: "2024-02-01T00:00:00Z",
+                    endDate: "2024-02-29T23:59:59Z",
+                    subtotal: 75000,
+                    nextBillingDate: "2024-03-01T00:00:00Z",
+                    customerId: "7d0b6fce-d82a-433d-8315-c994f8f1d68d",
+                    orderId: "8e1c7fdf-e93b-52e5-b827-557766661111",
+                    orderLineId: "9f2d8eeg-f04c-63f6-c938-668877772222",
+                    orderLineAttributeId: "0a3e9ffh-g15d-74g7-d049-779988883333",
+                    createdAt: "2024-02-15T10:30:00Z",
+                    updatedAt: "2024-02-15T10:30:00Z",
+                    order: { id: "8e1c7fdf-e93b-52e5-b827-557766661111", displayId: "ORD-12345" },
+                    orderLine: { id: "9f2d8eeg-f04c-63f6-c938-668877772222", displayId: "OL-67890" },
+                },
+            ],
+            pagination: { limit: 100, offset: 0, total: 2, hasMore: false },
+        };
+        server
+            .mockEndpoint()
+            .get("/customers/external/externalId/usage")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.customers.getUsageByExternalId("externalId", {
+            limit: 1,
+            offset: 1,
+            startTime: "2024-01-15T09:30:00Z",
+            endTime: "2024-01-15T09:30:00Z",
+        });
+        expect(response).toEqual({
+            data: [
+                {
+                    id: "550e8400-e29b-41d4-a716-446655440000",
+                    eventName: "api_calls",
+                    eventsQuantity: 1500,
+                    startDate: "2024-01-01T00:00:00Z",
+                    endDate: "2024-01-31T23:59:59Z",
+                    subtotal: 50000,
+                    nextBillingDate: "2024-02-01T00:00:00Z",
+                    customerId: "7d0b6fce-d82a-433d-8315-c994f8f1d68d",
+                    orderId: "8e1c7fdf-e93b-52e5-b827-557766661111",
+                    orderLineId: "9f2d8eeg-f04c-63f6-c938-668877772222",
+                    orderLineAttributeId: "0a3e9ffh-g15d-74g7-d049-779988883333",
+                    invoiceId: "1b4f0ggi-h26e-85h8-e15a-880099994444",
+                    invoiceLineId: "2c5g1hhj-i37f-96i9-f26b-991100005555",
+                    createdAt: "2024-01-15T10:30:00Z",
+                    updatedAt: "2024-01-15T10:30:00Z",
+                    order: {
+                        id: "8e1c7fdf-e93b-52e5-b827-557766661111",
+                        displayId: "ORD-12345",
+                    },
+                    orderLine: {
+                        id: "9f2d8eeg-f04c-63f6-c938-668877772222",
+                        displayId: "OL-67890",
+                    },
+                },
+                {
+                    id: "660f9511-f3ac-52e6-b827-557766662222",
+                    eventName: "api_calls",
+                    eventsQuantity: 2000,
+                    startDate: "2024-02-01T00:00:00Z",
+                    endDate: "2024-02-29T23:59:59Z",
+                    subtotal: 75000,
+                    nextBillingDate: "2024-03-01T00:00:00Z",
+                    customerId: "7d0b6fce-d82a-433d-8315-c994f8f1d68d",
+                    orderId: "8e1c7fdf-e93b-52e5-b827-557766661111",
+                    orderLineId: "9f2d8eeg-f04c-63f6-c938-668877772222",
+                    orderLineAttributeId: "0a3e9ffh-g15d-74g7-d049-779988883333",
+                    createdAt: "2024-02-15T10:30:00Z",
+                    updatedAt: "2024-02-15T10:30:00Z",
+                    order: {
+                        id: "8e1c7fdf-e93b-52e5-b827-557766661111",
+                        displayId: "ORD-12345",
+                    },
+                    orderLine: {
+                        id: "9f2d8eeg-f04c-63f6-c938-668877772222",
+                        displayId: "OL-67890",
+                    },
+                },
+            ],
+            pagination: {
+                limit: 100,
+                offset: 0,
+                total: 2,
+                hasMore: false,
+            },
+        });
     });
 });

@@ -3,10 +3,11 @@
  */
 
 import * as errors from "../../errors/index.js";
+import * as Paid from "../index.js";
 import * as core from "../../core/index.js";
 
 export class BadRequestError extends errors.PaidError {
-    constructor(body?: unknown, rawResponse?: core.RawResponse) {
+    constructor(body: Paid.Error_, rawResponse?: core.RawResponse) {
         super({
             message: "BadRequestError",
             statusCode: 400,
