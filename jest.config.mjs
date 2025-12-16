@@ -7,16 +7,11 @@ export default {
   },
   setupFilesAfterEnv: ["<rootDir>/tests/mock-server/setup.ts"],
   transformIgnorePatterns: [
-    'node_modules/(?!(until-async|msw|@mswjs|@bundled-es-modules|@open-draft|@bundled-es-modules/statuses|strict-event-emitter)/)',
+    '/node_modules/(?!(until-async|msw|@mswjs|@bundled-es-modules|@open-draft|strict-event-emitter|outvariant|headers-polyfill)/)',
   ],
   transform: {
-    '^.+\\.tsx?$': 'ts-jest',
-    '^.+\\.jsx?$': 'ts-jest', // Transform JS files with ts-jest
-  },
-  globals: {
-    'ts-jest': {
-      useESM: true,
-    },
+    '^.+\\.(ts|tsx)$': ['ts-jest', { useESM: true }],
+    '^.+\\.(js|jsx)$': ['ts-jest', { useESM: true }],
   },
   extensionsToTreatAsEsm: ['.ts', '.tsx'],
 };
