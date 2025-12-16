@@ -10,18 +10,13 @@ export default {
     'node_modules/(?!(until-async|msw|@mswjs|@bundled-es-modules|@open-draft|@bundled-es-modules/statuses|strict-event-emitter)/)',
   ],
   transform: {
-    '^.+\\.tsx?$': ['ts-jest', {
+    '^.+\\.tsx?$': 'ts-jest',
+    '^.+\\.jsx?$': 'ts-jest', // Transform JS files with ts-jest
+  },
+  globals: {
+    'ts-jest': {
       useESM: true,
-      tsconfig: './tests/tsconfig.json',
-    }],
-    '^.+\\.mjs$': ['ts-jest', {
-      useESM: true,
-      tsconfig: {
-        allowJs: true,
-        types: ['jest', 'node'],
-      },
-    }],
-    '^.+\\.jsx?$': ['babel-jest', {}],
+    },
   },
   extensionsToTreatAsEsm: ['.ts', '.tsx'],
 };
