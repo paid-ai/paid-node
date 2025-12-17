@@ -7,6 +7,7 @@ describe("test env compatibility", () => {
                 {
                     mode: "production",
                     entry: "./src/index.ts",
+                    target: "node",
                     module: {
                         rules: [
                             {

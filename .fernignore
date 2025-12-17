@@ -13,4 +13,5 @@ src/vercel-wrapper/
 src/Client.ts
 src/integrations
 jest.config.mjs
+tests/unit/fetcher/stream-wrappers/webpack.test.ts
 
