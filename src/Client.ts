@@ -90,15 +90,30 @@ export class PaidClient {
         _initializeTracing(resolvedToken, collectorEndpoint);
     }
 
-    // Use this method to track actions like LLM costs and sending signals.
-    // The callback to this function is the work that you want to trace.
+    /**
+     * Use this method to track actions like LLM costs and sending signals.
+     * The callback to this function is the work that you want to trace.
+     *
+     * @param externalCustomerId - The external customer ID
+     * @param fn - The callback function containing the work to be traced
+     * @param externalAgentId - @deprecated Use externalProductId instead
+     * @param externalProductId - The external product ID
+     * @param storePrompt - Whether to store the prompt (defaults to false)
+     * @param args - Arguments to pass to the callback function
+     * @returns The return value of the callback function
+     */
     public async trace<T extends (...args: any[]) => any>(
         externalCustomerId: string,
         fn: T,
         externalAgentId?: string,
+        externalProductId?: string,
         storePrompt: boolean = false,
         ...args: Parameters<T>
     ): Promise<ReturnType<T>> {
+        // TODO: remove this after deprecation and replace externalAgentId with externalProductId everywhere
+        if (externalProductId) {
+            externalAgentId = externalProductId;
+        }
         return await _trace(externalCustomerId, fn, externalAgentId, storePrompt, ...args);
     }
 
