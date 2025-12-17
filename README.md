@@ -128,7 +128,7 @@ async function main() {
         if (response.data) {
             console.log("Image generation:", response.data[0].url);
         }
-    }, "<optional_external_agent_id>");
+    }, "<optional_external_product_id>");
 }
 ```
 
@@ -195,7 +195,7 @@ async function main() {
     await client.trace("<your_external_customer_id>", async () => {
         // ...do some work...
         client.signal("<your_signal_name>", { /* optional data */ });
-    }, "<your_external_agent_id>"); // external_agent_id is required for signals
+    }, "<your_external_product_id>"); // external_product_id is required for signals
 }
 ```
 
@@ -236,7 +236,7 @@ async function main() {
 
         // ... your workflow logic
         // ... your AI calls made through Paid wrappers (can be sent after the signal too)
-    }, "<your_external_agent_id>");
+    }, "<your_external_product_id>");
 }
 ```
 
