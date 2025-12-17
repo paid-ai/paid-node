@@ -9,7 +9,7 @@ import { mergeHeaders, mergeOnlyDefinedHeaders } from "../../../../core/headers.
 import urlJoin from "url-join";
 import * as errors from "../../../../errors/index.js";
 
-export declare namespace Usage {
+export declare namespace Plans {
     export interface Options {
         environment?: core.Supplier<environments.PaidEnvironment | string>;
         /** Specify a custom URL to connect the client to. */
@@ -31,139 +31,58 @@ export declare namespace Usage {
     }
 }
 
-export class Usage {
-    protected readonly _options: Usage.Options;
+export class Plans {
+    protected readonly _options: Plans.Options;
 
-    constructor(_options: Usage.Options = {}) {
+    constructor(_options: Plans.Options = {}) {
         this._options = _options;
     }
 
     /**
-     * @param {Paid.UsageRecordBulkRequest} request
-     * @param {Usage.RequestOptions} requestOptions - Request-specific configuration.
+     * @param {string} planId - The ID of the plan
+     * @param {Plans.RequestOptions} requestOptions - Request-specific configuration.
      *
-     * @example
-     *     await client.usage.recordBulk({
-     *         signals: [{}, {}, {}]
-     *     })
-     */
-    public recordBulk(
-        request: Paid.UsageRecordBulkRequest = {},
-        requestOptions?: Usage.RequestOptions,
-    ): core.HttpResponsePromise<void> {
-        return core.HttpResponsePromise.fromPromise(this.__recordBulk(request, requestOptions));
-    }
-
-    private async __recordBulk(
-        request: Paid.UsageRecordBulkRequest = {},
-        requestOptions?: Usage.RequestOptions,
-    ): Promise<core.WithRawResponse<void>> {
-        const _response = await core.fetcher({
-            url: urlJoin(
-                (await core.Supplier.get(this._options.baseUrl)) ??
-                    (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidEnvironment.Production,
-                "usage/signals/bulk",
-            ),
-            method: "POST",
-            headers: mergeHeaders(
-                this._options?.headers,
-                mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
-                requestOptions?.headers,
-            ),
-            contentType: "application/json",
-            requestType: "json",
-            body: request,
-            timeoutMs: requestOptions?.timeoutInSeconds != null ? requestOptions.timeoutInSeconds * 1000 : 60000,
-            maxRetries: requestOptions?.maxRetries,
-            abortSignal: requestOptions?.abortSignal,
-        });
-        if (_response.ok) {
-            return { data: undefined, rawResponse: _response.rawResponse };
-        }
-
-        if (_response.error.reason === "status-code") {
-            throw new errors.PaidError({
-                statusCode: _response.error.statusCode,
-                body: _response.error.body,
-                rawResponse: _response.rawResponse,
-            });
-        }
-
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.PaidError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /usage/signals/bulk.");
-            case "unknown":
-                throw new errors.PaidError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
-    }
-
-    /**
-     * @param {Paid.UsageCheckUsageRequest} request
-     * @param {Usage.RequestOptions} requestOptions - Request-specific configuration.
-     *
-     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
      * @throws {@link Paid.NotFoundError}
-     * @throws {@link Paid.InternalServerError}
      *
      * @example
-     *     await client.usage.checkUsage({
-     *         externalCustomerId: "acme-inc",
-     *         externalProductId: "acme-agent"
-     *     })
+     *     await client.plans.getById("planId")
      */
-    public checkUsage(
-        request: Paid.UsageCheckUsageRequest,
-        requestOptions?: Usage.RequestOptions,
-    ): core.HttpResponsePromise<Paid.UsageCheckUsageResponse> {
-        return core.HttpResponsePromise.fromPromise(this.__checkUsage(request, requestOptions));
+    public getById(planId: string, requestOptions?: Plans.RequestOptions): core.HttpResponsePromise<Paid.Plan> {
+        return core.HttpResponsePromise.fromPromise(this.__getById(planId, requestOptions));
     }
 
-    private async __checkUsage(
-        request: Paid.UsageCheckUsageRequest,
-        requestOptions?: Usage.RequestOptions,
-    ): Promise<core.WithRawResponse<Paid.UsageCheckUsageResponse>> {
+    private async __getById(
+        planId: string,
+        requestOptions?: Plans.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.Plan>> {
         const _response = await core.fetcher({
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
                     environments.PaidEnvironment.Production,
-                "usage/check-usage",
+                `plans/${encodeURIComponent(planId)}`,
             ),
-            method: "POST",
+            method: "GET",
             headers: mergeHeaders(
                 this._options?.headers,
                 mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
                 requestOptions?.headers,
             ),
-            contentType: "application/json",
-            requestType: "json",
-            body: request,
             timeoutMs: requestOptions?.timeoutInSeconds != null ? requestOptions.timeoutInSeconds * 1000 : 60000,
             maxRetries: requestOptions?.maxRetries,
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return { data: _response.body as Paid.UsageCheckUsageResponse, rawResponse: _response.rawResponse };
+            return { data: _response.body as Paid.Plan, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
-                case 400:
-                    throw new Paid.BadRequestError(_response.error.body as Paid.Error_, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as Paid.Error_, _response.rawResponse);
                 case 404:
                     throw new Paid.NotFoundError(_response.error.body as Paid.Error_, _response.rawResponse);
-                case 500:
-                    throw new Paid.InternalServerError(_response.error.body as Paid.Error_, _response.rawResponse);
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,
@@ -181,7 +100,113 @@ export class Usage {
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /usage/check-usage.");
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /plans/{planId}.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * @param {string} planId - The ID of the plan
+     * @param {Paid.PlansGetUsageRequest} request
+     * @param {Plans.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     *
+     * @example
+     *     await client.plans.getUsage("planId", {
+     *         externalId: "externalId",
+     *         limit: 1,
+     *         offset: 1,
+     *         startTime: "2024-01-15T09:30:00Z",
+     *         endTime: "2024-01-15T09:30:00Z"
+     *     })
+     */
+    public getUsage(
+        planId: string,
+        request: Paid.PlansGetUsageRequest,
+        requestOptions?: Plans.RequestOptions,
+    ): core.HttpResponsePromise<Paid.UsageSummariesResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__getUsage(planId, request, requestOptions));
+    }
+
+    private async __getUsage(
+        planId: string,
+        request: Paid.PlansGetUsageRequest,
+        requestOptions?: Plans.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.UsageSummariesResponse>> {
+        const { externalId, limit, offset, startTime, endTime } = request;
+        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
+        _queryParams["externalId"] = externalId;
+        if (limit != null) {
+            _queryParams["limit"] = limit.toString();
+        }
+
+        if (offset != null) {
+            _queryParams["offset"] = offset.toString();
+        }
+
+        if (startTime != null) {
+            _queryParams["startTime"] = startTime;
+        }
+
+        if (endTime != null) {
+            _queryParams["endTime"] = endTime;
+        }
+
+        const _response = await core.fetcher({
+            url: urlJoin(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Production,
+                `plans/${encodeURIComponent(planId)}/usage`,
+            ),
+            method: "GET",
+            headers: mergeHeaders(
+                this._options?.headers,
+                mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+                requestOptions?.headers,
+            ),
+            queryParameters: _queryParams,
+            timeoutMs: requestOptions?.timeoutInSeconds != null ? requestOptions.timeoutInSeconds * 1000 : 60000,
+            maxRetries: requestOptions?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.UsageSummariesResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as Paid.Error_, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as Paid.Error_, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as Paid.Error_, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /plans/{planId}/usage.");
             case "unknown":
                 throw new errors.PaidError({
                     message: _response.error.errorMessage,

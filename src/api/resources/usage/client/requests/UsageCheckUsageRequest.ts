@@ -24,6 +24,6 @@
 export interface UsageCheckUsageRequest {
     /** External customer ID */
     externalCustomerId: string;
-    /** External product ID to check usage for */
+    /** External product ID (the external ID of the product/agent) */
     externalProductId: string;
 }

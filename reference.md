@@ -511,6 +511,67 @@ await client.customers.getCostsByExternalId("externalId", {
 </dl>
 </details>
 
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">getUsageByExternalId</a>(externalId, { ...params }) -> Paid.UsageSummariesResponse</code></summary>
+<dl>
+<dd>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.customers.getUsageByExternalId("externalId", {
+    limit: 1,
+    offset: 1,
+    startTime: "2024-01-15T09:30:00Z",
+    endTime: "2024-01-15T09:30:00Z",
+});
+```
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**externalId:** `string` — The external ID of the customer
+
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request:** `Paid.CustomersGetUsageByExternalIdRequest`
+
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Customers.RequestOptions`
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+</dd>
+</dl>
+</details>
+
 ## Agents
 
 <details><summary><code>client.agents.<a href="/src/api/resources/agents/client/Client.ts">list</a>() -> Paid.Agent[]</code></summary>
@@ -1483,6 +1544,118 @@ await client.orders.activate("orderId");
 <dd>
 
 **requestOptions:** `Orders.RequestOptions`
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+</dd>
+</dl>
+</details>
+
+## Plans
+
+<details><summary><code>client.plans.<a href="/src/api/resources/plans/client/Client.ts">getById</a>(planId) -> Paid.Plan</code></summary>
+<dl>
+<dd>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.plans.getById("planId");
+```
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**planId:** `string` — The ID of the plan
+
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Plans.RequestOptions`
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.plans.<a href="/src/api/resources/plans/client/Client.ts">getUsage</a>(planId, { ...params }) -> Paid.UsageSummariesResponse</code></summary>
+<dl>
+<dd>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.plans.getUsage("planId", {
+    externalId: "externalId",
+    limit: 1,
+    offset: 1,
+    startTime: "2024-01-15T09:30:00Z",
+    endTime: "2024-01-15T09:30:00Z",
+});
+```
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**planId:** `string` — The ID of the plan
+
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request:** `Paid.PlansGetUsageRequest`
+
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Plans.RequestOptions`
 
 </dd>
 </dl>
