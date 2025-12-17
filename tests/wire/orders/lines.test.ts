@@ -11,16 +11,8 @@ describe("Lines", () => {
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {
             lines: [
-                {
-                    agentExternalId: "acme-agent",
-                    name: "Order Line One",
-                    description: "Order Line One is an order line for Acme, Inc.",
-                },
-                {
-                    agentExternalId: "acme-agent-2",
-                    name: "Order Line Two",
-                    description: "Order Line Two is an order line for Acme, Inc.",
-                },
+                { name: "Order Line One", description: "Order Line One is an order line for Acme, Inc." },
+                { name: "Order Line Two", description: "Order Line Two is an order line for Acme, Inc." },
             ],
         };
         const rawResponseBody = {
@@ -91,12 +83,10 @@ describe("Lines", () => {
         const response = await client.orders.lines.update("orderId", {
             lines: [
                 {
-                    agentExternalId: "acme-agent",
                     name: "Order Line One",
                     description: "Order Line One is an order line for Acme, Inc.",
                 },
                 {
-                    agentExternalId: "acme-agent-2",
                     name: "Order Line Two",
                     description: "Order Line Two is an order line for Acme, Inc.",
                 },

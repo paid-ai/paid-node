@@ -20,7 +20,9 @@ export interface PaginationMeta {
     endTime?: string;
     /** The externalCustomerId filter that was applied (if any) */
     externalCustomerId?: string;
-    /** The externalAgentId filter that was applied (if any) */
+    /** The externalProductId filter that was applied (if any) */
+    externalProductId?: string;
+    /** DEPRECATED: Use externalProductId instead. The externalAgentId filter that was applied (if any) */
     externalAgentId?: string;
     /** The metadata filter that was applied (if any) */
     metadata?: string;

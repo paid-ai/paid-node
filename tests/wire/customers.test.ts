@@ -496,7 +496,7 @@ describe("Customers", () => {
                 startTime: "2024-01-15T09:30:00Z",
                 endTime: "2024-01-15T09:30:00Z",
                 externalCustomerId: "externalCustomerId",
-                externalAgentId: "externalAgentId",
+                externalProductId: "externalProductId",
                 metadata: "metadata",
             },
         };
@@ -572,7 +572,7 @@ describe("Customers", () => {
                 startTime: "2024-01-15T09:30:00Z",
                 endTime: "2024-01-15T09:30:00Z",
                 externalCustomerId: "externalCustomerId",
-                externalAgentId: "externalAgentId",
+                externalProductId: "externalProductId",
                 metadata: "metadata",
             },
         });

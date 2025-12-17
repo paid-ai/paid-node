@@ -52,6 +52,7 @@ export class Traces {
      *         startTime: "2024-01-15T09:30:00Z",
      *         endTime: "2024-01-15T09:30:00Z",
      *         externalCustomerId: "externalCustomerId",
+     *         externalProductId: "externalProductId",
      *         externalAgentId: "externalAgentId",
      *         metadata: "metadata"
      *     })
@@ -67,7 +68,8 @@ export class Traces {
         request: Paid.GetTracesRequest = {},
         requestOptions?: Traces.RequestOptions,
     ): Promise<core.WithRawResponse<Paid.TracesResponse>> {
-        const { limit, offset, startTime, endTime, externalCustomerId, externalAgentId, metadata } = request;
+        const { limit, offset, startTime, endTime, externalCustomerId, externalProductId, externalAgentId, metadata } =
+            request;
         const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
         if (limit != null) {
             _queryParams["limit"] = limit.toString();
@@ -87,6 +89,10 @@ export class Traces {
 
         if (externalCustomerId != null) {
             _queryParams["externalCustomerId"] = externalCustomerId;
+        }
+
+        if (externalProductId != null) {
+            _queryParams["externalProductId"] = externalProductId;
         }
 
         if (externalAgentId != null) {

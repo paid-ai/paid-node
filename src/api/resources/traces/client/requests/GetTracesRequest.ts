@@ -10,6 +10,7 @@
  *         startTime: "2024-01-15T09:30:00Z",
  *         endTime: "2024-01-15T09:30:00Z",
  *         externalCustomerId: "externalCustomerId",
+ *         externalProductId: "externalProductId",
  *         externalAgentId: "externalAgentId",
  *         metadata: "metadata"
  *     }
@@ -36,7 +37,11 @@ export interface GetTracesRequest {
      */
     externalCustomerId?: string;
     /**
-     * Filter traces by external agent ID
+     * Filter traces by external product ID
+     */
+    externalProductId?: string;
+    /**
+     * DEPRECATED: Use externalProductId instead. Filter traces by external agent ID
      */
     externalAgentId?: string;
     /**

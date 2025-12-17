@@ -46,11 +46,9 @@ export class Lines {
      * @example
      *     await client.orders.lines.update("orderId", {
      *         lines: [{
-     *                 agentExternalId: "acme-agent",
      *                 name: "Order Line One",
      *                 description: "Order Line One is an order line for Acme, Inc."
      *             }, {
-     *                 agentExternalId: "acme-agent-2",
      *                 name: "Order Line Two",
      *                 description: "Order Line Two is an order line for Acme, Inc."
      *             }]
