@@ -578,6 +578,21 @@ await client.customers.getUsageByExternalId("externalId", {
 <dl>
 <dd>
 
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+DEPRECATED: Use /products instead. Agents are now products with type='agent'.
+
+</dd>
+</dl>
+</dd>
+</dl>
+
 #### 🔌 Usage
 
 <dl>
@@ -617,6 +632,21 @@ await client.agents.list();
 <details><summary><code>client.agents.<a href="/src/api/resources/agents/client/Client.ts">create</a>({ ...params }) -> Paid.Agent</code></summary>
 <dl>
 <dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+DEPRECATED: Use POST /products instead.
+
+</dd>
+</dl>
+</dd>
+</dl>
 
 #### 🔌 Usage
 
@@ -670,6 +700,21 @@ await client.agents.create({
 <dl>
 <dd>
 
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+DEPRECATED: Use GET /products/{productId} instead.
+
+</dd>
+</dl>
+</dd>
+</dl>
+
 #### 🔌 Usage
 
 <dl>
@@ -717,6 +762,21 @@ await client.agents.get("agentId");
 <details><summary><code>client.agents.<a href="/src/api/resources/agents/client/Client.ts">update</a>(agentId, { ...params }) -> Paid.Agent</code></summary>
 <dl>
 <dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+DEPRECATED: Use PUT /products/{productId} instead.
+
+</dd>
+</dl>
+</dd>
+</dl>
 
 #### 🔌 Usage
 
@@ -809,6 +869,21 @@ await client.agents.update("agentId", {
 <dl>
 <dd>
 
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+DEPRECATED: Use DELETE /products/{productId} instead.
+
+</dd>
+</dl>
+</dd>
+</dl>
+
 #### 🔌 Usage
 
 <dl>
@@ -857,6 +932,21 @@ await client.agents.delete("agentId");
 <dl>
 <dd>
 
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+DEPRECATED: Use GET /products/external/{externalId} instead.
+
+</dd>
+</dl>
+</dd>
+</dl>
+
 #### 🔌 Usage
 
 <dl>
@@ -904,6 +994,21 @@ await client.agents.getByExternalId("externalId");
 <details><summary><code>client.agents.<a href="/src/api/resources/agents/client/Client.ts">updateByExternalId</a>(externalId, { ...params }) -> Paid.Agent</code></summary>
 <dl>
 <dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+DEPRECATED: Use PUT /products/external/{externalId} instead.
+
+</dd>
+</dl>
+</dd>
+</dl>
 
 #### 🔌 Usage
 
@@ -981,6 +1086,21 @@ await client.agents.updateByExternalId("externalId", {
 <dl>
 <dd>
 
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+DEPRECATED: Use DELETE /products/external/{externalId} instead.
+
+</dd>
+</dl>
+</dd>
+</dl>
+
 #### 🔌 Usage
 
 <dl>
@@ -1015,6 +1135,405 @@ await client.agents.deleteByExternalId("externalId");
 <dd>
 
 **requestOptions:** `Agents.RequestOptions`
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+</dd>
+</dl>
+</details>
+
+## Products
+
+<details><summary><code>client.products.<a href="/src/api/resources/products/client/Client.ts">list</a>() -> Paid.Product[]</code></summary>
+<dl>
+<dd>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.products.list();
+```
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**requestOptions:** `Products.RequestOptions`
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.products.<a href="/src/api/resources/products/client/Client.ts">create</a>({ ...params }) -> Paid.Product</code></summary>
+<dl>
+<dd>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.products.create({
+    name: "Acme Product",
+    description: "Acme Product does amazing things.",
+    externalId: "acme-product",
+    type: "product",
+});
+```
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.ProductCreate`
+
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Products.RequestOptions`
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.products.<a href="/src/api/resources/products/client/Client.ts">get</a>(productId) -> Paid.Product</code></summary>
+<dl>
+<dd>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.products.get("productId");
+```
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**productId:** `string`
+
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Products.RequestOptions`
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.products.<a href="/src/api/resources/products/client/Client.ts">update</a>(productId, { ...params }) -> Paid.Product</code></summary>
+<dl>
+<dd>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.products.update("productId", {});
+```
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**productId:** `string`
+
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request:** `Paid.ProductUpdate`
+
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Products.RequestOptions`
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.products.<a href="/src/api/resources/products/client/Client.ts">delete</a>(productId) -> void</code></summary>
+<dl>
+<dd>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.products.delete("productId");
+```
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**productId:** `string`
+
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Products.RequestOptions`
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.products.<a href="/src/api/resources/products/client/Client.ts">getByExternalId</a>(externalId) -> Paid.Product</code></summary>
+<dl>
+<dd>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.products.getByExternalId("externalId");
+```
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**externalId:** `string`
+
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Products.RequestOptions`
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.products.<a href="/src/api/resources/products/client/Client.ts">updateByExternalId</a>(externalId, { ...params }) -> Paid.Product</code></summary>
+<dl>
+<dd>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.products.updateByExternalId("externalId", {});
+```
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**externalId:** `string`
+
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request:** `Paid.ProductUpdate`
+
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Products.RequestOptions`
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.products.<a href="/src/api/resources/products/client/Client.ts">deleteByExternalId</a>(externalId) -> void</code></summary>
+<dl>
+<dd>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.products.deleteByExternalId("externalId");
+```
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**externalId:** `string`
+
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Products.RequestOptions`
 
 </dd>
 </dl>
@@ -1672,6 +2191,21 @@ await client.plans.getUsage("planId", {
 <dl>
 <dd>
 
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+DEPRECATED: Use POST /usage/v2/signals/bulk instead for cleaner field names.
+
+</dd>
+</dl>
+</dd>
+</dl>
+
 #### 🔌 Usage
 
 <dl>
@@ -1700,6 +2234,76 @@ await client.usage.recordBulk({
 <dd>
 
 **request:** `Paid.UsageRecordBulkRequest`
+
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Usage.RequestOptions`
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.usage.<a href="/src/api/resources/usage/client/Client.ts">usageRecordBulkV2</a>({ ...params }) -> void</code></summary>
+<dl>
+<dd>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.usage.usageRecordBulkV2({
+    signals: [
+        {
+            event_name: "emails_sent",
+            product_id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
+            customer_id: "7d0b6fce-d82a-433d-8315-c994f8f1d68d",
+        },
+        {
+            event_name: "emails_sent",
+            external_product_id: "acme-product",
+            external_customer_id: "acme-inc",
+        },
+        {
+            event_name: "meeting_booked",
+            product_id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
+            external_customer_id: "acme-inc",
+            data: {
+                meeting_duration: 30,
+                meeting_type: "demo",
+            },
+        },
+    ],
+});
+```
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.UsageRecordBulkV2Request`
 
 </dd>
 </dl>
@@ -1790,6 +2394,7 @@ await client.traces.getTraces({
     startTime: "2024-01-15T09:30:00Z",
     endTime: "2024-01-15T09:30:00Z",
     externalCustomerId: "externalCustomerId",
+    externalProductId: "externalProductId",
     externalAgentId: "externalAgentId",
     metadata: "metadata",
 });
@@ -1845,12 +2450,10 @@ await client.traces.getTraces({
 await client.orders.lines.update("orderId", {
     lines: [
         {
-            agentExternalId: "acme-agent",
             name: "Order Line One",
             description: "Order Line One is an order line for Acme, Inc.",
         },
         {
-            agentExternalId: "acme-agent-2",
             name: "Order Line Two",
             description: "Order Line Two is an order line for Acme, Inc.",
         },

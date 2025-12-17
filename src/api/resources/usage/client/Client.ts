@@ -39,6 +39,8 @@ export class Usage {
     }
 
     /**
+     * DEPRECATED: Use POST /usage/v2/signals/bulk instead for cleaner field names.
+     *
      * @param {Paid.UsageRecordBulkRequest} request
      * @param {Usage.RequestOptions} requestOptions - Request-specific configuration.
      *
@@ -99,6 +101,98 @@ export class Usage {
                 });
             case "timeout":
                 throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /usage/signals/bulk.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * @param {Paid.UsageRecordBulkV2Request} request
+     * @param {Usage.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     *
+     * @example
+     *     await client.usage.usageRecordBulkV2({
+     *         signals: [{
+     *                 event_name: "emails_sent",
+     *                 product_id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
+     *                 customer_id: "7d0b6fce-d82a-433d-8315-c994f8f1d68d"
+     *             }, {
+     *                 event_name: "emails_sent",
+     *                 external_product_id: "acme-product",
+     *                 external_customer_id: "acme-inc"
+     *             }, {
+     *                 event_name: "meeting_booked",
+     *                 product_id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
+     *                 external_customer_id: "acme-inc",
+     *                 data: {
+     *                     "meeting_duration": 30,
+     *                     "meeting_type": "demo"
+     *                 }
+     *             }]
+     *     })
+     */
+    public usageRecordBulkV2(
+        request: Paid.UsageRecordBulkV2Request = {},
+        requestOptions?: Usage.RequestOptions,
+    ): core.HttpResponsePromise<void> {
+        return core.HttpResponsePromise.fromPromise(this.__usageRecordBulkV2(request, requestOptions));
+    }
+
+    private async __usageRecordBulkV2(
+        request: Paid.UsageRecordBulkV2Request = {},
+        requestOptions?: Usage.RequestOptions,
+    ): Promise<core.WithRawResponse<void>> {
+        const _response = await core.fetcher({
+            url: urlJoin(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Production,
+                "usage/v2/signals/bulk",
+            ),
+            method: "POST",
+            headers: mergeHeaders(
+                this._options?.headers,
+                mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+                requestOptions?.headers,
+            ),
+            contentType: "application/json",
+            requestType: "json",
+            body: request,
+            timeoutMs: requestOptions?.timeoutInSeconds != null ? requestOptions.timeoutInSeconds * 1000 : 60000,
+            maxRetries: requestOptions?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: undefined, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as Paid.Error_, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /usage/v2/signals/bulk.");
             case "unknown":
                 throw new errors.PaidError({
                     message: _response.error.errorMessage,

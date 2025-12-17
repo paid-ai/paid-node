@@ -25,6 +25,60 @@ describe("Usage", () => {
         expect(response).toEqual(undefined);
     });
 
+    test("usageRecordBulkV2", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {
+            signals: [
+                {
+                    event_name: "emails_sent",
+                    product_id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
+                    customer_id: "7d0b6fce-d82a-433d-8315-c994f8f1d68d",
+                },
+                { event_name: "emails_sent", external_product_id: "acme-product", external_customer_id: "acme-inc" },
+                {
+                    event_name: "meeting_booked",
+                    product_id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
+                    external_customer_id: "acme-inc",
+                    data: { meeting_duration: 30, meeting_type: "demo" },
+                },
+            ],
+        };
+
+        server
+            .mockEndpoint()
+            .post("/usage/v2/signals/bulk")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(200)
+            .build();
+
+        const response = await client.usage.usageRecordBulkV2({
+            signals: [
+                {
+                    event_name: "emails_sent",
+                    product_id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
+                    customer_id: "7d0b6fce-d82a-433d-8315-c994f8f1d68d",
+                },
+                {
+                    event_name: "emails_sent",
+                    external_product_id: "acme-product",
+                    external_customer_id: "acme-inc",
+                },
+                {
+                    event_name: "meeting_booked",
+                    product_id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
+                    external_customer_id: "acme-inc",
+                    data: {
+                        meeting_duration: 30,
+                        meeting_type: "demo",
+                    },
+                },
+            ],
+        });
+        expect(response).toEqual(undefined);
+    });
+
     test("checkUsage", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });

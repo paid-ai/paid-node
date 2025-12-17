@@ -9,7 +9,7 @@ import { mergeHeaders, mergeOnlyDefinedHeaders } from "../../../../core/headers.
 import urlJoin from "url-join";
 import * as errors from "../../../../errors/index.js";
 
-export declare namespace Agents {
+export declare namespace Products {
     export interface Options {
         environment?: core.Supplier<environments.PaidEnvironment | string>;
         /** Specify a custom URL to connect the client to. */
@@ -31,32 +31,30 @@ export declare namespace Agents {
     }
 }
 
-export class Agents {
-    protected readonly _options: Agents.Options;
+export class Products {
+    protected readonly _options: Products.Options;
 
-    constructor(_options: Agents.Options = {}) {
+    constructor(_options: Products.Options = {}) {
         this._options = _options;
     }
 
     /**
-     * DEPRECATED: Use /products instead. Agents are now products with type='agent'.
-     *
-     * @param {Agents.RequestOptions} requestOptions - Request-specific configuration.
+     * @param {Products.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
-     *     await client.agents.list()
+     *     await client.products.list()
      */
-    public list(requestOptions?: Agents.RequestOptions): core.HttpResponsePromise<Paid.Agent[]> {
+    public list(requestOptions?: Products.RequestOptions): core.HttpResponsePromise<Paid.Product[]> {
         return core.HttpResponsePromise.fromPromise(this.__list(requestOptions));
     }
 
-    private async __list(requestOptions?: Agents.RequestOptions): Promise<core.WithRawResponse<Paid.Agent[]>> {
+    private async __list(requestOptions?: Products.RequestOptions): Promise<core.WithRawResponse<Paid.Product[]>> {
         const _response = await core.fetcher({
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
                     environments.PaidEnvironment.Production,
-                "agents",
+                "products",
             ),
             method: "GET",
             headers: mergeHeaders(
@@ -69,7 +67,7 @@ export class Agents {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return { data: _response.body as Paid.Agent[], rawResponse: _response.rawResponse };
+            return { data: _response.body as Paid.Product[], rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
@@ -88,7 +86,7 @@ export class Agents {
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /agents.");
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /products.");
             case "unknown":
                 throw new errors.PaidError({
                     message: _response.error.errorMessage,
@@ -98,35 +96,34 @@ export class Agents {
     }
 
     /**
-     * DEPRECATED: Use POST /products instead.
-     *
-     * @param {Paid.AgentCreate} request
-     * @param {Agents.RequestOptions} requestOptions - Request-specific configuration.
+     * @param {Paid.ProductCreate} request
+     * @param {Products.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
-     *     await client.agents.create({
-     *         name: "Acme Agent",
-     *         description: "Acme Agent is an AI agent that does things.",
-     *         externalId: "acme-agent"
+     *     await client.products.create({
+     *         name: "Acme Product",
+     *         description: "Acme Product does amazing things.",
+     *         externalId: "acme-product",
+     *         type: "product"
      *     })
      */
     public create(
-        request: Paid.AgentCreate,
-        requestOptions?: Agents.RequestOptions,
-    ): core.HttpResponsePromise<Paid.Agent> {
+        request: Paid.ProductCreate,
+        requestOptions?: Products.RequestOptions,
+    ): core.HttpResponsePromise<Paid.Product> {
         return core.HttpResponsePromise.fromPromise(this.__create(request, requestOptions));
     }
 
     private async __create(
-        request: Paid.AgentCreate,
-        requestOptions?: Agents.RequestOptions,
-    ): Promise<core.WithRawResponse<Paid.Agent>> {
+        request: Paid.ProductCreate,
+        requestOptions?: Products.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.Product>> {
         const _response = await core.fetcher({
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
                     environments.PaidEnvironment.Production,
-                "agents",
+                "products",
             ),
             method: "POST",
             headers: mergeHeaders(
@@ -142,7 +139,7 @@ export class Agents {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return { data: _response.body as Paid.Agent, rawResponse: _response.rawResponse };
+            return { data: _response.body as Paid.Product, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
@@ -161,7 +158,7 @@ export class Agents {
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /agents.");
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /products.");
             case "unknown":
                 throw new errors.PaidError({
                     message: _response.error.errorMessage,
@@ -171,28 +168,26 @@ export class Agents {
     }
 
     /**
-     * DEPRECATED: Use GET /products/{productId} instead.
-     *
-     * @param {string} agentId
-     * @param {Agents.RequestOptions} requestOptions - Request-specific configuration.
+     * @param {string} productId
+     * @param {Products.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
-     *     await client.agents.get("agentId")
+     *     await client.products.get("productId")
      */
-    public get(agentId: string, requestOptions?: Agents.RequestOptions): core.HttpResponsePromise<Paid.Agent> {
-        return core.HttpResponsePromise.fromPromise(this.__get(agentId, requestOptions));
+    public get(productId: string, requestOptions?: Products.RequestOptions): core.HttpResponsePromise<Paid.Product> {
+        return core.HttpResponsePromise.fromPromise(this.__get(productId, requestOptions));
     }
 
     private async __get(
-        agentId: string,
-        requestOptions?: Agents.RequestOptions,
-    ): Promise<core.WithRawResponse<Paid.Agent>> {
+        productId: string,
+        requestOptions?: Products.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.Product>> {
         const _response = await core.fetcher({
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
                     environments.PaidEnvironment.Production,
-                `agents/${encodeURIComponent(agentId)}`,
+                `products/${encodeURIComponent(productId)}`,
             ),
             method: "GET",
             headers: mergeHeaders(
@@ -205,7 +200,7 @@ export class Agents {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return { data: _response.body as Paid.Agent, rawResponse: _response.rawResponse };
+            return { data: _response.body as Paid.Product, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
@@ -224,7 +219,7 @@ export class Agents {
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /agents/{agentId}.");
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /products/{productId}.");
             case "unknown":
                 throw new errors.PaidError({
                     message: _response.error.errorMessage,
@@ -234,63 +229,32 @@ export class Agents {
     }
 
     /**
-     * DEPRECATED: Use PUT /products/{productId} instead.
-     *
-     * @param {string} agentId
-     * @param {Paid.AgentUpdate} request
-     * @param {Agents.RequestOptions} requestOptions - Request-specific configuration.
+     * @param {string} productId
+     * @param {Paid.ProductUpdate} request
+     * @param {Products.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
-     *     await client.agents.update("agentId", {
-     *         name: "Acme Agent (Updated)",
-     *         agentAttributes: [{
-     *                 name: "Emails sent signal",
-     *                 active: true,
-     *                 pricing: {
-     *                     eventName: "emails_sent",
-     *                     taxable: true,
-     *                     chargeType: "usage",
-     *                     pricingModel: "PerUnit",
-     *                     billingFrequency: "monthly",
-     *                     pricePoints: {
-     *                         "USD": {
-     *                             tiers: [{
-     *                                     minQuantity: 0,
-     *                                     maxQuantity: 10,
-     *                                     unitPrice: 100
-     *                                 }, {
-     *                                     minQuantity: 11,
-     *                                     maxQuantity: 100,
-     *                                     unitPrice: 90
-     *                                 }, {
-     *                                     minQuantity: 101,
-     *                                     unitPrice: 80
-     *                                 }]
-     *                         }
-     *                     }
-     *                 }
-     *             }]
-     *     })
+     *     await client.products.update("productId", {})
      */
     public update(
-        agentId: string,
-        request: Paid.AgentUpdate,
-        requestOptions?: Agents.RequestOptions,
-    ): core.HttpResponsePromise<Paid.Agent> {
-        return core.HttpResponsePromise.fromPromise(this.__update(agentId, request, requestOptions));
+        productId: string,
+        request: Paid.ProductUpdate,
+        requestOptions?: Products.RequestOptions,
+    ): core.HttpResponsePromise<Paid.Product> {
+        return core.HttpResponsePromise.fromPromise(this.__update(productId, request, requestOptions));
     }
 
     private async __update(
-        agentId: string,
-        request: Paid.AgentUpdate,
-        requestOptions?: Agents.RequestOptions,
-    ): Promise<core.WithRawResponse<Paid.Agent>> {
+        productId: string,
+        request: Paid.ProductUpdate,
+        requestOptions?: Products.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.Product>> {
         const _response = await core.fetcher({
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
                     environments.PaidEnvironment.Production,
-                `agents/${encodeURIComponent(agentId)}`,
+                `products/${encodeURIComponent(productId)}`,
             ),
             method: "PUT",
             headers: mergeHeaders(
@@ -306,7 +270,7 @@ export class Agents {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return { data: _response.body as Paid.Agent, rawResponse: _response.rawResponse };
+            return { data: _response.body as Paid.Product, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
@@ -325,7 +289,7 @@ export class Agents {
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidTimeoutError("Timeout exceeded when calling PUT /agents/{agentId}.");
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling PUT /products/{productId}.");
             case "unknown":
                 throw new errors.PaidError({
                     message: _response.error.errorMessage,
@@ -335,28 +299,26 @@ export class Agents {
     }
 
     /**
-     * DEPRECATED: Use DELETE /products/{productId} instead.
-     *
-     * @param {string} agentId
-     * @param {Agents.RequestOptions} requestOptions - Request-specific configuration.
+     * @param {string} productId
+     * @param {Products.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
-     *     await client.agents.delete("agentId")
+     *     await client.products.delete("productId")
      */
-    public delete(agentId: string, requestOptions?: Agents.RequestOptions): core.HttpResponsePromise<void> {
-        return core.HttpResponsePromise.fromPromise(this.__delete(agentId, requestOptions));
+    public delete(productId: string, requestOptions?: Products.RequestOptions): core.HttpResponsePromise<void> {
+        return core.HttpResponsePromise.fromPromise(this.__delete(productId, requestOptions));
     }
 
     private async __delete(
-        agentId: string,
-        requestOptions?: Agents.RequestOptions,
+        productId: string,
+        requestOptions?: Products.RequestOptions,
     ): Promise<core.WithRawResponse<void>> {
         const _response = await core.fetcher({
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
                     environments.PaidEnvironment.Production,
-                `agents/${encodeURIComponent(agentId)}`,
+                `products/${encodeURIComponent(productId)}`,
             ),
             method: "DELETE",
             headers: mergeHeaders(
@@ -388,7 +350,7 @@ export class Agents {
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidTimeoutError("Timeout exceeded when calling DELETE /agents/{agentId}.");
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling DELETE /products/{productId}.");
             case "unknown":
                 throw new errors.PaidError({
                     message: _response.error.errorMessage,
@@ -398,31 +360,29 @@ export class Agents {
     }
 
     /**
-     * DEPRECATED: Use GET /products/external/{externalId} instead.
-     *
      * @param {string} externalId
-     * @param {Agents.RequestOptions} requestOptions - Request-specific configuration.
+     * @param {Products.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
-     *     await client.agents.getByExternalId("externalId")
+     *     await client.products.getByExternalId("externalId")
      */
     public getByExternalId(
         externalId: string,
-        requestOptions?: Agents.RequestOptions,
-    ): core.HttpResponsePromise<Paid.Agent> {
+        requestOptions?: Products.RequestOptions,
+    ): core.HttpResponsePromise<Paid.Product> {
         return core.HttpResponsePromise.fromPromise(this.__getByExternalId(externalId, requestOptions));
     }
 
     private async __getByExternalId(
         externalId: string,
-        requestOptions?: Agents.RequestOptions,
-    ): Promise<core.WithRawResponse<Paid.Agent>> {
+        requestOptions?: Products.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.Product>> {
         const _response = await core.fetcher({
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
                     environments.PaidEnvironment.Production,
-                `agents/external/${encodeURIComponent(externalId)}`,
+                `products/external/${encodeURIComponent(externalId)}`,
             ),
             method: "GET",
             headers: mergeHeaders(
@@ -435,7 +395,7 @@ export class Agents {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return { data: _response.body as Paid.Agent, rawResponse: _response.rawResponse };
+            return { data: _response.body as Paid.Product, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
@@ -454,7 +414,7 @@ export class Agents {
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /agents/external/{externalId}.");
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /products/external/{externalId}.");
             case "unknown":
                 throw new errors.PaidError({
                     message: _response.error.errorMessage,
@@ -464,52 +424,32 @@ export class Agents {
     }
 
     /**
-     * DEPRECATED: Use PUT /products/external/{externalId} instead.
-     *
      * @param {string} externalId
-     * @param {Paid.AgentUpdate} request
-     * @param {Agents.RequestOptions} requestOptions - Request-specific configuration.
+     * @param {Paid.ProductUpdate} request
+     * @param {Products.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
-     *     await client.agents.updateByExternalId("externalId", {
-     *         name: "Acme Agent (Updated)",
-     *         agentAttributes: [{
-     *                 name: "Emails sent signal",
-     *                 active: true,
-     *                 pricing: {
-     *                     eventName: "emails_sent",
-     *                     taxable: true,
-     *                     chargeType: "usage",
-     *                     pricingModel: "PerUnit",
-     *                     billingFrequency: "monthly",
-     *                     pricePoints: {
-     *                         "USD": {
-     *                             unitPrice: 150
-     *                         }
-     *                     }
-     *                 }
-     *             }]
-     *     })
+     *     await client.products.updateByExternalId("externalId", {})
      */
     public updateByExternalId(
         externalId: string,
-        request: Paid.AgentUpdate,
-        requestOptions?: Agents.RequestOptions,
-    ): core.HttpResponsePromise<Paid.Agent> {
+        request: Paid.ProductUpdate,
+        requestOptions?: Products.RequestOptions,
+    ): core.HttpResponsePromise<Paid.Product> {
         return core.HttpResponsePromise.fromPromise(this.__updateByExternalId(externalId, request, requestOptions));
     }
 
     private async __updateByExternalId(
         externalId: string,
-        request: Paid.AgentUpdate,
-        requestOptions?: Agents.RequestOptions,
-    ): Promise<core.WithRawResponse<Paid.Agent>> {
+        request: Paid.ProductUpdate,
+        requestOptions?: Products.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.Product>> {
         const _response = await core.fetcher({
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
                     environments.PaidEnvironment.Production,
-                `agents/external/${encodeURIComponent(externalId)}`,
+                `products/external/${encodeURIComponent(externalId)}`,
             ),
             method: "PUT",
             headers: mergeHeaders(
@@ -525,7 +465,7 @@ export class Agents {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return { data: _response.body as Paid.Agent, rawResponse: _response.rawResponse };
+            return { data: _response.body as Paid.Product, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
@@ -544,7 +484,7 @@ export class Agents {
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidTimeoutError("Timeout exceeded when calling PUT /agents/external/{externalId}.");
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling PUT /products/external/{externalId}.");
             case "unknown":
                 throw new errors.PaidError({
                     message: _response.error.errorMessage,
@@ -554,31 +494,29 @@ export class Agents {
     }
 
     /**
-     * DEPRECATED: Use DELETE /products/external/{externalId} instead.
-     *
      * @param {string} externalId
-     * @param {Agents.RequestOptions} requestOptions - Request-specific configuration.
+     * @param {Products.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
-     *     await client.agents.deleteByExternalId("externalId")
+     *     await client.products.deleteByExternalId("externalId")
      */
     public deleteByExternalId(
         externalId: string,
-        requestOptions?: Agents.RequestOptions,
+        requestOptions?: Products.RequestOptions,
     ): core.HttpResponsePromise<void> {
         return core.HttpResponsePromise.fromPromise(this.__deleteByExternalId(externalId, requestOptions));
     }
 
     private async __deleteByExternalId(
         externalId: string,
-        requestOptions?: Agents.RequestOptions,
+        requestOptions?: Products.RequestOptions,
     ): Promise<core.WithRawResponse<void>> {
         const _response = await core.fetcher({
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
                     environments.PaidEnvironment.Production,
-                `agents/external/${encodeURIComponent(externalId)}`,
+                `products/external/${encodeURIComponent(externalId)}`,
             ),
             method: "DELETE",
             headers: mergeHeaders(
@@ -611,7 +549,7 @@ export class Agents {
                 });
             case "timeout":
                 throw new errors.PaidTimeoutError(
-                    "Timeout exceeded when calling DELETE /agents/external/{externalId}.",
+                    "Timeout exceeded when calling DELETE /products/external/{externalId}.",
                 );
             case "unknown":
                 throw new errors.PaidError({

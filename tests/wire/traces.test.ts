@@ -52,7 +52,7 @@ describe("Traces", () => {
                 startTime: "2024-01-15T09:30:00Z",
                 endTime: "2024-01-15T09:30:00Z",
                 externalCustomerId: "externalCustomerId",
-                externalAgentId: "externalAgentId",
+                externalProductId: "externalProductId",
                 metadata: "metadata",
             },
         };
@@ -64,6 +64,7 @@ describe("Traces", () => {
             startTime: "2024-01-15T09:30:00Z",
             endTime: "2024-01-15T09:30:00Z",
             externalCustomerId: "externalCustomerId",
+            externalProductId: "externalProductId",
             externalAgentId: "externalAgentId",
             metadata: "metadata",
         });
@@ -129,7 +130,7 @@ describe("Traces", () => {
                 startTime: "2024-01-15T09:30:00Z",
                 endTime: "2024-01-15T09:30:00Z",
                 externalCustomerId: "externalCustomerId",
-                externalAgentId: "externalAgentId",
+                externalProductId: "externalProductId",
                 metadata: "metadata",
             },
         });

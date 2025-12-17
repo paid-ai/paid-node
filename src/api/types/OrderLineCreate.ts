@@ -5,14 +5,20 @@
 import * as Paid from "../index.js";
 
 export interface OrderLineCreate {
-    /** Paid's internal ID for the agent/product */
+    /** Paid's internal ID for the product */
+    productId?: string;
+    /** The external ID of the product i.e. the id within your system */
+    productExternalId?: string;
+    /** DEPRECATED: Use productId instead. Paid's internal ID for the agent/product */
     agentId?: string;
-    /** The external ID of the agent/product i.e. the id within your system */
+    /** DEPRECATED: Use productExternalId instead. The external ID of the agent/product i.e. the id within your system */
     agentExternalId?: string;
     /** Name of the order line */
     name?: string;
     /** Description of the order line */
     description?: string;
-    /** Optional array of custom agent attributes to override default pricing, allowing per customer pricing. If not provided, attributes will be auto-generated from the product definition. */
-    agentAttributes?: Paid.OrderLineAttributeCreate[];
+    /** Optional array of custom product attributes to override default pricing, allowing per customer pricing. If not provided, attributes will be auto-generated from the product definition. */
+    ProductAttribute?: (Paid.OrderLineAttributeCreateOne | undefined)[];
+    /** DEPRECATED: Use ProductAttribute instead. Optional array of custom agent attributes to override default pricing, allowing per customer pricing. If not provided, attributes will be auto-generated from the product definition. */
+    agentAttributes?: (Paid.OrderLineAttributeCreateOne | undefined)[];
 }
