@@ -110,7 +110,7 @@ import OpenAI from "openai";
 
 async function main() {
     // Initialize cost tracking
-    await initializeTracing("<your_paid_api_key>");
+    initializeTracing("<your_paid_api_key>");
 
     // Wrap OpenAI in paid wrapper
     const openaiClient = new OpenAI({ apiKey: "<your_openai_api_key>" });
@@ -169,7 +169,7 @@ import { initializeTracing, trace } from "@paid-ai/paid-node";
 import { generateText } from "ai";
 
 async function main() {
-    await initializeTracing("<your_paid_api_key>");
+    initializeTracing("<your_paid_api_key>");
     
     await trace({
         externalCustomerId: "<your_external_customer_id>",
@@ -212,7 +212,7 @@ import { initializeTracing, trace, signal } from "@paid-ai/paid-node";
 
 async function main() {
     // Initialize tracing
-    await initializeTracing("<your_paid_api_key>");
+    initializeTracing("<your_paid_api_key>");
 
     // Trace the call
     await trace({
@@ -239,7 +239,7 @@ import { PaidOpenAI } from "@paid-ai/paid-node/openai";
 import OpenAI from "openai";
 
 async function main() {
-    await initializeTracing("<your_paid_api_key>");
+    initializeTracing("<your_paid_api_key>");
 
     const openaiClient = new OpenAI({ apiKey: "<your_openai_api_key>" });
     const paidOpenAI = new PaidOpenAI(openaiClient);
@@ -306,7 +306,7 @@ Alternatively the same `costData` payload can be passed to OTLP signaling mechan
 import { initializeTracing, trace, signal } from "@paid-ai/paid-node";
 
 async function main() {
-    await initializeTracing("<your_paid_api_key>");
+    initializeTracing("<your_paid_api_key>");
 
     await trace({
         externalCustomerId: "<your_external_customer_id>",
@@ -363,7 +363,7 @@ Same but via OTEL signaling:
 import { initializeTracing, trace, signal } from "@paid-ai/paid-node";
 
 async function main() {
-    await initializeTracing("<your_paid_api_key>");
+    initializeTracing("<your_paid_api_key>");
 
     await trace({
         externalCustomerId: "<your_external_customer_id>",
@@ -485,7 +485,7 @@ If you would like to use the Paid OTEL tracer provider, you can access it via th
 
 ```typescript
 import { initializeTracing, getPaidTracerProvider } from "@paid-ai/paid-node";
-await initializeTracing("<your_paid_api_key>");
+initializeTracing("<your_paid_api_key>");
 const tracerProvider = getPaidTracerProvider();
 ```
 
