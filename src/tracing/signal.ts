@@ -22,15 +22,15 @@ import { getTracingContext } from "./tracingContext.js";
 export function signal(eventName: string, enableCostTracing: boolean = false, data?: Record<string, any>): void {
     const paidTracer = getPaidTracer();
     const token = getToken();
-    const { externalCustomerId, externalProductId: externalAgentId } = getTracingContext();
+    const { externalCustomerId, externalProductId } = getTracingContext();
 
     if (!token || !paidTracer) {
         throw new Error(`Tracing is not initialized. Make sure you called 'initializeTracing()'`);
     }
 
-    if (!externalCustomerId || !externalAgentId) {
+    if (!externalCustomerId || !externalProductId) {
         throw new Error(
-            `Missing some of: external_customer_id: ${externalCustomerId}, external_agent_id: ${externalAgentId}, or token. Make sure to call signal() within trace()`,
+            `Missing some of: external_customer_id: ${externalCustomerId}, external_product_id: ${externalProductId}, or token. Make sure to call signal() within trace()`,
         );
     }
 
@@ -38,7 +38,7 @@ export function signal(eventName: string, enableCostTracing: boolean = false, da
         try {
             const attributes: Record<string, string | number | boolean> = {
                 external_customer_id: externalCustomerId,
-                external_agent_id: externalAgentId,
+                external_agent_id: externalProductId,
                 event_name: eventName,
                 token: token,
             };
