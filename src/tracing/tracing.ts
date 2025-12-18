@@ -67,7 +67,7 @@ function setupGracefulShutdown(shuttable: NodeSDK | SpanProcessor) {
     });
 }
 
-export function _initializeTracing(apiKey: string, collectorEndpoint?: string) {
+export function _initializeTracing(apiKey?: string, collectorEndpoint?: string) {
     if (getToken()) {
         throw new Error("Tracing SDK is already initialized.");
     }
