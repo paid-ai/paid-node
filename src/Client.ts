@@ -98,7 +98,9 @@ export class PaidClient {
         return (this._traces ??= new Traces(this._options));
     }
 
-    // Need to call this method before using tracing or creating wrappers.
+    /**
+     * @deprecated use the standalone 'initializeTracing instead'
+     */
     public async initializeTracing(collectorEndpoint?: string): Promise<void> {
         const tokenSupplier = this._options.token;
         const token = typeof tokenSupplier === "function" ? await tokenSupplier() : tokenSupplier;
@@ -107,6 +109,7 @@ export class PaidClient {
     }
 
     /**
+     * @deprecated use the standalone 'trace()' instead
      * Use this method to track actions like LLM costs and sending signals.
      * The callback to this function is the work that you want to trace.
      *
@@ -134,6 +137,7 @@ export class PaidClient {
     }
 
     /**
+     * @deprecated use the standalone 'signal()' instead
      * Sends Paid signal. Needs to be called as part of callback to Paid.trace().
      * When enableCostTracing flag is on, signal is associated
      * with cost traces from the same Paid.trace() context.
@@ -176,6 +180,7 @@ export class PaidClient {
     }
 
     /**
+     * @deprecated use the standalone 'getPaidTracerProvider()' instead
      * Export the tracer provider which user can use for his own tracing.
      */
     public get tracerProvider(): NodeTracerProvider | undefined {
