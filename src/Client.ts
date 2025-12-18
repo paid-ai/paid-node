@@ -13,10 +13,6 @@ import { Orders } from "./api/resources/orders/client/Client.js";
 import { Plans } from "./api/resources/plans/client/Client.js";
 import { Usage } from "./wrapper/BatchUsage.js";
 import { Traces } from "./api/resources/traces/client/Client.js";
-import { _trace, _initializeTracing } from "./tracing/tracing.js";
-import { _signal } from "./tracing/signal.js";
-import { NodeTracerProvider } from "@opentelemetry/sdk-trace-node";
-import { _getPaidTracerProvider } from "./tracing/tracing.js";
 
 export declare namespace PaidClient {
     export interface Options {
@@ -97,89 +93,5 @@ export class PaidClient {
 
     public get traces(): Traces {
         return (this._traces ??= new Traces(this._options));
-    }
-
-    // Need to call this method before using tracing or creating wrappers.
-    public async initializeTracing(collectorEndpoint?: string): Promise<void> {
-        const tokenSupplier = this._options.token;
-        const token = typeof tokenSupplier === "function" ? await tokenSupplier() : tokenSupplier;
-        const resolvedToken = await Promise.resolve(token);
-        _initializeTracing(resolvedToken, collectorEndpoint);
-    }
-
-    /**
-     * Use this method to track actions like LLM costs and sending signals.
-     * The callback to this function is the work that you want to trace.
-     *
-     * @param externalCustomerId - The external customer ID
-     * @param fn - The callback function containing the work to be traced
-     * @param externalAgentId - @deprecated Use externalProductId instead
-     * @param externalProductId - The external product ID
-     * @param storePrompt - Whether to store the prompt (defaults to false)
-     * @param args - Arguments to pass to the callback function
-     * @returns The return value of the callback function
-     */
-    public async trace<T extends (...args: any[]) => any>(
-        externalCustomerId: string,
-        fn: T,
-        externalAgentId?: string,
-        externalProductId?: string,
-        storePrompt: boolean = false,
-        ...args: Parameters<T>
-    ): Promise<ReturnType<T>> {
-        // TODO: remove this after deprecation and replace externalAgentId with externalProductId everywhere
-        if (externalProductId) {
-            externalAgentId = externalProductId;
-        }
-        return await _trace(externalCustomerId, fn, externalAgentId, storePrompt, ...args);
-    }
-
-    /**
-     * Sends Paid signal. Needs to be called as part of callback to Paid.trace().
-     * When enableCostTracing flag is on, signal is associated
-     * with cost traces from the same Paid.trace() context.
-     *
-     * @param eventName - The name of the signal.
-     * @param enableCostTracing - Whether to associate this signal with cost traces
-     * from the current Paid.trace() context (default: false)
-     * @param data - Optional additional data to include with the signal
-     *
-     * @remarks
-     * When enableCostTracing is on, the signal will be associated with cost
-     * traces within the same Paid.trace() context.
-     * It is advised to only make one call to this function
-     * with enableCostTracing per Paid.trace() context.
-     * Otherwise, there will be multiple signals that refer to the same costs.
-     */
-    public signal(eventName: string): void;
-    public signal(eventName: string, data: Record<string, any>): void;
-    public signal(eventName: string, enableCostTracing: boolean, data?: Record<string, any>): void;
-    public signal(
-        eventName: string,
-        enableCostTracingOrData?: boolean | Record<string, any>,
-        data?: Record<string, any>,
-    ): void {
-        let enableCostTracing: boolean = false;
-        let finalData: Record<string, any> | undefined;
-
-        if (typeof enableCostTracingOrData === "boolean") {
-            // Case: signal(eventName, boolean, data?)
-            enableCostTracing = enableCostTracingOrData;
-            finalData = data;
-        } else if (typeof enableCostTracingOrData === "object") {
-            // Case: signal(eventName, data)
-            enableCostTracing = false;
-            finalData = enableCostTracingOrData;
-        }
-        // Case: signal(eventName) - both remain default/undefined
-
-        return _signal(eventName, enableCostTracing, finalData);
-    }
-
-    /**
-     * Export the tracer provider which user can use for his own tracing.
-     */
-    public get tracerProvider(): NodeTracerProvider {
-        return _getPaidTracerProvider();
     }
 }
