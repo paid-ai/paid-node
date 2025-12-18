@@ -13,9 +13,9 @@ import { Orders } from "./api/resources/orders/client/Client.js";
 import { Plans } from "./api/resources/plans/client/Client.js";
 import { Usage } from "./wrapper/BatchUsage.js";
 import { Traces } from "./api/resources/traces/client/Client.js";
-import { signal } from "tracing/signal.js";
+import { signal } from "./tracing/signal.js";
 import { NodeTracerProvider } from "@opentelemetry/sdk-trace-node";
-import { getPaidTracerProvider, initializeTracing, trace } from "tracing/tracing.js";
+import { getPaidTracerProvider, initializeTracing, trace } from "./tracing/tracing.js";
 
 export declare namespace PaidClient {
     export interface Options {
@@ -99,7 +99,7 @@ export class PaidClient {
     }
 
     /**
-     * @deprecated use the standalone 'initializeTracing instead'
+     * @deprecated use the standalone 'initializeTracing' instead
      */
     public async initializeTracing(collectorEndpoint?: string): Promise<void> {
         const tokenSupplier = this._options.token;
