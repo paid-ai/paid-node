@@ -90,8 +90,6 @@ export function createHandler<TRequest = any, TResponse = any>(
     try {
       const client = initializePaidClient(config);
 
-      console.log("client: ", client);
-
       let organizationId: string | undefined;
       if (requireOrganizationId) {
         const orgId = await getOrganizationId(config);
@@ -105,8 +103,6 @@ export function createHandler<TRequest = any, TResponse = any>(
         ? config.transformRequest(request.body)
         : request.body;
       
-      console.log("requestData: ", requestData);
-
       const result = await handler(client, requestData, request.params, organizationId);
 
       if (!result.success) {

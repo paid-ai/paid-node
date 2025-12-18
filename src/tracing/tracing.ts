@@ -5,7 +5,7 @@ import { SimpleSpanProcessor, SpanProcessor } from "@opentelemetry/sdk-trace-bas
 import { SpanStatusCode } from "@opentelemetry/api";
 import { AsyncLocalStorage } from "async_hooks";
 import winston from "winston";
-import { PaidSpanProcessor } from "./spanProcessor.js";
+import { PaidSpanProcessor } from "./spanProcessor";
 
 export const logger = winston.createLogger({
     level: "silent", // Default to 'silent' to avoid logging unless set via environment variable

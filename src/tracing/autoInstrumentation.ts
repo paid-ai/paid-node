@@ -3,7 +3,7 @@ import { OpenAIInstrumentation } from "@arizeai/openinference-instrumentation-op
 import { BedrockInstrumentation } from "@traceloop/instrumentation-bedrock";
 import { AnthropicInstrumentation } from "@arizeai/openinference-instrumentation-anthropic";
 import { TracerProvider } from "@opentelemetry/api";
-import { paidTracerProvider } from "./tracing.js";
+import { paidTracerProvider } from "./tracing";
 
 import type * as openai from "openai";
 import type * as anthropic from "@anthropic-ai/sdk";

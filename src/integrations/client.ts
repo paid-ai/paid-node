@@ -77,7 +77,6 @@ export async function getOrganizationId(config: PaidClientConfig = {}): Promise<
   try {
     const response = await fetch(
       `${apiUrl}/api/organizations/organizationId`,
-      // `${apiUrl}/organizations/organizationId`,
       {
         method: 'GET',
         headers: {
@@ -86,8 +85,6 @@ export async function getOrganizationId(config: PaidClientConfig = {}): Promise<
         },
       }
     );
-
-    console.log("response: ", response);
 
     if (!response.ok) {
       console.error('Failed to get organization ID:', await response.text());
