@@ -173,7 +173,7 @@ async function main() {
     
     await trace({
         externalCustomerId: "<your_external_customer_id>",
-        externalAgentId: "<your_external_agent_id>"
+        externalProductid: "<your_external_product_id>"
     }, async () => {
         await generateText({
             model: "model-name",
