@@ -58,7 +58,7 @@ class ChatCompletionsWrapper {
 
     public async create(params: ChatCompletionCreateParams): Promise<ChatCompletion> {
         const token = getToken();
-        const { externalAgentId, externalCustomerId } = getTracingContext();
+        const { externalProductId, externalCustomerId } = getTracingContext();
 
         if (!token || !externalCustomerId) {
             throw new Error(
@@ -73,8 +73,8 @@ class ChatCompletionsWrapper {
             };
             attributes["external_customer_id"] = externalCustomerId;
             attributes["token"] = token;
-            if (externalAgentId) {
-                attributes["external_agent_id"] = externalAgentId;
+            if (externalProductId) {
+                attributes["external_agent_id"] = externalProductId;
             }
             span.setAttributes(attributes);
 
@@ -111,7 +111,7 @@ class ResponsesWrapper {
     ) {}
 
     public async create(params: ResponseCreateParams): Promise<Response> {
-        const { externalCustomerId, externalAgentId } = getTracingContext();
+        const { externalCustomerId, externalProductId } = getTracingContext();
         const token = getToken();
 
         if (!token || !externalCustomerId) {
@@ -127,8 +127,8 @@ class ResponsesWrapper {
             };
             attributes["external_customer_id"] = externalCustomerId;
             attributes["token"] = token;
-            if (externalAgentId) {
-                attributes["external_agent_id"] = externalAgentId;
+            if (externalProductId) {
+                attributes["external_agent_id"] = externalProductId;
             }
             span.setAttributes(attributes);
 
@@ -175,7 +175,7 @@ class EmbeddingsWrapper {
     ) {}
 
     public async create(params: EmbeddingCreateParams): Promise<CreateEmbeddingResponse> {
-        const { externalCustomerId, externalAgentId } = getTracingContext();
+        const { externalCustomerId, externalProductId } = getTracingContext();
         const token = getToken();
 
         if (!token || !externalCustomerId) {
@@ -191,8 +191,8 @@ class EmbeddingsWrapper {
             };
             attributes["external_customer_id"] = externalCustomerId;
             attributes["token"] = token;
-            if (externalAgentId) {
-                attributes["external_agent_id"] = externalAgentId;
+            if (externalProductId) {
+                attributes["external_agent_id"] = externalProductId;
             }
             span.setAttributes(attributes);
 
@@ -226,7 +226,7 @@ class ImagesWrapper {
     ) {}
 
     public async generate(params: ImageGenerateParams): Promise<ImagesResponse> {
-        const { externalCustomerId, externalAgentId } = getTracingContext();
+        const { externalCustomerId, externalProductId } = getTracingContext();
         const token = getToken();
         const model = params.model || "";
 
@@ -244,8 +244,8 @@ class ImagesWrapper {
             };
             attributes["external_customer_id"] = externalCustomerId;
             attributes["token"] = token;
-            if (externalAgentId) {
-                attributes["external_agent_id"] = externalAgentId;
+            if (externalProductId) {
+                attributes["external_agent_id"] = externalProductId;
             }
             span.setAttributes(attributes);
 

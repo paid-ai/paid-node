@@ -32,7 +32,7 @@ class MessagesWrapper {
 
     public async create(params: MessageCreateParams): Promise<any> {
         const token = getToken();
-        const { externalAgentId, externalCustomerId } = getTracingContext();
+        const { externalProductId, externalCustomerId } = getTracingContext();
 
         if (!token || !externalCustomerId) {
             throw new Error(
@@ -48,8 +48,8 @@ class MessagesWrapper {
                 token: token,
             };
 
-            if (externalAgentId) {
-                attributes["external_agent_id"] = externalAgentId;
+            if (externalProductId) {
+                attributes["external_agent_id"] = externalProductId;
             }
 
             // Set request model from params

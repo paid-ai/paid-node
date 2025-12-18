@@ -22,7 +22,7 @@ import { getTracingContext } from "./tracingContext.js";
 export function signal(eventName: string, enableCostTracing: boolean = false, data?: Record<string, any>): void {
     const paidTracer = getPaidTracer();
     const token = getToken();
-    const { externalCustomerId, externalAgentId } = getTracingContext();
+    const { externalCustomerId, externalProductId: externalAgentId } = getTracingContext();
 
     if (!token || !paidTracer) {
         throw new Error(`Tracing is not initialized. Make sure you called 'initializeTracing()'`);

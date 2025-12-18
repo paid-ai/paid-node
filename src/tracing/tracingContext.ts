@@ -2,14 +2,14 @@ import { AsyncLocalStorage } from "async_hooks";
 
 export interface TracingContext {
     externalCustomerId?: string;
-    externalAgentId?: string;
+    externalProductId?: string;
     storePrompt?: boolean;
     metadata?: Record<string, any>;
 }
 
 const getDefaultTracingContext = (): TracingContext => ({
     externalCustomerId: undefined,
-    externalAgentId: undefined,
+    externalProductId: undefined,
     storePrompt: false,
     metadata: undefined,
 });

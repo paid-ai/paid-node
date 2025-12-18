@@ -20,7 +20,7 @@ export class PaidSpanProcessor implements SpanProcessor {
 
     onStart(span: Span, _parentContext?: Context): void {
         const { name } = span;
-        const { storePrompt, externalCustomerId, externalAgentId } = getTracingContext();
+        const { storePrompt, externalCustomerId, externalProductId: externalAgentId } = getTracingContext();
 
         if (!storePrompt) {
             const originalSetAttribute = span.setAttribute;

@@ -53,7 +53,7 @@ export class PaidLangChainCallback extends BaseCallbackHandler {
         tags?: string[],
         metadata?: Metadata,
     ): Promise<void> {
-        const { externalAgentId, externalCustomerId } = getTracingContext();
+        const { externalProductId, externalCustomerId } = getTracingContext();
         const token = getToken();
 
         if (!token || !externalCustomerId) {
@@ -76,8 +76,8 @@ export class PaidLangChainCallback extends BaseCallbackHandler {
             token: token,
         };
 
-        if (externalAgentId) {
-            attributes["external_agent_id"] = externalAgentId;
+        if (externalProductId) {
+            attributes["external_agent_id"] = externalProductId;
         }
 
         span.setAttributes(attributes);

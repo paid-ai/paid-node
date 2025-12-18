@@ -67,7 +67,7 @@ function extractUsageMetrics(usage: any): Record<string, any> {
 
 function validateContext() {
     const token = getToken();
-    const { externalCustomerId, externalAgentId } = getTracingContext();
+    const { externalCustomerId, externalProductId } = getTracingContext();
 
     if (!token || !externalCustomerId) {
         throw new Error(
@@ -77,7 +77,7 @@ function validateContext() {
 
     return {
         externalCustomerId,
-        externalAgentId: externalAgentId,
+        externalProductId,
         token,
     };
 }
@@ -99,8 +99,8 @@ export async function generateText(params: GenerateTextParams): Promise<ReturnTy
             token: context.token,
         };
 
-        if (context.externalAgentId) {
-            attributes["external_agent_id"] = context.externalAgentId;
+        if (context.externalProductId) {
+            attributes["external_agent_id"] = context.externalProductId;
         }
 
         if (modelName) {
@@ -150,8 +150,8 @@ export async function streamText(params: StreamTextParams): Promise<ReturnType<t
             token: context.token,
         };
 
-        if (context.externalAgentId) {
-            attributes["external_agent_id"] = context.externalAgentId;
+        if (context.externalProductId) {
+            attributes["external_agent_id"] = context.externalProductId;
         }
 
         if (modelName) {
@@ -208,8 +208,8 @@ export async function generateObject(params: GenerateObjectParams): Promise<Retu
             token: context.token,
         };
 
-        if (context.externalAgentId) {
-            attributes["external_agent_id"] = context.externalAgentId;
+        if (context.externalProductId) {
+            attributes["external_agent_id"] = context.externalProductId;
         }
 
         if (modelName) {
@@ -260,8 +260,8 @@ export async function streamObject(params: StreamObjectParams): Promise<ReturnTy
             token: context.token,
         };
 
-        if (context.externalAgentId) {
-            attributes["external_agent_id"] = context.externalAgentId;
+        if (context.externalProductId) {
+            attributes["external_agent_id"] = context.externalProductId;
         }
 
         if (modelName) {
@@ -315,8 +315,8 @@ export async function embed(params: EmbedParams): Promise<ReturnType<typeof orig
             token: context.token,
         };
 
-        if (context.externalAgentId) {
-            attributes["external_agent_id"] = context.externalAgentId;
+        if (context.externalProductId) {
+            attributes["external_agent_id"] = context.externalProductId;
         }
 
         if (modelName) {
@@ -362,8 +362,8 @@ export async function embedMany(params: EmbedManyParams): Promise<ReturnType<typ
             token: context.token,
         };
 
-        if (context.externalAgentId) {
-            attributes["external_agent_id"] = context.externalAgentId;
+        if (context.externalProductId) {
+            attributes["external_agent_id"] = context.externalProductId;
         }
 
         if (modelName) {

@@ -33,7 +33,7 @@ class OCRWrapper {
 
     public async process(request: OCRRequest, options?: RequestOptions): Promise<OCRResponse> {
         const token = getToken();
-        const { externalAgentId, externalCustomerId } = getTracingContext();
+        const { externalProductId, externalCustomerId } = getTracingContext();
 
         if (!token || !externalCustomerId) {
             throw new Error(
@@ -49,8 +49,8 @@ class OCRWrapper {
                 token: token,
             };
 
-            if (externalAgentId) {
-                attributes["external_agent_id"] = externalAgentId;
+            if (externalProductId) {
+                attributes["external_agent_id"] = externalProductId;
             }
 
             // Check if annotations are requested

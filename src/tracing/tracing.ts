@@ -90,7 +90,7 @@ export function initializeTracing(apiKey?: string, collectorEndpoint?: string) {
 export async function trace<F extends (...args: any[]) => any>(
     options: {
         externalCustomerId: string;
-        externalAgentId?: string;
+        externalProductId?: string;
         storePrompt?: boolean;
         metadata?: any;
     },
@@ -103,7 +103,7 @@ export async function trace<F extends (...args: any[]) => any>(
     if (!token || !tracer) {
         throw new Error("Paid tracing is not initialized. Make sure to call initializeTracing() first.");
     }
-    const { externalCustomerId, externalAgentId, storePrompt, metadata } = options;
+    const { externalCustomerId, externalProductId: externalAgentId, storePrompt, metadata } = options;
 
     return await tracer.startActiveSpan("parent_span", async (span) => {
         span.setAttribute("external_customer_id", externalCustomerId);
@@ -116,7 +116,7 @@ export async function trace<F extends (...args: any[]) => any>(
             const res = await runWithTracingContext(
                 {
                     externalCustomerId,
-                    externalAgentId,
+                    externalProductId: externalAgentId,
                     storePrompt,
                     metadata,
                 },
