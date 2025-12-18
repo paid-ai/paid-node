@@ -46,3 +46,7 @@ export {
   provisionNewUser,
   createProvisioningHandler,
 } from "./provision-users.js";
+
+export {
+  createGetPlanGroupByIdHandler,
+} from "./plans.js";
