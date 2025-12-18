@@ -102,7 +102,7 @@ export function createHandler<TRequest = any, TResponse = any>(
       const requestData = config.transformRequest
         ? config.transformRequest(request.body)
         : request.body;
-      
+
       const result = await handler(client, requestData, request.params, organizationId);
 
       if (!result.success) {
