@@ -7,9 +7,12 @@ import * as core from "./core/index.js";
 import { mergeHeaders } from "./core/headers.js";
 import { Customers } from "./api/resources/customers/client/Client.js";
 import { Agents } from "./api/resources/agents/client/Client.js";
+import { Products } from "./api/resources/products/client/Client.js";
 import { Contacts } from "./api/resources/contacts/client/Client.js";
 import { Orders } from "./api/resources/orders/client/Client.js";
+import { Plans } from "./api/resources/plans/client/Client.js";
 import { Usage } from "./wrapper/BatchUsage.js";
+import { Traces } from "./api/resources/traces/client/Client.js";
 import { _trace, _initializeTracing } from "./tracing/tracing.js";
 import { _signal } from "./tracing/signal.js";
 import { NodeTracerProvider } from "@opentelemetry/sdk-trace-node";
@@ -20,7 +23,7 @@ export declare namespace PaidClient {
         environment?: core.Supplier<environments.PaidEnvironment | string>;
         /** Specify a custom URL to connect the client to. */
         baseUrl?: core.Supplier<string>;
-        token: core.Supplier<core.BearerToken>;
+        token?: core.Supplier<core.BearerToken | undefined>;
         /** Additional headers to include in requests. */
         headers?: Record<string, string | core.Supplier<string | undefined> | undefined>;
     }
@@ -41,19 +44,21 @@ export class PaidClient {
     protected readonly _options: PaidClient.Options;
     protected _customers: Customers | undefined;
     protected _agents: Agents | undefined;
+    protected _products: Products | undefined;
     protected _contacts: Contacts | undefined;
     protected _orders: Orders | undefined;
+    protected _plans: Plans | undefined;
     protected _usage: Usage | undefined;
+    protected _traces: Traces | undefined;
 
-    constructor(_options: PaidClient.Options) {
+    constructor(_options: PaidClient.Options = {}) {
         this._options = {
             ..._options,
             headers: mergeHeaders(
                 {
                     "X-Fern-Language": "JavaScript",
-                    "X-Fern-SDK-Name": "@paid-ai/paid-node",
-                    "X-Fern-SDK-Version": "0.5.0-alpha3",
-                    "User-Agent": "@paid-ai/paid-node/0.5.0-alpha3",
+                    "X-Fern-SDK-Name": "",
+                    "X-Fern-SDK-Version": "0.8.0",
                     "X-Fern-Runtime": core.RUNTIME.type,
                     "X-Fern-Runtime-Version": core.RUNTIME.version,
                 },
@@ -70,6 +75,10 @@ export class PaidClient {
         return (this._agents ??= new Agents(this._options));
     }
 
+    public get products(): Products {
+        return (this._products ??= new Products(this._options));
+    }
+
     public get contacts(): Contacts {
         return (this._contacts ??= new Contacts(this._options));
     }
@@ -78,8 +87,16 @@ export class PaidClient {
         return (this._orders ??= new Orders(this._options));
     }
 
+    public get plans(): Plans {
+        return (this._plans ??= new Plans(this._options));
+    }
+
     public get usage(): Usage {
         return (this._usage ??= new Usage(this._options));
+    }
+
+    public get traces(): Traces {
+        return (this._traces ??= new Traces(this._options));
     }
 
     // Need to call this method before using tracing or creating wrappers.
