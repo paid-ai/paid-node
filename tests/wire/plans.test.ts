@@ -134,4 +134,63 @@ describe("Plans", () => {
             },
         });
     });
+
+    test("getGroupById", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = {
+            id: "id",
+            organizationId: "organizationId",
+            name: "name",
+            description: "description",
+            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
+            plans: [
+                {
+                    id: "id",
+                    organizationId: "organizationId",
+                    planGroupId: "planGroupId",
+                    name: "name",
+                    description: "description",
+                    nextPlanId: "nextPlanId",
+                    prevPlanId: "prevPlanId",
+                    createdAt: "2024-01-15T09:30:00Z",
+                    updatedAt: "2024-01-15T09:30:00Z",
+                    planProducts: [{}],
+                },
+            ],
+        };
+        server
+            .mockEndpoint()
+            .get("/plans/group/planGroupId")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.plans.getGroupById("planGroupId");
+        expect(response).toEqual({
+            id: "id",
+            organizationId: "organizationId",
+            name: "name",
+            description: "description",
+            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
+            plans: [
+                {
+                    id: "id",
+                    organizationId: "organizationId",
+                    planGroupId: "planGroupId",
+                    name: "name",
+                    description: "description",
+                    nextPlanId: "nextPlanId",
+                    prevPlanId: "prevPlanId",
+                    createdAt: "2024-01-15T09:30:00Z",
+                    updatedAt: "2024-01-15T09:30:00Z",
+                    planProducts: [{}],
+                },
+            ],
+        });
+    });
 });

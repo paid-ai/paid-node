@@ -39,4 +39,5 @@ export * from "./PaginationMeta.js";
 export * from "./UsageSummariesResponse.js";
 export * from "./UsageSummary.js";
 export * from "./UsagePaginationMeta.js";
+export * from "./PlanGroup.js";
 export * from "./Plan.js";

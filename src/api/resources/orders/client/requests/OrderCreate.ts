@@ -34,5 +34,7 @@ export interface OrderCreate {
     startDate: string;
     endDate?: string;
     currency: string;
+    /** Optional plan ID to associate with this order */
+    planId?: string;
     orderLines?: Paid.OrderLineCreate[];
 }
