@@ -81,6 +81,7 @@ export function initializeTracing(apiKey?: string, collectorEndpoint?: string) {
     paidTracerProvider = new NodeTracerProvider({
         spanProcessors: [spanProcessor, new PaidSpanProcessor()],
     });
+    paidTracerProvider.register();
     paidTracer = paidTracerProvider.getTracer("paid.node");
     setupGracefulShutdown(spanProcessor);
     logger.info(`Paid tracing SDK initialized with collector endpoint: ${url}`);

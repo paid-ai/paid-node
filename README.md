@@ -160,6 +160,30 @@ anthropic
 bedrock
 ```
 
+#### Vercel AI SDK Integration
+
+If you're using Vercel's AI SDK, you can enable automatic telemetry without any wrappers by using the `experimental_telemetry` option. When enabled, it will automatically use Paid's registered tracer provider:
+
+```typescript
+import { initializeTracing, trace } from "@paid-ai/paid-node";
+import { generateText } from "ai";
+
+async function main() {
+    await initializeTracing("<your_paid_api_key>");
+    
+    await trace({
+        externalCustomerId: "<your_external_customer_id>",
+        externalAgentId: "<your_external_agent_id>"
+    }, async () => {
+        await generateText({
+            model: "model-name",
+            prompt: "Your prompt",
+            experimental_telemetry: { isEnabled: true }, // This will use Paid's tracer automatically
+        });
+    });
+}
+```
+
 #### Manual instrumentation
 
 ``` typescript
