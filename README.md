@@ -104,22 +104,23 @@ vercel (Vercel AI SDK)
 Example usage with OpenAI:
 
 ```typescript
-import { PaidClient } from "@paid-ai/paid-node";
+import { initializeTracing, trace } from "@paid-ai/paid-node";
 import { PaidOpenAI } from "@paid-ai/paid-node/openai";
 import OpenAI from "openai";
 
 async function main() {
-    const client = new PaidClient({ token: "<your_paid_api_key>" });
-
     // Initialize cost tracking
-    await client.initializeTracing();
+    await initializeTracing("<your_paid_api_key>");
 
     // Wrap OpenAI in paid wrapper
     const openaiClient = new OpenAI({ apiKey: "<your_openai_api_key>" });
     const paidOpenAI = new PaidOpenAI(openaiClient);
 
     // Trace the call
-    await client.trace("<your_external_customer_id>", async () => {
+    await trace({
+        externalCustomerId: "<your_external_customer_id>",
+        externalProductid: "<optional_external_product_id>"
+    }, async () => {
         const response = await paidOpenAI.images.generate({
             prompt: "A beautiful sunset over the mountains",
             n: 1,
@@ -128,7 +129,7 @@ async function main() {
         if (response.data) {
             console.log("Image generation:", response.data[0].url);
         }
-    }, "<optional_external_product_id>");
+    });
 }
 ```
 
@@ -175,27 +176,28 @@ paidAutoInstrument({ openai })
 ## Signaling via OTEL tracing
 
 A more reliable and user-friendly way to send signals is to send them via OTEL tracing.
-This allows you to send signals with less arguments and boilerplate as the information is available in the tracing context `Paid.trace()`.
-The interface is `Paid.signal()`, which takes in signal name, optional data, and a flag that attaches costs from the same trace.
-`Paid.signal()` has to be called within a trace - meaning inside of a callback to `Paid.trace()`.
-In contrast to `Paid.usage.recordBulk()`, `Paid.signal()` is using OpenTelemetry to provide reliable delivery.
+This allows you to send signals with less arguments and boilerplate as the information is available in the tracing context `trace()`.
+The interface is `signal()`, which takes in signal name, optional enableCostTracing flag, and optional data.
+`signal()` has to be called within a trace - meaning inside of a callback to `trace()`.
+In contrast to `Paid.usage.recordBulk()`, `signal()` is using OpenTelemetry to provide reliable delivery.
 
 Here's an example of how to use it:
 
 ```typescript
-import { PaidClient } from "@paid-ai/paid-node";
+import { initializeTracing, trace, signal } from "@paid-ai/paid-node";
 
 async function main() {
-    const client = new PaidClient({ token: "<your_paid_api_key>" });
-
     // Initialize tracing
-    await client.initializeTracing();
+    await initializeTracing("<your_paid_api_key>");
 
     // Trace the call
-    await client.trace("<your_external_customer_id>", async () => {
+    await trace({
+        externalCustomerId: "<your_external_customer_id>",
+        externalProductid: "<your_external_product_id>" // external_product_id is required for signals
+    }, async () => {
         // ...do some work...
-        client.signal("<your_signal_name>", { /* optional data */ });
-    }, "<your_external_product_id>"); // external_product_id is required for signals
+        signal("<your_signal_name>", false, { /* optional data */ });
+    });
 }
 ```
 
@@ -208,18 +210,20 @@ as the wrappers that recorded those costs.
 This will look something like this:
 
 ```typescript
-import { PaidClient } from "@paid-ai/paid-node";
+import { initializeTracing, trace, signal } from "@paid-ai/paid-node";
 import { PaidOpenAI } from "@paid-ai/paid-node/openai";
 import OpenAI from "openai";
 
 async function main() {
-    const client = new PaidClient({ token: "<your_paid_api_key>" });
-    await client.initializeTracing();
+    await initializeTracing("<your_paid_api_key>");
 
     const openaiClient = new OpenAI({ apiKey: "<your_openai_api_key>" });
     const paidOpenAI = new PaidOpenAI(openaiClient);
 
-    await client.trace("<your_external_customer_id>", async () => {
+    await trace({
+        externalCustomerId: "<your_external_customer_id>",
+        externalProductId: "<your_external_product_id>"
+    }, async () => {
         // ... your workflow logic
         // ... your AI calls made through Paid wrappers
         const response = await paidOpenAI.chat.completions.create({
@@ -228,7 +232,7 @@ async function main() {
         });
 
         // Send signal with cost tracing enabled
-        client.signal(
+        signal(
             "<your_signal_name>",
             true, // enableCostTracing - set this flag to associate it with costs
             { /* optional data */ }
@@ -236,11 +240,11 @@ async function main() {
 
         // ... your workflow logic
         // ... your AI calls made through Paid wrappers (can be sent after the signal too)
-    }, "<your_external_product_id>");
+    });
 }
 ```
 
-Then, all of the costs traced in `client.trace()` context are related to that signal.
+Then, all of the costs traced in `trace()` context are related to that signal.
 
 ## Manual Cost Tracking
 
@@ -275,15 +279,17 @@ await client.usage.flush(); // need to flush to send usage immediately
 Alternatively the same `costData` payload can be passed to OTLP signaling mechanism:
 
 ```typescript
-import { PaidClient } from "@paid-ai/paid-node";
+import { initializeTracing, trace, signal } from "@paid-ai/paid-node";
 
 async function main() {
-    const client = new PaidClient({ token: "<your_paid_api_key>" });
-    await client.initializeTracing();
+    await initializeTracing("<your_paid_api_key>");
 
-    await client.trace("<your_external_customer_id>", async () => {
+    await trace({
+        externalCustomerId: "<your_external_customer_id>",
+        externalAgentId: "<your_external_agent_id>"
+    }, async () => {
         // ...do some work...
-        client.signal("<your_signal_name>", {
+        signal("<your_signal_name>", false, {
             costData: {
                 vendor: "<any_vendor_name>", // can be anything, traces are grouped by vendors in the UI
                 cost: {
@@ -293,7 +299,7 @@ async function main() {
                 "gen_ai.response.model": "<ai_model_name>",
             }
         });
-    }, "<your_external_agent_id>");
+    });
 }
 ```
 
@@ -330,15 +336,17 @@ await client.usage.flush();
 Same but via OTEL signaling:
 
 ```typescript
-import { PaidClient } from "@paid-ai/paid-node";
+import { initializeTracing, trace, signal } from "@paid-ai/paid-node";
 
 async function main() {
-    const client = new PaidClient({ token: "<your_paid_api_key>" });
-    await client.initializeTracing();
+    await initializeTracing("<your_paid_api_key>");
 
-    await client.trace("<your_external_customer_id>", async () => {
+    await trace({
+        externalCustomerId: "<your_external_customer_id>",
+        externalAgentId: "<your_external_agent_id>"
+    }, async () => {
         // ...do some work...
-        client.signal("<your_signal_name>", {
+        signal("<your_signal_name>", false, {
             costData: {
                 vendor: "<any_vendor_name>", // can be anything, traces are grouped by vendors in the UI
                 attributes: {
@@ -349,7 +357,7 @@ async function main() {
                 },
             }
         });
-    }, "<your_external_agent_id>");
+    });
 }
 ```
 
@@ -449,12 +457,12 @@ const client = new PaidClient({
 
 ### Paid OTEL Tracer Provider
 
-If you would like to use the Paid OTEL tracer provider, you can access it via the `tracerProvider` property on the client.
+If you would like to use the Paid OTEL tracer provider, you can access it via the `getPaidTracerProvider` function.
 
 ```typescript
-import { PaidClient } from "@paid-ai/paid-node";
-const client = new PaidClient({ token: "<your_paid_api_key>" });
-const tracerProvider = client.tracerProvider;
+import { initializeTracing, getPaidTracerProvider } from "@paid-ai/paid-node";
+await initializeTracing("<your_paid_api_key>");
+const tracerProvider = getPaidTracerProvider();
 ```
 
 ## Contributing
