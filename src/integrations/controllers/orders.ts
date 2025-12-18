@@ -28,16 +28,23 @@ function generateOrderDefaults(
   const description = config.description || "Annual subscription";
   const currency = config.currency || "USD";
 
-  const orderLines: OrderLineConfig[] = config.orderLines?.map(line => ({
-    agentExternalId: line.agentExternalId,
-    name: line.name || name,
-    description: line.description || description,
-    planProductId: line.planProductId ?? undefined,
-  })) || [{
-    agentExternalId: config.agentExternalId ?? "",
-    name,
-    description,
-  }];
+  // defensive guard
+  if (!config.orderLines && !config.planId && !config.agentExternalId) {
+    throw new Error("Either orderLines, planId, or agentExternalId must be provided");
+  }
+
+  const orderLines: OrderLineConfig[] = config.orderLines 
+    ? config.orderLines.map(line => ({
+        agentExternalId: line.agentExternalId,
+        name: line.name || name,
+        description: line.description || description,
+        planProductId: line.planProductId ?? undefined,
+      }))
+    : [{
+        agentExternalId: config.agentExternalId!,
+        name,
+        description,
+      }];
 
   return {
     customerId: config.customerId,
