@@ -2185,6 +2185,54 @@ await client.plans.getUsage("planId", {
 </dl>
 </details>
 
+<details><summary><code>client.plans.<a href="/src/api/resources/plans/client/Client.ts">getGroupById</a>(planGroupId) -> Paid.PlanGroup</code></summary>
+<dl>
+<dd>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.plans.getGroupById("planGroupId");
+```
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**planGroupId:** `string` — The ID of the plan group
+
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Plans.RequestOptions`
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+</dd>
+</dl>
+</details>
+
 ## Usage
 
 <details><summary><code>client.usage.<a href="/src/api/resources/usage/client/Client.ts">recordBulk</a>({ ...params }) -> void</code></summary>
