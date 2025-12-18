@@ -217,7 +217,12 @@ export function createOrdersHandler(helperOptions?: OrderOptions) {
         const plan = await getPlanById(client, body.planId);
         if (plan.planProducts && plan.planProducts.length > 0) {
           body.orderLines = plan.planProducts
-            .filter((pp: any) => pp.product && pp.product.externalId)
+            .filter((pp: any) => {
+              if (!pp.product) {
+                throw new Error(`Plan product ${pp.id} is missing nested product data`);
+              }
+              return pp.product.externalId;
+            })
             .map((pp: any) => ({
               agentExternalId: pp.product.externalId,
               name: pp.product.name,
