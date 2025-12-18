@@ -119,7 +119,7 @@ async function main() {
     // Trace the call
     await trace({
         externalCustomerId: "<your_external_customer_id>",
-        externalProductid: "<optional_external_product_id>"
+        externalProductId: "<optional_external_product_id>"
     }, async () => {
         const response = await paidOpenAI.images.generate({
             prompt: "A beautiful sunset over the mountains",
@@ -173,7 +173,7 @@ async function main() {
     
     await trace({
         externalCustomerId: "<your_external_customer_id>",
-        externalProductid: "<your_external_product_id>"
+        externalProductId: "<your_external_product_id>"
     }, async () => {
         await generateText({
             model: "model-name",
@@ -217,7 +217,7 @@ async function main() {
     // Trace the call
     await trace({
         externalCustomerId: "<your_external_customer_id>",
-        externalProductid: "<your_external_product_id>" // external_product_id is required for signals
+        externalProductId: "<your_external_product_id>" // external_product_id is required for signals
     }, async () => {
         // ...do some work...
         signal("<your_signal_name>", false, { /* optional data */ });
