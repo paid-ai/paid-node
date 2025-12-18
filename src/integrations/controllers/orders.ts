@@ -7,6 +7,8 @@ import type {
   OrderLineConfig
 } from "../types.js";
 import { createHandler } from "../utils/base-handler.js";
+import { getPlanById } from "./plans.js";
+import * as Paid from "../../api/index.js";
 
 /**
  * Generate default values for missing order fields
@@ -31,8 +33,9 @@ function generateOrderDefaults(
     agentExternalId: line.agentExternalId,
     name: line.name || name,
     description: line.description || description,
+    planProductId: line.planProductId ?? undefined,
   })) || [{
-    agentExternalId: config.agentExternalId,
+    agentExternalId: config.agentExternalId ?? "",
     name,
     description,
   }];
@@ -42,6 +45,7 @@ function generateOrderDefaults(
     customerExternalId: config.customerExternalId,
     billingContactId: config.billingContactId,
     agentExternalId: config.agentExternalId,
+    planId: config.planId,
     name,
     description,
     startDate,
@@ -59,6 +63,7 @@ async function createAndActivateOrder(
   config: CompleteOrderConfig,
   autoActivate: boolean
 ): Promise<OrderCreationResult> {
+  console.log("executing createAndActivateOrder with config: ", config);
   const order = await client.orders.create({
     customerId: config.customerId,
     customerExternalId: config.customerExternalId,
@@ -72,9 +77,14 @@ async function createAndActivateOrder(
       const orderLine: any = { agentExternalId: line.agentExternalId };
       if (line.name) orderLine.name = line.name;
       if (line.description) orderLine.description = line.description;
+      if ((line as any).planProductId) orderLine.planProductId = (line as any).planProductId;
       return orderLine;
     }),
+    planId: config.planId,
   });
+
+  console.log("order: ", order);
+  console.log("orderLineAttributes: ", order.orderLines?.[0].orderLineAttributes);
 
   if (!order.id) {
     throw new Error("Order created but missing ID");
@@ -196,14 +206,11 @@ interface OrderRequest extends OrderConfig {
 export function createOrdersHandler(helperOptions?: OrderOptions) {
   return createHandler<OrderRequest, OrderCreationResult>(
     async (client, body) => {
-      if (!body.customerId) {
-        throw new Error("customerId is required");
-      }
       if (!body.customerExternalId) {
         throw new Error("customerExternalId is required");
       }
-      if (!body.agentExternalId) {
-        throw new Error("agentExternalId is required");
+      if (!body.agentExternalId && !body.planId) {
+        throw new Error("agentExternalId or planId are required");
       }
 
       const orderOptions: OrderOptions = {
@@ -211,9 +218,36 @@ export function createOrdersHandler(helperOptions?: OrderOptions) {
         autoActivate: body.autoActivate ?? helperOptions?.autoActivate ?? true,
       };
 
+      console.log("body: ", body)
+
+      if (body.planId) {
+        const plan = await getPlanById(client, body.planId);
+        console.log("plan: ", plan)
+        console.log("plan product: ", plan.planProducts[0].product)
+
+        // TODO: test all below - wait for ap-signals to redeploy and test with product being passed in - then creating an order from just a planId should work great!
+        
+        // Create orderLines from plan's planProducts
+        if (plan.planProducts && plan.planProducts.length > 0) {
+          // Create orderLines from planProducts (product is already included in each planProduct)
+          body.orderLines = plan.planProducts
+            .filter((pp: any) => pp.product && pp.product.externalId)
+            .map((pp: any) => ({
+              agentExternalId: pp.product.externalId,
+              name: pp.product.name,
+              description: pp.product.description,
+              planProductId: pp.id,
+            }));
+        } else {
+          throw new Error(`Plan ${body.planId} has no products`);
+        }
+      }
+
+      console.log("about to call createOrderWithDefaults with body: ", body);
+
       const order = await createOrderWithDefaults(client, body, orderOptions);
       return { success: true, data: order };
     },
-    { requiredFields: ['customerId', 'customerExternalId', 'agentExternalId'] }
+    { requiredFields: ['customerExternalId'] }
   );
 }
