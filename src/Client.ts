@@ -13,10 +13,9 @@ import { Orders } from "./api/resources/orders/client/Client.js";
 import { Plans } from "./api/resources/plans/client/Client.js";
 import { Usage } from "./wrapper/BatchUsage.js";
 import { Traces } from "./api/resources/traces/client/Client.js";
-import { _trace, _initializeTracing } from "./tracing/tracing.js";
-import { _signal } from "./tracing/signal.js";
+import { signal } from "./tracing/signal.js";
 import { NodeTracerProvider } from "@opentelemetry/sdk-trace-node";
-import { _getPaidTracerProvider } from "./tracing/tracing.js";
+import { getPaidTracerProvider, initializeTracing, trace } from "./tracing/tracing.js";
 
 export declare namespace PaidClient {
     export interface Options {
@@ -99,15 +98,18 @@ export class PaidClient {
         return (this._traces ??= new Traces(this._options));
     }
 
-    // Need to call this method before using tracing or creating wrappers.
+    /**
+     * @deprecated use the standalone 'initializeTracing' instead
+     */
     public async initializeTracing(collectorEndpoint?: string): Promise<void> {
         const tokenSupplier = this._options.token;
         const token = typeof tokenSupplier === "function" ? await tokenSupplier() : tokenSupplier;
         const resolvedToken = await Promise.resolve(token);
-        _initializeTracing(resolvedToken, collectorEndpoint);
+        initializeTracing(resolvedToken, collectorEndpoint);
     }
 
     /**
+     * @deprecated use the standalone 'trace()' instead
      * Use this method to track actions like LLM costs and sending signals.
      * The callback to this function is the work that you want to trace.
      *
@@ -131,10 +133,11 @@ export class PaidClient {
         if (externalProductId) {
             externalAgentId = externalProductId;
         }
-        return await _trace(externalCustomerId, fn, externalAgentId, storePrompt, ...args);
+        return await trace({ externalCustomerId, externalProductId: externalAgentId, storePrompt }, fn, ...args);
     }
 
     /**
+     * @deprecated use the standalone 'signal()' instead
      * Sends Paid signal. Needs to be called as part of callback to Paid.trace().
      * When enableCostTracing flag is on, signal is associated
      * with cost traces from the same Paid.trace() context.
@@ -173,13 +176,14 @@ export class PaidClient {
         }
         // Case: signal(eventName) - both remain default/undefined
 
-        return _signal(eventName, enableCostTracing, finalData);
+        return signal(eventName, enableCostTracing, finalData);
     }
 
     /**
+     * @deprecated use the standalone 'getPaidTracerProvider()' instead
      * Export the tracer provider which user can use for his own tracing.
      */
-    public get tracerProvider(): NodeTracerProvider {
-        return _getPaidTracerProvider();
+    public get tracerProvider(): NodeTracerProvider | undefined {
+        return getPaidTracerProvider();
     }
 }

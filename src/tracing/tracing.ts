@@ -1,11 +1,10 @@
-import { NodeSDK } from "@opentelemetry/sdk-node";
-import { NodeTracerProvider } from "@opentelemetry/sdk-trace-node";
+import { SpanStatusCode, Tracer } from "@opentelemetry/api";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
-import { SimpleSpanProcessor, SpanProcessor } from "@opentelemetry/sdk-trace-base";
-import { SpanStatusCode } from "@opentelemetry/api";
-import { AsyncLocalStorage } from "async_hooks";
+import { NodeSDK } from "@opentelemetry/sdk-node";
+import { NodeTracerProvider, SimpleSpanProcessor, SpanProcessor } from "@opentelemetry/sdk-trace-node";
 import winston from "winston";
-import { PaidSpanProcessor } from "./spanProcessor";
+import { runWithTracingContext } from "./tracingContext.js";
+import { PaidSpanProcessor } from "./spanProcessor.js";
 
 export const logger = winston.createLogger({
     level: "silent", // Default to 'silent' to avoid logging unless set via environment variable
@@ -17,42 +16,26 @@ if (logLevel) {
     logger.level = logLevel;
 }
 
-const COLLECTOR_ENDPOINT = process.env.PAID_COLLECTOR_ENDPOINT || "https://collector.agentpaid.io:4318/v1/traces";
+const DEFAULT_COLLECTOR_ENDPOINT =
+    process.env["PAID_OTEL_COLLECTOR_ENDPOINT"] || "https://collector.agentpaid.io:4318/v1/traces";
 
-// set up default tracing provider
-let paidExporter = new OTLPTraceExporter({ url: COLLECTOR_ENDPOINT });
-let spanProcessor = new SimpleSpanProcessor(paidExporter);
-export let paidTracerProvider = new NodeTracerProvider({
-    spanProcessors: [spanProcessor, new PaidSpanProcessor()],
-});
-paidTracerProvider.register();
-export let paidTracer = paidTracerProvider.getTracer("paid.node");
+let paidApiToken: string | undefined = undefined;
+export function getToken() {
+    return paidApiToken;
+}
 
-// storage for passing info to child spans
-const customerIdStorage = new AsyncLocalStorage<string | null>();
-const agentIdStorage = new AsyncLocalStorage<string | null>();
-const tokenStorage = new AsyncLocalStorage<string | null>();
-const storePromptStorage = new AsyncLocalStorage<boolean>();
-export const getCustomerIdStorage = (): string | null | undefined => customerIdStorage.getStore();
-export const getAgentIdStorage = (): string | null | undefined => agentIdStorage.getStore();
-export const getTokenStorage = (): string | null | undefined => tokenStorage.getStore();
-export const getStorePromptStorage = (): boolean => storePromptStorage.getStore() || false;
-
-let _token: string | undefined;
-const setToken = (token: string) => {
-    _token = token;
-};
-export const getToken = () => {
-    return _token;
-};
-
-let _isShuttingDown = false;
-
-export function _getPaidTracerProvider(): NodeTracerProvider {
+let paidTracerProvider: NodeTracerProvider | undefined = undefined;
+export function getPaidTracerProvider() {
     return paidTracerProvider;
 }
 
-function setupGracefulShutdown(shuttable: NodeSDK | SpanProcessor) {
+let paidTracer: Tracer | undefined = undefined;
+export function getPaidTracer() {
+    return paidTracer;
+}
+
+let _isShuttingDown = false;
+const setupGracefulShutdown = (shuttable: NodeSDK | SpanProcessor) => {
     ["SIGINT", "SIGTERM", "beforeExit", "uncaughtException", "unhandledRejection"].forEach((signal) => {
         process.on(signal, () => {
             if (_isShuttingDown) {
@@ -65,57 +48,64 @@ function setupGracefulShutdown(shuttable: NodeSDK | SpanProcessor) {
                 .catch((error) => logger.error(`Error shutting down Paid tracing SDK ${error}`));
         });
     });
-}
+};
 
-export function _initializeTracing(apiKey?: string, collectorEndpoint?: string) {
-    if (getToken()) {
-        throw new Error("Tracing SDK is already initialized.");
+export function initializeTracing(apiKey?: string, collectorEndpoint?: string) {
+    const paidEnabled = (process.env.PAID_ENABLED || "true") !== "false";
+    if (!paidEnabled) {
+        logger.info("Paid tracing is disabled via PAID_ENABLED environment variable");
+        return;
     }
-    if (!apiKey) {
-        throw new Error("Cannot initialize tracing SDK - first initialize the PaidClient with an API key");
-    }
-
-    if (collectorEndpoint) {
-        paidExporter = new OTLPTraceExporter({ url: collectorEndpoint });
-        spanProcessor = new SimpleSpanProcessor(paidExporter);
-        paidTracerProvider = new NodeTracerProvider({
-            spanProcessors: [spanProcessor, new PaidSpanProcessor()],
-        });
-        paidTracerProvider.register();
-        paidTracer = paidTracerProvider.getTracer("paid.node");
-    }
-
-    setupGracefulShutdown(spanProcessor);
-
-    setToken(apiKey);
-    const collectorAddress = collectorEndpoint || COLLECTOR_ENDPOINT;
-    logger.info(`Paid tracing SDK initialized with collector endpoint: ${collectorAddress}`);
-}
-
-async function wrapWithStorages(storageValues: [AsyncLocalStorage<any>, any][], fn: () => Promise<any>) {
-    let wrapped = fn;
-    for (const [storage, value] of storageValues.reverse()) {
-        const prev = wrapped;
-        wrapped = async () => await storage.run(value, prev);
-    }
-
-    return wrapped();
-}
-
-export async function _trace<T extends (...args: any[]) => any>(
-    externalCustomerId: string,
-    fn: T,
-    externalAgentId: string | undefined,
-    storePrompt: boolean = false,
-    ...args: Parameters<T>
-): Promise<ReturnType<T>> {
     const token = getToken();
 
-    if (!token || !externalCustomerId) {
-        throw new Error(`Paid tracing is not initialized. Make sure to call initializeTracing() first.`);
+    if (!!token) {
+        logger.info("Tracing is already initialized - skipping re-intialization");
+        return;
     }
 
-    return paidTracer.startActiveSpan("parent_span", async (span) => {
+    if (!apiKey) {
+        const envKey = process.env.PAID_API_KEY;
+        if (!envKey) {
+            logger.error("API key must be provided via PAID_API_KEY environment variable");
+            return;
+        }
+
+        paidApiToken = envKey;
+    } else {
+        paidApiToken = apiKey;
+    }
+
+    const url = collectorEndpoint || DEFAULT_COLLECTOR_ENDPOINT;
+    const exporter = new OTLPTraceExporter({ url });
+    const spanProcessor = new SimpleSpanProcessor(exporter);
+    paidTracerProvider = new NodeTracerProvider({
+        spanProcessors: [spanProcessor, new PaidSpanProcessor()],
+    });
+    paidTracerProvider.register();
+    paidTracer = paidTracerProvider.getTracer("paid.node");
+    setupGracefulShutdown(spanProcessor);
+    logger.info(`Paid tracing SDK initialized with collector endpoint: ${url}`);
+}
+
+export async function trace<F extends (...args: any[]) => any>(
+    options: {
+        externalCustomerId: string;
+        externalProductId?: string;
+        storePrompt?: boolean;
+        metadata?: any;
+    },
+    fn: F,
+    ...args: Parameters<F>
+): Promise<ReturnType<F>> {
+    const token = getToken();
+    const tracer = getPaidTracer();
+
+    if (!token || !tracer) {
+        throw new Error("Paid tracing is not initialized. Make sure to call initializeTracing() first.");
+    }
+    const { externalCustomerId, externalProductId: externalAgentId, storePrompt, metadata } = options;
+
+    return await tracer.startActiveSpan("parent_span", async (span) => {
         span.setAttribute("external_customer_id", externalCustomerId);
         span.setAttribute("token", token);
         if (externalAgentId) {
@@ -123,18 +113,17 @@ export async function _trace<T extends (...args: any[]) => any>(
         }
 
         try {
-            const result = await wrapWithStorages(
-                [
-                    [customerIdStorage, externalCustomerId],
-                    [agentIdStorage, externalAgentId ?? null],
-                    [tokenStorage, token],
-                    [storePromptStorage, storePrompt],
-                ],
-                () => fn(...args),
+            const res = await runWithTracingContext(
+                {
+                    externalCustomerId,
+                    externalProductId: externalAgentId,
+                    storePrompt,
+                    metadata,
+                },
+                async () => await fn(...args),
             );
-
             span.setStatus({ code: SpanStatusCode.OK });
-            return result;
+            return res;
         } catch (error: any) {
             span.setStatus({
                 code: SpanStatusCode.ERROR,

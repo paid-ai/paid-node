@@ -1,8 +1,9 @@
 import { Mistral } from "@mistralai/mistralai";
 import { SpanStatusCode, Tracer } from "@opentelemetry/api";
-import { getCustomerIdStorage, getAgentIdStorage, getTokenStorage, paidTracer } from "../tracing.js";
 import { OCRRequest, OCRResponse } from "@mistralai/mistralai/models/components";
 import { RequestOptions } from "@mistralai/mistralai/lib/sdks";
+import { getPaidTracer, getToken } from "tracing/tracing.js";
+import { getTracingContext } from "tracing/tracingContext.js";
 
 export class PaidMistral {
     private readonly mistral: Mistral;
@@ -10,7 +11,13 @@ export class PaidMistral {
 
     constructor(mistralClient: Mistral) {
         this.mistral = mistralClient;
-        this.tracer = paidTracer;
+        const tracer = getPaidTracer();
+
+        if (!tracer) {
+            throw new Error("Paid tracer is not initialized, Make sure to call 'initializeTracing()' first");
+        }
+
+        this.tracer = tracer;
     }
 
     public get ocr(): OCRWrapper {
@@ -25,9 +32,8 @@ class OCRWrapper {
     ) {}
 
     public async process(request: OCRRequest, options?: RequestOptions): Promise<OCRResponse> {
-        const externalCustomerId = getCustomerIdStorage();
-        const externalAgentId = getAgentIdStorage();
-        const token = getTokenStorage();
+        const token = getToken();
+        const { externalProductId, externalCustomerId } = getTracingContext();
 
         if (!token || !externalCustomerId) {
             throw new Error(
@@ -43,8 +49,8 @@ class OCRWrapper {
                 token: token,
             };
 
-            if (externalAgentId) {
-                attributes["external_agent_id"] = externalAgentId;
+            if (externalProductId) {
+                attributes["external_agent_id"] = externalProductId;
             }
 
             // Check if annotations are requested

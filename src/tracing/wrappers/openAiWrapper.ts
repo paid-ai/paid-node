@@ -1,10 +1,11 @@
 import OpenAI from "openai";
 import { SpanStatusCode, Tracer } from "@opentelemetry/api";
-import { getCustomerIdStorage, getAgentIdStorage, getTokenStorage, paidTracer } from "../tracing.js";
 import { ChatCompletion, ChatCompletionCreateParams } from "openai/resources/chat/completions";
 import { EmbeddingCreateParams } from "openai/resources/embeddings";
 import { ImagesResponse, ImageGenerateParams } from "openai/resources/images";
 import { CreateEmbeddingResponse } from "openai/resources/embeddings";
+import { getPaidTracer, getToken } from "tracing/tracing.js";
+import { getTracingContext } from "tracing/tracingContext.js";
 
 export class PaidOpenAI {
     private readonly openai: OpenAI;
@@ -12,7 +13,13 @@ export class PaidOpenAI {
 
     constructor(openaiClient: any) {
         this.openai = openaiClient;
-        this.tracer = paidTracer;
+        const tracer = getPaidTracer();
+
+        if (!tracer) {
+            throw new Error("Paid tracer is not initialized, Make sure to call 'initializeTracing()' first");
+        }
+
+        this.tracer = tracer;
     }
 
     public get chat(): ChatWrapper {
@@ -50,9 +57,8 @@ class ChatCompletionsWrapper {
     ) {}
 
     public async create(params: ChatCompletionCreateParams): Promise<ChatCompletion> {
-        const externalCustomerId = getCustomerIdStorage();
-        const externalAgentId = getAgentIdStorage();
-        const token = getTokenStorage();
+        const token = getToken();
+        const { externalProductId, externalCustomerId } = getTracingContext();
 
         if (!token || !externalCustomerId) {
             throw new Error(
@@ -67,8 +73,8 @@ class ChatCompletionsWrapper {
             };
             attributes["external_customer_id"] = externalCustomerId;
             attributes["token"] = token;
-            if (externalAgentId) {
-                attributes["external_agent_id"] = externalAgentId;
+            if (externalProductId) {
+                attributes["external_agent_id"] = externalProductId;
             }
             span.setAttributes(attributes);
 
@@ -105,9 +111,8 @@ class ResponsesWrapper {
     ) {}
 
     public async create(params: ResponseCreateParams): Promise<Response> {
-        const externalCustomerId = getCustomerIdStorage();
-        const externalAgentId = getAgentIdStorage();
-        const token = getTokenStorage();
+        const { externalCustomerId, externalProductId } = getTracingContext();
+        const token = getToken();
 
         if (!token || !externalCustomerId) {
             throw new Error(
@@ -122,8 +127,8 @@ class ResponsesWrapper {
             };
             attributes["external_customer_id"] = externalCustomerId;
             attributes["token"] = token;
-            if (externalAgentId) {
-                attributes["external_agent_id"] = externalAgentId;
+            if (externalProductId) {
+                attributes["external_agent_id"] = externalProductId;
             }
             span.setAttributes(attributes);
 
@@ -170,9 +175,8 @@ class EmbeddingsWrapper {
     ) {}
 
     public async create(params: EmbeddingCreateParams): Promise<CreateEmbeddingResponse> {
-        const externalCustomerId = getCustomerIdStorage();
-        const externalAgentId = getAgentIdStorage();
-        const token = getTokenStorage();
+        const { externalCustomerId, externalProductId } = getTracingContext();
+        const token = getToken();
 
         if (!token || !externalCustomerId) {
             throw new Error(
@@ -187,8 +191,8 @@ class EmbeddingsWrapper {
             };
             attributes["external_customer_id"] = externalCustomerId;
             attributes["token"] = token;
-            if (externalAgentId) {
-                attributes["external_agent_id"] = externalAgentId;
+            if (externalProductId) {
+                attributes["external_agent_id"] = externalProductId;
             }
             span.setAttributes(attributes);
 
@@ -222,9 +226,8 @@ class ImagesWrapper {
     ) {}
 
     public async generate(params: ImageGenerateParams): Promise<ImagesResponse> {
-        const externalCustomerId = getCustomerIdStorage();
-        const externalAgentId = getAgentIdStorage();
-        const token = getTokenStorage();
+        const { externalCustomerId, externalProductId } = getTracingContext();
+        const token = getToken();
         const model = params.model || "";
 
         if (!token || !externalCustomerId) {
@@ -241,13 +244,13 @@ class ImagesWrapper {
             };
             attributes["external_customer_id"] = externalCustomerId;
             attributes["token"] = token;
-            if (externalAgentId) {
-                attributes["external_agent_id"] = externalAgentId;
+            if (externalProductId) {
+                attributes["external_agent_id"] = externalProductId;
             }
             span.setAttributes(attributes);
 
             try {
-                const response = await this.openai.images.generate(params) as ImagesResponse;
+                const response = (await this.openai.images.generate(params)) as ImagesResponse;
 
                 span.setAttributes({
                     "gen_ai.image.count": params.n ?? 1,
