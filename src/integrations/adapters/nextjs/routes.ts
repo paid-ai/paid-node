@@ -7,6 +7,7 @@ import { createCustomersHandler, createGetCustomerHandler } from "../../controll
 import { createOrdersHandler } from "../../controllers/orders.js";
 import { createProvisioningHandler } from "../../controllers/provision-users.js";
 import { createActivateOrderSyncHandler, createPayInvoiceHandler, createSetupIntentHandler } from "../../controllers/billing.js";
+import { createGetPlanGroupByIdHandler } from "../../controllers/plans.js";
 
 export interface ActivateOrderSyncRouteConfig extends BaseHandlerConfig {
   /**
@@ -280,6 +281,26 @@ export interface SetupIntentRouteConfig extends BaseHandlerConfig {
  */
 export function createSetupIntentRoute(config: SetupIntentRouteConfig = {}) {
   const handler = createSetupIntentHandler(config.defaultReturnUrl);
+  const adaptedHandler = nextjsAdapter(handler);
+  return (request: any, context?: any) => adaptedHandler(request, context, config);
+}
+
+/**
+ * Create a Next.js API route handler for getting a plan group by ID
+ *
+ * @param config - Handler configuration options
+ * @returns Next.js route handler function
+ *
+ * @example
+ * ```typescript
+ * // src/app/api/plans/[planGroupId]/route.ts
+ * import { createGetPlanGroupByIdRoute } from '@paid-ai/paid-node/integrations/nextjs';
+ *
+ * export const GET = createGetPlanGroupByIdRoute();
+ * ```
+ */
+export function createGetPlanGroupByIdRoute(config: BaseHandlerConfig = {}) {
+  const handler = createGetPlanGroupByIdHandler();
   const adaptedHandler = nextjsAdapter(handler);
   return (request: any, context?: any) => adaptedHandler(request, context, config);
 }
