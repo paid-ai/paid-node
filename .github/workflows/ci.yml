@@ -27,31 +27,37 @@ jobs:
         uses: actions/setup-node@v3
 
       - name: Compile
-        run: yarn && yarn test    
+        run: yarn && yarn test
 
   publish:
-    needs: [ compile, test ]
+    needs: [compile, test]
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+
       - name: Set up node
-        uses: actions/setup-node@v3
-      - name: Install dependencies
-        run: yarn install
-      - name: Build
-        run: yarn build
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          registry-url: "https://registry.npmjs.org"
+      - name: Install & Build
+        run: |
+          yarn install
+          yarn build
 
       - name: Publish to npm
         run: |
-          npm config set //registry.npmjs.org/:_authToken ${NPM_TOKEN}
-          if [[ ${GITHUB_REF} == *alpha* ]]; then
-            npm publish --access public --tag alpha
+          if [[ ${GITHUB_REF} == *alpha* ]]; then          
+          npm publish --access public --tag alpha
           elif [[ ${GITHUB_REF} == *beta* ]]; then
-            npm publish --access public --tag beta
+          npm publish --access public --tag beta
           else
-            npm publish --access public
+          npm publish --access public
           fi
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
