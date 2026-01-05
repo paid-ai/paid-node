@@ -31,8 +31,7 @@ jobs:
 
   publish:
     needs: [compile, test]
-    # TODO: RETURN THIS BACK
-    # if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+    if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
 
     permissions:
@@ -49,7 +48,7 @@ jobs:
           node-version: "20"
           registry-url: "https://registry.npmjs.org"
 
-      - run: npm install -g npm@latest # try this to use new trusted publishing
+      - run: npm install -g npm@latest
       - run: npm install -g yarn@latest
 
       - name: Install & Build
