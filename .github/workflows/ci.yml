@@ -61,5 +61,5 @@ jobs:
           elif [[ ${GITHUB_REF} == *beta* ]]; then
             npm publish --tag beta
           else
-            npm publish
+            npm publish --dry-run
           fi
