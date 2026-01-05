@@ -47,6 +47,10 @@ jobs:
         with:
           node-version: "20"
           registry-url: "https://registry.npmjs.org"
+
+      - run: npm install -g npm@latest
+      - run: npm install -g yarn@latest
+
       - name: Install & Build
         run: |
           yarn install
@@ -55,9 +59,9 @@ jobs:
       - name: Publish to npm
         run: |
           if [[ ${GITHUB_REF} == *alpha* ]]; then          
-          npm publish --access public --tag alpha
+            npm publish --tag alpha
           elif [[ ${GITHUB_REF} == *beta* ]]; then
-          npm publish --access public --tag beta
+            npm publish --tag beta
           else
-          npm publish --access public
+            npm publish
           fi
