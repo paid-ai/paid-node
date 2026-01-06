@@ -45,19 +45,21 @@ export interface OrderConfig {
   customerId: string;
   customerExternalId: string;
   billingContactId?: string;
-  agentExternalId: string;
+  agentExternalId?: string;
   name?: string;
   description?: string;
   startDate?: string;
   endDate?: string;
   currency?: string;
   orderLines?: OrderLineConfig[];
+  planId?: string;
 }
 
 export interface OrderLineConfig {
   agentExternalId: string;
   name?: string;
   description?: string;
+  planProductId?: string;
 }
 
 /**
@@ -68,13 +70,14 @@ export interface CompleteOrderConfig {
   customerId: string;
   customerExternalId: string;
   billingContactId?: string;
-  agentExternalId: string;
+  agentExternalId?: string;
   name: string;
   description: string;
   startDate: string;
   endDate: string;
   currency: string;
   orderLines: OrderLineConfig[];
+  planId?: string;
 }
 
 export interface OrderOptions {
