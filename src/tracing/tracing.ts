@@ -1,6 +1,7 @@
 import { SpanStatusCode, Tracer } from "@opentelemetry/api";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { NodeSDK } from "@opentelemetry/sdk-node";
+import { resourceFromAttributes } from "@opentelemetry/resources";
 import { NodeTracerProvider, SimpleSpanProcessor, SpanProcessor } from "@opentelemetry/sdk-trace-node";
 import winston from "winston";
 import { runWithTracingContext } from "./tracingContext.js";
@@ -79,6 +80,7 @@ export function initializeTracing(apiKey?: string, collectorEndpoint?: string) {
     const exporter = new OTLPTraceExporter({ url });
     const spanProcessor = new SimpleSpanProcessor(exporter);
     paidTracerProvider = new NodeTracerProvider({
+        resource: resourceFromAttributes({ "api.key": paidApiToken }),
         spanProcessors: [spanProcessor, new PaidSpanProcessor()],
     });
     paidTracerProvider.register();
