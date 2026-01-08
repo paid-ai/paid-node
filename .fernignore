@@ -2,8 +2,6 @@ README.md
 LICENSE
 
 assets/
-src/wrapper/
-src/Client.ts
 src/tracing/
 src/anthropic-wrapper/
 src/langchain-wrapper/
