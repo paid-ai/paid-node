@@ -7,7 +7,7 @@ import { TracerProvider } from "@opentelemetry/api";
 import type * as openai from "openai";
 import type * as anthropic from "@anthropic-ai/sdk";
 import type * as bedrock from "@aws-sdk/client-bedrock-runtime";
-import { getPaidTracerProvider, initializeTracing, logger } from "./tracing";
+import { getPaidTracerProvider, initializeTracing, logger } from "./tracing.js";
 
 let IS_INITIALIZED = false;
 
