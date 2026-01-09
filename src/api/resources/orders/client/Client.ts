@@ -368,6 +368,358 @@ export class Orders {
         }
     }
 
+    /**
+     * Activates the order and processes the initial payment using the provided Stripe confirmation token.
+     *
+     * @param {string} orderId - The order ID (can be internal ID or display ID)
+     * @param {Paid.OrdersActivateAndPayRequest} request
+     * @param {Orders.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     *
+     * @example
+     *     await client.orders.activateAndPay("orderId", {
+     *         confirmationToken: "ctoken_1234567890",
+     *         returnUrl: "https://example.com/payment-complete"
+     *     })
+     */
+    public activateAndPay(
+        orderId: string,
+        request: Paid.OrdersActivateAndPayRequest,
+        requestOptions?: Orders.RequestOptions,
+    ): core.HttpResponsePromise<Paid.Order> {
+        return core.HttpResponsePromise.fromPromise(this.__activateAndPay(orderId, request, requestOptions));
+    }
+
+    private async __activateAndPay(
+        orderId: string,
+        request: Paid.OrdersActivateAndPayRequest,
+        requestOptions?: Orders.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.Order>> {
+        const _response = await core.fetcher({
+            url: urlJoin(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Production,
+                `orders/${encodeURIComponent(orderId)}/activate-and-pay`,
+            ),
+            method: "POST",
+            headers: mergeHeaders(
+                this._options?.headers,
+                mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+                requestOptions?.headers,
+            ),
+            contentType: "application/json",
+            requestType: "json",
+            body: request,
+            timeoutMs: requestOptions?.timeoutInSeconds != null ? requestOptions.timeoutInSeconds * 1000 : 60000,
+            maxRetries: requestOptions?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.Order, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as Paid.Error_, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as Paid.Error_, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as Paid.Error_, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError(
+                    "Timeout exceeded when calling POST /orders/{orderId}/activate-and-pay.",
+                );
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Schedules the cancellation of an order's renewal from a specified date. The order will remain active until the cancellation date.
+     *
+     * @param {string} orderId - The order ID (can be internal ID or display ID)
+     * @param {Paid.CancelRenewalRequest} request
+     * @param {Orders.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     *
+     * @example
+     *     await client.orders.cancelRenewal("orderId", {
+     *         orderVersion: 1,
+     *         cancelFromDate: "2025-12-31T00:00:00Z"
+     *     })
+     */
+    public cancelRenewal(
+        orderId: string,
+        request: Paid.CancelRenewalRequest,
+        requestOptions?: Orders.RequestOptions,
+    ): core.HttpResponsePromise<Paid.CancelRenewalResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__cancelRenewal(orderId, request, requestOptions));
+    }
+
+    private async __cancelRenewal(
+        orderId: string,
+        request: Paid.CancelRenewalRequest,
+        requestOptions?: Orders.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.CancelRenewalResponse>> {
+        const _response = await core.fetcher({
+            url: urlJoin(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Production,
+                `orders/${encodeURIComponent(orderId)}/cancel`,
+            ),
+            method: "POST",
+            headers: mergeHeaders(
+                this._options?.headers,
+                mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+                requestOptions?.headers,
+            ),
+            contentType: "application/json",
+            requestType: "json",
+            body: request,
+            timeoutMs: requestOptions?.timeoutInSeconds != null ? requestOptions.timeoutInSeconds * 1000 : 60000,
+            maxRetries: requestOptions?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.CancelRenewalResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as Paid.Error_, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as Paid.Error_, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as Paid.Error_, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /orders/{orderId}/cancel.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Schedules a plan upgrade or downgrade for an order with automatic proration calculation. Credits are applied for the unused portion of the current billing period.
+     *
+     * @param {string} orderId - The order ID (can be internal ID or display ID)
+     * @param {Paid.ProrationUpgradeRequest} request
+     * @param {Orders.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     *
+     * @example
+     *     await client.orders.schedulePlanChange("orderId", {
+     *         orderVersion: 1,
+     *         effectiveDate: "2025-02-01T00:00:00Z",
+     *         updatedOrderLineAttributes: [{
+     *                 orderLineAttributeId: "a1b2c3d4-5678-90ab-cdef-1234567890ab",
+     *                 newPricing: {
+     *                     "unitPrice": 200,
+     *                     "currency": "USD"
+     *                 },
+     *                 newQuantity: 10
+     *             }]
+     *     })
+     */
+    public schedulePlanChange(
+        orderId: string,
+        request: Paid.ProrationUpgradeRequest,
+        requestOptions?: Orders.RequestOptions,
+    ): core.HttpResponsePromise<Paid.ProrationUpgradeResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__schedulePlanChange(orderId, request, requestOptions));
+    }
+
+    private async __schedulePlanChange(
+        orderId: string,
+        request: Paid.ProrationUpgradeRequest,
+        requestOptions?: Orders.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.ProrationUpgradeResponse>> {
+        const _response = await core.fetcher({
+            url: urlJoin(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Production,
+                `orders/${encodeURIComponent(orderId)}/schedule-plan-change`,
+            ),
+            method: "POST",
+            headers: mergeHeaders(
+                this._options?.headers,
+                mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+                requestOptions?.headers,
+            ),
+            contentType: "application/json",
+            requestType: "json",
+            body: request,
+            timeoutMs: requestOptions?.timeoutInSeconds != null ? requestOptions.timeoutInSeconds * 1000 : 60000,
+            maxRetries: requestOptions?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.ProrationUpgradeResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as Paid.Error_, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as Paid.Error_, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as Paid.Error_, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError(
+                    "Timeout exceeded when calling POST /orders/{orderId}/schedule-plan-change.",
+                );
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Retrieves all invoices associated with a specific order.
+     *
+     * @param {string} orderId - The order ID (can be internal ID or display ID)
+     * @param {Orders.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     *
+     * @example
+     *     await client.orders.getInvoices("orderId")
+     */
+    public getInvoices(
+        orderId: string,
+        requestOptions?: Orders.RequestOptions,
+    ): core.HttpResponsePromise<Paid.Invoice[]> {
+        return core.HttpResponsePromise.fromPromise(this.__getInvoices(orderId, requestOptions));
+    }
+
+    private async __getInvoices(
+        orderId: string,
+        requestOptions?: Orders.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.Invoice[]>> {
+        const _response = await core.fetcher({
+            url: urlJoin(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Production,
+                `orders/${encodeURIComponent(orderId)}/invoices`,
+            ),
+            method: "GET",
+            headers: mergeHeaders(
+                this._options?.headers,
+                mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+                requestOptions?.headers,
+            ),
+            timeoutMs: requestOptions?.timeoutInSeconds != null ? requestOptions.timeoutInSeconds * 1000 : 60000,
+            maxRetries: requestOptions?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.Invoice[], rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as Paid.Error_, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as Paid.Error_, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /orders/{orderId}/invoices.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
     protected async _getAuthorizationHeader(): Promise<string | undefined> {
         const bearer = await core.Supplier.get(this._options.token);
         if (bearer != null) {

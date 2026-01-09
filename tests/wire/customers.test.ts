@@ -69,7 +69,25 @@ describe("Customers", () => {
     test("create", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = { name: "Acme, Inc.", externalId: "acme-inc" };
+        const rawRequestBody = {
+            name: "Acme, Inc.",
+            externalId: "acme-inc",
+            contacts: [
+                {
+                    salutation: "Mr.",
+                    firstName: "John",
+                    lastName: "Doe",
+                    accountName: "Acme, Inc.",
+                    email: "john.doe@acme.com",
+                    phone: "+1-555-0100",
+                    billingStreet: "123 Main Street",
+                    billingCity: "San Francisco",
+                    billingStateProvince: "CA",
+                    billingCountry: "USA",
+                    billingPostalCode: "94102",
+                },
+            ],
+        };
         const rawResponseBody = {
             id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
             organizationId: "organizationId",
@@ -104,6 +122,21 @@ describe("Customers", () => {
         const response = await client.customers.create({
             name: "Acme, Inc.",
             externalId: "acme-inc",
+            contacts: [
+                {
+                    salutation: "Mr.",
+                    firstName: "John",
+                    lastName: "Doe",
+                    accountName: "Acme, Inc.",
+                    email: "john.doe@acme.com",
+                    phone: "+1-555-0100",
+                    billingStreet: "123 Main Street",
+                    billingCity: "San Francisco",
+                    billingStateProvince: "CA",
+                    billingCountry: "USA",
+                    billingPostalCode: "94102",
+                },
+            ],
         });
         expect(response).toEqual({
             id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
@@ -272,6 +305,28 @@ describe("Customers", () => {
 
         const response = await client.customers.delete("customerId");
         expect(response).toEqual(undefined);
+    });
+
+    test("checkEntitlement", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { entitled: true };
+        server
+            .mockEndpoint()
+            .get("/customers/customerId/entitlement")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.customers.checkEntitlement("customerId", {
+            event_name: "event_name",
+            view: "all",
+        });
+        expect(response).toEqual({
+            entitled: true,
+        });
     });
 
     test("getEntitlements", async () => {
@@ -695,5 +750,115 @@ describe("Customers", () => {
                 hasMore: false,
             },
         });
+    });
+
+    test("listPaymentMethods", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = [
+            {
+                id: "pm_1234567890",
+                type: "card",
+                card: { brand: "visa", last4: "4242", expMonth: 12, expYear: 2025 },
+                usBankAccount: { bankName: "bankName", last4: "last4", accountType: "checking" },
+                isDefault: true,
+                createdAt: "2024-01-15T10:30:00Z",
+            },
+        ];
+        server
+            .mockEndpoint()
+            .get("/customers/external/externalId/payment-methods")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.customers.listPaymentMethods("externalId");
+        expect(response).toEqual([
+            {
+                id: "pm_1234567890",
+                type: "card",
+                card: {
+                    brand: "visa",
+                    last4: "4242",
+                    expMonth: 12,
+                    expYear: 2025,
+                },
+                usBankAccount: {
+                    bankName: "bankName",
+                    last4: "last4",
+                    accountType: "checking",
+                },
+                isDefault: true,
+                createdAt: "2024-01-15T10:30:00Z",
+            },
+        ]);
+    });
+
+    test("createPaymentMethod", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {
+            confirmationToken: "ctoken_1234567890",
+            returnUrl: "https://example.com/payment-method-added",
+            metadata: { source: "api" },
+        };
+        const rawResponseBody = {
+            id: "id",
+            type: "card",
+            card: { brand: "brand", last4: "last4", expMonth: 1, expYear: 1 },
+            usBankAccount: { bankName: "bankName", last4: "last4", accountType: "checking" },
+            isDefault: true,
+            createdAt: "2024-01-15T09:30:00Z",
+        };
+        server
+            .mockEndpoint()
+            .post("/customers/external/externalId/payment-methods")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.customers.createPaymentMethod("externalId", {
+            confirmationToken: "ctoken_1234567890",
+            returnUrl: "https://example.com/payment-method-added",
+            metadata: {
+                source: "api",
+            },
+        });
+        expect(response).toEqual({
+            id: "id",
+            type: "card",
+            card: {
+                brand: "brand",
+                last4: "last4",
+                expMonth: 1,
+                expYear: 1,
+            },
+            usBankAccount: {
+                bankName: "bankName",
+                last4: "last4",
+                accountType: "checking",
+            },
+            isDefault: true,
+            createdAt: "2024-01-15T09:30:00Z",
+        });
+    });
+
+    test("deletePaymentMethod", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        server
+            .mockEndpoint()
+            .delete("/customers/external/externalId/payment-methods/paymentMethodId")
+            .respondWith()
+            .statusCode(200)
+            .build();
+
+        const response = await client.customers.deletePaymentMethod("externalId", "paymentMethodId");
+        expect(response).toEqual(undefined);
     });
 });
