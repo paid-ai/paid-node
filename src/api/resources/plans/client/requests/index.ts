@@ -1,1 +1,1 @@
-export { type PlansGetUsageRequest } from "./PlansGetUsageRequest.js";
+export type { PlansGetUsageRequest } from "./PlansGetUsageRequest.js";

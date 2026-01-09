@@ -1,8 +1,11 @@
 {
     "name": "@paid-ai/paid-node",
-    "version": "1.0.0",
+    "version": "0.5.2",
     "private": false,
-    "repository": "https://github.com/paid-ai/paid-node",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/paid-ai/paid-node.git"
+    },
     "type": "commonjs",
     "main": "./dist/cjs/index.js",
     "module": "./dist/esm/index.mjs",
@@ -144,25 +147,25 @@
     },
     "files": [
         "dist",
-        "reference.md"
+        "reference.md",
+        "README.md",
+        "LICENSE"
     ],
     "scripts": {
-        "format": "prettier . --write --ignore-unknown",
-        "build": "yarn build:cjs && yarn build:esm",
+        "format": "biome format --write --skip-parse-errors --no-errors-on-unmatched --max-diagnostics=none",
+        "format:check": "biome format --skip-parse-errors --no-errors-on-unmatched --max-diagnostics=none",
+        "lint": "biome lint --skip-parse-errors --no-errors-on-unmatched --max-diagnostics=none",
+        "lint:fix": "biome lint --fix --unsafe --skip-parse-errors --no-errors-on-unmatched --max-diagnostics=none",
+        "check": "biome check --skip-parse-errors --no-errors-on-unmatched --max-diagnostics=none",
+        "check:fix": "biome check --fix --unsafe --skip-parse-errors --no-errors-on-unmatched --max-diagnostics=none",
+        "build": "pnpm build:cjs && pnpm build:esm",
         "build:cjs": "tsc --project ./tsconfig.cjs.json",
         "build:esm": "tsc --project ./tsconfig.esm.json && node scripts/rename-to-esm-files.js dist/esm",
-        "test": "jest tests/unit --passWithNoTests",
-        "test:wire": "jest tests/wire --passWithNoTests",
-        "wire:test": "yarn test:wire"
+        "test": "vitest",
+        "test:unit": "vitest --project unit",
+        "test:wire": "vitest --project wire"
     },
     "dependencies": {
-        "url-join": "4.0.1",
-        "form-data": "^4.0.0",
-        "formdata-node": "^6.0.3",
-        "node-fetch": "^2.7.0",
-        "qs": "^6.13.1",
-        "readable-stream": "^4.5.2",
-        "js-base64": "3.7.7",
         "@opentelemetry/api": ">=1.9.0",
         "@opentelemetry/exporter-trace-otlp-http": ">=0.208.0",
         "@opentelemetry/exporter-trace-otlp-proto": ">=0.208.0",
@@ -212,21 +215,13 @@
         }
     },
     "devDependencies": {
-        "@types/url-join": "4.0.1",
-        "@types/qs": "^6.9.17",
-        "@types/node-fetch": "^2.6.12",
-        "@types/readable-stream": "^4.0.18",
         "webpack": "^5.97.1",
         "ts-loader": "^9.5.1",
-        "jest": "^29.7.0",
-        "@jest/globals": "^29.7.0",
-        "@types/jest": "^29.5.14",
-        "ts-jest": "^29.3.4",
-        "jest-environment-jsdom": "^29.7.0",
-        "msw": "^2.8.4",
+        "vitest": "^3.2.4",
+        "msw": "2.11.2",
         "@types/node": "^18.19.70",
-        "prettier": "^3.4.2",
         "typescript": "~5.7.2",
+        "@biomejs/biome": "2.3.1",
         "@ai-sdk/openai": ">=1.0.0",
         "@anthropic-ai/sdk": ">=0.36.3",
         "@langchain/core": ">=0.3.0",
@@ -240,7 +235,12 @@
     "browser": {
         "fs": false,
         "os": false,
-        "path": false
+        "path": false,
+        "stream": false
     },
-    "packageManager": "yarn@1.22.22"
+    "packageManager": "pnpm@10.20.0",
+    "engines": {
+        "node": ">=18.0.0"
+    },
+    "sideEffects": false
 }
