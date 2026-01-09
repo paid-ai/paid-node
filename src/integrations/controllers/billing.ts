@@ -81,9 +81,9 @@ interface PayInvoiceRequestWithBody {
  *
  * @returns Handler function
  */
-export function createPayInvoiceHandler() {
+export function createPayInvoiceHandler(): (request: any, response: any, config?: any) => Promise<any> {
   return createHandler<PayInvoiceRequestWithBody, any>(
-    async (_client, body, params, organizationId) => {
+    async (_client, body, params, organizationId): Promise<any> => {
       if (!organizationId) {
         return { success: false, error: 'Organization ID not found', status: 500 };
       }
@@ -210,9 +210,9 @@ interface ActivateOrderSyncRequestBody {
  * @param defaultReturnUrl - Optional default return URL
  * @returns Handler function
  */
-export function createActivateOrderSyncHandler(defaultReturnUrl?: string) {
+export function createActivateOrderSyncHandler(defaultReturnUrl?: string): (request: any, response: any, config?: any) => Promise<any> {
   return createHandler<ActivateOrderSyncRequestBody, any>(
-    async (client, body, params, organizationId) => {
+    async (client, body, params, organizationId): Promise<any> => {
       const apiKey = (client as any)._options?.token;
       const baseUrl = (client as any)._options?.baseUrl || 'https://api.agentpaid.io/api/v1';
       const apiUrl = baseUrl.replace('/api/v1', '');
@@ -364,9 +364,9 @@ export async function createSetupIntent(
  * }
  * ```
  */
-export function createSetupIntentHandler(defaultReturnUrl?: string) {
+export function createSetupIntentHandler(defaultReturnUrl?: string): (request: any, response: any, config?: any) => Promise<any> {
   return createHandler<SetupIntentRequest, SetupIntentResponse>(
-    async (client, body, _params, organizationId) => {
+    async (client, body, _params, organizationId): Promise<any> => {
       const apiKey = (client as any)._options?.token;
       const baseUrl = (client as any)._options?.baseUrl || 'https://api.agentpaid.io/api/v1';
       const apiUrl = baseUrl.replace('/api/v1', '');

@@ -1,5 +1,5 @@
-import { Context, SpanAttributes, SpanAttributeValue } from "@opentelemetry/api";
-import { SpanProcessor, Span } from "@opentelemetry/sdk-trace-base";
+import type { Context, SpanAttributes, SpanAttributeValue } from "@opentelemetry/api";
+import type { SpanProcessor, Span } from "@opentelemetry/sdk-trace-base";
 import { getTracingContext } from "./tracingContext.js";
 
 export class PaidSpanProcessor implements SpanProcessor {

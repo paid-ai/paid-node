@@ -1,13 +1,15 @@
-import { SpanStatusCode, Tracer } from "@opentelemetry/api";
+import { SpanStatusCode } from "@opentelemetry/api";
+import type { Tracer } from "@opentelemetry/api";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { NodeSDK } from "@opentelemetry/sdk-node";
 import { resourceFromAttributes } from "@opentelemetry/resources";
-import { NodeTracerProvider, SimpleSpanProcessor, SpanProcessor } from "@opentelemetry/sdk-trace-node";
+import { NodeTracerProvider, SimpleSpanProcessor } from "@opentelemetry/sdk-trace-node";
+import type { SpanProcessor } from "@opentelemetry/sdk-trace-node";
 import winston from "winston";
 import { runWithTracingContext } from "./tracingContext.js";
 import { PaidSpanProcessor } from "./spanProcessor.js";
 
-export const logger = winston.createLogger({
+export const logger: winston.Logger = winston.createLogger({
     level: "silent", // Default to 'silent' to avoid logging unless set via environment variable
     format: winston.format.simple(),
     transports: [new winston.transports.Console()],
@@ -21,17 +23,17 @@ const DEFAULT_COLLECTOR_ENDPOINT =
     process.env["PAID_OTEL_COLLECTOR_ENDPOINT"] || "https://collector.agentpaid.io:4318/v1/traces";
 
 let paidApiToken: string | undefined = undefined;
-export function getToken() {
+export function getToken(): string | undefined {
     return paidApiToken;
 }
 
 let paidTracerProvider: NodeTracerProvider | undefined = undefined;
-export function getPaidTracerProvider() {
+export function getPaidTracerProvider(): NodeTracerProvider | undefined {
     return paidTracerProvider;
 }
 
 let paidTracer: Tracer | undefined = undefined;
-export function getPaidTracer() {
+export function getPaidTracer(): Tracer | undefined {
     return paidTracer;
 }
 
@@ -51,7 +53,7 @@ const setupGracefulShutdown = (shuttable: NodeSDK | SpanProcessor) => {
     });
 };
 
-export function initializeTracing(apiKey?: string, collectorEndpoint?: string) {
+export function initializeTracing(apiKey?: string, collectorEndpoint?: string): void {
     const paidEnabled = (process.env.PAID_ENABLED || "true") !== "false";
     if (!paidEnabled) {
         logger.info("Paid tracing is disabled via PAID_ENABLED environment variable");

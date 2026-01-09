@@ -1,8 +1,9 @@
-import { Instrumentation, registerInstrumentations } from "@opentelemetry/instrumentation";
+import type { Instrumentation } from "@opentelemetry/instrumentation";
+import { registerInstrumentations } from "@opentelemetry/instrumentation";
 import { OpenAIInstrumentation } from "@arizeai/openinference-instrumentation-openai";
 import { BedrockInstrumentation } from "@traceloop/instrumentation-bedrock";
 import { AnthropicInstrumentation } from "@arizeai/openinference-instrumentation-anthropic";
-import { TracerProvider } from "@opentelemetry/api";
+import type { TracerProvider } from "@opentelemetry/api";
 
 import type * as openai from "openai";
 import type * as anthropic from "@anthropic-ai/sdk";
@@ -50,7 +51,7 @@ const getManualInstrumentations = (tracerProvider: TracerProvider, libraries: Su
     return instrumentations;
 };
 
-export function paidAutoInstrument(libraries?: SupportedLibraries) {
+export function paidAutoInstrument(libraries?: SupportedLibraries): void {
     if (IS_INITIALIZED) {
         logger.info("Auto instrumentation is already initialized");
         return;

@@ -16,7 +16,7 @@ const getDefaultTracingContext = (): TracingContext => ({
 
 const tracingContextStorage = new AsyncLocalStorage<TracingContext>();
 
-export const getTracingContext = () => tracingContextStorage.getStore() || getDefaultTracingContext();
+export const getTracingContext = (): TracingContext => tracingContextStorage.getStore() || getDefaultTracingContext();
 
 export async function runWithTracingContext<F extends (...args: any) => any>(
     ctx: TracingContext,

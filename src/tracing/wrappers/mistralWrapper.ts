@@ -1,7 +1,8 @@
 import { Mistral } from "@mistralai/mistralai";
-import { SpanStatusCode, Tracer } from "@opentelemetry/api";
-import { OCRRequest, OCRResponse } from "@mistralai/mistralai/models/components";
-import { RequestOptions } from "@mistralai/mistralai/lib/sdks";
+import { SpanStatusCode } from "@opentelemetry/api";
+import type { Tracer } from "@opentelemetry/api";
+import type { OCRRequest, OCRResponse } from "@mistralai/mistralai/models/components";
+import type { RequestOptions } from "@mistralai/mistralai/lib/sdks";
 import { getPaidTracer, getToken } from "tracing/tracing.js";
 import { getTracingContext } from "tracing/tracingContext.js";
 
