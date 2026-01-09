@@ -8,7 +8,4 @@ src/langchain-wrapper/
 src/mistral-wrapper/
 src/openai-wrapper/
 src/vercel-wrapper/
-
 src/integrations
-jest.config.mjs
-tests/unit/fetcher/stream-wrappers/webpack.test.ts
