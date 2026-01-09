@@ -1,1 +1,1 @@
-export { type AgentCreate } from "./AgentCreate.js";
+export type { AgentCreate } from "./AgentCreate.js";

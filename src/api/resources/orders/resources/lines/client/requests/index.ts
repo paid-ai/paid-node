@@ -1,1 +1,1 @@
-export { type LinesUpdateRequest } from "./LinesUpdateRequest.js";
+export type { LinesUpdateRequest } from "./LinesUpdateRequest.js";
