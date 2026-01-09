@@ -2,5 +2,3 @@ export * as Paid from "./api/index.js";
 export { PaidClient } from "./Client.js";
 export { PaidEnvironment } from "./environments.js";
 export { PaidError, PaidTimeoutError } from "./errors/index.js";
-export * as PaidIntegrations from "./integrations/index.js";
-export * from "./tracing/index.js";

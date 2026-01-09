@@ -58,6 +58,21 @@ await client.customers.list();
 await client.customers.create({
     name: "Acme, Inc.",
     externalId: "acme-inc",
+    contacts: [
+        {
+            salutation: "Mr.",
+            firstName: "John",
+            lastName: "Doe",
+            accountName: "Acme, Inc.",
+            email: "john.doe@acme.com",
+            phone: "+1-555-0100",
+            billingStreet: "123 Main Street",
+            billingCity: "San Francisco",
+            billingStateProvince: "CA",
+            billingCountry: "USA",
+            billingPostalCode: "94102",
+        },
+    ],
 });
 ```
 
@@ -232,6 +247,65 @@ await client.customers.delete("customerId");
 <dd>
 
 **customerId:** `string`
+
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Customers.RequestOptions`
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">checkEntitlement</a>(customerId, { ...params }) -> Paid.CustomersCheckEntitlementResponse</code></summary>
+<dl>
+<dd>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.customers.checkEntitlement("customerId", {
+    event_name: "event_name",
+    view: "all",
+});
+```
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**customerId:** `string` — The customer ID
+
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request:** `Paid.CustomersCheckEntitlementRequest`
 
 </dd>
 </dl>
@@ -554,6 +628,217 @@ await client.customers.getUsageByExternalId("externalId", {
 <dd>
 
 **request:** `Paid.CustomersGetUsageByExternalIdRequest`
+
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Customers.RequestOptions`
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">listPaymentMethods</a>(externalId) -> Paid.PaymentMethod[]</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Retrieves all payment methods associated with a customer identified by their external ID.
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.customers.listPaymentMethods("externalId");
+```
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**externalId:** `string` — The external ID of the customer
+
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Customers.RequestOptions`
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">createPaymentMethod</a>(externalId, { ...params }) -> Paid.PaymentMethod</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Creates a new payment method for a customer using a Stripe confirmation token.
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.customers.createPaymentMethod("externalId", {
+    confirmationToken: "ctoken_1234567890",
+    returnUrl: "https://example.com/payment-method-added",
+    metadata: {
+        source: "api",
+    },
+});
+```
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**externalId:** `string` — The external ID of the customer
+
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request:** `Paid.CustomersCreatePaymentMethodRequest`
+
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Customers.RequestOptions`
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">deletePaymentMethod</a>(externalId, paymentMethodId) -> void</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Deletes a specific payment method from a customer's account.
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.customers.deletePaymentMethod("externalId", "paymentMethodId");
+```
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**externalId:** `string` — The external ID of the customer
+
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**paymentMethodId:** `string` — The ID of the payment method to delete
 
 </dd>
 </dl>
@@ -2055,6 +2340,301 @@ await client.orders.activate("orderId");
 <dd>
 
 **orderId:** `string`
+
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Orders.RequestOptions`
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.orders.<a href="/src/api/resources/orders/client/Client.ts">activateAndPay</a>(orderId, { ...params }) -> Paid.Order</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Activates the order and processes the initial payment using the provided Stripe confirmation token.
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.orders.activateAndPay("orderId", {
+    confirmationToken: "ctoken_1234567890",
+    returnUrl: "https://example.com/payment-complete",
+});
+```
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**orderId:** `string` — The order ID (can be internal ID or display ID)
+
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request:** `Paid.OrdersActivateAndPayRequest`
+
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Orders.RequestOptions`
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.orders.<a href="/src/api/resources/orders/client/Client.ts">cancelRenewal</a>(orderId, { ...params }) -> Paid.CancelRenewalResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Schedules the cancellation of an order's renewal from a specified date. The order will remain active until the cancellation date.
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.orders.cancelRenewal("orderId", {
+    orderVersion: 1,
+    cancelFromDate: "2025-12-31T00:00:00Z",
+});
+```
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**orderId:** `string` — The order ID (can be internal ID or display ID)
+
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request:** `Paid.CancelRenewalRequest`
+
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Orders.RequestOptions`
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.orders.<a href="/src/api/resources/orders/client/Client.ts">schedulePlanChange</a>(orderId, { ...params }) -> Paid.ProrationUpgradeResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Schedules a plan upgrade or downgrade for an order with automatic proration calculation. Credits are applied for the unused portion of the current billing period.
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.orders.schedulePlanChange("orderId", {
+    orderVersion: 1,
+    effectiveDate: "2025-02-01T00:00:00Z",
+    updatedOrderLineAttributes: [
+        {
+            orderLineAttributeId: "a1b2c3d4-5678-90ab-cdef-1234567890ab",
+            newPricing: {
+                unitPrice: 200,
+                currency: "USD",
+            },
+            newQuantity: 10,
+        },
+    ],
+});
+```
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**orderId:** `string` — The order ID (can be internal ID or display ID)
+
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request:** `Paid.ProrationUpgradeRequest`
+
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Orders.RequestOptions`
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.orders.<a href="/src/api/resources/orders/client/Client.ts">getInvoices</a>(orderId) -> Paid.Invoice[]</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Retrieves all invoices associated with a specific order.
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.orders.getInvoices("orderId");
+```
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**orderId:** `string` — The order ID (can be internal ID or display ID)
 
 </dd>
 </dl>

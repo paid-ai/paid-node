@@ -1,6 +1,7 @@
+export * as customers from "./customers/index.js";
+export * from "./customers/types/index.js";
 export * as usage from "./usage/index.js";
 export * from "./usage/types/index.js";
-export * as customers from "./customers/index.js";
 export * as agents from "./agents/index.js";
 export * as products from "./products/index.js";
 export * as contacts from "./contacts/index.js";

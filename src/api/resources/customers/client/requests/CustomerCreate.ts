@@ -8,7 +8,20 @@ import * as Paid from "../../../../index.js";
  * @example
  *     {
  *         name: "Acme, Inc.",
- *         externalId: "acme-inc"
+ *         externalId: "acme-inc",
+ *         contacts: [{
+ *                 salutation: "Mr.",
+ *                 firstName: "John",
+ *                 lastName: "Doe",
+ *                 accountName: "Acme, Inc.",
+ *                 email: "john.doe@acme.com",
+ *                 phone: "+1-555-0100",
+ *                 billingStreet: "123 Main Street",
+ *                 billingCity: "San Francisco",
+ *                 billingStateProvince: "CA",
+ *                 billingCountry: "USA",
+ *                 billingPostalCode: "94102"
+ *             }]
  *     }
  */
 export interface CustomerCreate {
@@ -23,4 +36,6 @@ export interface CustomerCreate {
     billingAddress?: Paid.Address;
     /** Flexible JSON field for storing custom metadata about the customer */
     metadata?: Record<string, unknown>;
+    /** Array of contacts to create for this customer */
+    contacts?: Paid.ContactCreateForCustomer[];
 }
