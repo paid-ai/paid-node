@@ -104,7 +104,7 @@ vercel (Vercel AI SDK)
 Example usage with OpenAI:
 
 ```typescript
-import { initializeTracing, trace } from "@paid-ai/paid-node";
+import { initializeTracing, trace } from "@paid-ai/paid-node/tracing";
 import { PaidOpenAI } from "@paid-ai/paid-node/openai";
 import OpenAI from "openai";
 
@@ -141,7 +141,7 @@ For maximum convenience, you can use OpenTelemetry auto-instrumentation to autom
 
 ``` typescript
 // Import and call auto-instrumentation before importing instrumented libraries
-import { paidAutoInstrument } from "@paid-ai/paid-node";
+import { paidAutoInstrument } from "@paid-ai/paid-node/tracing";
 paidAutoInstrument()
 
 import openai from "openai";
@@ -165,12 +165,12 @@ bedrock
 If you're using Vercel's AI SDK, you can enable automatic telemetry without any wrappers by using the `experimental_telemetry` option. When enabled, it will automatically use Paid's registered tracer provider:
 
 ```typescript
-import { initializeTracing, trace } from "@paid-ai/paid-node";
+import { initializeTracing, trace } from "@paid-ai/paid-node/tracing";
 import { generateText } from "ai";
 
 async function main() {
     initializeTracing("<your_paid_api_key>");
-    
+
     await trace({
         externalCustomerId: "<your_external_customer_id>",
         externalProductId: "<your_external_product_id>"
@@ -187,11 +187,11 @@ async function main() {
 #### Manual instrumentation
 
 ``` typescript
-import { paidAutoInstrument } from "@paid-ai/paid-node";
+import { paidAutoInstrument } from "@paid-ai/paid-node/tracing";
 import openai from "openai";
 
 // If your module management is too complex and the previous approach didn't work
-// you can provide libraries directly 
+// you can provide libraries directly
 paidAutoInstrument({ openai })
 ```
 
@@ -208,7 +208,7 @@ In contrast to `Paid.usage.recordBulk()`, `signal()` is using OpenTelemetry to p
 Here's an example of how to use it:
 
 ```typescript
-import { initializeTracing, trace, signal } from "@paid-ai/paid-node";
+import { initializeTracing, trace, signal } from "@paid-ai/paid-node/tracing";
 
 async function main() {
     // Initialize tracing
@@ -234,7 +234,7 @@ as the wrappers that recorded those costs.
 This will look something like this:
 
 ```typescript
-import { initializeTracing, trace, signal } from "@paid-ai/paid-node";
+import { initializeTracing, trace, signal } from "@paid-ai/paid-node/tracing";
 import { PaidOpenAI } from "@paid-ai/paid-node/openai";
 import OpenAI from "openai";
 
@@ -303,7 +303,7 @@ await client.usage.flush(); // need to flush to send usage immediately
 Alternatively the same `costData` payload can be passed to OTLP signaling mechanism:
 
 ```typescript
-import { initializeTracing, trace, signal } from "@paid-ai/paid-node";
+import { initializeTracing, trace, signal } from "@paid-ai/paid-node/tracing";
 
 async function main() {
     initializeTracing("<your_paid_api_key>");
@@ -360,7 +360,7 @@ await client.usage.flush();
 Same but via OTEL signaling:
 
 ```typescript
-import { initializeTracing, trace, signal } from "@paid-ai/paid-node";
+import { initializeTracing, trace, signal } from "@paid-ai/paid-node/tracing";
 
 async function main() {
     initializeTracing("<your_paid_api_key>");
@@ -484,7 +484,7 @@ const client = new PaidClient({
 If you would like to use the Paid OTEL tracer provider, you can access it via the `getPaidTracerProvider` function.
 
 ```typescript
-import { initializeTracing, getPaidTracerProvider } from "@paid-ai/paid-node";
+import { initializeTracing, getPaidTracerProvider } from "@paid-ai/paid-node/tracing";
 initializeTracing("<your_paid_api_key>");
 const tracerProvider = getPaidTracerProvider();
 ```
