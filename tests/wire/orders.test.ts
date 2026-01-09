@@ -582,4 +582,360 @@ describe("Orders", () => {
             },
         });
     });
+
+    test("activateAndPay", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {
+            confirmationToken: "ctoken_1234567890",
+            returnUrl: "https://example.com/payment-complete",
+        };
+        const rawResponseBody = {
+            id: "id",
+            name: "name",
+            description: "description",
+            customerId: "customerId",
+            organizationId: "organizationId",
+            startDate: "startDate",
+            endDate: "endDate",
+            totalAmount: 1.1,
+            estimatedTax: 1.1,
+            billedAmountNoTax: 1.1,
+            billedTax: 1.1,
+            totalBilledAmount: 1.1,
+            pendingBillingAmount: 1.1,
+            creationState: "active",
+            orderLines: [
+                {
+                    id: "id",
+                    orderId: "orderId",
+                    agentId: "agentId",
+                    name: "name",
+                    description: "description",
+                    startDate: "startDate",
+                    endDate: "endDate",
+                    totalAmount: 1.1,
+                    billedAmountWithoutTax: 1.1,
+                    billedTax: 1.1,
+                    totalBilledAmount: 1.1,
+                    creationState: "active",
+                    agent: { id: "id", organizationId: "organizationId", name: "name", active: true },
+                    orderLineAttributes: [{}],
+                },
+            ],
+            customer: {
+                id: "id",
+                organizationId: "organizationId",
+                name: "name",
+                externalId: "externalId",
+                phone: "phone",
+                employeeCount: 1.1,
+                annualRevenue: 1.1,
+                taxExemptStatus: "none",
+                creationSource: "manual",
+                creationState: "active",
+                website: "website",
+                billingAddress: {
+                    line1: "line1",
+                    line2: "line2",
+                    city: "city",
+                    state: "state",
+                    zipCode: "zipCode",
+                    country: "country",
+                },
+                metadata: { key: "value" },
+            },
+        };
+        server
+            .mockEndpoint()
+            .post("/orders/orderId/activate-and-pay")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.orders.activateAndPay("orderId", {
+            confirmationToken: "ctoken_1234567890",
+            returnUrl: "https://example.com/payment-complete",
+        });
+        expect(response).toEqual({
+            id: "id",
+            name: "name",
+            description: "description",
+            customerId: "customerId",
+            organizationId: "organizationId",
+            startDate: "startDate",
+            endDate: "endDate",
+            totalAmount: 1.1,
+            estimatedTax: 1.1,
+            billedAmountNoTax: 1.1,
+            billedTax: 1.1,
+            totalBilledAmount: 1.1,
+            pendingBillingAmount: 1.1,
+            creationState: "active",
+            orderLines: [
+                {
+                    id: "id",
+                    orderId: "orderId",
+                    agentId: "agentId",
+                    name: "name",
+                    description: "description",
+                    startDate: "startDate",
+                    endDate: "endDate",
+                    totalAmount: 1.1,
+                    billedAmountWithoutTax: 1.1,
+                    billedTax: 1.1,
+                    totalBilledAmount: 1.1,
+                    creationState: "active",
+                    agent: {
+                        id: "id",
+                        organizationId: "organizationId",
+                        name: "name",
+                        active: true,
+                    },
+                    orderLineAttributes: [{}],
+                },
+            ],
+            customer: {
+                id: "id",
+                organizationId: "organizationId",
+                name: "name",
+                externalId: "externalId",
+                phone: "phone",
+                employeeCount: 1.1,
+                annualRevenue: 1.1,
+                taxExemptStatus: "none",
+                creationSource: "manual",
+                creationState: "active",
+                website: "website",
+                billingAddress: {
+                    line1: "line1",
+                    line2: "line2",
+                    city: "city",
+                    state: "state",
+                    zipCode: "zipCode",
+                    country: "country",
+                },
+                metadata: {
+                    key: "value",
+                },
+            },
+        });
+    });
+
+    test("cancelRenewal", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { orderVersion: 1, cancelFromDate: "2025-12-31T00:00:00Z" };
+        const rawResponseBody = {
+            orderId: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
+            amendmentId: "a1b2c3d4-5678-90ab-cdef-1234567890ab",
+            version: 2,
+            endDate: "2025-12-31T00:00:00Z",
+            effectiveDate: "2025-12-31T00:00:00Z",
+        };
+        server
+            .mockEndpoint()
+            .post("/orders/orderId/cancel")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.orders.cancelRenewal("orderId", {
+            orderVersion: 1,
+            cancelFromDate: "2025-12-31T00:00:00Z",
+        });
+        expect(response).toEqual({
+            orderId: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
+            amendmentId: "a1b2c3d4-5678-90ab-cdef-1234567890ab",
+            version: 2,
+            endDate: "2025-12-31T00:00:00Z",
+            effectiveDate: "2025-12-31T00:00:00Z",
+        });
+    });
+
+    test("schedulePlanChange", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {
+            orderVersion: 1,
+            effectiveDate: "2025-02-01T00:00:00Z",
+            updatedOrderLineAttributes: [
+                {
+                    orderLineAttributeId: "a1b2c3d4-5678-90ab-cdef-1234567890ab",
+                    newPricing: { unitPrice: 200, currency: "USD" },
+                    newQuantity: 10,
+                },
+            ],
+        };
+        const rawResponseBody = {
+            orderId: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
+            amendmentId: "a1b2c3d4-5678-90ab-cdef-1234567890ab",
+            version: 2,
+            effectiveDate: "2025-02-01T00:00:00Z",
+            endedLineIds: ["old-line-id-1"],
+            createdLineIds: ["new-line-id-1"],
+            creditLineIds: ["credit-line-id-1"],
+            prorationDetails: [
+                {
+                    oldAttributeId: "old-attr-id",
+                    newAttributeId: "new-attr-id",
+                    creditLineId: "credit-line-id-1",
+                    oldPrice: 100,
+                    newPrice: 200,
+                    creditAmount: 50,
+                    remainingDays: 15,
+                    totalDaysInCycle: 30,
+                },
+            ],
+        };
+        server
+            .mockEndpoint()
+            .post("/orders/orderId/schedule-plan-change")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.orders.schedulePlanChange("orderId", {
+            orderVersion: 1,
+            effectiveDate: "2025-02-01T00:00:00Z",
+            updatedOrderLineAttributes: [
+                {
+                    orderLineAttributeId: "a1b2c3d4-5678-90ab-cdef-1234567890ab",
+                    newPricing: {
+                        unitPrice: 200,
+                        currency: "USD",
+                    },
+                    newQuantity: 10,
+                },
+            ],
+        });
+        expect(response).toEqual({
+            orderId: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
+            amendmentId: "a1b2c3d4-5678-90ab-cdef-1234567890ab",
+            version: 2,
+            effectiveDate: "2025-02-01T00:00:00Z",
+            endedLineIds: ["old-line-id-1"],
+            createdLineIds: ["new-line-id-1"],
+            creditLineIds: ["credit-line-id-1"],
+            prorationDetails: [
+                {
+                    oldAttributeId: "old-attr-id",
+                    newAttributeId: "new-attr-id",
+                    creditLineId: "credit-line-id-1",
+                    oldPrice: 100,
+                    newPrice: 200,
+                    creditAmount: 50,
+                    remainingDays: 15,
+                    totalDaysInCycle: 30,
+                },
+            ],
+        });
+    });
+
+    test("getInvoices", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = [
+            {
+                id: "id",
+                displayId: "displayId",
+                organizationId: "organizationId",
+                customerId: "customerId",
+                orderId: "orderId",
+                status: "draft",
+                currency: "currency",
+                subtotal: 1.1,
+                tax: 1.1,
+                total: 1.1,
+                amountPaid: 1.1,
+                amountDue: 1.1,
+                dueDate: "2024-01-15T09:30:00Z",
+                paidAt: "2024-01-15T09:30:00Z",
+                voidedAt: "2024-01-15T09:30:00Z",
+                createdAt: "2024-01-15T09:30:00Z",
+                updatedAt: "2024-01-15T09:30:00Z",
+                customer: {
+                    id: "id",
+                    organizationId: "organizationId",
+                    name: "name",
+                    externalId: "externalId",
+                    phone: "phone",
+                    employeeCount: 1.1,
+                    annualRevenue: 1.1,
+                    taxExemptStatus: "none",
+                    creationSource: "manual",
+                    creationState: "active",
+                    website: "website",
+                    billingAddress: {
+                        line1: "line1",
+                        city: "city",
+                        state: "state",
+                        zipCode: "zipCode",
+                        country: "country",
+                    },
+                    metadata: { key: "value" },
+                },
+            },
+        ];
+        server
+            .mockEndpoint()
+            .get("/orders/orderId/invoices")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.orders.getInvoices("orderId");
+        expect(response).toEqual([
+            {
+                id: "id",
+                displayId: "displayId",
+                organizationId: "organizationId",
+                customerId: "customerId",
+                orderId: "orderId",
+                status: "draft",
+                currency: "currency",
+                subtotal: 1.1,
+                tax: 1.1,
+                total: 1.1,
+                amountPaid: 1.1,
+                amountDue: 1.1,
+                dueDate: "2024-01-15T09:30:00Z",
+                paidAt: "2024-01-15T09:30:00Z",
+                voidedAt: "2024-01-15T09:30:00Z",
+                createdAt: "2024-01-15T09:30:00Z",
+                updatedAt: "2024-01-15T09:30:00Z",
+                customer: {
+                    id: "id",
+                    organizationId: "organizationId",
+                    name: "name",
+                    externalId: "externalId",
+                    phone: "phone",
+                    employeeCount: 1.1,
+                    annualRevenue: 1.1,
+                    taxExemptStatus: "none",
+                    creationSource: "manual",
+                    creationState: "active",
+                    website: "website",
+                    billingAddress: {
+                        line1: "line1",
+                        city: "city",
+                        state: "state",
+                        zipCode: "zipCode",
+                        country: "country",
+                    },
+                    metadata: {
+                        key: "value",
+                    },
+                },
+            },
+        ]);
+    });
 });

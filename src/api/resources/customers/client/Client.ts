@@ -102,7 +102,20 @@ export class Customers {
      * @example
      *     await client.customers.create({
      *         name: "Acme, Inc.",
-     *         externalId: "acme-inc"
+     *         externalId: "acme-inc",
+     *         contacts: [{
+     *                 salutation: "Mr.",
+     *                 firstName: "John",
+     *                 lastName: "Doe",
+     *                 accountName: "Acme, Inc.",
+     *                 email: "john.doe@acme.com",
+     *                 phone: "+1-555-0100",
+     *                 billingStreet: "123 Main Street",
+     *                 billingCity: "San Francisco",
+     *                 billingStateProvince: "CA",
+     *                 billingCountry: "USA",
+     *                 billingPostalCode: "94102"
+     *             }]
      *     })
      */
     public create(
@@ -354,6 +367,99 @@ export class Customers {
                 });
             case "timeout":
                 throw new errors.PaidTimeoutError("Timeout exceeded when calling DELETE /customers/{customerId}.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * @param {string} customerId - The customer ID
+     * @param {Paid.CustomersCheckEntitlementRequest} request
+     * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.NotFoundError}
+     *
+     * @example
+     *     await client.customers.checkEntitlement("customerId", {
+     *         event_name: "event_name",
+     *         view: "all"
+     *     })
+     */
+    public checkEntitlement(
+        customerId: string,
+        request: Paid.CustomersCheckEntitlementRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): core.HttpResponsePromise<Paid.CustomersCheckEntitlementResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__checkEntitlement(customerId, request, requestOptions));
+    }
+
+    private async __checkEntitlement(
+        customerId: string,
+        request: Paid.CustomersCheckEntitlementRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.CustomersCheckEntitlementResponse>> {
+        const { event_name: eventName, view } = request;
+        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
+        _queryParams["event_name"] = eventName;
+        if (view != null) {
+            _queryParams["view"] = view;
+        }
+
+        const _response = await core.fetcher({
+            url: urlJoin(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Production,
+                `customers/${encodeURIComponent(customerId)}/entitlement`,
+            ),
+            method: "GET",
+            headers: mergeHeaders(
+                this._options?.headers,
+                mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+                requestOptions?.headers,
+            ),
+            queryParameters: _queryParams,
+            timeoutMs: requestOptions?.timeoutInSeconds != null ? requestOptions.timeoutInSeconds * 1000 : 60000,
+            maxRetries: requestOptions?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return {
+                data: _response.body as Paid.CustomersCheckEntitlementResponse,
+                rawResponse: _response.rawResponse,
+            };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as Paid.Error_, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as Paid.Error_, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError(
+                    "Timeout exceeded when calling GET /customers/{customerId}/entitlement.",
+                );
             case "unknown":
                 throw new errors.PaidError({
                     message: _response.error.errorMessage,
@@ -842,6 +948,260 @@ export class Customers {
             case "timeout":
                 throw new errors.PaidTimeoutError(
                     "Timeout exceeded when calling GET /customers/external/{externalId}/usage.",
+                );
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Retrieves all payment methods associated with a customer identified by their external ID.
+     *
+     * @param {string} externalId - The external ID of the customer
+     * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     *
+     * @example
+     *     await client.customers.listPaymentMethods("externalId")
+     */
+    public listPaymentMethods(
+        externalId: string,
+        requestOptions?: Customers.RequestOptions,
+    ): core.HttpResponsePromise<Paid.PaymentMethod[]> {
+        return core.HttpResponsePromise.fromPromise(this.__listPaymentMethods(externalId, requestOptions));
+    }
+
+    private async __listPaymentMethods(
+        externalId: string,
+        requestOptions?: Customers.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.PaymentMethod[]>> {
+        const _response = await core.fetcher({
+            url: urlJoin(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Production,
+                `customers/external/${encodeURIComponent(externalId)}/payment-methods`,
+            ),
+            method: "GET",
+            headers: mergeHeaders(
+                this._options?.headers,
+                mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+                requestOptions?.headers,
+            ),
+            timeoutMs: requestOptions?.timeoutInSeconds != null ? requestOptions.timeoutInSeconds * 1000 : 60000,
+            maxRetries: requestOptions?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.PaymentMethod[], rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as Paid.Error_, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as Paid.Error_, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError(
+                    "Timeout exceeded when calling GET /customers/external/{externalId}/payment-methods.",
+                );
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Creates a new payment method for a customer using a Stripe confirmation token.
+     *
+     * @param {string} externalId - The external ID of the customer
+     * @param {Paid.CustomersCreatePaymentMethodRequest} request
+     * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     *
+     * @example
+     *     await client.customers.createPaymentMethod("externalId", {
+     *         confirmationToken: "ctoken_1234567890",
+     *         returnUrl: "https://example.com/payment-method-added",
+     *         metadata: {
+     *             "source": "api"
+     *         }
+     *     })
+     */
+    public createPaymentMethod(
+        externalId: string,
+        request: Paid.CustomersCreatePaymentMethodRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): core.HttpResponsePromise<Paid.PaymentMethod> {
+        return core.HttpResponsePromise.fromPromise(this.__createPaymentMethod(externalId, request, requestOptions));
+    }
+
+    private async __createPaymentMethod(
+        externalId: string,
+        request: Paid.CustomersCreatePaymentMethodRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.PaymentMethod>> {
+        const _response = await core.fetcher({
+            url: urlJoin(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Production,
+                `customers/external/${encodeURIComponent(externalId)}/payment-methods`,
+            ),
+            method: "POST",
+            headers: mergeHeaders(
+                this._options?.headers,
+                mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+                requestOptions?.headers,
+            ),
+            contentType: "application/json",
+            requestType: "json",
+            body: request,
+            timeoutMs: requestOptions?.timeoutInSeconds != null ? requestOptions.timeoutInSeconds * 1000 : 60000,
+            maxRetries: requestOptions?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.PaymentMethod, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as Paid.Error_, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as Paid.Error_, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as Paid.Error_, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError(
+                    "Timeout exceeded when calling POST /customers/external/{externalId}/payment-methods.",
+                );
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Deletes a specific payment method from a customer's account.
+     *
+     * @param {string} externalId - The external ID of the customer
+     * @param {string} paymentMethodId - The ID of the payment method to delete
+     * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     *
+     * @example
+     *     await client.customers.deletePaymentMethod("externalId", "paymentMethodId")
+     */
+    public deletePaymentMethod(
+        externalId: string,
+        paymentMethodId: string,
+        requestOptions?: Customers.RequestOptions,
+    ): core.HttpResponsePromise<void> {
+        return core.HttpResponsePromise.fromPromise(
+            this.__deletePaymentMethod(externalId, paymentMethodId, requestOptions),
+        );
+    }
+
+    private async __deletePaymentMethod(
+        externalId: string,
+        paymentMethodId: string,
+        requestOptions?: Customers.RequestOptions,
+    ): Promise<core.WithRawResponse<void>> {
+        const _response = await core.fetcher({
+            url: urlJoin(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Production,
+                `customers/external/${encodeURIComponent(externalId)}/payment-methods/${encodeURIComponent(paymentMethodId)}`,
+            ),
+            method: "DELETE",
+            headers: mergeHeaders(
+                this._options?.headers,
+                mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+                requestOptions?.headers,
+            ),
+            timeoutMs: requestOptions?.timeoutInSeconds != null ? requestOptions.timeoutInSeconds * 1000 : 60000,
+            maxRetries: requestOptions?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: undefined, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as Paid.Error_, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as Paid.Error_, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError(
+                    "Timeout exceeded when calling DELETE /customers/external/{externalId}/payment-methods/{paymentMethodId}.",
                 );
             case "unknown":
                 throw new errors.PaidError({
