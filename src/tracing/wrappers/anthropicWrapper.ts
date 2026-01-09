@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { SpanStatusCode, Tracer } from "@opentelemetry/api";
-import { MessageCreateParams } from "@anthropic-ai/sdk/resources/messages";
+import { SpanStatusCode } from "@opentelemetry/api";
+import type { Tracer } from "@opentelemetry/api";
+import type { MessageCreateParams } from "@anthropic-ai/sdk/resources/messages";
 import { getPaidTracer, getToken } from "tracing/tracing.js";
 import { getTracingContext } from "tracing/tracingContext.js";
 

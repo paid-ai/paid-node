@@ -1,5 +1,6 @@
 import { BaseCallbackHandler } from "@langchain/core/callbacks/base";
-import { SpanStatusCode, Tracer, Span } from "@opentelemetry/api";
+import { SpanStatusCode } from "@opentelemetry/api";
+import type { Tracer, Span } from "@opentelemetry/api";
 import { getPaidTracer, getToken } from "tracing/tracing.js";
 import { getTracingContext } from "tracing/tracingContext.js";
 

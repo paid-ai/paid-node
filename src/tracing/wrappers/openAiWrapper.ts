@@ -1,9 +1,10 @@
 import OpenAI from "openai";
-import { SpanStatusCode, Tracer } from "@opentelemetry/api";
-import { ChatCompletion, ChatCompletionCreateParams } from "openai/resources/chat/completions";
-import { EmbeddingCreateParams } from "openai/resources/embeddings";
-import { ImagesResponse, ImageGenerateParams } from "openai/resources/images";
-import { CreateEmbeddingResponse } from "openai/resources/embeddings";
+import { SpanStatusCode } from "@opentelemetry/api";
+import type { Tracer } from "@opentelemetry/api";
+import type { ChatCompletion, ChatCompletionCreateParams } from "openai/resources/chat/completions";
+import type { EmbeddingCreateParams } from "openai/resources/embeddings";
+import type { ImagesResponse, ImageGenerateParams } from "openai/resources/images";
+import type { CreateEmbeddingResponse } from "openai/resources/embeddings";
 import { getPaidTracer, getToken } from "tracing/tracing.js";
 import { getTracingContext } from "tracing/tracingContext.js";
 

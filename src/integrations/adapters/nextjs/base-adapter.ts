@@ -5,12 +5,13 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { createFrameworkAdapter } from "../../utils/create-adapter.js";
+import type { FrameworkAdapter } from "../../utils/create-adapter.js";
 
 /**
  * Next.js adapter for App Router
  * Handles NextRequest/NextResponse conversion to base handler format
  */
-export const nextjsAdapter = createFrameworkAdapter<
+export const nextjsAdapter: FrameworkAdapter<NextRequest, NextResponse> = createFrameworkAdapter<
   NextRequest,
   NextResponse
 >({

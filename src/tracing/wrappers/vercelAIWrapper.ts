@@ -392,11 +392,20 @@ export async function embedMany(params: EmbedManyParams): Promise<ReturnType<typ
     });
 }
 
-export default {
-    generateText,
-    streamText,
-    generateObject,
-    streamObject,
-    embed,
-    embedMany,
+const vercelAIWrapper: {
+    generateText: typeof generateText;
+    streamText: typeof streamText;
+    generateObject: typeof generateObject;
+    streamObject: typeof streamObject;
+    embed: typeof embed;
+    embedMany: typeof embedMany;
+} = {
+    generateText: generateText,
+    streamText: streamText,
+    generateObject: generateObject,
+    streamObject: streamObject,
+    embed: embed,
+    embedMany: embedMany,
 };
+
+export default vercelAIWrapper;

@@ -5,6 +5,10 @@
 
 import type { BaseRequestContext, BaseResponseContext } from "./base-handler.js";
 
+export type FrameworkAdapter<TFrameworkReq = any, TFrameworkRes = any> = (
+  innerHandler: Function
+) => (req: TFrameworkReq, context?: any, config?: any) => Promise<any>;
+
 /**
  * Creates a framework adapter for any HTTP framework
  * Automatically extracts headers and converts request/response
@@ -31,9 +35,9 @@ export function createFrameworkAdapter<TFrameworkReq = any, TFrameworkRes = any>
     getQuery?: (req: TFrameworkReq) => Record<string, string>;
     sendJson: (data: any, status: number) => TFrameworkRes;
   }
-) {
-  return function adaptHandler(innerHandler: Function) {
-    return async (req: TFrameworkReq, context?: any, config?: any) => {
+): FrameworkAdapter<TFrameworkReq, TFrameworkRes> {
+  const adaptHandler = (innerHandler: Function): ((req: TFrameworkReq, context?: any, config?: any) => Promise<any>) => {
+    return async (req: TFrameworkReq, context?: any, config?: any): Promise<any> => {
       const body = await extractors.getBody(req);
       const params = extractors.getParams
         ? await extractors.getParams(req, context)
@@ -56,4 +60,5 @@ export function createFrameworkAdapter<TFrameworkReq = any, TFrameworkRes = any>
       return innerHandler(requestContext, responseContext, config);
     };
   };
+  return adaptHandler;
 }

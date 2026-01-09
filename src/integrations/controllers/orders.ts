@@ -193,9 +193,9 @@ interface OrderRequest extends OrderConfig {
  * @param helperOptions - Default options for order creation
  * @returns Handler function
  */
-export function createOrdersHandler(helperOptions?: OrderOptions) {
+export function createOrdersHandler(helperOptions?: OrderOptions): (request: any, response: any, config?: any) => Promise<any> {
   return createHandler<OrderRequest, OrderCreationResult>(
-    async (client, body) => {
+    async (client, body): Promise<any> => {
       if (!body.customerId) {
         throw new Error("customerId is required");
       }

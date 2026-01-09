@@ -1,12 +1,14 @@
-import { BaseHandlerConfig } from "../../utils/base-handler.js";
+import type { BaseHandlerConfig } from "../../utils/base-handler.js";
 import { nextjsAdapter } from "./base-adapter.js";
-import { OrderOptions } from "../../types.js";
+import type { OrderOptions } from "../../types.js";
 import { createContactsHandler } from "../../controllers/contacts.js";
 import { createCustomerInvoicesHandler } from "../../controllers/invoices.js";
 import { createCustomersHandler, createGetCustomerHandler } from "../../controllers/customers.js";
 import { createOrdersHandler } from "../../controllers/orders.js";
 import { createProvisioningHandler } from "../../controllers/provision-users.js";
 import { createActivateOrderSyncHandler, createPayInvoiceHandler, createSetupIntentHandler } from "../../controllers/billing.js";
+
+type NextJsHandler = (request: any, context?: any) => Promise<any>;
 
 export interface ActivateOrderSyncRouteConfig extends BaseHandlerConfig {
   /**
@@ -56,10 +58,11 @@ export interface ActivateOrderSyncRouteConfig extends BaseHandlerConfig {
  * });
  * ```
  */
-export function createActivateOrderSyncRoute(config: ActivateOrderSyncRouteConfig = {}) {
+export function createActivateOrderSyncRoute(config: ActivateOrderSyncRouteConfig = {}): NextJsHandler {
   const handler = createActivateOrderSyncHandler(config.defaultReturnUrl);
   const adaptedHandler = nextjsAdapter(handler);
-  return (request: any, context?: any) => adaptedHandler(request, context, config);
+  const route: NextJsHandler = (request: any, context?: any): Promise<any> => adaptedHandler(request, context, config);
+  return route;
 }
 
 /**
@@ -73,10 +76,11 @@ export function createActivateOrderSyncRoute(config: ActivateOrderSyncRouteConfi
  * export const POST = createContactsRoute();
  * ```
  */
-export function createContactsRoute(config: BaseHandlerConfig = {}) {
+export function createContactsRoute(config: BaseHandlerConfig = {}): NextJsHandler {
   const handler = createContactsHandler();
   const adaptedHandler = nextjsAdapter(handler);
-  return (request: any, context?: any) => adaptedHandler(request, context, config);
+  const route: NextJsHandler = (request: any, context?: any): Promise<any> => adaptedHandler(request, context, config);
+  return route;
 }
 
 /**
@@ -92,10 +96,11 @@ export function createContactsRoute(config: BaseHandlerConfig = {}) {
  * export const GET = createCustomerInvoicesRoute();
  * ```
  */
-export function createCustomerInvoicesRoute(config: BaseHandlerConfig = {}) {
+export function createCustomerInvoicesRoute(config: BaseHandlerConfig = {}): NextJsHandler {
   const handler = createCustomerInvoicesHandler();
   const adaptedHandler = nextjsAdapter(handler);
-  return (request: any, context?: any) => adaptedHandler(request, context, config);
+  const route: NextJsHandler = (request: any, context?: any): Promise<any> => adaptedHandler(request, context, config);
+  return route;
 }
 
 /**
@@ -109,10 +114,11 @@ export function createCustomerInvoicesRoute(config: BaseHandlerConfig = {}) {
  * export const GET = createGetCustomerRoute();
  * ```
  */
-export function createGetCustomerRoute(config: BaseHandlerConfig = {}) {
+export function createGetCustomerRoute(config: BaseHandlerConfig = {}): NextJsHandler {
   const handler = createGetCustomerHandler();
   const adaptedHandler = nextjsAdapter(handler);
-  return (request: any, context?: any) => adaptedHandler(request, context, config);
+  const route: NextJsHandler = (request: any, context?: any): Promise<any> => adaptedHandler(request, context, config);
+  return route;
 }
 
 /**
@@ -137,10 +143,11 @@ export function createGetCustomerRoute(config: BaseHandlerConfig = {}) {
  * });
  * ```
  */
-export function createCustomersRoute(config: BaseHandlerConfig = {}) {
+export function createCustomersRoute(config: BaseHandlerConfig = {}): NextJsHandler {
   const handler = createCustomersHandler();
   const adaptedHandler = nextjsAdapter(handler);
-  return (request: any, context?: any) => adaptedHandler(request, context, config);
+  const route: NextJsHandler = (request: any, context?: any): Promise<any> => adaptedHandler(request, context, config);
+  return route;
 }
 
 export interface OrdersRouteConfig extends BaseHandlerConfig {
@@ -168,10 +175,11 @@ export interface OrdersRouteConfig extends BaseHandlerConfig {
  * });
  * ```
  */
-export function createOrdersRoute(config: OrdersRouteConfig = {}) {
+export function createOrdersRoute(config: OrdersRouteConfig = {}): NextJsHandler {
   const handler = createOrdersHandler(config.helperOptions);
   const adaptedHandler = nextjsAdapter(handler);
-  return (request: any, context?: any) => adaptedHandler(request, context, config);
+  const route: NextJsHandler = (request: any, context?: any): Promise<any> => adaptedHandler(request, context, config);
+  return route;
 }
 
 /**
@@ -187,10 +195,11 @@ export function createOrdersRoute(config: OrdersRouteConfig = {}) {
  * export const POST = createPayInvoiceRoute();
  * ```
  */
-export function createPayInvoiceRoute(config: BaseHandlerConfig = {}) {
+export function createPayInvoiceRoute(config: BaseHandlerConfig = {}): NextJsHandler {
   const handler = createPayInvoiceHandler();
   const adaptedHandler = nextjsAdapter(handler);
-  return (request: any, context?: any) => adaptedHandler(request, context, config);
+  const route: NextJsHandler = (request: any, context?: any): Promise<any> => adaptedHandler(request, context, config);
+  return route;
 }
 
 export interface ProvisioningRouteConfig extends BaseHandlerConfig {
@@ -230,13 +239,14 @@ export interface ProvisioningRouteConfig extends BaseHandlerConfig {
  * });
  * ```
  */
-export function createProvisioningRoute(config: ProvisioningRouteConfig = {}) {
+export function createProvisioningRoute(config: ProvisioningRouteConfig = {}): NextJsHandler {
   const handler = createProvisioningHandler(
     config.orderOptions,
     config.defaultAgentExternalId
   );
   const adaptedHandler = nextjsAdapter(handler);
-  return (request: any, context?: any) => adaptedHandler(request, context, config);
+  const route: NextJsHandler = (request: any, context?: any): Promise<any> => adaptedHandler(request, context, config);
+  return route;
 }
 
 export interface SetupIntentRouteConfig extends BaseHandlerConfig {
@@ -278,8 +288,9 @@ export interface SetupIntentRouteConfig extends BaseHandlerConfig {
  * });
  * ```
  */
-export function createSetupIntentRoute(config: SetupIntentRouteConfig = {}) {
+export function createSetupIntentRoute(config: SetupIntentRouteConfig = {}): NextJsHandler {
   const handler = createSetupIntentHandler(config.defaultReturnUrl);
   const adaptedHandler = nextjsAdapter(handler);
-  return (request: any, context?: any) => adaptedHandler(request, context, config);
+  const route: NextJsHandler = (request: any, context?: any): Promise<any> => adaptedHandler(request, context, config);
+  return route;
 }
