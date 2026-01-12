@@ -1,1 +1,1 @@
-export { type ContactCreate } from "./ContactCreate.js";
+export type { ContactCreate } from "./ContactCreate.js";

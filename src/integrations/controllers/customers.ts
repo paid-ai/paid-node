@@ -148,9 +148,9 @@ export async function createCustomer(
  *
  * @returns Handler function
  */
-export function createCustomersHandler() {
+export function createCustomersHandler(): (request: any, response: any, config?: any) => Promise<any> {
   return createHandler<CustomerData, CustomerCreationResult>(
-    async (client, body) => {
+    async (client, body): Promise<any> => {
       if (!body.externalId) {
         throw new Error("externalId is required");
       }
@@ -201,9 +201,9 @@ export async function getCustomer(
  * export const GET = nextjsAdapter(handler);
  * ```
  */
-export function createGetCustomerHandler() {
+export function createGetCustomerHandler(): (request: any, response: any, config?: any) => Promise<any> {
   return createHandler<any, any>(
-    async (client, _body, params) => {
+    async (client, _body, params): Promise<any> => {
       const customerExternalId = params?.customerExternalId;
 
       if (!customerExternalId) {

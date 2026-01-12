@@ -149,9 +149,9 @@ export async function createContact(
  *
  * @returns Handler function
  */
-export function createContactsHandler() {
+export function createContactsHandler(): (request: any, response: any, config?: any) => Promise<any> {
   return createHandler<ContactData, ContactCreationResult>(
-    async (client, body) => {
+    async (client, body): Promise<any> => {
       const contact = await createContactWithDefaults(client, body);
       return { success: true, data: contact };
     },

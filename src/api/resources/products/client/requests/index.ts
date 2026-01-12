@@ -1,1 +1,1 @@
-export { type ProductCreate } from "./ProductCreate.js";
+export type { ProductCreate } from "./ProductCreate.js";

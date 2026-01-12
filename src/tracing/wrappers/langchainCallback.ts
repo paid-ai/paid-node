@@ -1,7 +1,8 @@
 import { BaseCallbackHandler } from "@langchain/core/callbacks/base";
-import { LLMResult } from "@langchain/core/outputs";
-import { SpanStatusCode, Tracer, Span } from "@opentelemetry/api";
-import { getCustomerIdStorage, getAgentIdStorage, getTokenStorage, paidTracer } from "../tracing.js";
+import { SpanStatusCode } from "@opentelemetry/api";
+import type { Tracer, Span } from "@opentelemetry/api";
+import { getPaidTracer, getToken } from "tracing/tracing.js";
+import { getTracingContext } from "tracing/tracingContext.js";
 
 interface SerializedData {
     id?: string[];
@@ -21,7 +22,12 @@ export class PaidLangChainCallback extends BaseCallbackHandler {
 
     constructor() {
         super();
-        this.tracer = paidTracer;
+        const tracer = getPaidTracer();
+
+        if (!tracer) {
+            throw new Error("Paid tracer is not initialized, Make sure to call 'initializeTracing()' first");
+        }
+        this.tracer = tracer;
     }
 
     private extractProvider(serialized: SerializedData): string {
@@ -48,9 +54,8 @@ export class PaidLangChainCallback extends BaseCallbackHandler {
         tags?: string[],
         metadata?: Metadata,
     ): Promise<void> {
-        const externalCustomerId = getCustomerIdStorage();
-        const externalAgentId = getAgentIdStorage();
-        const token = getTokenStorage();
+        const { externalProductId, externalCustomerId } = getTracingContext();
+        const token = getToken();
 
         if (!token || !externalCustomerId) {
             throw new Error(
@@ -72,8 +77,8 @@ export class PaidLangChainCallback extends BaseCallbackHandler {
             token: token,
         };
 
-        if (externalAgentId) {
-            attributes["external_agent_id"] = externalAgentId;
+        if (externalProductId) {
+            attributes["external_agent_id"] = externalProductId;
         }
 
         span.setAttributes(attributes);

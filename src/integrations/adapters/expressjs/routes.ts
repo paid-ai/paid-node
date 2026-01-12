@@ -3,10 +3,10 @@
  * These functions create handlers compatible with ExpressJS controllers
  */
 
-import { Request, Response } from "express";
-import { BaseHandlerConfig } from "../../utils/base-handler.js";
+import type { Request, Response } from "express";
+import type { BaseHandlerConfig } from "../../utils/base-handler.js";
 import { createExpressJSResponseContext } from "./base-adapter.js";
-import { OrderOptions } from "../../types.js";
+import type { OrderOptions } from "../../types.js";
 import { createContactsHandler } from "../../controllers/contacts.js";
 import { createCustomerInvoicesHandler } from "../../controllers/invoices.js";
 import { createCustomersHandler, createGetCustomerHandler } from "../../controllers/customers.js";
@@ -18,6 +18,8 @@ import {
   createSetupIntentHandler,
 } from "../../controllers/billing.js";
 import { createGetPlanGroupByIdHandler } from "../../controllers/plans.js";
+
+type ExpressHandler = (req: Request, res: Response) => Promise<any>;
 
 /**
  * Helper to extract headers from Express Request
@@ -71,10 +73,10 @@ export interface ActivateOrderSyncRouteConfig extends BaseHandlerConfig {
  * }
  * ```
  */
-export function createActivateOrderSyncRoute(config: ActivateOrderSyncRouteConfig = {}) {
+export function createActivateOrderSyncRoute(config: ActivateOrderSyncRouteConfig = {}): ExpressHandler {
   const handler = createActivateOrderSyncHandler(config.defaultReturnUrl);
 
-  return (req: Request, res: Response) => {
+  const route: ExpressHandler = (req: Request, res: Response): Promise<any> => {
     return handler(
       {
         body: req.body,
@@ -86,6 +88,7 @@ export function createActivateOrderSyncRoute(config: ActivateOrderSyncRouteConfi
       config
     );
   };
+  return route;
 }
 
 /**
@@ -100,10 +103,10 @@ export function createActivateOrderSyncRoute(config: ActivateOrderSyncRouteConfi
  * app.post('/paid/contacts', createContactsRoute());
  * ```
  */
-export function createContactsRoute(config: BaseHandlerConfig = {}) {
+export function createContactsRoute(config: BaseHandlerConfig = {}): ExpressHandler {
   const handler = createContactsHandler();
 
-  return (req: Request, res: Response) => {
+  const route: ExpressHandler = (req: Request, res: Response): Promise<any> => {
     return handler(
       {
         body: req.body,
@@ -115,6 +118,7 @@ export function createContactsRoute(config: BaseHandlerConfig = {}) {
       config
     );
   };
+  return route;
 }
 
 /**
@@ -129,10 +133,10 @@ export function createContactsRoute(config: BaseHandlerConfig = {}) {
  * app.get('/paid/customers/:customerExternalId/invoices', createCustomerInvoicesRoute());
  * ```
  */
-export function createCustomerInvoicesRoute(config: BaseHandlerConfig = {}) {
+export function createCustomerInvoicesRoute(config: BaseHandlerConfig = {}): ExpressHandler {
   const handler = createCustomerInvoicesHandler();
 
-  return (req: Request, res: Response) => {
+  const route: ExpressHandler = (req: Request, res: Response): Promise<any> => {
     return handler(
       {
         body: req.body,
@@ -144,6 +148,7 @@ export function createCustomerInvoicesRoute(config: BaseHandlerConfig = {}) {
       config
     );
   };
+  return route;
 }
 
 /**
@@ -158,10 +163,10 @@ export function createCustomerInvoicesRoute(config: BaseHandlerConfig = {}) {
  * app.get('/paid/customers/:customerExternalId', createGetCustomerRoute());
  * ```
  */
-export function createGetCustomerRoute(config: BaseHandlerConfig = {}) {
+export function createGetCustomerRoute(config: BaseHandlerConfig = {}): ExpressHandler {
   const handler = createGetCustomerHandler();
 
-  return (req: Request, res: Response) => {
+  const route: ExpressHandler = (req: Request, res: Response): Promise<any> => {
     return handler(
       {
         body: req.body,
@@ -173,6 +178,7 @@ export function createGetCustomerRoute(config: BaseHandlerConfig = {}) {
       config
     );
   };
+  return route;
 }
 
 /**
@@ -187,10 +193,10 @@ export function createGetCustomerRoute(config: BaseHandlerConfig = {}) {
  * app.post('/paid/customers', createCustomersRoute());
  * ```
  */
-export function createCustomersRoute(config: BaseHandlerConfig = {}) {
+export function createCustomersRoute(config: BaseHandlerConfig = {}): ExpressHandler {
   const handler = createCustomersHandler();
 
-  return (req: Request, res: Response) => {
+  const route: ExpressHandler = (req: Request, res: Response): Promise<any> => {
     return handler(
       {
         body: req.body,
@@ -202,6 +208,7 @@ export function createCustomersRoute(config: BaseHandlerConfig = {}) {
       config
     );
   };
+  return route;
 }
 
 export interface OrdersRouteConfig extends BaseHandlerConfig {
@@ -220,10 +227,10 @@ export interface OrdersRouteConfig extends BaseHandlerConfig {
  * app.post('/paid/orders', createOrdersRoute({ helperOptions: { autoActivate: true } }));
  * ```
  */
-export function createOrdersRoute(config: OrdersRouteConfig = {}) {
+export function createOrdersRoute(config: OrdersRouteConfig = {}): ExpressHandler {
   const handler = createOrdersHandler(config.helperOptions);
 
-  return (req: Request, res: Response) => {
+  const route: ExpressHandler = (req: Request, res: Response): Promise<any> => {
     return handler(
       {
         body: req.body,
@@ -235,6 +242,7 @@ export function createOrdersRoute(config: OrdersRouteConfig = {}) {
       config
     );
   };
+  return route;
 }
 
 /**
@@ -249,10 +257,10 @@ export function createOrdersRoute(config: OrdersRouteConfig = {}) {
  * app.post('/paid/invoices/:invoiceId/pay', createPayInvoiceRoute());
  * ```
  */
-export function createPayInvoiceRoute(config: BaseHandlerConfig = {}) {
+export function createPayInvoiceRoute(config: BaseHandlerConfig = {}): ExpressHandler {
   const handler = createPayInvoiceHandler();
 
-  return (req: Request, res: Response) => {
+  const route: ExpressHandler = (req: Request, res: Response): Promise<any> => {
     return handler(
       {
         body: req.body,
@@ -264,6 +272,7 @@ export function createPayInvoiceRoute(config: BaseHandlerConfig = {}) {
       config
     );
   };
+  return route;
 }
 
 export interface ProvisioningRouteConfig extends BaseHandlerConfig {
@@ -285,13 +294,13 @@ export interface ProvisioningRouteConfig extends BaseHandlerConfig {
  * }));
  * ```
  */
-export function createProvisioningRoute(config: ProvisioningRouteConfig = {}) {
+export function createProvisioningRoute(config: ProvisioningRouteConfig = {}): ExpressHandler {
   const handler = createProvisioningHandler(
     config.orderOptions,
     config.defaultAgentExternalId
   );
 
-  return (req: Request, res: Response) => {
+  const route: ExpressHandler = (req: Request, res: Response): Promise<any> => {
     return handler(
       {
         body: req.body,
@@ -303,6 +312,7 @@ export function createProvisioningRoute(config: ProvisioningRouteConfig = {}) {
       config
     );
   };
+  return route;
 }
 
 export interface SetupIntentRouteConfig extends BaseHandlerConfig {
@@ -323,10 +333,10 @@ export interface SetupIntentRouteConfig extends BaseHandlerConfig {
  * }));
  * ```
  */
-export function createSetupIntentRoute(config: SetupIntentRouteConfig = {}) {
+export function createSetupIntentRoute(config: SetupIntentRouteConfig = {}): ExpressHandler {
   const handler = createSetupIntentHandler(config.defaultReturnUrl);
 
-  return (req: Request, res: Response) => {
+  const route: ExpressHandler = (req: Request, res: Response): Promise<any> => {
     return handler(
       {
         body: req.body,
@@ -338,6 +348,7 @@ export function createSetupIntentRoute(config: SetupIntentRouteConfig = {}) {
       config
     );
   };
+  return route;
 }
 
 /**

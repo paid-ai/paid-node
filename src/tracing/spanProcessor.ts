@@ -1,12 +1,6 @@
-import { Context, SpanAttributes, SpanAttributeValue } from "@opentelemetry/api";
-import { SpanProcessor, Span } from "@opentelemetry/sdk-trace-base";
-import {
-    getAgentIdStorage,
-    getCustomerIdStorage,
-    getStorePromptStorage,
-    getToken,
-    getTokenStorage,
-} from "./tracing.js";
+import type { Context, SpanAttributes, SpanAttributeValue } from "@opentelemetry/api";
+import type { SpanProcessor, Span } from "@opentelemetry/sdk-trace-base";
+import { getTracingContext } from "./tracingContext.js";
 
 export class PaidSpanProcessor implements SpanProcessor {
     private static readonly SPAN_NAME_PREFIX = "paid.trace.";
@@ -25,7 +19,9 @@ export class PaidSpanProcessor implements SpanProcessor {
 
     onStart(span: Span, _parentContext?: Context): void {
         const { name } = span;
-        if (!getStorePromptStorage()) {
+        const { storePrompt, externalCustomerId, externalProductId: externalAgentId } = getTracingContext();
+
+        if (!storePrompt) {
             const originalSetAttribute = span.setAttribute;
 
             span.setAttribute = function (key: string, value: SpanAttributeValue): Span {
@@ -55,18 +51,11 @@ export class PaidSpanProcessor implements SpanProcessor {
             span.updateName(`${PaidSpanProcessor.SPAN_NAME_PREFIX}${name}`);
         }
 
-        const customerId = getCustomerIdStorage();
-        if (customerId) {
-            span.setAttribute("external_customer_id", customerId);
+        if (externalCustomerId) {
+            span.setAttribute("external_customer_id", externalCustomerId);
         }
-        const agentId = getAgentIdStorage();
-        if (agentId) {
-            span.setAttribute("external_agent_id", agentId);
-        }
-        const token = getTokenStorage() || getToken();
-
-        if (token) {
-            span.setAttribute("token", token);
+        if (externalAgentId) {
+            span.setAttribute("external_agent_id", externalAgentId);
         }
     }
     onEnd(): void {

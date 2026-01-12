@@ -1,6 +1,6 @@
 import { paidApiFetch } from "../utils/api-fetch.js";
 import { createHandler } from "../utils/base-handler.js";
-import { PayInvoiceConfig } from "./billing.js";
+import type { PayInvoiceConfig } from "./billing.js";
 
 export interface CustomerInvoicesResult {
   data: any[];
@@ -57,9 +57,9 @@ interface CustomerInvoicesRequest {
  *
  * @returns Handler function
  */
-export function createCustomerInvoicesHandler() {
+export function createCustomerInvoicesHandler(): (request: any, response: any, config?: any) => Promise<any> {
   return createHandler<CustomerInvoicesRequest, any>(
-    async (_client, _body, params, organizationId) => {
+    async (_client, _body, params, organizationId): Promise<any> => {
       if (!organizationId) {
         return { success: false, error: 'Organization ID not found', status: 500 };
       }

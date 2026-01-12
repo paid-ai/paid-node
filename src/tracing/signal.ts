@@ -1,19 +1,36 @@
 import { SpanStatusCode } from "@opentelemetry/api";
-import { getCustomerIdStorage, getAgentIdStorage, getTokenStorage } from "./tracing.js";
-import { paidTracer } from "./tracing.js";
+import { getPaidTracer, getToken } from "./tracing.js";
+import { getTracingContext } from "./tracingContext.js";
 
-export function _signal(eventName: string, enableCostTracing: boolean, data?: Record<string, any>): void {
-    if (!eventName) {
-        throw new Error("Event name is required for signal.");
+/**
+ * Sends Paid signal. Needs to be called as part of callback to trace().
+ * When enableCostTracing flag is on, signal is associated
+ * with cost traces from the same Paid.trace() context.
+ *
+ * @param eventName - The name of the signal.
+ * @param enableCostTracing - Whether to associate this signal with cost traces
+ * from the current Paid.trace() context (default: false)
+ * @param data - Optional additional data to include with the signal
+ *
+ * @remarks
+ * When enableCostTracing is on, the signal will be associated with cost
+ * traces within the same Paid.trace() context.
+ * It is advised to only make one call to this function
+ * with enableCostTracing per Paid.trace() context.
+ * Otherwise, there will be multiple signals that refer to the same costs.
+ */
+export function signal(eventName: string, enableCostTracing: boolean = false, data?: Record<string, any>): void {
+    const paidTracer = getPaidTracer();
+    const token = getToken();
+    const { externalCustomerId, externalProductId } = getTracingContext();
+
+    if (!token || !paidTracer) {
+        throw new Error(`Tracing is not initialized. Make sure you called 'initializeTracing()'`);
     }
 
-    const externalCustomerId = getCustomerIdStorage();
-    const externalAgentId = getAgentIdStorage();
-    const token = getTokenStorage();
-
-    if (!externalCustomerId || !externalAgentId || !token) {
+    if (!externalCustomerId || !externalProductId) {
         throw new Error(
-            `Missing some of: external_customer_id: ${externalCustomerId}, external_agent_id: ${externalAgentId}, or token. Make sure to call signal() within trace()`,
+            `Missing some of: external_customer_id: ${externalCustomerId}, external_product_id: ${externalProductId}, or token. Make sure to call signal() within trace()`,
         );
     }
 
@@ -21,7 +38,7 @@ export function _signal(eventName: string, enableCostTracing: boolean, data?: Re
         try {
             const attributes: Record<string, string | number | boolean> = {
                 external_customer_id: externalCustomerId,
-                external_agent_id: externalAgentId,
+                external_agent_id: externalProductId,
                 event_name: eventName,
                 token: token,
             };
@@ -42,7 +59,6 @@ export function _signal(eventName: string, enableCostTracing: boolean, data?: Re
             }
 
             span.setAttributes(attributes);
-            // Mark span as successful
             span.setStatus({ code: SpanStatusCode.OK });
         } catch (error: any) {
             span.setStatus({

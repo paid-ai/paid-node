@@ -3,13 +3,14 @@
  * Converts Express Request/Response to framework-agnostic format
  */
 
-import { Request, Response } from "express";
+import type { Request, Response } from "express";
 import { createFrameworkAdapter } from "../../utils/create-adapter.js";
+import type { FrameworkAdapter } from "../../utils/create-adapter.js";
 
 /**
  * Handles Express Request/Response conversion to base handler format
  */
-export const expressjsAdapter = createFrameworkAdapter<Request, Response>({
+export const expressjsAdapter: FrameworkAdapter<Request, Response> = createFrameworkAdapter<Request, Response>({
   getBody: async (req) => {
     return req.body || {};
   },
@@ -48,13 +49,17 @@ export const expressjsAdapter = createFrameworkAdapter<Request, Response>({
  * Create response context for ExpressJS
  * This converts the base handler response methods to ExpressJS/Express format
  */
-export function createExpressJSResponseContext(res: Response) {
-  return {
-    json: (data: any, status = 200) => {
-      return res.status(status).json(data);
-    },
-    error: (message: string, status: number) => {
-      return res.status(status).json({ error: message });
-    },
+type ExpressResponseContext = {
+  json: (data: any, status?: number) => Response;
+  error: (message: string, status: number) => Response;
+};
+
+export function createExpressJSResponseContext(res: Response): ExpressResponseContext {
+  const json = (data: any, status = 200): Response => {
+    return res.status(status).json(data);
   };
+  const error = (message: string, status: number): Response => {
+    return res.status(status).json({ error: message });
+  };
+  return { json, error };
 }

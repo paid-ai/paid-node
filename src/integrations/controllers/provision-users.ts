@@ -113,9 +113,9 @@ export async function provisionNewUser(
 export function createProvisioningHandler(
   orderOptions?: OrderOptions,
   defaultAgentExternalId?: string
-) {
+): (request: any, response: any, config?: any) => Promise<any> {
   return createHandler<Partial<ProvisioningConfig>, ProvisioningResult>(
-    async (client, body) => {
+    async (client, body): Promise<any> => {
       if (!body.customer) {
         return {
           success: false,
