@@ -4,10 +4,10 @@ import * as Paid from "../../src/api/index";
 import { PaidClient } from "../../src/Client";
 import { mockServerPool } from "../mock-server/MockServerPool";
 
-describe("UsageClient", () => {
+describe("Usage", () => {
     test("recordBulk", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = { signals: [{}, {}, {}] };
 
         server
@@ -26,7 +26,7 @@ describe("UsageClient", () => {
 
     test("usageRecordBulkV2 (1)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {
             signals: [
                 {
@@ -80,7 +80,7 @@ describe("UsageClient", () => {
 
     test("usageRecordBulkV2 (2)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
         const rawResponseBody = { error: {} };
         server
@@ -99,7 +99,7 @@ describe("UsageClient", () => {
 
     test("checkUsage (1)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = { externalCustomerId: "acme-inc", externalProductId: "acme-agent" };
         const rawResponseBody = {
             allowed: true,
@@ -134,7 +134,7 @@ describe("UsageClient", () => {
 
     test("checkUsage (2)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = { externalCustomerId: "acme-inc", externalProductId: "acme-agent" };
         const rawResponseBody = {
             allowed: false,
@@ -169,7 +169,7 @@ describe("UsageClient", () => {
 
     test("checkUsage (3)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = { externalCustomerId: "acme-inc", externalProductId: "acme-agent" };
         const rawResponseBody = {
             allowed: false,
@@ -204,7 +204,7 @@ describe("UsageClient", () => {
 
     test("checkUsage (4)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = { externalCustomerId: "externalCustomerId", externalProductId: "externalProductId" };
         const rawResponseBody = { error: {} };
         server
@@ -226,7 +226,7 @@ describe("UsageClient", () => {
 
     test("checkUsage (5)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = { externalCustomerId: "externalCustomerId", externalProductId: "externalProductId" };
         const rawResponseBody = { error: {} };
         server
@@ -248,7 +248,7 @@ describe("UsageClient", () => {
 
     test("checkUsage (6)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = { externalCustomerId: "externalCustomerId", externalProductId: "externalProductId" };
         const rawResponseBody = { error: {} };
         server

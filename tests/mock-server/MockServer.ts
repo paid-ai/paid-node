@@ -19,7 +19,7 @@ export class MockServer {
 
     public mockEndpoint(options?: RequestHandlerOptions): ReturnType<typeof mockEndpointBuilder> {
         const builder = mockEndpointBuilder({
-            once: options?.once ?? true,
+            once: options?.once,
             onBuild: (handler) => {
                 this.server.use(handler);
             },
