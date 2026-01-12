@@ -1,4 +1,5 @@
 import type { PaidClient } from "../../Client.js";
+import type { Plan } from "../../api/types/Plan.js";
 import type {
   OrderConfig,
   CompleteOrderConfig,
@@ -7,6 +8,20 @@ import type {
   OrderLineConfig
 } from "../types.js";
 import { createHandler } from "../utils/base-handler.js";
+import { getPlanById } from "./plans.js";
+
+type PlanProductWithExternalId = Plan.PlanProducts.Item & {
+  product: { externalId: string; name: string; description?: string };
+};
+
+function hasProductWithExternalId(
+  pp: Plan.PlanProducts.Item
+): pp is PlanProductWithExternalId {
+  if (!pp.product) {
+    throw new Error(`Plan product ${pp.id} is missing nested product data`);
+  }
+  return !!pp.product.externalId;
+}
 
 /**
  * Generate default values for missing order fields
@@ -27,21 +42,30 @@ function generateOrderDefaults(
   const description = config.description || "Annual subscription";
   const currency = config.currency || "USD";
 
-  const orderLines: OrderLineConfig[] = config.orderLines?.map(line => ({
-    agentExternalId: line.agentExternalId,
-    name: line.name || name,
-    description: line.description || description,
-  })) || [{
-    agentExternalId: config.agentExternalId,
-    name,
-    description,
-  }];
+  // defensive guard
+  if (!config.orderLines && !config.planId && !config.agentExternalId) {
+    throw new Error("Either orderLines, planId, or agentExternalId must be provided");
+  }
+
+  const orderLines: OrderLineConfig[] = config.orderLines 
+    ? config.orderLines.map(line => ({
+        agentExternalId: line.agentExternalId,
+        name: line.name || name,
+        description: line.description || description,
+        planProductId: line.planProductId ?? undefined,
+      }))
+    : [{
+        agentExternalId: config.agentExternalId!,
+        name,
+        description,
+      }];
 
   return {
     customerId: config.customerId,
     customerExternalId: config.customerExternalId,
     billingContactId: config.billingContactId,
     agentExternalId: config.agentExternalId,
+    planId: config.planId,
     name,
     description,
     startDate,
@@ -72,8 +96,11 @@ async function createAndActivateOrder(
       const orderLine: any = { agentExternalId: line.agentExternalId };
       if (line.name) orderLine.name = line.name;
       if (line.description) orderLine.description = line.description;
+      // planProductId is not in the create orders api spec - this is functioning but greptile will complain
+      if (line.planProductId) orderLine.planProductId = line.planProductId;
       return orderLine;
     }),
+    planId: config.planId,
   });
 
   if (!order.id) {
@@ -196,14 +223,11 @@ interface OrderRequest extends OrderConfig {
 export function createOrdersHandler(helperOptions?: OrderOptions): (request: any, response: any, config?: any) => Promise<any> {
   return createHandler<OrderRequest, OrderCreationResult>(
     async (client, body): Promise<any> => {
-      if (!body.customerId) {
-        throw new Error("customerId is required");
-      }
       if (!body.customerExternalId) {
         throw new Error("customerExternalId is required");
       }
-      if (!body.agentExternalId) {
-        throw new Error("agentExternalId is required");
+      if (!body.agentExternalId && !body.planId) {
+        throw new Error("agentExternalId or planId are required");
       }
 
       const orderOptions: OrderOptions = {
@@ -211,9 +235,29 @@ export function createOrdersHandler(helperOptions?: OrderOptions): (request: any
         autoActivate: body.autoActivate ?? helperOptions?.autoActivate ?? true,
       };
 
+      if (body.planId) {
+        const plan = await getPlanById(client, body.planId);
+        if (!plan.planProducts?.length) {
+          throw new Error(`Plan ${body.planId} has no products`);
+        }
+        
+        body.orderLines = plan.planProducts
+          .filter(hasProductWithExternalId)
+          .map((pp) => ({
+            agentExternalId: pp.product.externalId,
+            name: pp.product.name,
+            description: pp.product.description,
+            planProductId: pp.id,
+          }));
+        
+        if (body.orderLines.length === 0) {
+          throw new Error(`Plan ${body.planId} has no products with externalId`);
+        }
+      }
+
       const order = await createOrderWithDefaults(client, body, orderOptions);
       return { success: true, data: order };
     },
-    { requiredFields: ['customerId', 'customerExternalId', 'agentExternalId'] }
+    { requiredFields: ['customerExternalId'] }
   );
 }

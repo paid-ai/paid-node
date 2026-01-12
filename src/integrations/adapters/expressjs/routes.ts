@@ -17,6 +17,7 @@ import {
   createPayInvoiceHandler,
   createSetupIntentHandler,
 } from "../../controllers/billing.js";
+import { createGetPlanGroupByIdHandler } from "../../controllers/plans.js";
 
 type ExpressHandler = (req: Request, res: Response) => Promise<any>;
 
@@ -348,4 +349,36 @@ export function createSetupIntentRoute(config: SetupIntentRouteConfig = {}): Exp
     );
   };
   return route;
+}
+
+/**
+ * Create an Express handler for getting a plan group by ID
+ *
+ * @param config - Handler configuration options
+ * @returns Express route handler function
+ *
+ * @example
+ * ```typescript
+ * import express from 'express';
+ * import { createGetPlanGroupByIdRoute } from '@paid-ai/paid-node/integrations/express';
+ *
+ * const app = express();
+ * app.get('/paid/plans/:planGroupId', createGetPlanGroupByIdRoute());
+ * ```
+ */
+export function createGetPlanGroupByIdRoute(config: BaseHandlerConfig = {}) {
+  const handler = createGetPlanGroupByIdHandler();
+
+  return (req: Request, res: Response): Promise<any> => {
+    return handler(
+      {
+        body: req.body,
+        headers: extractHeaders(req),
+        method: "GET" as const,
+        params: req.params,
+      },
+      createExpressJSResponseContext(res),
+      config
+    );
+  };
 }
