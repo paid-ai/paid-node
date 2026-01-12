@@ -29,7 +29,7 @@ await client.customers.list();
 <dl>
 <dd>
 
-**requestOptions:** `CustomersClient.RequestOptions` 
+**requestOptions:** `Customers.RequestOptions` 
     
 </dd>
 </dl>
@@ -94,7 +94,7 @@ await client.customers.create({
 <dl>
 <dd>
 
-**requestOptions:** `CustomersClient.RequestOptions` 
+**requestOptions:** `Customers.RequestOptions` 
     
 </dd>
 </dl>
@@ -143,7 +143,7 @@ await client.customers.get("customerId");
 <dl>
 <dd>
 
-**requestOptions:** `CustomersClient.RequestOptions` 
+**requestOptions:** `Customers.RequestOptions` 
     
 </dd>
 </dl>
@@ -205,7 +205,7 @@ await client.customers.update("customerId", {
 <dl>
 <dd>
 
-**requestOptions:** `CustomersClient.RequestOptions` 
+**requestOptions:** `Customers.RequestOptions` 
     
 </dd>
 </dl>
@@ -254,7 +254,7 @@ await client.customers.delete("customerId");
 <dl>
 <dd>
 
-**requestOptions:** `CustomersClient.RequestOptions` 
+**requestOptions:** `Customers.RequestOptions` 
     
 </dd>
 </dl>
@@ -314,7 +314,7 @@ await client.customers.checkEntitlement("customerId", {
 <dl>
 <dd>
 
-**requestOptions:** `CustomersClient.RequestOptions` 
+**requestOptions:** `Customers.RequestOptions` 
     
 </dd>
 </dl>
@@ -363,7 +363,7 @@ await client.customers.getEntitlements("customerId");
 <dl>
 <dd>
 
-**requestOptions:** `CustomersClient.RequestOptions` 
+**requestOptions:** `Customers.RequestOptions` 
     
 </dd>
 </dl>
@@ -412,7 +412,7 @@ await client.customers.getByExternalId("externalId");
 <dl>
 <dd>
 
-**requestOptions:** `CustomersClient.RequestOptions` 
+**requestOptions:** `Customers.RequestOptions` 
     
 </dd>
 </dl>
@@ -469,7 +469,7 @@ await client.customers.updateByExternalId("externalId", {});
 <dl>
 <dd>
 
-**requestOptions:** `CustomersClient.RequestOptions` 
+**requestOptions:** `Customers.RequestOptions` 
     
 </dd>
 </dl>
@@ -518,7 +518,7 @@ await client.customers.deleteByExternalId("externalId");
 <dl>
 <dd>
 
-**requestOptions:** `CustomersClient.RequestOptions` 
+**requestOptions:** `Customers.RequestOptions` 
     
 </dd>
 </dl>
@@ -580,7 +580,7 @@ await client.customers.getCostsByExternalId("externalId", {
 <dl>
 <dd>
 
-**requestOptions:** `CustomersClient.RequestOptions` 
+**requestOptions:** `Customers.RequestOptions` 
     
 </dd>
 </dl>
@@ -642,7 +642,7 @@ await client.customers.getUsageByExternalId("externalId", {
 <dl>
 <dd>
 
-**requestOptions:** `CustomersClient.RequestOptions` 
+**requestOptions:** `Customers.RequestOptions` 
     
 </dd>
 </dl>
@@ -705,7 +705,7 @@ await client.customers.listPaymentMethods("externalId");
 <dl>
 <dd>
 
-**requestOptions:** `CustomersClient.RequestOptions` 
+**requestOptions:** `Customers.RequestOptions` 
     
 </dd>
 </dl>
@@ -782,7 +782,7 @@ await client.customers.createPaymentMethod("externalId", {
 <dl>
 <dd>
 
-**requestOptions:** `CustomersClient.RequestOptions` 
+**requestOptions:** `Customers.RequestOptions` 
     
 </dd>
 </dl>
@@ -853,7 +853,7 @@ await client.customers.deletePaymentMethod("externalId", "paymentMethodId");
 <dl>
 <dd>
 
-**requestOptions:** `CustomersClient.RequestOptions` 
+**requestOptions:** `Customers.RequestOptions` 
     
 </dd>
 </dl>
@@ -909,7 +909,7 @@ await client.agents.list();
 <dl>
 <dd>
 
-**requestOptions:** `AgentsClient.RequestOptions` 
+**requestOptions:** `Agents.RequestOptions` 
     
 </dd>
 </dl>
@@ -976,7 +976,7 @@ await client.agents.create({
 <dl>
 <dd>
 
-**requestOptions:** `AgentsClient.RequestOptions` 
+**requestOptions:** `Agents.RequestOptions` 
     
 </dd>
 </dl>
@@ -1039,7 +1039,7 @@ await client.agents.get("agentId");
 <dl>
 <dd>
 
-**requestOptions:** `AgentsClient.RequestOptions` 
+**requestOptions:** `Agents.RequestOptions` 
     
 </dd>
 </dl>
@@ -1139,7 +1139,7 @@ await client.agents.update("agentId", {
 <dl>
 <dd>
 
-**requestOptions:** `AgentsClient.RequestOptions` 
+**requestOptions:** `Agents.RequestOptions` 
     
 </dd>
 </dl>
@@ -1202,7 +1202,7 @@ await client.agents.delete("agentId");
 <dl>
 <dd>
 
-**requestOptions:** `AgentsClient.RequestOptions` 
+**requestOptions:** `Agents.RequestOptions` 
     
 </dd>
 </dl>
@@ -1265,7 +1265,7 @@ await client.agents.getByExternalId("externalId");
 <dl>
 <dd>
 
-**requestOptions:** `AgentsClient.RequestOptions` 
+**requestOptions:** `Agents.RequestOptions` 
     
 </dd>
 </dl>
@@ -1354,7 +1354,7 @@ await client.agents.updateByExternalId("externalId", {
 <dl>
 <dd>
 
-**requestOptions:** `AgentsClient.RequestOptions` 
+**requestOptions:** `Agents.RequestOptions` 
     
 </dd>
 </dl>
@@ -1417,7 +1417,7 @@ await client.agents.deleteByExternalId("externalId");
 <dl>
 <dd>
 
-**requestOptions:** `AgentsClient.RequestOptions` 
+**requestOptions:** `Agents.RequestOptions` 
     
 </dd>
 </dl>
@@ -1459,7 +1459,7 @@ await client.products.list();
 <dl>
 <dd>
 
-**requestOptions:** `ProductsClient.RequestOptions` 
+**requestOptions:** `Products.RequestOptions` 
     
 </dd>
 </dl>
@@ -1513,7 +1513,7 @@ await client.products.create({
 <dl>
 <dd>
 
-**requestOptions:** `ProductsClient.RequestOptions` 
+**requestOptions:** `Products.RequestOptions` 
     
 </dd>
 </dl>
@@ -1562,7 +1562,7 @@ await client.products.get("productId");
 <dl>
 <dd>
 
-**requestOptions:** `ProductsClient.RequestOptions` 
+**requestOptions:** `Products.RequestOptions` 
     
 </dd>
 </dl>
@@ -1619,7 +1619,7 @@ await client.products.update("productId", {});
 <dl>
 <dd>
 
-**requestOptions:** `ProductsClient.RequestOptions` 
+**requestOptions:** `Products.RequestOptions` 
     
 </dd>
 </dl>
@@ -1668,7 +1668,7 @@ await client.products.delete("productId");
 <dl>
 <dd>
 
-**requestOptions:** `ProductsClient.RequestOptions` 
+**requestOptions:** `Products.RequestOptions` 
     
 </dd>
 </dl>
@@ -1717,7 +1717,7 @@ await client.products.getByExternalId("externalId");
 <dl>
 <dd>
 
-**requestOptions:** `ProductsClient.RequestOptions` 
+**requestOptions:** `Products.RequestOptions` 
     
 </dd>
 </dl>
@@ -1774,7 +1774,7 @@ await client.products.updateByExternalId("externalId", {});
 <dl>
 <dd>
 
-**requestOptions:** `ProductsClient.RequestOptions` 
+**requestOptions:** `Products.RequestOptions` 
     
 </dd>
 </dl>
@@ -1823,7 +1823,7 @@ await client.products.deleteByExternalId("externalId");
 <dl>
 <dd>
 
-**requestOptions:** `ProductsClient.RequestOptions` 
+**requestOptions:** `Products.RequestOptions` 
     
 </dd>
 </dl>
@@ -1865,7 +1865,7 @@ await client.contacts.list();
 <dl>
 <dd>
 
-**requestOptions:** `ContactsClient.RequestOptions` 
+**requestOptions:** `Contacts.RequestOptions` 
     
 </dd>
 </dl>
@@ -1920,7 +1920,7 @@ await client.contacts.create({
 <dl>
 <dd>
 
-**requestOptions:** `ContactsClient.RequestOptions` 
+**requestOptions:** `Contacts.RequestOptions` 
     
 </dd>
 </dl>
@@ -1969,7 +1969,7 @@ await client.contacts.get("contactId");
 <dl>
 <dd>
 
-**requestOptions:** `ContactsClient.RequestOptions` 
+**requestOptions:** `Contacts.RequestOptions` 
     
 </dd>
 </dl>
@@ -2018,7 +2018,7 @@ await client.contacts.delete("contactId");
 <dl>
 <dd>
 
-**requestOptions:** `ContactsClient.RequestOptions` 
+**requestOptions:** `Contacts.RequestOptions` 
     
 </dd>
 </dl>
@@ -2067,7 +2067,7 @@ await client.contacts.getByExternalId("externalId");
 <dl>
 <dd>
 
-**requestOptions:** `ContactsClient.RequestOptions` 
+**requestOptions:** `Contacts.RequestOptions` 
     
 </dd>
 </dl>
@@ -2116,7 +2116,7 @@ await client.contacts.deleteByExternalId("externalId");
 <dl>
 <dd>
 
-**requestOptions:** `ContactsClient.RequestOptions` 
+**requestOptions:** `Contacts.RequestOptions` 
     
 </dd>
 </dl>
@@ -2158,7 +2158,7 @@ await client.orders.list();
 <dl>
 <dd>
 
-**requestOptions:** `OrdersClient.RequestOptions` 
+**requestOptions:** `Orders.RequestOptions` 
     
 </dd>
 </dl>
@@ -2214,7 +2214,7 @@ await client.orders.create({
 <dl>
 <dd>
 
-**requestOptions:** `OrdersClient.RequestOptions` 
+**requestOptions:** `Orders.RequestOptions` 
     
 </dd>
 </dl>
@@ -2263,7 +2263,7 @@ await client.orders.get("orderId");
 <dl>
 <dd>
 
-**requestOptions:** `OrdersClient.RequestOptions` 
+**requestOptions:** `Orders.RequestOptions` 
     
 </dd>
 </dl>
@@ -2312,7 +2312,7 @@ await client.orders.delete("orderId");
 <dl>
 <dd>
 
-**requestOptions:** `OrdersClient.RequestOptions` 
+**requestOptions:** `Orders.RequestOptions` 
     
 </dd>
 </dl>
@@ -2361,7 +2361,7 @@ await client.orders.activate("orderId");
 <dl>
 <dd>
 
-**requestOptions:** `OrdersClient.RequestOptions` 
+**requestOptions:** `Orders.RequestOptions` 
     
 </dd>
 </dl>
@@ -2435,7 +2435,7 @@ await client.orders.activateAndPay("orderId", {
 <dl>
 <dd>
 
-**requestOptions:** `OrdersClient.RequestOptions` 
+**requestOptions:** `Orders.RequestOptions` 
     
 </dd>
 </dl>
@@ -2509,7 +2509,7 @@ await client.orders.cancelRenewal("orderId", {
 <dl>
 <dd>
 
-**requestOptions:** `OrdersClient.RequestOptions` 
+**requestOptions:** `Orders.RequestOptions` 
     
 </dd>
 </dl>
@@ -2591,7 +2591,7 @@ await client.orders.schedulePlanChange("orderId", {
 <dl>
 <dd>
 
-**requestOptions:** `OrdersClient.RequestOptions` 
+**requestOptions:** `Orders.RequestOptions` 
     
 </dd>
 </dl>
@@ -2654,7 +2654,7 @@ await client.orders.getInvoices("orderId");
 <dl>
 <dd>
 
-**requestOptions:** `OrdersClient.RequestOptions` 
+**requestOptions:** `Orders.RequestOptions` 
     
 </dd>
 </dl>
@@ -2704,7 +2704,7 @@ await client.plans.getById("planId");
 <dl>
 <dd>
 
-**requestOptions:** `PlansClient.RequestOptions` 
+**requestOptions:** `Plans.RequestOptions` 
     
 </dd>
 </dl>
@@ -2767,7 +2767,7 @@ await client.plans.getUsage("planId", {
 <dl>
 <dd>
 
-**requestOptions:** `PlansClient.RequestOptions` 
+**requestOptions:** `Plans.RequestOptions` 
     
 </dd>
 </dl>
@@ -2816,7 +2816,7 @@ await client.plans.getGroupById("planGroupId");
 <dl>
 <dd>
 
-**requestOptions:** `PlansClient.RequestOptions` 
+**requestOptions:** `Plans.RequestOptions` 
     
 </dd>
 </dl>
@@ -2882,7 +2882,7 @@ await client.usage.recordBulk({
 <dl>
 <dd>
 
-**requestOptions:** `UsageClient.RequestOptions` 
+**requestOptions:** `Usage.RequestOptions` 
     
 </dd>
 </dl>
@@ -2949,7 +2949,7 @@ await client.usage.usageRecordBulkV2({
 <dl>
 <dd>
 
-**requestOptions:** `UsageClient.RequestOptions` 
+**requestOptions:** `Usage.RequestOptions` 
     
 </dd>
 </dl>
@@ -3001,7 +3001,7 @@ await client.usage.checkUsage({
 <dl>
 <dd>
 
-**requestOptions:** `UsageClient.RequestOptions` 
+**requestOptions:** `Usage.RequestOptions` 
     
 </dd>
 </dl>
@@ -3060,7 +3060,7 @@ await client.traces.getTraces({
 <dl>
 <dd>
 
-**requestOptions:** `TracesClient.RequestOptions` 
+**requestOptions:** `Traces.RequestOptions` 
     
 </dd>
 </dl>
@@ -3126,7 +3126,7 @@ await client.orders.lines.update("orderId", {
 <dl>
 <dd>
 
-**requestOptions:** `LinesClient.RequestOptions` 
+**requestOptions:** `Lines.RequestOptions` 
     
 </dd>
 </dl>

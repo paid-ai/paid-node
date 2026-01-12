@@ -3,10 +3,10 @@
 import { PaidClient } from "../../../src/Client";
 import { mockServerPool } from "../../mock-server/MockServerPool";
 
-describe("LinesClient", () => {
+describe("Lines", () => {
     test("update", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {
             lines: [
                 { name: "Order Line One", description: "Order Line One is an order line for Acme, Inc." },

@@ -10,7 +10,6 @@ export default defineConfig({
                     root: "./tests",
                     include: ["**/*.test.{js,ts,jsx,tsx}"],
                     exclude: ["wire/**"],
-                    setupFiles: ["./setup.ts"],
                 },
             },
             {
@@ -19,7 +18,7 @@ export default defineConfig({
                     name: "wire",
                     environment: "node",
                     root: "./tests/wire",
-                    setupFiles: ["../setup.ts", "../mock-server/setup.ts"],
+                    setupFiles: ["../mock-server/setup.ts"],
                 },
             },
         ],

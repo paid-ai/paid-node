@@ -1,11 +1,8 @@
 {
     "name": "@paid-ai/paid-node",
-    "version": "1.0.0",
+    "version": "1.0.1-alpha0",
     "private": false,
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/paid-ai/paid-node.git"
-    },
+    "repository": "github:paid-ai/paid-node",
     "type": "commonjs",
     "main": "./dist/cjs/index.js",
     "module": "./dist/esm/index.mjs",
@@ -241,7 +238,7 @@
         "path": false,
         "stream": false
     },
-    "packageManager": "pnpm@10.20.0",
+    "packageManager": "pnpm@10.14.0",
     "engines": {
         "node": ">=18.0.0"
     },

@@ -4,10 +4,10 @@ import * as Paid from "../../src/api/index";
 import { PaidClient } from "../../src/Client";
 import { mockServerPool } from "../mock-server/MockServerPool";
 
-describe("TracesClient", () => {
+describe("Traces", () => {
     test("getTraces (1)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         const rawResponseBody = {
             traces: [
@@ -137,7 +137,7 @@ describe("TracesClient", () => {
 
     test("getTraces (2)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         const rawResponseBody = { error: {} };
         server.mockEndpoint().get("/traces").respondWith().statusCode(400).jsonBody(rawResponseBody).build();
@@ -149,7 +149,7 @@ describe("TracesClient", () => {
 
     test("getTraces (3)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         const rawResponseBody = { error: {} };
         server.mockEndpoint().get("/traces").respondWith().statusCode(403).jsonBody(rawResponseBody).build();

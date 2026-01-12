@@ -4,10 +4,10 @@ import * as Paid from "../../src/api/index";
 import { PaidClient } from "../../src/Client";
 import { mockServerPool } from "../mock-server/MockServerPool";
 
-describe("OrdersClient", () => {
+describe("Orders", () => {
     test("list", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         const rawResponseBody = [
             {
@@ -98,7 +98,7 @@ describe("OrdersClient", () => {
 
     test("create (1)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {
             customerExternalId: "acme-inc",
             name: "Acme Order",
@@ -247,7 +247,7 @@ describe("OrdersClient", () => {
 
     test("create (2)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {
             customerExternalId: "acme-inc",
             name: "Acme Order with Custom Pricing",
@@ -396,7 +396,7 @@ describe("OrdersClient", () => {
 
     test("get", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         const rawResponseBody = {
             id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
@@ -589,7 +589,7 @@ describe("OrdersClient", () => {
 
     test("delete", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         server.mockEndpoint().delete("/orders/orderId").respondWith().statusCode(200).build();
 
@@ -599,7 +599,7 @@ describe("OrdersClient", () => {
 
     test("activate", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         const rawResponseBody = {
             id: "id",
@@ -733,7 +733,7 @@ describe("OrdersClient", () => {
 
     test("activateAndPay (1)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {
             confirmationToken: "ctoken_1234567890",
             returnUrl: "https://example.com/payment-complete",
@@ -874,7 +874,7 @@ describe("OrdersClient", () => {
 
     test("activateAndPay (2)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = { confirmationToken: "confirmationToken", returnUrl: "returnUrl" };
         const rawResponseBody = { error: {} };
         server
@@ -896,7 +896,7 @@ describe("OrdersClient", () => {
 
     test("activateAndPay (3)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = { confirmationToken: "confirmationToken", returnUrl: "returnUrl" };
         const rawResponseBody = { error: {} };
         server
@@ -918,7 +918,7 @@ describe("OrdersClient", () => {
 
     test("activateAndPay (4)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = { confirmationToken: "confirmationToken", returnUrl: "returnUrl" };
         const rawResponseBody = { error: {} };
         server
@@ -940,7 +940,7 @@ describe("OrdersClient", () => {
 
     test("cancelRenewal (1)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = { orderVersion: 1, cancelFromDate: "2025-12-31T00:00:00Z" };
         const rawResponseBody = {
             orderId: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
@@ -973,7 +973,7 @@ describe("OrdersClient", () => {
 
     test("cancelRenewal (2)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = { orderVersion: 1, cancelFromDate: "2024-01-15T09:30:00Z" };
         const rawResponseBody = { error: {} };
         server
@@ -995,7 +995,7 @@ describe("OrdersClient", () => {
 
     test("cancelRenewal (3)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = { orderVersion: 1, cancelFromDate: "2024-01-15T09:30:00Z" };
         const rawResponseBody = { error: {} };
         server
@@ -1017,7 +1017,7 @@ describe("OrdersClient", () => {
 
     test("cancelRenewal (4)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = { orderVersion: 1, cancelFromDate: "2024-01-15T09:30:00Z" };
         const rawResponseBody = { error: {} };
         server
@@ -1039,7 +1039,7 @@ describe("OrdersClient", () => {
 
     test("schedulePlanChange (1)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {
             orderVersion: 1,
             effectiveDate: "2025-02-01T00:00:00Z",
@@ -1120,7 +1120,7 @@ describe("OrdersClient", () => {
 
     test("schedulePlanChange (2)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {
             orderVersion: 1,
             effectiveDate: "2024-01-15T09:30:00Z",
@@ -1167,7 +1167,7 @@ describe("OrdersClient", () => {
 
     test("schedulePlanChange (3)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {
             orderVersion: 1,
             effectiveDate: "2024-01-15T09:30:00Z",
@@ -1214,7 +1214,7 @@ describe("OrdersClient", () => {
 
     test("schedulePlanChange (4)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {
             orderVersion: 1,
             effectiveDate: "2024-01-15T09:30:00Z",
@@ -1261,7 +1261,7 @@ describe("OrdersClient", () => {
 
     test("getInvoices (1)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         const rawResponseBody = [
             {
@@ -1362,7 +1362,7 @@ describe("OrdersClient", () => {
 
     test("getInvoices (2)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         const rawResponseBody = { error: {} };
         server
@@ -1380,7 +1380,7 @@ describe("OrdersClient", () => {
 
     test("getInvoices (3)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         const rawResponseBody = { error: {} };
         server

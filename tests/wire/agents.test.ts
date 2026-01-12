@@ -3,10 +3,10 @@
 import { PaidClient } from "../../src/Client";
 import { mockServerPool } from "../mock-server/MockServerPool";
 
-describe("AgentsClient", () => {
+describe("Agents", () => {
     test("list", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         const rawResponseBody = [
             {
@@ -65,7 +65,7 @@ describe("AgentsClient", () => {
 
     test("create", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {
             name: "Acme Agent",
             description: "Acme Agent is an AI agent that does things.",
@@ -135,7 +135,7 @@ describe("AgentsClient", () => {
 
     test("get", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         const rawResponseBody = {
             id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
@@ -194,7 +194,7 @@ describe("AgentsClient", () => {
 
     test("update", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {
             name: "Acme Agent (Updated)",
             agentAttributes: [
@@ -342,7 +342,7 @@ describe("AgentsClient", () => {
 
     test("delete", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         server.mockEndpoint().delete("/agents/agentId").respondWith().statusCode(200).build();
 
@@ -352,7 +352,7 @@ describe("AgentsClient", () => {
 
     test("getByExternalId", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         const rawResponseBody = {
             id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
@@ -417,7 +417,7 @@ describe("AgentsClient", () => {
 
     test("updateByExternalId", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {
             name: "Acme Agent (Updated)",
             agentAttributes: [
@@ -519,7 +519,7 @@ describe("AgentsClient", () => {
 
     test("deleteByExternalId", async () => {
         const server = mockServerPool.createServer();
-        const client = new PaidClient({ maxRetries: 0, token: "test", environment: server.baseUrl });
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         server.mockEndpoint().delete("/agents/external/externalId").respondWith().statusCode(200).build();
 
