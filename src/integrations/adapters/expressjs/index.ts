@@ -3,7 +3,10 @@
  * Drop-in handlers for ExpressJS controllers using Express Request/Response
  */
 
-export { expressjsAdapter, createExpressJSResponseContext } from "./base-adapter.js";
+export {
+  expressjsAdapter,
+  createExpressJSResponseContext,
+} from "./base-adapter.js";
 
 export {
   createActivateOrderSyncRoute,
@@ -11,6 +14,7 @@ export {
   createCustomerInvoicesRoute,
   createCustomersRoute,
   createGetCustomerRoute,
+  createGetPlanGroupByIdRoute,
   createOrdersRoute,
   createPayInvoiceRoute,
   createProvisioningRoute,

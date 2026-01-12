@@ -9,6 +9,7 @@ export {
   createCustomerInvoicesRoute,
   createCustomersRoute,
   createGetCustomerRoute,
+  createGetPlanGroupByIdRoute,
   createOrdersRoute,
   createPayInvoiceRoute,
   createProvisioningRoute,
@@ -17,4 +18,4 @@ export {
   type OrdersRouteConfig,
   type ProvisioningRouteConfig,
   type SetupIntentRouteConfig,
-} from './routes.js';
+} from "./routes.js";
