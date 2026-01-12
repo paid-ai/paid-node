@@ -1,4 +1,6 @@
 import { PaidClient } from "../../Client.js";
+import type { PlanGroup } from "../../api/types/PlanGroup.js";
+import type { Plan } from "../../api/types/Plan.js"
 import { createHandler } from "../utils/base-handler.js";
 
 /**
@@ -17,7 +19,7 @@ import { createHandler } from "../utils/base-handler.js";
 export async function getPlanById(
   client: PaidClient,
   planId: string,
-): Promise<any> {
+): Promise<Plan> {
   const plan = await client.plans.getById(planId);
   return plan;
 }
@@ -38,7 +40,7 @@ export async function getPlanById(
 export async function getPlanGroupById(
   client: PaidClient,
   planGroupId: string,
-): Promise<any> {
+): Promise<PlanGroup> {
   const planGroup = await client.plans.getGroupById(planGroupId);
   return planGroup;
 }
