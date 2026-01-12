@@ -369,7 +369,7 @@ export function createSetupIntentRoute(config: SetupIntentRouteConfig = {}): Exp
 export function createGetPlanGroupByIdRoute(config: BaseHandlerConfig = {}) {
   const handler = createGetPlanGroupByIdHandler();
 
-  return (req: Request, res: Response) => {
+  return (req: Request, res: Response): Promise<any> => {
     return handler(
       {
         body: req.body,

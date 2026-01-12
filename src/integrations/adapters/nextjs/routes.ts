@@ -313,5 +313,5 @@ export function createSetupIntentRoute(config: SetupIntentRouteConfig = {}): Nex
 export function createGetPlanGroupByIdRoute(config: BaseHandlerConfig = {}) {
   const handler = createGetPlanGroupByIdHandler();
   const adaptedHandler = nextjsAdapter(handler);
-  return (request: any, context?: any) => adaptedHandler(request, context, config);
+  return (request: any, context?: any): Promise<any> => adaptedHandler(request, context, config);
 }

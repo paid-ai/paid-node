@@ -61,7 +61,7 @@ export async function getPlanGroupById(
  * export const GET = nextjsAdapter(handler);
  * ```
  */
-export function createGetPlanGroupByIdHandler() {
+export function createGetPlanGroupByIdHandler(): (request: any, response: any, config?: any) => Promise<any> {
   return createHandler<any, any>(
     async (client, _body, params) => {
       const planGroupId = params?.planGroupId;
