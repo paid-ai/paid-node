@@ -1,4 +1,5 @@
 import type { PaidClient } from "../../Client.js";
+import type { Plan } from "../../api/types/Plan.js";
 import type {
   OrderConfig,
   CompleteOrderConfig,
@@ -8,6 +9,19 @@ import type {
 } from "../types.js";
 import { createHandler } from "../utils/base-handler.js";
 import { getPlanById } from "./plans.js";
+
+type PlanProductWithExternalId = Plan.PlanProducts.Item & {
+  product: { externalId: string; name: string; description?: string };
+};
+
+function hasProductWithExternalId(
+  pp: Plan.PlanProducts.Item
+): pp is PlanProductWithExternalId {
+  if (!pp.product) {
+    throw new Error(`Plan product ${pp.id} is missing nested product data`);
+  }
+  return !!pp.product.externalId;
+}
 
 /**
  * Generate default values for missing order fields
@@ -225,23 +239,18 @@ export function createOrdersHandler(helperOptions?: OrderOptions): (request: any
 
       if (body.planId) {
         const plan = await getPlanById(client, body.planId);
-        if (plan.planProducts && plan.planProducts.length > 0) {
-          body.orderLines = plan.planProducts
-            .filter((pp: any) => {
-              if (!pp.product) {
-                throw new Error(`Plan product ${pp.id} is missing nested product data`);
-              }
-              return pp.product.externalId;
-            })
-            .map((pp: any) => ({
-              agentExternalId: pp.product.externalId,
-              name: pp.product.name,
-              description: pp.product.description,
-              planProductId: pp.id,
-            }));
-        } else {
+        if (!plan.planProducts?.length) {
           throw new Error(`Plan ${body.planId} has no products`);
         }
+        
+        body.orderLines = plan.planProducts
+          .filter(hasProductWithExternalId)
+          .map((pp) => ({
+            agentExternalId: pp.product.externalId,
+            name: pp.product.name,
+            description: pp.product.description,
+            planProductId: pp.id,
+          }));
       }
 
       const order = await createOrderWithDefaults(client, body, orderOptions);
