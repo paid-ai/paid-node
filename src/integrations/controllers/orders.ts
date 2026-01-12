@@ -222,9 +222,6 @@ interface OrderRequest extends OrderConfig {
 export function createOrdersHandler(helperOptions?: OrderOptions): (request: any, response: any, config?: any) => Promise<any> {
   return createHandler<OrderRequest, OrderCreationResult>(
     async (client, body): Promise<any> => {
-      if (!body.customerId) {
-        throw new Error("customerId is required");
-      }
       if (!body.customerExternalId) {
         throw new Error("customerExternalId is required");
       }
