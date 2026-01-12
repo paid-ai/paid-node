@@ -96,7 +96,8 @@ async function createAndActivateOrder(
       const orderLine: any = { agentExternalId: line.agentExternalId };
       if (line.name) orderLine.name = line.name;
       if (line.description) orderLine.description = line.description;
-      if ((line as any).planProductId) orderLine.planProductId = (line as any).planProductId;
+      // planProductId is not in the create orders api spec - this is functioning but greptile will complain
+      if (line.planProductId) orderLine.planProductId = line.planProductId;
       return orderLine;
     }),
     planId: config.planId,
@@ -248,6 +249,10 @@ export function createOrdersHandler(helperOptions?: OrderOptions): (request: any
             description: pp.product.description,
             planProductId: pp.id,
           }));
+        
+        if (body.orderLines.length === 0) {
+          throw new Error(`Plan ${body.planId} has no products with externalId`);
+        }
       }
 
       const order = await createOrderWithDefaults(client, body, orderOptions);
