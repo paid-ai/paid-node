@@ -9,13 +9,13 @@ export {
   createCustomerInvoicesRoute,
   createCustomersRoute,
   createGetCustomerRoute,
+  createGetPlanGroupByIdRoute,
   createOrdersRoute,
   createPayInvoiceRoute,
   createProvisioningRoute,
   createSetupIntentRoute,
-  createGetPlanGroupByIdRoute,
   type ActivateOrderSyncRouteConfig,
   type OrdersRouteConfig,
   type ProvisioningRouteConfig,
   type SetupIntentRouteConfig,
-} from './routes.js';
+} from "./routes.js";
