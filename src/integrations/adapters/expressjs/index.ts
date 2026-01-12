@@ -15,6 +15,7 @@ export {
   createPayInvoiceRoute,
   createProvisioningRoute,
   createSetupIntentRoute,
+  createGetPlanGroupByIdRoute,
   type ActivateOrderSyncRouteConfig,
   type OrdersRouteConfig,
   type ProvisioningRouteConfig,
