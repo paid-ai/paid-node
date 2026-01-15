@@ -48,5 +48,15 @@ export {
 } from "./provision-users.js";
 
 export {
+  getPlanById,
+  getPlanGroupById,
   createGetPlanGroupByIdHandler,
+  getGroupPlans,
+  createGetGroupPlansHandler,
+  subscribe,
+  createSubscribeHandler,
+  unsubscribe,
+  createUnsubscribeHandler,
+  upgrade,
+  createUpgradeHandler,
 } from "./plans.js";
