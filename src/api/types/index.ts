@@ -30,6 +30,7 @@ export * from "./PaginationMeta.js";
 export * from "./PaymentMethod.js";
 export * from "./Plan.js";
 export * from "./PlanGroup.js";
+export * from "./PlanWithFeatures.js";
 export * from "./PricePoint.js";
 export * from "./Pricing.js";
 export * from "./PricingModelType.js";
