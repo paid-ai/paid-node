@@ -15,6 +15,13 @@ describe("Plans", () => {
             planGroupId: "planGroupId",
             name: "name",
             description: "description",
+            type: "flat",
+            pricing: {
+                currency: "currency",
+                amount: 1.1,
+                billingFrequency: "monthly",
+                billingFrequencyCustomMonths: 1.1,
+            },
             nextPlanId: "nextPlanId",
             prevPlanId: "prevPlanId",
             createdAt: "2024-01-15T09:30:00Z",
@@ -41,6 +48,13 @@ describe("Plans", () => {
             planGroupId: "planGroupId",
             name: "name",
             description: "description",
+            type: "flat",
+            pricing: {
+                currency: "currency",
+                amount: 1.1,
+                billingFrequency: "monthly",
+                billingFrequencyCustomMonths: 1.1,
+            },
             nextPlanId: "nextPlanId",
             prevPlanId: "prevPlanId",
             createdAt: "2024-01-15T09:30:00Z",
@@ -226,6 +240,400 @@ describe("Plans", () => {
         }).rejects.toThrow(Paid.NotFoundError);
     });
 
+    test("subscribe (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = {
+            id: "id",
+            name: "name",
+            description: "description",
+            customerId: "customerId",
+            organizationId: "organizationId",
+            startDate: "startDate",
+            endDate: "endDate",
+            totalAmount: 1.1,
+            estimatedTax: 1.1,
+            billedAmountNoTax: 1.1,
+            billedTax: 1.1,
+            totalBilledAmount: 1.1,
+            pendingBillingAmount: 1.1,
+            creationState: "active",
+            orderLines: [
+                {
+                    id: "id",
+                    orderId: "orderId",
+                    agentId: "agentId",
+                    name: "name",
+                    description: "description",
+                    startDate: "startDate",
+                    endDate: "endDate",
+                    totalAmount: 1.1,
+                    billedAmountWithoutTax: 1.1,
+                    billedTax: 1.1,
+                    totalBilledAmount: 1.1,
+                    creationState: "active",
+                    agent: { id: "id", organizationId: "organizationId", name: "name", active: true },
+                    orderLineAttributes: [{}],
+                },
+            ],
+            customer: {
+                id: "id",
+                organizationId: "organizationId",
+                name: "name",
+                externalId: "externalId",
+                phone: "phone",
+                employeeCount: 1.1,
+                annualRevenue: 1.1,
+                taxExemptStatus: "none",
+                creationSource: "manual",
+                creationState: "active",
+                website: "website",
+                billingAddress: {
+                    line1: "line1",
+                    line2: "line2",
+                    city: "city",
+                    state: "state",
+                    zipCode: "zipCode",
+                    country: "country",
+                },
+                metadata: { key: "value" },
+            },
+        };
+        server
+            .mockEndpoint()
+            .post("/plans/planId/subscribe")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.plans.subscribe("planId", {
+            customerExternalId: "customerExternalId",
+            currency: "currency",
+        });
+        expect(response).toEqual({
+            id: "id",
+            name: "name",
+            description: "description",
+            customerId: "customerId",
+            organizationId: "organizationId",
+            startDate: "startDate",
+            endDate: "endDate",
+            totalAmount: 1.1,
+            estimatedTax: 1.1,
+            billedAmountNoTax: 1.1,
+            billedTax: 1.1,
+            totalBilledAmount: 1.1,
+            pendingBillingAmount: 1.1,
+            creationState: "active",
+            orderLines: [
+                {
+                    id: "id",
+                    orderId: "orderId",
+                    agentId: "agentId",
+                    name: "name",
+                    description: "description",
+                    startDate: "startDate",
+                    endDate: "endDate",
+                    totalAmount: 1.1,
+                    billedAmountWithoutTax: 1.1,
+                    billedTax: 1.1,
+                    totalBilledAmount: 1.1,
+                    creationState: "active",
+                    agent: {
+                        id: "id",
+                        organizationId: "organizationId",
+                        name: "name",
+                        active: true,
+                    },
+                    orderLineAttributes: [{}],
+                },
+            ],
+            customer: {
+                id: "id",
+                organizationId: "organizationId",
+                name: "name",
+                externalId: "externalId",
+                phone: "phone",
+                employeeCount: 1.1,
+                annualRevenue: 1.1,
+                taxExemptStatus: "none",
+                creationSource: "manual",
+                creationState: "active",
+                website: "website",
+                billingAddress: {
+                    line1: "line1",
+                    line2: "line2",
+                    city: "city",
+                    state: "state",
+                    zipCode: "zipCode",
+                    country: "country",
+                },
+                metadata: {
+                    key: "value",
+                },
+            },
+        });
+    });
+
+    test("subscribe (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: {} };
+        server
+            .mockEndpoint()
+            .post("/plans/planId/subscribe")
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.plans.subscribe("planId", {
+                customerExternalId: "customerExternalId",
+                currency: "currency",
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("subscribe (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: {} };
+        server
+            .mockEndpoint()
+            .post("/plans/planId/subscribe")
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.plans.subscribe("planId", {
+                customerExternalId: "customerExternalId",
+                currency: "currency",
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("subscribe (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: {} };
+        server
+            .mockEndpoint()
+            .post("/plans/planId/subscribe")
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.plans.subscribe("planId", {
+                customerExternalId: "customerExternalId",
+                currency: "currency",
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("unsubscribe (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = {
+            orderId: "orderId",
+            amendmentId: "amendmentId",
+            version: 1,
+            endDate: "2024-01-15T09:30:00Z",
+            effectiveDate: "2024-01-15T09:30:00Z",
+        };
+        server
+            .mockEndpoint()
+            .post("/plans/planId/unsubscribe")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.plans.unsubscribe("planId", {
+            customerExternalId: "customerExternalId",
+        });
+        expect(response).toEqual({
+            orderId: "orderId",
+            amendmentId: "amendmentId",
+            version: 1,
+            endDate: "2024-01-15T09:30:00Z",
+            effectiveDate: "2024-01-15T09:30:00Z",
+        });
+    });
+
+    test("unsubscribe (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: {} };
+        server
+            .mockEndpoint()
+            .post("/plans/planId/unsubscribe")
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.plans.unsubscribe("planId", {
+                customerExternalId: "customerExternalId",
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("unsubscribe (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: {} };
+        server
+            .mockEndpoint()
+            .post("/plans/planId/unsubscribe")
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.plans.unsubscribe("planId", {
+                customerExternalId: "customerExternalId",
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("unsubscribe (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: {} };
+        server
+            .mockEndpoint()
+            .post("/plans/planId/unsubscribe")
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.plans.unsubscribe("planId", {
+                customerExternalId: "customerExternalId",
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("upgrade (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = {
+            orderId: "orderId",
+            amendmentId: "amendmentId",
+            version: 1,
+            effectiveDate: "2024-01-15T09:30:00Z",
+            endedLineIds: ["endedLineIds"],
+            createdLineIds: ["createdLineIds"],
+            creditLineIds: ["creditLineIds"],
+            prorationDetails: [
+                {
+                    oldAttributeId: "oldAttributeId",
+                    newAttributeId: "newAttributeId",
+                    creditLineId: "creditLineId",
+                    oldPrice: 1.1,
+                    newPrice: 1.1,
+                    creditAmount: 1.1,
+                    remainingDays: 1,
+                    totalDaysInCycle: 1,
+                },
+            ],
+        };
+        server.mockEndpoint().post("/plans/upgrade").respondWith().statusCode(200).jsonBody(rawResponseBody).build();
+
+        const response = await client.plans.upgrade({
+            customerExternalId: "customerExternalId",
+            oldPlanId: "oldPlanId",
+            newPlanId: "newPlanId",
+        });
+        expect(response).toEqual({
+            orderId: "orderId",
+            amendmentId: "amendmentId",
+            version: 1,
+            effectiveDate: "2024-01-15T09:30:00Z",
+            endedLineIds: ["endedLineIds"],
+            createdLineIds: ["createdLineIds"],
+            creditLineIds: ["creditLineIds"],
+            prorationDetails: [
+                {
+                    oldAttributeId: "oldAttributeId",
+                    newAttributeId: "newAttributeId",
+                    creditLineId: "creditLineId",
+                    oldPrice: 1.1,
+                    newPrice: 1.1,
+                    creditAmount: 1.1,
+                    remainingDays: 1,
+                    totalDaysInCycle: 1,
+                },
+            ],
+        });
+    });
+
+    test("upgrade (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: {} };
+        server.mockEndpoint().post("/plans/upgrade").respondWith().statusCode(400).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.plans.upgrade({
+                customerExternalId: "customerExternalId",
+                oldPlanId: "oldPlanId",
+                newPlanId: "newPlanId",
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("upgrade (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: {} };
+        server.mockEndpoint().post("/plans/upgrade").respondWith().statusCode(403).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.plans.upgrade({
+                customerExternalId: "customerExternalId",
+                oldPlanId: "oldPlanId",
+                newPlanId: "newPlanId",
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("upgrade (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: {} };
+        server.mockEndpoint().post("/plans/upgrade").respondWith().statusCode(404).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.plans.upgrade({
+                customerExternalId: "customerExternalId",
+                oldPlanId: "oldPlanId",
+                newPlanId: "newPlanId",
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
     test("getGroupById (1)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
@@ -244,6 +652,8 @@ describe("Plans", () => {
                     planGroupId: "planGroupId",
                     name: "name",
                     description: "description",
+                    type: "flat",
+                    pricing: { currency: "currency", billingFrequency: "monthly" },
                     nextPlanId: "nextPlanId",
                     prevPlanId: "prevPlanId",
                     createdAt: "2024-01-15T09:30:00Z",
@@ -275,6 +685,11 @@ describe("Plans", () => {
                     planGroupId: "planGroupId",
                     name: "name",
                     description: "description",
+                    type: "flat",
+                    pricing: {
+                        currency: "currency",
+                        billingFrequency: "monthly",
+                    },
                     nextPlanId: "nextPlanId",
                     prevPlanId: "prevPlanId",
                     createdAt: "2024-01-15T09:30:00Z",
@@ -330,6 +745,13 @@ describe("Plans", () => {
                 id: "id",
                 name: "name",
                 description: "description",
+                type: "flat",
+                pricing: {
+                    currency: "currency",
+                    amount: 1.1,
+                    billingFrequency: "monthly",
+                    billingFrequencyCustomMonths: 1.1,
+                },
                 createdAt: "2024-01-15T09:30:00Z",
                 updatedAt: "2024-01-15T09:30:00Z",
                 nextPlanId: "nextPlanId",
@@ -351,6 +773,13 @@ describe("Plans", () => {
                 id: "id",
                 name: "name",
                 description: "description",
+                type: "flat",
+                pricing: {
+                    currency: "currency",
+                    amount: 1.1,
+                    billingFrequency: "monthly",
+                    billingFrequencyCustomMonths: 1.1,
+                },
                 createdAt: "2024-01-15T09:30:00Z",
                 updatedAt: "2024-01-15T09:30:00Z",
                 nextPlanId: "nextPlanId",
