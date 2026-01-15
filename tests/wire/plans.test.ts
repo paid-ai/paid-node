@@ -254,7 +254,7 @@ describe("Plans", () => {
         };
         server
             .mockEndpoint()
-            .get("/plans/group/planGroupId")
+            .get("/plans/planGroup/planGroupId")
             .respondWith()
             .statusCode(200)
             .jsonBody(rawResponseBody)
@@ -292,7 +292,7 @@ describe("Plans", () => {
         const rawResponseBody = { error: {} };
         server
             .mockEndpoint()
-            .get("/plans/group/planGroupId")
+            .get("/plans/planGroup/planGroupId")
             .respondWith()
             .statusCode(403)
             .jsonBody(rawResponseBody)
@@ -310,7 +310,7 @@ describe("Plans", () => {
         const rawResponseBody = { error: {} };
         server
             .mockEndpoint()
-            .get("/plans/group/planGroupId")
+            .get("/plans/planGroup/planGroupId")
             .respondWith()
             .statusCode(404)
             .jsonBody(rawResponseBody)
@@ -318,6 +318,89 @@ describe("Plans", () => {
 
         await expect(async () => {
             return await client.plans.getGroupById("planGroupId");
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("getGroupPlans (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = [
+            {
+                id: "id",
+                name: "name",
+                description: "description",
+                createdAt: "2024-01-15T09:30:00Z",
+                updatedAt: "2024-01-15T09:30:00Z",
+                nextPlanId: "nextPlanId",
+                prevPlanId: "prevPlanId",
+                features: [{ productName: "productName", attributeName: "attributeName", pricing: { key: "value" } }],
+            },
+        ];
+        server
+            .mockEndpoint()
+            .get("/plans/planGroup/planGroupId/plans")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.plans.getGroupPlans("planGroupId");
+        expect(response).toEqual([
+            {
+                id: "id",
+                name: "name",
+                description: "description",
+                createdAt: "2024-01-15T09:30:00Z",
+                updatedAt: "2024-01-15T09:30:00Z",
+                nextPlanId: "nextPlanId",
+                prevPlanId: "prevPlanId",
+                features: [
+                    {
+                        productName: "productName",
+                        attributeName: "attributeName",
+                        pricing: {
+                            key: "value",
+                        },
+                    },
+                ],
+            },
+        ]);
+    });
+
+    test("getGroupPlans (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: {} };
+        server
+            .mockEndpoint()
+            .get("/plans/planGroup/planGroupId/plans")
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.plans.getGroupPlans("planGroupId");
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("getGroupPlans (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: {} };
+        server
+            .mockEndpoint()
+            .get("/plans/planGroup/planGroupId/plans")
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.plans.getGroupPlans("planGroupId");
         }).rejects.toThrow(Paid.NotFoundError);
     });
 });

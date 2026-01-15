@@ -1,6 +1,6 @@
 {
     "name": "@paid-ai/paid-node",
-    "version": "1.0.1-alpha0",
+    "version": "1.0.1-alpha1",
     "private": false,
     "repository": "github:paid-ai/paid-node",
     "type": "commonjs",
@@ -242,5 +242,39 @@
     "engines": {
         "node": ">=18.0.0"
     },
-    "sideEffects": false
+    "sideEffects": false,
+    "typesVersions": {
+        "*": {
+            "openai": [
+                "./dist/cjs/openai-wrapper/index.d.ts"
+            ],
+            "anthropic": [
+                "./dist/cjs/anthropic-wrapper/index.d.ts"
+            ],
+            "mistral": [
+                "./dist/cjs/mistral-wrapper/index.d.ts"
+            ],
+            "langchain": [
+                "./dist/cjs/langchain-wrapper/index.d.ts"
+            ],
+            "vercel": [
+                "./dist/cjs/vercel-wrapper/index.d.ts"
+            ],
+            "tracing": [
+                "./dist/cjs/tracing/index.d.ts"
+            ],
+            "integrations": [
+                "./dist/cjs/integrations/index.d.ts"
+            ],
+            "integrations/nextjs": [
+                "./dist/cjs/integrations/adapters/nextjs/index.d.ts"
+            ],
+            "integrations/express": [
+                "./dist/cjs/integrations/adapters/expressjs/index.d.ts"
+            ],
+            "integrations/nestjs": [
+                "./dist/cjs/integrations/adapters/nestjs/index.d.ts"
+            ]
+        }
+    }
 }

@@ -2828,6 +2828,55 @@ await client.plans.getGroupById("planGroupId");
 </dl>
 </details>
 
+<details><summary><code>client.plans.<a href="/src/api/resources/plans/client/Client.ts">getGroupPlans</a>(planGroupId) -> Paid.PlanWithFeatures[]</code></summary>
+<dl>
+<dd>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.plans.getGroupPlans("planGroupId");
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**planGroupId:** `string` — The ID of the plan group
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Plans.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
 ## Usage
 <details><summary><code>client.usage.<a href="/src/api/resources/usage/client/Client.ts">recordBulk</a>({ ...params }) -> void</code></summary>
 <dl>
@@ -2910,15 +2959,15 @@ await client.usage.recordBulk({
 await client.usage.usageRecordBulkV2({
     signals: [{
             event_name: "emails_sent",
-            product_id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
-            customer_id: "7d0b6fce-d82a-433d-8315-c994f8f1d68d"
+            product_id: "prod_abc123def",
+            customer_id: "cus_xyz789ghi"
         }, {
             event_name: "emails_sent",
             external_product_id: "acme-product",
             external_customer_id: "acme-inc"
         }, {
             event_name: "meeting_booked",
-            product_id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
+            product_id: "prod_abc123def",
             external_customer_id: "acme-inc",
             data: {
                 "meeting_duration": 30,

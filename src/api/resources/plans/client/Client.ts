@@ -231,7 +231,7 @@ export class Plans {
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
                     environments.PaidEnvironment.Production,
-                `plans/group/${core.url.encodePathParam(planGroupId)}`,
+                `plans/planGroup/${core.url.encodePathParam(planGroupId)}`,
             ),
             method: "GET",
             headers: _headers,
@@ -267,7 +267,85 @@ export class Plans {
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /plans/group/{planGroupId}.");
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /plans/planGroup/{planGroupId}.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * @param {string} planGroupId - The ID of the plan group
+     * @param {Plans.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     *
+     * @example
+     *     await client.plans.getGroupPlans("planGroupId")
+     */
+    public getGroupPlans(
+        planGroupId: string,
+        requestOptions?: Plans.RequestOptions,
+    ): core.HttpResponsePromise<Paid.PlanWithFeatures[]> {
+        return core.HttpResponsePromise.fromPromise(this.__getGroupPlans(planGroupId, requestOptions));
+    }
+
+    private async __getGroupPlans(
+        planGroupId: string,
+        requestOptions?: Plans.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.PlanWithFeatures[]>> {
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Production,
+                `plans/planGroup/${core.url.encodePathParam(planGroupId)}/plans`,
+            ),
+            method: "GET",
+            headers: _headers,
+            queryParameters: requestOptions?.queryParams,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.PlanWithFeatures[], rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as Paid.Error_, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as Paid.Error_, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError(
+                    "Timeout exceeded when calling GET /plans/planGroup/{planGroupId}/plans.",
+                );
             case "unknown":
                 throw new errors.PaidError({
                     message: _response.error.errorMessage,
