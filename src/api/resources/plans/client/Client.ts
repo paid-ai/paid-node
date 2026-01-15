@@ -201,6 +201,276 @@ export class Plans {
     }
 
     /**
+     * Creates a new order for a customer subscribing to a plan. The order will be created with the plan's products and pricing attributes.
+     *
+     * @param {string} planId - The ID of the plan
+     * @param {Paid.PlansSubscribeRequest} request
+     * @param {Plans.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     *
+     * @example
+     *     await client.plans.subscribe("planId", {
+     *         customerExternalId: "customerExternalId",
+     *         currency: "currency"
+     *     })
+     */
+    public subscribe(
+        planId: string,
+        request: Paid.PlansSubscribeRequest,
+        requestOptions?: Plans.RequestOptions,
+    ): core.HttpResponsePromise<Paid.Order> {
+        return core.HttpResponsePromise.fromPromise(this.__subscribe(planId, request, requestOptions));
+    }
+
+    private async __subscribe(
+        planId: string,
+        request: Paid.PlansSubscribeRequest,
+        requestOptions?: Plans.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.Order>> {
+        const { customerExternalId, currency } = request;
+        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
+        _queryParams.customerExternalId = customerExternalId;
+        _queryParams.currency = currency;
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Production,
+                `plans/${core.url.encodePathParam(planId)}/subscribe`,
+            ),
+            method: "POST",
+            headers: _headers,
+            queryParameters: { ..._queryParams, ...requestOptions?.queryParams },
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.Order, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as Paid.Error_, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as Paid.Error_, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as Paid.Error_, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /plans/{planId}/subscribe.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Cancels the renewal of an active order for a customer's plan subscription. The order will remain active until the cancellation date.
+     *
+     * @param {string} planId - The ID of the plan
+     * @param {Paid.PlansUnsubscribeRequest} request
+     * @param {Plans.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     *
+     * @example
+     *     await client.plans.unsubscribe("planId", {
+     *         customerExternalId: "customerExternalId"
+     *     })
+     */
+    public unsubscribe(
+        planId: string,
+        request: Paid.PlansUnsubscribeRequest,
+        requestOptions?: Plans.RequestOptions,
+    ): core.HttpResponsePromise<Paid.CancelRenewalResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__unsubscribe(planId, request, requestOptions));
+    }
+
+    private async __unsubscribe(
+        planId: string,
+        request: Paid.PlansUnsubscribeRequest,
+        requestOptions?: Plans.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.CancelRenewalResponse>> {
+        const { customerExternalId } = request;
+        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
+        _queryParams.customerExternalId = customerExternalId;
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Production,
+                `plans/${core.url.encodePathParam(planId)}/unsubscribe`,
+            ),
+            method: "POST",
+            headers: _headers,
+            queryParameters: { ..._queryParams, ...requestOptions?.queryParams },
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.CancelRenewalResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as Paid.Error_, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as Paid.Error_, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as Paid.Error_, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /plans/{planId}/unsubscribe.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Upgrades a customer from one plan to another with automatic proration. Credits are applied for the unused portion of the current billing period, and the order is updated with the new plan's pricing.
+     *
+     * @param {Paid.PlansUpgradeRequest} request
+     * @param {Plans.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     *
+     * @example
+     *     await client.plans.upgrade({
+     *         customerExternalId: "customerExternalId",
+     *         oldPlanId: "oldPlanId",
+     *         newPlanId: "newPlanId"
+     *     })
+     */
+    public upgrade(
+        request: Paid.PlansUpgradeRequest,
+        requestOptions?: Plans.RequestOptions,
+    ): core.HttpResponsePromise<Paid.ProrationUpgradeResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__upgrade(request, requestOptions));
+    }
+
+    private async __upgrade(
+        request: Paid.PlansUpgradeRequest,
+        requestOptions?: Plans.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.ProrationUpgradeResponse>> {
+        const { customerExternalId, oldPlanId, newPlanId } = request;
+        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
+        _queryParams.customerExternalId = customerExternalId;
+        _queryParams.oldPlanId = oldPlanId;
+        _queryParams.newPlanId = newPlanId;
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Production,
+                "plans/upgrade",
+            ),
+            method: "POST",
+            headers: _headers,
+            queryParameters: { ..._queryParams, ...requestOptions?.queryParams },
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.ProrationUpgradeResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as Paid.Error_, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as Paid.Error_, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as Paid.Error_, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /plans/upgrade.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
      * @param {string} planGroupId - The ID of the plan group
      * @param {Plans.RequestOptions} requestOptions - Request-specific configuration.
      *
@@ -277,6 +547,8 @@ export class Plans {
     }
 
     /**
+     * Retrieves all plans in a plan group with their features (product-attribute pairs)
+     *
      * @param {string} planGroupId - The ID of the plan group
      * @param {Plans.RequestOptions} requestOptions - Request-specific configuration.
      *

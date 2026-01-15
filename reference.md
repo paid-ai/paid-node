@@ -2779,6 +2779,220 @@ await client.plans.getUsage("planId", {
 </dl>
 </details>
 
+<details><summary><code>client.plans.<a href="/src/api/resources/plans/client/Client.ts">subscribe</a>(planId, { ...params }) -> Paid.Order</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Creates a new order for a customer subscribing to a plan. The order will be created with the plan's products and pricing attributes.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.plans.subscribe("planId", {
+    customerExternalId: "customerExternalId",
+    currency: "currency"
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**planId:** `string` — The ID of the plan
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request:** `Paid.PlansSubscribeRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Plans.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.plans.<a href="/src/api/resources/plans/client/Client.ts">unsubscribe</a>(planId, { ...params }) -> Paid.CancelRenewalResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Cancels the renewal of an active order for a customer's plan subscription. The order will remain active until the cancellation date.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.plans.unsubscribe("planId", {
+    customerExternalId: "customerExternalId"
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**planId:** `string` — The ID of the plan
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request:** `Paid.PlansUnsubscribeRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Plans.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.plans.<a href="/src/api/resources/plans/client/Client.ts">upgrade</a>({ ...params }) -> Paid.ProrationUpgradeResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Upgrades a customer from one plan to another with automatic proration. Credits are applied for the unused portion of the current billing period, and the order is updated with the new plan's pricing.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.plans.upgrade({
+    customerExternalId: "customerExternalId",
+    oldPlanId: "oldPlanId",
+    newPlanId: "newPlanId"
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.PlansUpgradeRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Plans.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
 <details><summary><code>client.plans.<a href="/src/api/resources/plans/client/Client.ts">getGroupById</a>(planGroupId) -> Paid.PlanGroup</code></summary>
 <dl>
 <dd>
@@ -2831,6 +3045,20 @@ await client.plans.getGroupById("planGroupId");
 <details><summary><code>client.plans.<a href="/src/api/resources/plans/client/Client.ts">getGroupPlans</a>(planGroupId) -> Paid.PlanWithFeatures[]</code></summary>
 <dl>
 <dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Retrieves all plans in a plan group with their features (product-attribute pairs)
+</dd>
+</dl>
+</dd>
+</dl>
 
 #### 🔌 Usage
 

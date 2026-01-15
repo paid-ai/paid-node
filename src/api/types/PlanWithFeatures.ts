@@ -10,6 +10,10 @@ export interface PlanWithFeatures {
     name: string;
     /** The description of the plan */
     description?: string;
+    /** The type of plan (flat for fixed pricing, usage for usage-based, credit for prepaid credits) */
+    type: PlanWithFeatures.Type;
+    /** The pricing configuration for the plan */
+    pricing: PlanWithFeatures.Pricing;
     /** When the plan was created */
     createdAt: string;
     /** When the plan was last updated */
@@ -23,6 +27,38 @@ export interface PlanWithFeatures {
 }
 
 export namespace PlanWithFeatures {
+    /** The type of plan (flat for fixed pricing, usage for usage-based, credit for prepaid credits) */
+    export const Type = {
+        Flat: "flat",
+        Usage: "usage",
+        Credit: "credit",
+    } as const;
+    export type Type = (typeof Type)[keyof typeof Type];
+
+    /**
+     * The pricing configuration for the plan
+     */
+    export interface Pricing {
+        /** The currency code (e.g., "USD", "EUR") */
+        currency: string;
+        /** The fixed amount for flat plans (in smallest currency unit, e.g., cents) */
+        amount?: number;
+        /** The billing frequency for the plan */
+        billingFrequency: Pricing.BillingFrequency;
+        /** Custom billing frequency in months (if not using standard frequencies) */
+        billingFrequencyCustomMonths?: number;
+    }
+
+    export namespace Pricing {
+        /** The billing frequency for the plan */
+        export const BillingFrequency = {
+            Monthly: "monthly",
+            Quarterly: "quarterly",
+            Annual: "annual",
+        } as const;
+        export type BillingFrequency = (typeof BillingFrequency)[keyof typeof BillingFrequency];
+    }
+
     export type Features = Features.Item[];
 
     export namespace Features {
