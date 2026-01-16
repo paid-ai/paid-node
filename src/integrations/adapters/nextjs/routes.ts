@@ -12,7 +12,8 @@ import {
   createGetGroupPlansHandler,
   createSubscribeHandler,
   createUnsubscribeHandler,
-  createUpgradeHandler
+  createUpgradeHandler,
+  createGetCurrentHandler
 } from "../../controllers/plans.js";
 
 type NextJsHandler = (request: any, context?: any) => Promise<any>;
@@ -398,6 +399,27 @@ export function createUnsubscribeRoute(config: BaseHandlerConfig = {}) {
  */
 export function createUpgradeRoute(config: BaseHandlerConfig = {}) {
   const handler = createUpgradeHandler();
+  const adaptedHandler = nextjsAdapter(handler);
+  return (request: any, context?: any): Promise<any> => adaptedHandler(request, context, config);
+}
+
+/**
+ * Create a Next.js API route handler for getting a customer's current plan
+ *
+ * @param config - Handler configuration options
+ * @returns Next.js route handler function
+ *
+ * @example
+ * ```typescript
+ * // src/app/api/plans/current/[customerExternalId]/route.ts
+ * // GET /api/plans/current/customer-123
+ * import { createGetCurrentRoute } from '@paid-ai/paid-node/integrations/nextjs';
+ *
+ * export const GET = createGetCurrentRoute();
+ * ```
+ */
+export function createGetCurrentRoute(config: BaseHandlerConfig = {}) {
+  const handler = createGetCurrentHandler();
   const adaptedHandler = nextjsAdapter(handler);
   return (request: any, context?: any): Promise<any> => adaptedHandler(request, context, config);
 }

@@ -8,6 +8,8 @@ import type { ProrationUpgradeResponse } from "../../api/types/ProrationUpgradeR
 import type { PlansSubscribeRequest } from "../../api/resources/plans/client/requests/PlansSubscribeRequest.js";
 import type { PlansUnsubscribeRequest } from "../../api/resources/plans/client/requests/PlansUnsubscribeRequest.js";
 import type { PlansUpgradeRequest } from "../../api/resources/plans/client/requests/PlansUpgradeRequest.js";
+import type { PlansGetCurrentRequest } from "../../api/resources/plans/client/requests/PlansGetCurrentRequest.js";
+import type { PlansGetCurrentResponse } from "../../api/resources/plans/types/PlansGetCurrentResponse.js";
 import { createHandler } from "../utils/base-handler.js";
 
 /**
@@ -395,6 +397,74 @@ export function createUpgradeHandler(): (request: any, response: any, config?: a
     },
     {
       allowedMethods: ['POST'],
+      requireOrganizationId: false,
+    }
+  );
+}
+
+/**
+ * Get the currently active plan subscription for a customer
+ *
+ * Retrieves the currently active plan subscription for a customer by their external ID. Returns the plan details and subscription information.
+ *
+ * @param client - PaidClient instance
+ * @param request - Get current request with customer external ID
+ * @returns Current plan response
+ *
+ * @example
+ * ```typescript
+ * const response = await getCurrent(client, {
+ *   customerExternalId: 'customer-123'
+ * });
+ * console.log(response.plan.id);
+ * ```
+ */
+export async function getCurrent(
+  client: PaidClient,
+  request: PlansGetCurrentRequest,
+): Promise<PlansGetCurrentResponse> {
+  const response = await client.plans.getCurrent(request);
+  return response;
+}
+
+/**
+ * Create a framework-agnostic handler for getting a customer's current plan
+ *
+ * This handler can be used with any framework adapter.
+ * The customerExternalId should be provided as a URL parameter.
+ *
+ * @returns Handler function
+ *
+ * @example
+ * ```typescript
+ * // In Next.js route: /api/plans/current/[customerExternalId]/route.ts
+ * // GET /api/plans/current/customer-123
+ * import { createGetCurrentHandler } from '@paid-ai/paid-node/integrations';
+ * import { nextjsAdapter } from '@paid-ai/paid-node/integrations/nextjs';
+ *
+ * const handler = createGetCurrentHandler();
+ * export const GET = nextjsAdapter(handler);
+ * ```
+ */
+export function createGetCurrentHandler(): (request: any, response: any, config?: any) => Promise<any> {
+  return createHandler<PlansGetCurrentRequest, PlansGetCurrentResponse>(
+    async (client, _body, params) => {
+      // Support customerExternalId from params (URL/query)
+      const customerExternalId = params?.customerExternalId;
+
+      if (!customerExternalId) {
+        return {
+          success: false,
+          error: "customerExternalId is required",
+          status: 400,
+        };
+      }
+
+      const response = await getCurrent(client, { customerExternalId });
+      return { success: true, data: response };
+    },
+    {
+      allowedMethods: ['GET'],
       requireOrganizationId: false,
     }
   );
