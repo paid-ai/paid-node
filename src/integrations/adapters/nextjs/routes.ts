@@ -411,7 +411,8 @@ export function createUpgradeRoute(config: BaseHandlerConfig = {}) {
  *
  * @example
  * ```typescript
- * // src/app/api/plans/current/route.ts
+ * // src/app/api/plans/current/[customerExternalId]/route.ts
+ * // GET /api/plans/current/customer-123
  * import { createGetCurrentRoute } from '@paid-ai/paid-node/integrations/nextjs';
  *
  * export const GET = createGetCurrentRoute();
