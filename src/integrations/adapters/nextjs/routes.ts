@@ -7,7 +7,13 @@ import { createCustomersHandler, createGetCustomerHandler } from "../../controll
 import { createOrdersHandler } from "../../controllers/orders.js";
 import { createProvisioningHandler } from "../../controllers/provision-users.js";
 import { createActivateOrderSyncHandler, createPayInvoiceHandler, createSetupIntentHandler } from "../../controllers/billing.js";
-import { createGetPlanGroupByIdHandler } from "../../controllers/plans.js";
+import { 
+  createGetPlanGroupByIdHandler,
+  createGetGroupPlansHandler,
+  createSubscribeHandler,
+  createUnsubscribeHandler,
+  createUpgradeHandler
+} from "../../controllers/plans.js";
 
 type NextJsHandler = (request: any, context?: any) => Promise<any>;
 
@@ -312,6 +318,86 @@ export function createSetupIntentRoute(config: SetupIntentRouteConfig = {}): Nex
  */
 export function createGetPlanGroupByIdRoute(config: BaseHandlerConfig = {}) {
   const handler = createGetPlanGroupByIdHandler();
+  const adaptedHandler = nextjsAdapter(handler);
+  return (request: any, context?: any): Promise<any> => adaptedHandler(request, context, config);
+}
+
+/**
+ * Create a Next.js API route handler for getting all plans in a plan group
+ *
+ * @param config - Handler configuration options
+ * @returns Next.js route handler function
+ *
+ * @example
+ * ```typescript
+ * // src/app/api/plans/[planGroupId]/plans/route.ts
+ * import { createGetGroupPlansRoute } from '@paid-ai/paid-node/integrations/nextjs';
+ *
+ * export const GET = createGetGroupPlansRoute();
+ * ```
+ */
+export function createGetGroupPlansRoute(config: BaseHandlerConfig = {}) {
+  const handler = createGetGroupPlansHandler();
+  const adaptedHandler = nextjsAdapter(handler);
+  return (request: any, context?: any): Promise<any> => adaptedHandler(request, context, config);
+}
+
+/**
+ * Create a Next.js API route handler for subscribing a customer to a plan
+ *
+ * @param config - Handler configuration options
+ * @returns Next.js route handler function
+ *
+ * @example
+ * ```typescript
+ * // src/app/api/plans/[planId]/subscribe/route.ts
+ * import { createSubscribeRoute } from '@paid-ai/paid-node/integrations/nextjs';
+ *
+ * export const POST = createSubscribeRoute();
+ * ```
+ */
+export function createSubscribeRoute(config: BaseHandlerConfig = {}) {
+  const handler = createSubscribeHandler();
+  const adaptedHandler = nextjsAdapter(handler);
+  return (request: any, context?: any): Promise<any> => adaptedHandler(request, context, config);
+}
+
+/**
+ * Create a Next.js API route handler for unsubscribing a customer from a plan
+ *
+ * @param config - Handler configuration options
+ * @returns Next.js route handler function
+ *
+ * @example
+ * ```typescript
+ * // src/app/api/plans/[planId]/unsubscribe/route.ts
+ * import { createUnsubscribeRoute } from '@paid-ai/paid-node/integrations/nextjs';
+ *
+ * export const POST = createUnsubscribeRoute();
+ * ```
+ */
+export function createUnsubscribeRoute(config: BaseHandlerConfig = {}) {
+  const handler = createUnsubscribeHandler();
+  const adaptedHandler = nextjsAdapter(handler);
+  return (request: any, context?: any): Promise<any> => adaptedHandler(request, context, config);
+}
+
+/**
+ * Create a Next.js API route handler for upgrading a customer's plan
+ *
+ * @param config - Handler configuration options
+ * @returns Next.js route handler function
+ *
+ * @example
+ * ```typescript
+ * // src/app/api/plans/upgrade/route.ts
+ * import { createUpgradeRoute } from '@paid-ai/paid-node/integrations/nextjs';
+ *
+ * export const POST = createUpgradeRoute();
+ * ```
+ */
+export function createUpgradeRoute(config: BaseHandlerConfig = {}) {
+  const handler = createUpgradeHandler();
   const adaptedHandler = nextjsAdapter(handler);
   return (request: any, context?: any): Promise<any> => adaptedHandler(request, context, config);
 }
