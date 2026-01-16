@@ -1,6 +1,6 @@
 {
     "name": "@paid-ai/paid-node",
-    "version": "1.0.1-alpha2",
+    "version": "1.0.1-alpha4",
     "private": false,
     "repository": "github:paid-ai/paid-node",
     "type": "commonjs",

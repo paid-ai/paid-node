@@ -77,7 +77,7 @@ importers:
         version: 18.19.130
       ai:
         specifier: '>=5.0.0'
-        version: 6.0.38(zod@3.25.76)
+        version: 6.0.39(zod@3.25.76)
       msw:
         specifier: 2.11.2
         version: 2.11.2(@types/node@18.19.130)(typescript@5.7.3)
@@ -1503,8 +1503,8 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
 
-  ai@6.0.38:
-    resolution: {integrity: sha512-X8AaZFrdsPO1RNCAQLsaWfmE/SL9zgsiIZN3XqEHs3jIZ7ycR5aQZRg5XpNtbLWJxKXzK2b1ZXLx13AFOjksSg==}
+  ai@6.0.39:
+    resolution: {integrity: sha512-hF05gF4H+IxuilA8kNANVVHQXduTJsJaH74jmlmy8mcQt3NZgPYe2zZNyGBV4DPDYTUDt1h31hbLgQqJTn5LGA==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
@@ -4172,7 +4172,7 @@ snapshots:
 
   acorn@8.15.0: {}
 
-  ai@6.0.38(zod@3.25.76):
+  ai@6.0.39(zod@3.25.76):
     dependencies:
       '@ai-sdk/gateway': 3.0.16(zod@3.25.76)
       '@ai-sdk/provider': 3.0.4
