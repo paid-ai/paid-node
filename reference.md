@@ -2667,6 +2667,71 @@ await client.orders.getInvoices("orderId");
 </details>
 
 ## Plans
+<details><summary><code>client.plans.<a href="/src/api/resources/plans/client/Client.ts">getCurrent</a>({ ...params }) -> Paid.PlansGetCurrentResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Retrieves the currently active plan subscription for a customer by their external ID. Returns the plan details and subscription information.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.plans.getCurrent({
+    customerExternalId: "customerExternalId"
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.PlansGetCurrentRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Plans.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
 <details><summary><code>client.plans.<a href="/src/api/resources/plans/client/Client.ts">getById</a>(planId) -> Paid.Plan</code></summary>
 <dl>
 <dd>
