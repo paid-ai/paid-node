@@ -447,9 +447,9 @@ export async function getCurrent(
  */
 export function createGetCurrentHandler(): (request: any, response: any, config?: any) => Promise<any> {
   return createHandler<PlansGetCurrentRequest, PlansGetCurrentResponse>(
-    async (client, body, params) => {
-      // Support customerExternalId from params (URL/query) or body
-      const customerExternalId = params?.customerExternalId || body?.customerExternalId;
+    async (client, _body, params) => {
+      // Support customerExternalId from params (URL/query)
+      const customerExternalId = params?.customerExternalId;
 
       if (!customerExternalId) {
         return {
