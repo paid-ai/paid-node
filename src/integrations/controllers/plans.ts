@@ -431,13 +431,14 @@ export async function getCurrent(
  * Create a framework-agnostic handler for getting a customer's current plan
  *
  * This handler can be used with any framework adapter.
- * The request should contain customerExternalId (can be in query string or body).
+ * The customerExternalId should be provided as a URL parameter.
  *
  * @returns Handler function
  *
  * @example
  * ```typescript
- * // In Next.js route: /api/plans/current/route.ts
+ * // In Next.js route: /api/plans/current/[customerExternalId]/route.ts
+ * // GET /api/plans/current/customer-123
  * import { createGetCurrentHandler } from '@paid-ai/paid-node/integrations';
  * import { nextjsAdapter } from '@paid-ai/paid-node/integrations/nextjs';
  *
