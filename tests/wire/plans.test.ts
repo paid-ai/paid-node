@@ -5,6 +5,120 @@ import { PaidClient } from "../../src/Client";
 import { mockServerPool } from "../mock-server/MockServerPool";
 
 describe("Plans", () => {
+    test("getCurrent (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = {
+            plan: {
+                id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
+                name: "Pro Plan",
+                description: "Professional plan with advanced features",
+                type: "usage",
+                pricing: { currency: "USD", billingFrequency: "monthly" },
+                planGroupId: "a1b2c3d4-5678-90ab-cdef-1234567890ab",
+                nextPlanId: "b2c3d4e5-6789-01bc-def0-2345678901bc",
+                features: [
+                    {
+                        productName: "API Service",
+                        attributeName: "api_calls",
+                        pricing: {
+                            eventName: "api_calls",
+                            chargeType: "usage",
+                            pricingModel: "PerUnit",
+                            billingFrequency: "monthly",
+                        },
+                    },
+                ],
+            },
+            subscription: {
+                orderId: "8e1c7fdf-e93b-52e5-b827-557766661111",
+                orderDisplayId: "ORD-12345",
+                startDate: "2024-01-01T00:00:00Z",
+                endDate: "2024-12-31T23:59:59Z",
+            },
+        };
+        server.mockEndpoint().get("/plans/current").respondWith().statusCode(200).jsonBody(rawResponseBody).build();
+
+        const response = await client.plans.getCurrent({
+            customerExternalId: "customerExternalId",
+        });
+        expect(response).toEqual({
+            plan: {
+                id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
+                name: "Pro Plan",
+                description: "Professional plan with advanced features",
+                type: "usage",
+                pricing: {
+                    currency: "USD",
+                    billingFrequency: "monthly",
+                },
+                planGroupId: "a1b2c3d4-5678-90ab-cdef-1234567890ab",
+                nextPlanId: "b2c3d4e5-6789-01bc-def0-2345678901bc",
+                features: [
+                    {
+                        productName: "API Service",
+                        attributeName: "api_calls",
+                        pricing: {
+                            eventName: "api_calls",
+                            chargeType: "usage",
+                            pricingModel: "PerUnit",
+                            billingFrequency: "monthly",
+                        },
+                    },
+                ],
+            },
+            subscription: {
+                orderId: "8e1c7fdf-e93b-52e5-b827-557766661111",
+                orderDisplayId: "ORD-12345",
+                startDate: "2024-01-01T00:00:00Z",
+                endDate: "2024-12-31T23:59:59Z",
+            },
+        });
+    });
+
+    test("getCurrent (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: {} };
+        server.mockEndpoint().get("/plans/current").respondWith().statusCode(400).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.plans.getCurrent({
+                customerExternalId: "customerExternalId",
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("getCurrent (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: {} };
+        server.mockEndpoint().get("/plans/current").respondWith().statusCode(403).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.plans.getCurrent({
+                customerExternalId: "customerExternalId",
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("getCurrent (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: {} };
+        server.mockEndpoint().get("/plans/current").respondWith().statusCode(404).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.plans.getCurrent({
+                customerExternalId: "customerExternalId",
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
     test("getById (1)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
