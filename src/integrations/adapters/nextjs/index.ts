@@ -11,6 +11,7 @@ export {
   createGetCustomerRoute,
   createGetPlanGroupByIdRoute,
   createGetGroupPlansRoute,
+  createGetCurrentRoute,
   createOrdersRoute,
   createPayInvoiceRoute,
   createProvisioningRoute,
