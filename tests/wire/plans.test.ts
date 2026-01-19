@@ -14,8 +14,12 @@ describe("Plans", () => {
                 id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
                 name: "Pro Plan",
                 description: "Professional plan with advanced features",
-                type: "usage",
-                pricing: { currency: "USD", billingFrequency: "monthly" },
+                type: "flat",
+                pricing: {
+                    PricePoints: { USD: { unitPrice: 9900, tiers: [{}] } },
+                    billingFrequency: "monthly",
+                    billingFrequencyCustomMonths: 1.1,
+                },
                 planGroupId: "a1b2c3d4-5678-90ab-cdef-1234567890ab",
                 nextPlanId: "b2c3d4e5-6789-01bc-def0-2345678901bc",
                 features: [
@@ -25,9 +29,21 @@ describe("Plans", () => {
                         pricing: {
                             eventName: "api_calls",
                             chargeType: "usage",
-                            pricingModel: "PerUnit",
+                            pricingModel: "flat",
                             billingFrequency: "monthly",
                         },
+                        usage: { eventName: "api_calls", currentUsage: 450, limit: 1000, isUnlimited: false },
+                    },
+                    {
+                        productName: "API Service",
+                        attributeName: "data_transfer",
+                        pricing: {
+                            eventName: "data_transfer",
+                            chargeType: "usage",
+                            pricingModel: "flat",
+                            billingFrequency: "monthly",
+                        },
+                        usage: { eventName: "data_transfer", currentUsage: 0, isUnlimited: true },
                     },
                 ],
             },
@@ -36,6 +52,7 @@ describe("Plans", () => {
                 orderDisplayId: "ORD-12345",
                 startDate: "2024-01-01T00:00:00Z",
                 endDate: "2024-12-31T23:59:59Z",
+                totalUsage: 450,
             },
         };
         server.mockEndpoint().get("/plans/current").respondWith().statusCode(200).jsonBody(rawResponseBody).build();
@@ -48,10 +65,16 @@ describe("Plans", () => {
                 id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
                 name: "Pro Plan",
                 description: "Professional plan with advanced features",
-                type: "usage",
+                type: "flat",
                 pricing: {
-                    currency: "USD",
+                    PricePoints: {
+                        USD: {
+                            unitPrice: 9900,
+                            tiers: [{}],
+                        },
+                    },
                     billingFrequency: "monthly",
+                    billingFrequencyCustomMonths: 1.1,
                 },
                 planGroupId: "a1b2c3d4-5678-90ab-cdef-1234567890ab",
                 nextPlanId: "b2c3d4e5-6789-01bc-def0-2345678901bc",
@@ -62,8 +85,29 @@ describe("Plans", () => {
                         pricing: {
                             eventName: "api_calls",
                             chargeType: "usage",
-                            pricingModel: "PerUnit",
+                            pricingModel: "flat",
                             billingFrequency: "monthly",
+                        },
+                        usage: {
+                            eventName: "api_calls",
+                            currentUsage: 450,
+                            limit: 1000,
+                            isUnlimited: false,
+                        },
+                    },
+                    {
+                        productName: "API Service",
+                        attributeName: "data_transfer",
+                        pricing: {
+                            eventName: "data_transfer",
+                            chargeType: "usage",
+                            pricingModel: "flat",
+                            billingFrequency: "monthly",
+                        },
+                        usage: {
+                            eventName: "data_transfer",
+                            currentUsage: 0,
+                            isUnlimited: true,
                         },
                     },
                 ],
@@ -73,6 +117,7 @@ describe("Plans", () => {
                 orderDisplayId: "ORD-12345",
                 startDate: "2024-01-01T00:00:00Z",
                 endDate: "2024-12-31T23:59:59Z",
+                totalUsage: 450,
             },
         });
     });
@@ -87,17 +132,29 @@ describe("Plans", () => {
                 name: "name",
                 description: "description",
                 type: "flat",
-                pricing: { key: "value" },
+                pricing: {
+                    PricePoints: { USD: { unitPrice: 9900, tiers: [{}] } },
+                    billingFrequency: "monthly",
+                    billingFrequencyCustomMonths: 1.1,
+                },
                 planGroupId: "planGroupId",
                 nextPlanId: "nextPlanId",
                 prevPlanId: "prevPlanId",
-                features: [{ productName: "productName", attributeName: "attributeName", pricing: { key: "value" } }],
+                features: [
+                    {
+                        productName: "productName",
+                        attributeName: "attributeName",
+                        pricing: { key: "value" },
+                        usage: { currentUsage: 1, isUnlimited: true },
+                    },
+                ],
             },
             subscription: {
                 orderId: "orderId",
                 orderDisplayId: "orderDisplayId",
                 startDate: "2024-01-15T09:30:00Z",
                 endDate: "2024-01-15T09:30:00Z",
+                totalUsage: 1,
             },
         };
         server.mockEndpoint().get("/plans/current").respondWith().statusCode(200).jsonBody(rawResponseBody).build();
@@ -112,7 +169,14 @@ describe("Plans", () => {
                 description: "description",
                 type: "flat",
                 pricing: {
-                    key: "value",
+                    PricePoints: {
+                        USD: {
+                            unitPrice: 9900,
+                            tiers: [{}],
+                        },
+                    },
+                    billingFrequency: "monthly",
+                    billingFrequencyCustomMonths: 1.1,
                 },
                 planGroupId: "planGroupId",
                 nextPlanId: "nextPlanId",
@@ -124,6 +188,10 @@ describe("Plans", () => {
                         pricing: {
                             key: "value",
                         },
+                        usage: {
+                            currentUsage: 1,
+                            isUnlimited: true,
+                        },
                     },
                 ],
             },
@@ -132,6 +200,7 @@ describe("Plans", () => {
                 orderDisplayId: "orderDisplayId",
                 startDate: "2024-01-15T09:30:00Z",
                 endDate: "2024-01-15T09:30:00Z",
+                totalUsage: 1,
             },
         });
     });
@@ -190,8 +259,7 @@ describe("Plans", () => {
             description: "description",
             type: "flat",
             pricing: {
-                currency: "currency",
-                amount: 1.1,
+                PricePoints: { USD: { unitPrice: 9900, tiers: [{}] } },
                 billingFrequency: "monthly",
                 billingFrequencyCustomMonths: 1.1,
             },
@@ -223,8 +291,12 @@ describe("Plans", () => {
             description: "description",
             type: "flat",
             pricing: {
-                currency: "currency",
-                amount: 1.1,
+                PricePoints: {
+                    USD: {
+                        unitPrice: 9900,
+                        tiers: [{}],
+                    },
+                },
                 billingFrequency: "monthly",
                 billingFrequencyCustomMonths: 1.1,
             },
@@ -826,7 +898,7 @@ describe("Plans", () => {
                     name: "name",
                     description: "description",
                     type: "flat",
-                    pricing: { currency: "currency", billingFrequency: "monthly" },
+                    pricing: { PricePoints: { USD: { unitPrice: 9900, tiers: [{}] } }, billingFrequency: "monthly" },
                     nextPlanId: "nextPlanId",
                     prevPlanId: "prevPlanId",
                     createdAt: "2024-01-15T09:30:00Z",
@@ -860,7 +932,12 @@ describe("Plans", () => {
                     description: "description",
                     type: "flat",
                     pricing: {
-                        currency: "currency",
+                        PricePoints: {
+                            USD: {
+                                unitPrice: 9900,
+                                tiers: [{}],
+                            },
+                        },
                         billingFrequency: "monthly",
                     },
                     nextPlanId: "nextPlanId",
@@ -920,8 +997,7 @@ describe("Plans", () => {
                 description: "description",
                 type: "flat",
                 pricing: {
-                    currency: "currency",
-                    amount: 1.1,
+                    PricePoints: { USD: { unitPrice: 9900, tiers: [{}] } },
                     billingFrequency: "monthly",
                     billingFrequencyCustomMonths: 1.1,
                 },
@@ -948,8 +1024,12 @@ describe("Plans", () => {
                 description: "description",
                 type: "flat",
                 pricing: {
-                    currency: "currency",
-                    amount: 1.1,
+                    PricePoints: {
+                        USD: {
+                            unitPrice: 9900,
+                            tiers: [{}],
+                        },
+                    },
                     billingFrequency: "monthly",
                     billingFrequencyCustomMonths: 1.1,
                 },
