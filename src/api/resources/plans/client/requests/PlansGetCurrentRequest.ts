@@ -5,6 +5,11 @@
  *     {
  *         customerExternalId: "customerExternalId"
  *     }
+ *
+ * @example
+ *     {
+ *         customerExternalId: "customerExternalId"
+ *     }
  */
 export interface PlansGetCurrentRequest {
     /** The external ID of the customer */

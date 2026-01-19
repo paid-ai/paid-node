@@ -81,6 +81,65 @@ describe("Plans", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
+        const rawResponseBody = {
+            plan: {
+                id: "id",
+                name: "name",
+                description: "description",
+                type: "flat",
+                pricing: { key: "value" },
+                planGroupId: "planGroupId",
+                nextPlanId: "nextPlanId",
+                prevPlanId: "prevPlanId",
+                features: [{ productName: "productName", attributeName: "attributeName", pricing: { key: "value" } }],
+            },
+            subscription: {
+                orderId: "orderId",
+                orderDisplayId: "orderDisplayId",
+                startDate: "2024-01-15T09:30:00Z",
+                endDate: "2024-01-15T09:30:00Z",
+            },
+        };
+        server.mockEndpoint().get("/plans/current").respondWith().statusCode(200).jsonBody(rawResponseBody).build();
+
+        const response = await client.plans.getCurrent({
+            customerExternalId: "customerExternalId",
+        });
+        expect(response).toEqual({
+            plan: {
+                id: "id",
+                name: "name",
+                description: "description",
+                type: "flat",
+                pricing: {
+                    key: "value",
+                },
+                planGroupId: "planGroupId",
+                nextPlanId: "nextPlanId",
+                prevPlanId: "prevPlanId",
+                features: [
+                    {
+                        productName: "productName",
+                        attributeName: "attributeName",
+                        pricing: {
+                            key: "value",
+                        },
+                    },
+                ],
+            },
+            subscription: {
+                orderId: "orderId",
+                orderDisplayId: "orderDisplayId",
+                startDate: "2024-01-15T09:30:00Z",
+                endDate: "2024-01-15T09:30:00Z",
+            },
+        });
+    });
+
+    test("getCurrent (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
         const rawResponseBody = { error: {} };
         server.mockEndpoint().get("/plans/current").respondWith().statusCode(400).jsonBody(rawResponseBody).build();
 
@@ -91,7 +150,7 @@ describe("Plans", () => {
         }).rejects.toThrow(Paid.BadRequestError);
     });
 
-    test("getCurrent (3)", async () => {
+    test("getCurrent (4)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
@@ -105,7 +164,7 @@ describe("Plans", () => {
         }).rejects.toThrow(Paid.ForbiddenError);
     });
 
-    test("getCurrent (4)", async () => {
+    test("getCurrent (5)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
