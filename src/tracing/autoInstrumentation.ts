@@ -1,8 +1,5 @@
 import type { Instrumentation } from "@opentelemetry/instrumentation";
 import { registerInstrumentations } from "@opentelemetry/instrumentation";
-import { OpenAIInstrumentation } from "@arizeai/openinference-instrumentation-openai";
-import { BedrockInstrumentation } from "@traceloop/instrumentation-bedrock";
-import { AnthropicInstrumentation } from "@arizeai/openinference-instrumentation-anthropic";
 import type { TracerProvider } from "@opentelemetry/api";
 
 import type * as openai from "openai";
@@ -18,40 +15,76 @@ interface SupportedLibraries {
     bedrock?: typeof bedrock;
 }
 
-const getInstrumentations = (tracerProvider: TracerProvider): Instrumentation[] => {
-    const instrumentations = [
-        new OpenAIInstrumentation({ tracerProvider }),
-        new AnthropicInstrumentation({ tracerProvider }),
-        new BedrockInstrumentation(),
-    ];
+const getInstrumentations = async (tracerProvider: TracerProvider): Promise<Instrumentation[]> => {
+    const instrumentations: Instrumentation[] = [];
+
+    try {
+        const { OpenAIInstrumentation } = await import("@arizeai/openinference-instrumentation-openai");
+        instrumentations.push(new OpenAIInstrumentation({ tracerProvider }));
+    } catch {
+        logger.debug("OpenAI instrumentation not available - openai package not installed");
+    }
+
+    try {
+        const { AnthropicInstrumentation } = await import("@arizeai/openinference-instrumentation-anthropic");
+        instrumentations.push(new AnthropicInstrumentation({ tracerProvider }));
+    } catch {
+        logger.debug("Anthropic instrumentation not available - @anthropic-ai/sdk package not installed");
+    }
+
+    try {
+        const { BedrockInstrumentation } = await import("@traceloop/instrumentation-bedrock");
+        instrumentations.push(new BedrockInstrumentation());
+    } catch {
+        logger.debug("Bedrock instrumentation not available - @aws-sdk/client-bedrock-runtime package not installed");
+    }
+
     return instrumentations;
 };
 
-const getManualInstrumentations = (tracerProvider: TracerProvider, libraries: SupportedLibraries) => {
-    const instrumentations = [];
+const getManualInstrumentations = async (
+    tracerProvider: TracerProvider,
+    libraries: SupportedLibraries,
+): Promise<Instrumentation[]> => {
+    const instrumentations: Instrumentation[] = [];
 
     if (libraries.openai) {
-        const openaiInstrumentation = new OpenAIInstrumentation({ tracerProvider });
-        instrumentations.push(openaiInstrumentation);
-        openaiInstrumentation.manuallyInstrument(libraries.openai);
+        try {
+            const { OpenAIInstrumentation } = await import("@arizeai/openinference-instrumentation-openai");
+            const openaiInstrumentation = new OpenAIInstrumentation({ tracerProvider });
+            instrumentations.push(openaiInstrumentation);
+            openaiInstrumentation.manuallyInstrument(libraries.openai);
+        } catch {
+            logger.warn("Failed to load OpenAI instrumentation");
+        }
     }
 
     if (libraries.anthropic) {
-        const anthropicInstrumentation = new AnthropicInstrumentation({ tracerProvider });
-        instrumentations.push(anthropicInstrumentation);
-        anthropicInstrumentation.manuallyInstrument(libraries.anthropic);
+        try {
+            const { AnthropicInstrumentation } = await import("@arizeai/openinference-instrumentation-anthropic");
+            const anthropicInstrumentation = new AnthropicInstrumentation({ tracerProvider });
+            instrumentations.push(anthropicInstrumentation);
+            anthropicInstrumentation.manuallyInstrument(libraries.anthropic);
+        } catch {
+            logger.warn("Failed to load Anthropic instrumentation");
+        }
     }
 
     if (libraries.bedrock) {
-        const bedrockInstrumentation = new BedrockInstrumentation();
-        instrumentations.push(bedrockInstrumentation);
-        bedrockInstrumentation.manuallyInstrument(libraries.bedrock);
+        try {
+            const { BedrockInstrumentation } = await import("@traceloop/instrumentation-bedrock");
+            const bedrockInstrumentation = new BedrockInstrumentation();
+            instrumentations.push(bedrockInstrumentation);
+            bedrockInstrumentation.manuallyInstrument(libraries.bedrock);
+        } catch {
+            logger.warn("Failed to load Bedrock instrumentation");
+        }
     }
 
     return instrumentations;
 };
 
-export function paidAutoInstrument(libraries?: SupportedLibraries): void {
+export async function paidAutoInstrument(libraries?: SupportedLibraries): Promise<void> {
     if (IS_INITIALIZED) {
         logger.info("Auto instrumentation is already initialized");
         return;
@@ -70,8 +103,8 @@ export function paidAutoInstrument(libraries?: SupportedLibraries): void {
 
     const isManualInstrumentation = libraries && Object.keys(libraries).length > 0;
     const instrumentations = isManualInstrumentation
-        ? getManualInstrumentations(tracerProvider, libraries)
-        : getInstrumentations(tracerProvider);
+        ? await getManualInstrumentations(tracerProvider, libraries)
+        : await getInstrumentations(tracerProvider);
 
     registerInstrumentations({
         instrumentations,

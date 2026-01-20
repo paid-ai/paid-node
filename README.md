@@ -310,7 +310,7 @@ async function main() {
 
     await trace({
         externalCustomerId: "<your_external_customer_id>",
-        externalAgentId: "<your_external_agent_id>"
+        externalProductId: "<your_external_product_id>"
     }, async () => {
         // ...do some work...
         signal("<your_signal_name>", false, {
@@ -367,7 +367,7 @@ async function main() {
 
     await trace({
         externalCustomerId: "<your_external_customer_id>",
-        externalAgentId: "<your_external_agent_id>"
+        externalProductId: "<your_external_product_id>"
     }, async () => {
         // ...do some work...
         signal("<your_signal_name>", false, {
