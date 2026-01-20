@@ -18,8 +18,7 @@ export interface Plan {
     description?: string;
     /** The type of plan (flat for fixed pricing, usage for usage-based, credit for prepaid credits) */
     type: Plan.Type;
-    /** The pricing configuration for the plan */
-    pricing: Plan.Pricing;
+    pricing: Paid.PlanPricing;
     /** The ID of the next plan in the sequence */
     nextPlanId?: string;
     /** The ID of the previous plan in the sequence */
@@ -40,31 +39,6 @@ export namespace Plan {
         Credit: "credit",
     } as const;
     export type Type = (typeof Type)[keyof typeof Type];
-
-    /**
-     * The pricing configuration for the plan
-     */
-    export interface Pricing {
-        /** The currency code (e.g., "USD", "EUR") */
-        currency: string;
-        /** The fixed amount for flat plans (in smallest currency unit, e.g., cents) */
-        amount?: number;
-        /** The billing frequency for the plan */
-        billingFrequency: Pricing.BillingFrequency;
-        /** Custom billing frequency in months (if not using standard frequencies) */
-        billingFrequencyCustomMonths?: number;
-    }
-
-    export namespace Pricing {
-        /** The billing frequency for the plan */
-        export const BillingFrequency = {
-            Monthly: "monthly",
-            Quarterly: "quarterly",
-            Annual: "annual",
-        } as const;
-        export type BillingFrequency = (typeof BillingFrequency)[keyof typeof BillingFrequency];
-    }
-
     export type PlanProducts = PlanProducts.Item[];
 
     export namespace PlanProducts {
