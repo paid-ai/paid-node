@@ -15,6 +15,8 @@ export class PaidSpanProcessor implements SpanProcessor {
         "langchain.prompt",
         "output.value",
         "input.value",
+        "ai.response.text",
+        "ai.prompt",
     ];
 
     onStart(span: Span, _parentContext?: Context): void {
@@ -24,7 +26,7 @@ export class PaidSpanProcessor implements SpanProcessor {
         if (!storePrompt) {
             const originalSetAttribute = span.setAttribute;
 
-            span.setAttribute = function (key: string, value: SpanAttributeValue): Span {
+            span.setAttribute = function(key: string, value: SpanAttributeValue): Span {
                 const isPromptRelated = PaidSpanProcessor.PROMPT_ATTRIBUTES_SUBSTRINGS.some((substr) =>
                     key.includes(substr),
                 );
@@ -33,7 +35,7 @@ export class PaidSpanProcessor implements SpanProcessor {
             };
             const originalSetAttributes = span.setAttributes;
 
-            span.setAttributes = function (attributes: SpanAttributes): Span {
+            span.setAttributes = function(attributes: SpanAttributes): Span {
                 const newAttributes = Object.entries(attributes).reduce((acc, [key, value]) => {
                     const isPromptRelated = PaidSpanProcessor.PROMPT_ATTRIBUTES_SUBSTRINGS.some((substr) =>
                         key.includes(substr),
