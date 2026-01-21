@@ -142,7 +142,7 @@ For maximum convenience, you can use OpenTelemetry auto-instrumentation to autom
 ``` typescript
 // Import and call auto-instrumentation before importing instrumented libraries
 import { paidAutoInstrument } from "@paid-ai/paid-node/tracing";
-paidAutoInstrument()
+await paidAutoInstrument()
 
 import openai from "openai";
 
@@ -192,7 +192,7 @@ import openai from "openai";
 
 // If your module management is too complex and the previous approach didn't work
 // you can provide libraries directly
-paidAutoInstrument({ openai })
+await paidAutoInstrument({ openai })
 ```
 
 
