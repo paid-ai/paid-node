@@ -105,7 +105,9 @@ export async function trace<F extends (...args: any[]) => any>(
     const tracer = getPaidTracer();
 
     if (!token || !tracer) {
-        throw new Error("Paid tracing is not initialized. Make sure to call initializeTracing() first.");
+        // don't throw, tracing should not crash user app.
+        logger.error("Paid tracing is not initialized. Make sure to call initializeTracing() first.");
+        return await fn(...args);
     }
     const { externalCustomerId, externalProductId: externalAgentId, storePrompt, metadata } = options;
 
