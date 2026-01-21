@@ -34,13 +34,10 @@ export function signal(eventName: string, enableCostTracing: boolean = false, da
         );
     }
 
-    paidTracer.startActiveSpan("trace.signal", (span) => {
+    paidTracer.startActiveSpan("signal", (span) => {
         try {
             const attributes: Record<string, string | number | boolean> = {
-                external_customer_id: externalCustomerId,
-                external_agent_id: externalProductId,
                 event_name: eventName,
-                token: token,
             };
 
             if (enableCostTracing) {
