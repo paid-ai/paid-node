@@ -15,6 +15,8 @@ export class PaidSpanProcessor implements SpanProcessor {
         "langchain.prompt",
         "output.value",
         "input.value",
+        "ai.response.text",
+        "ai.prompt",
     ];
 
     onStart(span: Span, _parentContext?: Context): void {
@@ -22,9 +24,20 @@ export class PaidSpanProcessor implements SpanProcessor {
         const { storePrompt, externalCustomerId, externalProductId: externalAgentId } = getTracingContext();
 
         if (!storePrompt) {
+            // Filter attributes that were set during span creation (before onStart)
+            const existingAttrs = (span as unknown as { attributes: Record<string, unknown> }).attributes;
+            if (existingAttrs) {
+                for (const key of Object.keys(existingAttrs)) {
+                    if (PaidSpanProcessor.PROMPT_ATTRIBUTES_SUBSTRINGS.some((s) => key.includes(s))) {
+                        delete existingAttrs[key];
+                    }
+                }
+            }
+
+            // Patch setAttribute/setAttributes for attributes set after onStart
             const originalSetAttribute = span.setAttribute;
 
-            span.setAttribute = function (key: string, value: SpanAttributeValue): Span {
+            span.setAttribute = function(key: string, value: SpanAttributeValue): Span {
                 const isPromptRelated = PaidSpanProcessor.PROMPT_ATTRIBUTES_SUBSTRINGS.some((substr) =>
                     key.includes(substr),
                 );
@@ -33,7 +46,7 @@ export class PaidSpanProcessor implements SpanProcessor {
             };
             const originalSetAttributes = span.setAttributes;
 
-            span.setAttributes = function (attributes: SpanAttributes): Span {
+            span.setAttributes = function(attributes: SpanAttributes): Span {
                 const newAttributes = Object.entries(attributes).reduce((acc, [key, value]) => {
                     const isPromptRelated = PaidSpanProcessor.PROMPT_ATTRIBUTES_SUBSTRINGS.some((substr) =>
                         key.includes(substr),
