@@ -110,12 +110,6 @@ export async function trace<F extends (...args: any[]) => any>(
     const { externalCustomerId, externalProductId: externalAgentId, storePrompt, metadata } = options;
 
     return await tracer.startActiveSpan("parent_span", async (span) => {
-        span.setAttribute("external_customer_id", externalCustomerId);
-        span.setAttribute("token", token);
-        if (externalAgentId) {
-            span.setAttribute("external_agent_id", externalAgentId);
-        }
-
         try {
             const res = await runWithTracingContext(
                 {

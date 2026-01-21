@@ -24,6 +24,17 @@ export class PaidSpanProcessor implements SpanProcessor {
         const { storePrompt, externalCustomerId, externalProductId: externalAgentId } = getTracingContext();
 
         if (!storePrompt) {
+            // Filter attributes that were set during span creation (before onStart)
+            const existingAttrs = (span as unknown as { attributes: Record<string, unknown> }).attributes;
+            if (existingAttrs) {
+                for (const key of Object.keys(existingAttrs)) {
+                    if (PaidSpanProcessor.PROMPT_ATTRIBUTES_SUBSTRINGS.some((s) => key.includes(s))) {
+                        delete existingAttrs[key];
+                    }
+                }
+            }
+
+            // Patch setAttribute/setAttributes for attributes set after onStart
             const originalSetAttribute = span.setAttribute;
 
             span.setAttribute = function(key: string, value: SpanAttributeValue): Span {
