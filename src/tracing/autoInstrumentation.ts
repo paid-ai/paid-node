@@ -2,19 +2,16 @@ import type { Instrumentation } from "@opentelemetry/instrumentation";
 import { registerInstrumentations } from "@opentelemetry/instrumentation";
 import type { TracerProvider } from "@opentelemetry/api";
 
-import type * as openai from "openai";
-import type * as anthropic from "@anthropic-ai/sdk";
-import type * as bedrock from "@aws-sdk/client-bedrock-runtime";
-import type * as ai from "ai";
 import { getPaidTracer, getPaidTracerProvider, initializeTracing, logger } from "./tracing.js";
 
 let IS_INITIALIZED = false;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 interface SupportedLibraries {
-    openai?: typeof openai.OpenAI;
-    anthropic?: typeof anthropic.Anthropic;
-    bedrock?: typeof bedrock;
-    ai?: typeof ai;
+    openai?: any; // Accept any version of the openai package
+    anthropic?: any; // Accept any version of the @anthropic-ai/sdk package
+    bedrock?: any; // Accept any version of the @aws-sdk/client-bedrock-runtime package
+    ai?: any; // Accept any version of the ai package
 }
 
 /**
@@ -23,7 +20,8 @@ interface SupportedLibraries {
  *
  * Patched APIs: generateText, streamText, generateObject, streamObject, embed, embedMany, rerank
  */
-const instrumentVercelAI = async (aiModule: typeof ai): Promise<void> => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const instrumentVercelAI = async (aiModule: any): Promise<void> => {
     const paidTracer = getPaidTracer();
     if (!paidTracer) {
         logger.warn("Vercel AI SDK instrumentation skipped - Paid tracer not available");
