@@ -5,7 +5,8 @@ import type { TracerProvider } from "@opentelemetry/api";
 import type * as openai from "openai";
 import type * as anthropic from "@anthropic-ai/sdk";
 import type * as bedrock from "@aws-sdk/client-bedrock-runtime";
-import { getPaidTracerProvider, initializeTracing, logger } from "./tracing.js";
+import type * as ai from "ai";
+import { getPaidTracer, getPaidTracerProvider, initializeTracing, logger } from "./tracing.js";
 
 let IS_INITIALIZED = false;
 
@@ -13,7 +14,52 @@ interface SupportedLibraries {
     openai?: typeof openai.OpenAI;
     anthropic?: typeof anthropic.Anthropic;
     bedrock?: typeof bedrock;
+    ai?: typeof ai;
 }
+
+/**
+ * Instruments Vercel AI SDK by monkey patching its public API functions
+ * to automatically inject telemetry with the Paid tracer.
+ *
+ * Patched APIs: generateText, streamText, generateObject, streamObject, embed, embedMany, rerank
+ */
+const instrumentVercelAI = async (aiModule: typeof ai): Promise<void> => {
+    const paidTracer = getPaidTracer();
+    if (!paidTracer) {
+        logger.warn("Vercel AI SDK instrumentation skipped - Paid tracer not available");
+        return;
+    }
+
+    const apisToInstrument = [
+        "generateText",
+        "streamText",
+        "generateObject",
+        "streamObject",
+        "embed",
+        "embedMany",
+        "rerank",
+    ] as const;
+
+    for (const apiName of apisToInstrument) {
+        const originalFn = aiModule[apiName] as ((...args: any[]) => any) | undefined;
+        if (typeof originalFn !== "function") {
+            continue;
+        }
+
+        (aiModule as any)[apiName] = (options: any) => {
+            return originalFn({
+                ...options,
+                experimental_telemetry: {
+                    isEnabled: true,
+                    tracer: paidTracer,
+                    ...options?.experimental_telemetry,
+                },
+            });
+        };
+    }
+
+    logger.debug("Vercel AI SDK instrumented successfully");
+};
 
 const getInstrumentations = async (tracerProvider: TracerProvider): Promise<Instrumentation[]> => {
     const instrumentations: Instrumentation[] = [];
@@ -37,6 +83,13 @@ const getInstrumentations = async (tracerProvider: TracerProvider): Promise<Inst
         instrumentations.push(new BedrockInstrumentation());
     } catch {
         logger.debug("Bedrock instrumentation not available - @aws-sdk/client-bedrock-runtime package not installed");
+    }
+
+    try {
+        const aiModule = await import("ai");
+        await instrumentVercelAI(aiModule);
+    } catch {
+        logger.debug("Vercel AI SDK instrumentation not available - so not instrumented");
     }
 
     return instrumentations;
@@ -78,6 +131,14 @@ const getManualInstrumentations = async (
             bedrockInstrumentation.manuallyInstrument(libraries.bedrock);
         } catch {
             logger.warn("Failed to load Bedrock instrumentation");
+        }
+    }
+
+    if (libraries.ai) {
+        try {
+            await instrumentVercelAI(libraries.ai);
+        } catch {
+            logger.warn("Failed to instrument Vercel AI SDK");
         }
     }
 

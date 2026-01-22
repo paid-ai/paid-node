@@ -158,30 +158,42 @@ Auto-instrumentation supports the following AI libraries:
 openai
 anthropic
 bedrock
+ai (Vercel AI SDK)
 ```
 
 #### Vercel AI SDK Integration
 
-If you're using Vercel's AI SDK, you can enable automatic telemetry without any wrappers by using the `experimental_telemetry` option. When enabled, it will automatically use Paid's registered tracer provider:
+The Vercel AI SDK (`ai` package) is fully supported via auto-instrumentation. Once enabled, all AI SDK calls (`generateText`, `streamText`, `generateObject`, `streamObject`, `embed`, `embedMany`, `rerank`) are automatically traced without any code changes:
 
 ```typescript
-import { initializeTracing, trace } from "@paid-ai/paid-node/tracing";
+import { paidAutoInstrument, trace } from "@paid-ai/paid-node/tracing";
+
+// Enable auto-instrumentation before importing/using AI SDK
+await paidAutoInstrument();
+
 import { generateText } from "ai";
 
 async function main() {
-    initializeTracing("<your_paid_api_key>");
-
     await trace({
         externalCustomerId: "<your_external_customer_id>",
         externalProductId: "<your_external_product_id>"
     }, async () => {
+        // No need for experimental_telemetry - it's injected automatically
         await generateText({
-            model: "model-name",
+            model: yourModel,
             prompt: "Your prompt",
-            experimental_telemetry: { isEnabled: true }, // This will use Paid's tracer automatically
         });
     });
 }
+```
+
+If you prefer manual instrumentation, you can pass the AI SDK module directly:
+
+```typescript
+import { paidAutoInstrument } from "@paid-ai/paid-node/tracing";
+import * as ai from "ai";
+
+await paidAutoInstrument({ ai });
 ```
 
 #### Manual instrumentation
@@ -189,10 +201,11 @@ async function main() {
 ``` typescript
 import { paidAutoInstrument } from "@paid-ai/paid-node/tracing";
 import openai from "openai";
+import * as ai from "ai";
 
 // If your module management is too complex and the previous approach didn't work
 // you can provide libraries directly
-await paidAutoInstrument({ openai })
+await paidAutoInstrument({ openai, ai })
 ```
 
 
