@@ -5,7 +5,7 @@ import { mergeHeaders, mergeOnlyDefinedHeaders } from "../../../../core/headers.
 import * as core from "../../../../core/index.js";
 import * as environments from "../../../../environments.js";
 import * as errors from "../../../../errors/index.js";
-import type * as Paid from "../../../index.js";
+import * as Paid from "../../../index.js";
 
 export declare namespace Products {
     export interface Options extends BaseClientOptions {}
@@ -16,21 +16,44 @@ export declare namespace Products {
 export class Products {
     protected readonly _options: Products.Options;
 
-    constructor(_options: Products.Options = {}) {
+    constructor(_options: Products.Options) {
         this._options = _options;
     }
 
     /**
+     * Get a list of products for the organization
+     *
+     * @param {Paid.ListProductsRequest} request
      * @param {Products.RequestOptions} requestOptions - Request-specific configuration.
      *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.InternalServerError}
+     *
      * @example
-     *     await client.products.list()
+     *     await client.products.listProducts()
      */
-    public list(requestOptions?: Products.RequestOptions): core.HttpResponsePromise<Paid.Product[]> {
-        return core.HttpResponsePromise.fromPromise(this.__list(requestOptions));
+    public listProducts(
+        request: Paid.ListProductsRequest = {},
+        requestOptions?: Products.RequestOptions,
+    ): core.HttpResponsePromise<Paid.ProductListResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__listProducts(request, requestOptions));
     }
 
-    private async __list(requestOptions?: Products.RequestOptions): Promise<core.WithRawResponse<Paid.Product[]>> {
+    private async __listProducts(
+        request: Paid.ListProductsRequest = {},
+        requestOptions?: Products.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.ProductListResponse>> {
+        const { limit, offset } = request;
+        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
+        if (limit != null) {
+            _queryParams.limit = limit.toString();
+        }
+
+        if (offset != null) {
+            _queryParams.offset = offset.toString();
+        }
+
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             this._options?.headers,
             mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
@@ -40,26 +63,38 @@ export class Products {
             url: core.url.join(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidEnvironment.Production,
-                "products",
+                    environments.PaidEnvironment.Default,
+                "products/",
             ),
             method: "GET",
             headers: _headers,
-            queryParameters: requestOptions?.queryParams,
+            queryParameters: { ..._queryParams, ...requestOptions?.queryParams },
             timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
             maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return { data: _response.body as Paid.Product[], rawResponse: _response.rawResponse };
+            return { data: _response.body as Paid.ProductListResponse, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
-            throw new errors.PaidError({
-                statusCode: _response.error.statusCode,
-                body: _response.error.body,
-                rawResponse: _response.rawResponse,
-            });
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
         }
 
         switch (_response.error.reason) {
@@ -70,7 +105,7 @@ export class Products {
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /products.");
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /products/.");
             case "unknown":
                 throw new errors.PaidError({
                     message: _response.error.errorMessage,
@@ -80,26 +115,29 @@ export class Products {
     }
 
     /**
-     * @param {Paid.ProductCreate} request
+     * Creates a new product for the organization
+     *
+     * @param {Paid.CreateProductRequest} request
      * @param {Products.RequestOptions} requestOptions - Request-specific configuration.
      *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.InternalServerError}
+     *
      * @example
-     *     await client.products.create({
-     *         name: "Acme Product",
-     *         description: "Acme Product does amazing things.",
-     *         externalId: "acme-product",
-     *         type: "product"
+     *     await client.products.createProduct({
+     *         name: "name"
      *     })
      */
-    public create(
-        request: Paid.ProductCreate,
+    public createProduct(
+        request: Paid.CreateProductRequest,
         requestOptions?: Products.RequestOptions,
     ): core.HttpResponsePromise<Paid.Product> {
-        return core.HttpResponsePromise.fromPromise(this.__create(request, requestOptions));
+        return core.HttpResponsePromise.fromPromise(this.__createProduct(request, requestOptions));
     }
 
-    private async __create(
-        request: Paid.ProductCreate,
+    private async __createProduct(
+        request: Paid.CreateProductRequest,
         requestOptions?: Products.RequestOptions,
     ): Promise<core.WithRawResponse<Paid.Product>> {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
@@ -111,8 +149,8 @@ export class Products {
             url: core.url.join(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidEnvironment.Production,
-                "products",
+                    environments.PaidEnvironment.Default,
+                "products/",
             ),
             method: "POST",
             headers: _headers,
@@ -129,11 +167,23 @@ export class Products {
         }
 
         if (_response.error.reason === "status-code") {
-            throw new errors.PaidError({
-                statusCode: _response.error.statusCode,
-                body: _response.error.body,
-                rawResponse: _response.rawResponse,
-            });
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
         }
 
         switch (_response.error.reason) {
@@ -144,7 +194,7 @@ export class Products {
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /products.");
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /products/.");
             case "unknown":
                 throw new errors.PaidError({
                     message: _response.error.errorMessage,
@@ -154,20 +204,32 @@ export class Products {
     }
 
     /**
-     * @param {string} productId
+     * Get a product by ID
+     *
+     * @param {Paid.GetProductByIdRequest} request
      * @param {Products.RequestOptions} requestOptions - Request-specific configuration.
      *
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.InternalServerError}
+     *
      * @example
-     *     await client.products.get("productId")
+     *     await client.products.getProductById({
+     *         id: "id"
+     *     })
      */
-    public get(productId: string, requestOptions?: Products.RequestOptions): core.HttpResponsePromise<Paid.Product> {
-        return core.HttpResponsePromise.fromPromise(this.__get(productId, requestOptions));
+    public getProductById(
+        request: Paid.GetProductByIdRequest,
+        requestOptions?: Products.RequestOptions,
+    ): core.HttpResponsePromise<Paid.Product> {
+        return core.HttpResponsePromise.fromPromise(this.__getProductById(request, requestOptions));
     }
 
-    private async __get(
-        productId: string,
+    private async __getProductById(
+        request: Paid.GetProductByIdRequest,
         requestOptions?: Products.RequestOptions,
     ): Promise<core.WithRawResponse<Paid.Product>> {
+        const { id } = request;
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             this._options?.headers,
             mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
@@ -177,8 +239,8 @@ export class Products {
             url: core.url.join(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidEnvironment.Production,
-                `products/${core.url.encodePathParam(productId)}`,
+                    environments.PaidEnvironment.Default,
+                `products/${core.url.encodePathParam(id)}`,
             ),
             method: "GET",
             headers: _headers,
@@ -192,11 +254,23 @@ export class Products {
         }
 
         if (_response.error.reason === "status-code") {
-            throw new errors.PaidError({
-                statusCode: _response.error.statusCode,
-                body: _response.error.body,
-                rawResponse: _response.rawResponse,
-            });
+            switch (_response.error.statusCode) {
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
         }
 
         switch (_response.error.reason) {
@@ -207,7 +281,7 @@ export class Products {
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /products/{productId}.");
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /products/{id}.");
             case "unknown":
                 throw new errors.PaidError({
                     message: _response.error.errorMessage,
@@ -217,26 +291,34 @@ export class Products {
     }
 
     /**
-     * @param {string} productId
-     * @param {Paid.ProductUpdate} request
+     * Update a product by ID
+     *
+     * @param {Paid.UpdateProductByIdRequest} request
      * @param {Products.RequestOptions} requestOptions - Request-specific configuration.
      *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.InternalServerError}
+     *
      * @example
-     *     await client.products.update("productId", {})
+     *     await client.products.updateProductById({
+     *         id: "id",
+     *         body: {}
+     *     })
      */
-    public update(
-        productId: string,
-        request: Paid.ProductUpdate,
+    public updateProductById(
+        request: Paid.UpdateProductByIdRequest,
         requestOptions?: Products.RequestOptions,
     ): core.HttpResponsePromise<Paid.Product> {
-        return core.HttpResponsePromise.fromPromise(this.__update(productId, request, requestOptions));
+        return core.HttpResponsePromise.fromPromise(this.__updateProductById(request, requestOptions));
     }
 
-    private async __update(
-        productId: string,
-        request: Paid.ProductUpdate,
+    private async __updateProductById(
+        request: Paid.UpdateProductByIdRequest,
         requestOptions?: Products.RequestOptions,
     ): Promise<core.WithRawResponse<Paid.Product>> {
+        const { id, body: _body } = request;
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             this._options?.headers,
             mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
@@ -246,15 +328,15 @@ export class Products {
             url: core.url.join(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidEnvironment.Production,
-                `products/${core.url.encodePathParam(productId)}`,
+                    environments.PaidEnvironment.Default,
+                `products/${core.url.encodePathParam(id)}`,
             ),
             method: "PUT",
             headers: _headers,
             contentType: "application/json",
             queryParameters: requestOptions?.queryParams,
             requestType: "json",
-            body: request,
+            body: _body,
             timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
             maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
             abortSignal: requestOptions?.abortSignal,
@@ -264,11 +346,25 @@ export class Products {
         }
 
         if (_response.error.reason === "status-code") {
-            throw new errors.PaidError({
-                statusCode: _response.error.statusCode,
-                body: _response.error.body,
-                rawResponse: _response.rawResponse,
-            });
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
         }
 
         switch (_response.error.reason) {
@@ -279,7 +375,7 @@ export class Products {
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidTimeoutError("Timeout exceeded when calling PUT /products/{productId}.");
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling PUT /products/{id}.");
             case "unknown":
                 throw new errors.PaidError({
                     message: _response.error.errorMessage,
@@ -289,86 +385,32 @@ export class Products {
     }
 
     /**
-     * @param {string} productId
+     * Get a product by external ID
+     *
+     * @param {Paid.GetProductByExternalIdRequest} request
      * @param {Products.RequestOptions} requestOptions - Request-specific configuration.
      *
-     * @example
-     *     await client.products.delete("productId")
-     */
-    public delete(productId: string, requestOptions?: Products.RequestOptions): core.HttpResponsePromise<void> {
-        return core.HttpResponsePromise.fromPromise(this.__delete(productId, requestOptions));
-    }
-
-    private async __delete(
-        productId: string,
-        requestOptions?: Products.RequestOptions,
-    ): Promise<core.WithRawResponse<void>> {
-        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
-            this._options?.headers,
-            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
-            requestOptions?.headers,
-        );
-        const _response = await core.fetcher({
-            url: core.url.join(
-                (await core.Supplier.get(this._options.baseUrl)) ??
-                    (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidEnvironment.Production,
-                `products/${core.url.encodePathParam(productId)}`,
-            ),
-            method: "DELETE",
-            headers: _headers,
-            queryParameters: requestOptions?.queryParams,
-            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
-            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
-            abortSignal: requestOptions?.abortSignal,
-        });
-        if (_response.ok) {
-            return { data: undefined, rawResponse: _response.rawResponse };
-        }
-
-        if (_response.error.reason === "status-code") {
-            throw new errors.PaidError({
-                statusCode: _response.error.statusCode,
-                body: _response.error.body,
-                rawResponse: _response.rawResponse,
-            });
-        }
-
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.PaidError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.PaidTimeoutError("Timeout exceeded when calling DELETE /products/{productId}.");
-            case "unknown":
-                throw new errors.PaidError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
-    }
-
-    /**
-     * @param {string} externalId
-     * @param {Products.RequestOptions} requestOptions - Request-specific configuration.
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.InternalServerError}
      *
      * @example
-     *     await client.products.getByExternalId("externalId")
+     *     await client.products.getProductByExternalId({
+     *         externalId: "externalId"
+     *     })
      */
-    public getByExternalId(
-        externalId: string,
+    public getProductByExternalId(
+        request: Paid.GetProductByExternalIdRequest,
         requestOptions?: Products.RequestOptions,
     ): core.HttpResponsePromise<Paid.Product> {
-        return core.HttpResponsePromise.fromPromise(this.__getByExternalId(externalId, requestOptions));
+        return core.HttpResponsePromise.fromPromise(this.__getProductByExternalId(request, requestOptions));
     }
 
-    private async __getByExternalId(
-        externalId: string,
+    private async __getProductByExternalId(
+        request: Paid.GetProductByExternalIdRequest,
         requestOptions?: Products.RequestOptions,
     ): Promise<core.WithRawResponse<Paid.Product>> {
+        const { externalId } = request;
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             this._options?.headers,
             mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
@@ -378,7 +420,7 @@ export class Products {
             url: core.url.join(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidEnvironment.Production,
+                    environments.PaidEnvironment.Default,
                 `products/external/${core.url.encodePathParam(externalId)}`,
             ),
             method: "GET",
@@ -393,11 +435,23 @@ export class Products {
         }
 
         if (_response.error.reason === "status-code") {
-            throw new errors.PaidError({
-                statusCode: _response.error.statusCode,
-                body: _response.error.body,
-                rawResponse: _response.rawResponse,
-            });
+            switch (_response.error.statusCode) {
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
         }
 
         switch (_response.error.reason) {
@@ -418,26 +472,34 @@ export class Products {
     }
 
     /**
-     * @param {string} externalId
-     * @param {Paid.ProductUpdate} request
+     * Update a product by external ID
+     *
+     * @param {Paid.UpdateProductByExternalIdRequest} request
      * @param {Products.RequestOptions} requestOptions - Request-specific configuration.
      *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.InternalServerError}
+     *
      * @example
-     *     await client.products.updateByExternalId("externalId", {})
+     *     await client.products.updateProductByExternalId({
+     *         externalId: "externalId",
+     *         body: {}
+     *     })
      */
-    public updateByExternalId(
-        externalId: string,
-        request: Paid.ProductUpdate,
+    public updateProductByExternalId(
+        request: Paid.UpdateProductByExternalIdRequest,
         requestOptions?: Products.RequestOptions,
     ): core.HttpResponsePromise<Paid.Product> {
-        return core.HttpResponsePromise.fromPromise(this.__updateByExternalId(externalId, request, requestOptions));
+        return core.HttpResponsePromise.fromPromise(this.__updateProductByExternalId(request, requestOptions));
     }
 
-    private async __updateByExternalId(
-        externalId: string,
-        request: Paid.ProductUpdate,
+    private async __updateProductByExternalId(
+        request: Paid.UpdateProductByExternalIdRequest,
         requestOptions?: Products.RequestOptions,
     ): Promise<core.WithRawResponse<Paid.Product>> {
+        const { externalId, body: _body } = request;
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             this._options?.headers,
             mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
@@ -447,7 +509,7 @@ export class Products {
             url: core.url.join(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidEnvironment.Production,
+                    environments.PaidEnvironment.Default,
                 `products/external/${core.url.encodePathParam(externalId)}`,
             ),
             method: "PUT",
@@ -455,7 +517,7 @@ export class Products {
             contentType: "application/json",
             queryParameters: requestOptions?.queryParams,
             requestType: "json",
-            body: request,
+            body: _body,
             timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
             maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
             abortSignal: requestOptions?.abortSignal,
@@ -465,11 +527,25 @@ export class Products {
         }
 
         if (_response.error.reason === "status-code") {
-            throw new errors.PaidError({
-                statusCode: _response.error.statusCode,
-                body: _response.error.body,
-                rawResponse: _response.rawResponse,
-            });
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
         }
 
         switch (_response.error.reason) {
@@ -489,80 +565,7 @@ export class Products {
         }
     }
 
-    /**
-     * @param {string} externalId
-     * @param {Products.RequestOptions} requestOptions - Request-specific configuration.
-     *
-     * @example
-     *     await client.products.deleteByExternalId("externalId")
-     */
-    public deleteByExternalId(
-        externalId: string,
-        requestOptions?: Products.RequestOptions,
-    ): core.HttpResponsePromise<void> {
-        return core.HttpResponsePromise.fromPromise(this.__deleteByExternalId(externalId, requestOptions));
-    }
-
-    private async __deleteByExternalId(
-        externalId: string,
-        requestOptions?: Products.RequestOptions,
-    ): Promise<core.WithRawResponse<void>> {
-        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
-            this._options?.headers,
-            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
-            requestOptions?.headers,
-        );
-        const _response = await core.fetcher({
-            url: core.url.join(
-                (await core.Supplier.get(this._options.baseUrl)) ??
-                    (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidEnvironment.Production,
-                `products/external/${core.url.encodePathParam(externalId)}`,
-            ),
-            method: "DELETE",
-            headers: _headers,
-            queryParameters: requestOptions?.queryParams,
-            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
-            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
-            abortSignal: requestOptions?.abortSignal,
-        });
-        if (_response.ok) {
-            return { data: undefined, rawResponse: _response.rawResponse };
-        }
-
-        if (_response.error.reason === "status-code") {
-            throw new errors.PaidError({
-                statusCode: _response.error.statusCode,
-                body: _response.error.body,
-                rawResponse: _response.rawResponse,
-            });
-        }
-
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.PaidError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.PaidTimeoutError(
-                    "Timeout exceeded when calling DELETE /products/external/{externalId}.",
-                );
-            case "unknown":
-                throw new errors.PaidError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
-    }
-
-    protected async _getAuthorizationHeader(): Promise<string | undefined> {
-        const bearer = await core.Supplier.get(this._options.token);
-        if (bearer != null) {
-            return `Bearer ${bearer}`;
-        }
-
-        return undefined;
+    protected async _getAuthorizationHeader(): Promise<string> {
+        return `Bearer ${await core.Supplier.get(this._options.token)}`;
     }
 }

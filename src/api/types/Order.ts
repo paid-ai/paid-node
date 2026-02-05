@@ -3,20 +3,28 @@
 import type * as Paid from "../index.js";
 
 export interface Order {
-    id?: string;
-    name?: string;
-    description?: string;
-    customerId?: string;
-    organizationId?: string;
-    startDate?: string;
-    endDate?: string;
-    totalAmount?: number;
-    estimatedTax?: number;
-    billedAmountNoTax?: number;
-    billedTax?: number;
-    totalBilledAmount?: number;
-    pendingBillingAmount?: number;
-    creationState?: Paid.CreationState;
-    orderLines?: Paid.OrderLine[];
-    customer?: Paid.Customer;
+    id: string;
+    customerId: string;
+    billingCustomerId: string | null;
+    billingContactIds: string[];
+    createdAt: string;
+    updatedAt: string;
+    endDate: string | null;
+    name: string;
+    startDate: string;
+    subscriptionTerms: number | null;
+    billedAmountNoTax: number;
+    billedTax: number;
+    estimatedTax: number;
+    orderAmount: number;
+    pendingBillingAmount: number;
+    totalAmount: number;
+    totalBilledAmount: number;
+    creationState: Paid.OrderCreationState;
+    paymentTerms: string | null;
+    number: number;
+    metadata: Record<string, unknown> | null;
+    showPaymentLink: boolean | null;
+    showBankDetails: boolean | null;
+    version: number;
 }

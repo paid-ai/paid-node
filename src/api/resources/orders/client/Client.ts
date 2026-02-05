@@ -6,7 +6,6 @@ import * as core from "../../../../core/index.js";
 import * as environments from "../../../../environments.js";
 import * as errors from "../../../../errors/index.js";
 import * as Paid from "../../../index.js";
-import { Lines } from "../resources/lines/client/Client.js";
 
 export declare namespace Orders {
     export interface Options extends BaseClientOptions {}
@@ -16,27 +15,45 @@ export declare namespace Orders {
 
 export class Orders {
     protected readonly _options: Orders.Options;
-    protected _lines: Lines | undefined;
 
-    constructor(_options: Orders.Options = {}) {
+    constructor(_options: Orders.Options) {
         this._options = _options;
     }
 
-    public get lines(): Lines {
-        return (this._lines ??= new Lines(this._options));
-    }
-
     /**
+     * Get a list of orders for the organization
+     *
+     * @param {Paid.ListOrdersRequest} request
      * @param {Orders.RequestOptions} requestOptions - Request-specific configuration.
      *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.InternalServerError}
+     *
      * @example
-     *     await client.orders.list()
+     *     await client.orders.listOrders()
      */
-    public list(requestOptions?: Orders.RequestOptions): core.HttpResponsePromise<Paid.Order[]> {
-        return core.HttpResponsePromise.fromPromise(this.__list(requestOptions));
+    public listOrders(
+        request: Paid.ListOrdersRequest = {},
+        requestOptions?: Orders.RequestOptions,
+    ): core.HttpResponsePromise<Paid.OrderListResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__listOrders(request, requestOptions));
     }
 
-    private async __list(requestOptions?: Orders.RequestOptions): Promise<core.WithRawResponse<Paid.Order[]>> {
+    private async __listOrders(
+        request: Paid.ListOrdersRequest = {},
+        requestOptions?: Orders.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.OrderListResponse>> {
+        const { limit, offset } = request;
+        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
+        if (limit != null) {
+            _queryParams.limit = limit.toString();
+        }
+
+        if (offset != null) {
+            _queryParams.offset = offset.toString();
+        }
+
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             this._options?.headers,
             mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
@@ -46,26 +63,38 @@ export class Orders {
             url: core.url.join(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidEnvironment.Production,
-                "orders",
+                    environments.PaidEnvironment.Default,
+                "orders/",
             ),
             method: "GET",
             headers: _headers,
-            queryParameters: requestOptions?.queryParams,
+            queryParameters: { ..._queryParams, ...requestOptions?.queryParams },
             timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
             maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return { data: _response.body as Paid.Order[], rawResponse: _response.rawResponse };
+            return { data: _response.body as Paid.OrderListResponse, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
-            throw new errors.PaidError({
-                statusCode: _response.error.statusCode,
-                body: _response.error.body,
-                rawResponse: _response.rawResponse,
-            });
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
         }
 
         switch (_response.error.reason) {
@@ -76,7 +105,7 @@ export class Orders {
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /orders.");
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /orders/.");
             case "unknown":
                 throw new errors.PaidError({
                     message: _response.error.errorMessage,
@@ -86,38 +115,29 @@ export class Orders {
     }
 
     /**
-     * @param {Paid.OrderCreate} request
+     * Creates a new order for the organization
+     *
+     * @param {Paid.CreateOrderRequest} request
      * @param {Orders.RequestOptions} requestOptions - Request-specific configuration.
      *
-     * @example
-     *     await client.orders.create({
-     *         customerExternalId: "acme-inc",
-     *         name: "Acme Order",
-     *         description: "Acme Order is an order for Acme, Inc.",
-     *         startDate: "2025-01-01",
-     *         endDate: "2026-01-01",
-     *         currency: "USD"
-     *     })
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.InternalServerError}
      *
      * @example
-     *     await client.orders.create({
-     *         customerExternalId: "acme-inc",
-     *         name: "Acme Order with Custom Pricing",
-     *         description: "Order with customized attribute pricing",
-     *         startDate: "2025-01-01",
-     *         endDate: "2026-01-01",
-     *         currency: "USD"
+     *     await client.orders.createOrder({
+     *         customerId: "customerId"
      *     })
      */
-    public create(
-        request: Paid.OrderCreate,
+    public createOrder(
+        request: Paid.CreateOrderRequest,
         requestOptions?: Orders.RequestOptions,
     ): core.HttpResponsePromise<Paid.Order> {
-        return core.HttpResponsePromise.fromPromise(this.__create(request, requestOptions));
+        return core.HttpResponsePromise.fromPromise(this.__createOrder(request, requestOptions));
     }
 
-    private async __create(
-        request: Paid.OrderCreate,
+    private async __createOrder(
+        request: Paid.CreateOrderRequest,
         requestOptions?: Orders.RequestOptions,
     ): Promise<core.WithRawResponse<Paid.Order>> {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
@@ -129,8 +149,8 @@ export class Orders {
             url: core.url.join(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidEnvironment.Production,
-                "orders",
+                    environments.PaidEnvironment.Default,
+                "orders/",
             ),
             method: "POST",
             headers: _headers,
@@ -147,11 +167,23 @@ export class Orders {
         }
 
         if (_response.error.reason === "status-code") {
-            throw new errors.PaidError({
-                statusCode: _response.error.statusCode,
-                body: _response.error.body,
-                rawResponse: _response.rawResponse,
-            });
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
         }
 
         switch (_response.error.reason) {
@@ -162,7 +194,7 @@ export class Orders {
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /orders.");
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /orders/.");
             case "unknown":
                 throw new errors.PaidError({
                     message: _response.error.errorMessage,
@@ -172,20 +204,32 @@ export class Orders {
     }
 
     /**
-     * @param {string} orderId
+     * Get an order by ID
+     *
+     * @param {Paid.GetOrderByIdRequest} request
      * @param {Orders.RequestOptions} requestOptions - Request-specific configuration.
      *
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.InternalServerError}
+     *
      * @example
-     *     await client.orders.get("orderId")
+     *     await client.orders.getOrderById({
+     *         id: "id"
+     *     })
      */
-    public get(orderId: string, requestOptions?: Orders.RequestOptions): core.HttpResponsePromise<Paid.Order> {
-        return core.HttpResponsePromise.fromPromise(this.__get(orderId, requestOptions));
+    public getOrderById(
+        request: Paid.GetOrderByIdRequest,
+        requestOptions?: Orders.RequestOptions,
+    ): core.HttpResponsePromise<Paid.Order> {
+        return core.HttpResponsePromise.fromPromise(this.__getOrderById(request, requestOptions));
     }
 
-    private async __get(
-        orderId: string,
+    private async __getOrderById(
+        request: Paid.GetOrderByIdRequest,
         requestOptions?: Orders.RequestOptions,
     ): Promise<core.WithRawResponse<Paid.Order>> {
+        const { id } = request;
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             this._options?.headers,
             mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
@@ -195,8 +239,8 @@ export class Orders {
             url: core.url.join(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidEnvironment.Production,
-                `orders/${core.url.encodePathParam(orderId)}`,
+                    environments.PaidEnvironment.Default,
+                `orders/${core.url.encodePathParam(id)}`,
             ),
             method: "GET",
             headers: _headers,
@@ -210,11 +254,23 @@ export class Orders {
         }
 
         if (_response.error.reason === "status-code") {
-            throw new errors.PaidError({
-                statusCode: _response.error.statusCode,
-                body: _response.error.body,
-                rawResponse: _response.rawResponse,
-            });
+            switch (_response.error.statusCode) {
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
         }
 
         switch (_response.error.reason) {
@@ -225,7 +281,7 @@ export class Orders {
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /orders/{orderId}.");
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /orders/{id}.");
             case "unknown":
                 throw new errors.PaidError({
                     message: _response.error.errorMessage,
@@ -235,20 +291,33 @@ export class Orders {
     }
 
     /**
-     * @param {string} orderId
+     * Update an order by ID
+     *
+     * @param {Paid.UpdateOrderRequest} request
      * @param {Orders.RequestOptions} requestOptions - Request-specific configuration.
      *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.InternalServerError}
+     *
      * @example
-     *     await client.orders.delete("orderId")
+     *     await client.orders.updateOrderById({
+     *         id: "id"
+     *     })
      */
-    public delete(orderId: string, requestOptions?: Orders.RequestOptions): core.HttpResponsePromise<void> {
-        return core.HttpResponsePromise.fromPromise(this.__delete(orderId, requestOptions));
+    public updateOrderById(
+        request: Paid.UpdateOrderRequest,
+        requestOptions?: Orders.RequestOptions,
+    ): core.HttpResponsePromise<Paid.Order> {
+        return core.HttpResponsePromise.fromPromise(this.__updateOrderById(request, requestOptions));
     }
 
-    private async __delete(
-        orderId: string,
+    private async __updateOrderById(
+        request: Paid.UpdateOrderRequest,
         requestOptions?: Orders.RequestOptions,
-    ): Promise<core.WithRawResponse<void>> {
+    ): Promise<core.WithRawResponse<Paid.Order>> {
+        const { id, ..._body } = request;
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             this._options?.headers,
             mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
@@ -258,8 +327,100 @@ export class Orders {
             url: core.url.join(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidEnvironment.Production,
-                `orders/${core.url.encodePathParam(orderId)}`,
+                    environments.PaidEnvironment.Default,
+                `orders/${core.url.encodePathParam(id)}`,
+            ),
+            method: "PUT",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: _body,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.Order, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling PUT /orders/{id}.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Delete an order by ID
+     *
+     * @param {Paid.DeleteOrderByIdRequest} request
+     * @param {Orders.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.orders.deleteOrderById({
+     *         id: "id"
+     *     })
+     */
+    public deleteOrderById(
+        request: Paid.DeleteOrderByIdRequest,
+        requestOptions?: Orders.RequestOptions,
+    ): core.HttpResponsePromise<Paid.EmptyResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__deleteOrderById(request, requestOptions));
+    }
+
+    private async __deleteOrderById(
+        request: Paid.DeleteOrderByIdRequest,
+        requestOptions?: Orders.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.EmptyResponse>> {
+        const { id } = request;
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `orders/${core.url.encodePathParam(id)}`,
             ),
             method: "DELETE",
             headers: _headers,
@@ -269,161 +430,20 @@ export class Orders {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return { data: undefined, rawResponse: _response.rawResponse };
-        }
-
-        if (_response.error.reason === "status-code") {
-            throw new errors.PaidError({
-                statusCode: _response.error.statusCode,
-                body: _response.error.body,
-                rawResponse: _response.rawResponse,
-            });
-        }
-
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.PaidError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.PaidTimeoutError("Timeout exceeded when calling DELETE /orders/{orderId}.");
-            case "unknown":
-                throw new errors.PaidError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
-    }
-
-    /**
-     * @param {string} orderId
-     * @param {Orders.RequestOptions} requestOptions - Request-specific configuration.
-     *
-     * @example
-     *     await client.orders.activate("orderId")
-     */
-    public activate(orderId: string, requestOptions?: Orders.RequestOptions): core.HttpResponsePromise<Paid.Order> {
-        return core.HttpResponsePromise.fromPromise(this.__activate(orderId, requestOptions));
-    }
-
-    private async __activate(
-        orderId: string,
-        requestOptions?: Orders.RequestOptions,
-    ): Promise<core.WithRawResponse<Paid.Order>> {
-        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
-            this._options?.headers,
-            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
-            requestOptions?.headers,
-        );
-        const _response = await core.fetcher({
-            url: core.url.join(
-                (await core.Supplier.get(this._options.baseUrl)) ??
-                    (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidEnvironment.Production,
-                `orders/${core.url.encodePathParam(orderId)}/activate`,
-            ),
-            method: "POST",
-            headers: _headers,
-            queryParameters: requestOptions?.queryParams,
-            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
-            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
-            abortSignal: requestOptions?.abortSignal,
-        });
-        if (_response.ok) {
-            return { data: _response.body as Paid.Order, rawResponse: _response.rawResponse };
-        }
-
-        if (_response.error.reason === "status-code") {
-            throw new errors.PaidError({
-                statusCode: _response.error.statusCode,
-                body: _response.error.body,
-                rawResponse: _response.rawResponse,
-            });
-        }
-
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.PaidError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /orders/{orderId}/activate.");
-            case "unknown":
-                throw new errors.PaidError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
-    }
-
-    /**
-     * Activates the order and processes the initial payment using the provided Stripe confirmation token.
-     *
-     * @param {string} orderId - The order ID (can be internal ID or display ID)
-     * @param {Paid.OrdersActivateAndPayRequest} request
-     * @param {Orders.RequestOptions} requestOptions - Request-specific configuration.
-     *
-     * @throws {@link Paid.BadRequestError}
-     * @throws {@link Paid.ForbiddenError}
-     * @throws {@link Paid.NotFoundError}
-     *
-     * @example
-     *     await client.orders.activateAndPay("orderId", {
-     *         confirmationToken: "ctoken_1234567890",
-     *         returnUrl: "https://example.com/payment-complete"
-     *     })
-     */
-    public activateAndPay(
-        orderId: string,
-        request: Paid.OrdersActivateAndPayRequest,
-        requestOptions?: Orders.RequestOptions,
-    ): core.HttpResponsePromise<Paid.Order> {
-        return core.HttpResponsePromise.fromPromise(this.__activateAndPay(orderId, request, requestOptions));
-    }
-
-    private async __activateAndPay(
-        orderId: string,
-        request: Paid.OrdersActivateAndPayRequest,
-        requestOptions?: Orders.RequestOptions,
-    ): Promise<core.WithRawResponse<Paid.Order>> {
-        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
-            this._options?.headers,
-            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
-            requestOptions?.headers,
-        );
-        const _response = await core.fetcher({
-            url: core.url.join(
-                (await core.Supplier.get(this._options.baseUrl)) ??
-                    (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidEnvironment.Production,
-                `orders/${core.url.encodePathParam(orderId)}/activate-and-pay`,
-            ),
-            method: "POST",
-            headers: _headers,
-            contentType: "application/json",
-            queryParameters: requestOptions?.queryParams,
-            requestType: "json",
-            body: request,
-            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
-            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
-            abortSignal: requestOptions?.abortSignal,
-        });
-        if (_response.ok) {
-            return { data: _response.body as Paid.Order, rawResponse: _response.rawResponse };
+            return { data: _response.body as Paid.EmptyResponse, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
-                case 400:
-                    throw new Paid.BadRequestError(_response.error.body as Paid.Error_, _response.rawResponse);
                 case 403:
-                    throw new Paid.ForbiddenError(_response.error.body as Paid.Error_, _response.rawResponse);
+                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
                 case 404:
-                    throw new Paid.NotFoundError(_response.error.body as Paid.Error_, _response.rawResponse);
+                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,
@@ -441,9 +461,7 @@ export class Orders {
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidTimeoutError(
-                    "Timeout exceeded when calling POST /orders/{orderId}/activate-and-pay.",
-                );
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling DELETE /orders/{id}.");
             case "unknown":
                 throw new errors.PaidError({
                     message: _response.error.errorMessage,
@@ -453,35 +471,41 @@ export class Orders {
     }
 
     /**
-     * Schedules the cancellation of an order's renewal from a specified date. The order will remain active until the cancellation date.
+     * Get the order lines for an order by ID
      *
-     * @param {string} orderId - The order ID (can be internal ID or display ID)
-     * @param {Paid.CancelRenewalRequest} request
+     * @param {Paid.GetOrderLinesRequest} request
      * @param {Orders.RequestOptions} requestOptions - Request-specific configuration.
      *
-     * @throws {@link Paid.BadRequestError}
      * @throws {@link Paid.ForbiddenError}
      * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.InternalServerError}
      *
      * @example
-     *     await client.orders.cancelRenewal("orderId", {
-     *         orderVersion: 1,
-     *         cancelFromDate: "2025-12-31T00:00:00Z"
+     *     await client.orders.getOrderLines({
+     *         id: "id"
      *     })
      */
-    public cancelRenewal(
-        orderId: string,
-        request: Paid.CancelRenewalRequest,
+    public getOrderLines(
+        request: Paid.GetOrderLinesRequest,
         requestOptions?: Orders.RequestOptions,
-    ): core.HttpResponsePromise<Paid.CancelRenewalResponse> {
-        return core.HttpResponsePromise.fromPromise(this.__cancelRenewal(orderId, request, requestOptions));
+    ): core.HttpResponsePromise<Paid.OrderLinesResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__getOrderLines(request, requestOptions));
     }
 
-    private async __cancelRenewal(
-        orderId: string,
-        request: Paid.CancelRenewalRequest,
+    private async __getOrderLines(
+        request: Paid.GetOrderLinesRequest,
         requestOptions?: Orders.RequestOptions,
-    ): Promise<core.WithRawResponse<Paid.CancelRenewalResponse>> {
+    ): Promise<core.WithRawResponse<Paid.OrderLinesResponse>> {
+        const { id, limit, offset } = request;
+        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
+        if (limit != null) {
+            _queryParams.limit = limit.toString();
+        }
+
+        if (offset != null) {
+            _queryParams.offset = offset.toString();
+        }
+
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             this._options?.headers,
             mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
@@ -491,209 +515,31 @@ export class Orders {
             url: core.url.join(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidEnvironment.Production,
-                `orders/${core.url.encodePathParam(orderId)}/cancel`,
-            ),
-            method: "POST",
-            headers: _headers,
-            contentType: "application/json",
-            queryParameters: requestOptions?.queryParams,
-            requestType: "json",
-            body: request,
-            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
-            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
-            abortSignal: requestOptions?.abortSignal,
-        });
-        if (_response.ok) {
-            return { data: _response.body as Paid.CancelRenewalResponse, rawResponse: _response.rawResponse };
-        }
-
-        if (_response.error.reason === "status-code") {
-            switch (_response.error.statusCode) {
-                case 400:
-                    throw new Paid.BadRequestError(_response.error.body as Paid.Error_, _response.rawResponse);
-                case 403:
-                    throw new Paid.ForbiddenError(_response.error.body as Paid.Error_, _response.rawResponse);
-                case 404:
-                    throw new Paid.NotFoundError(_response.error.body as Paid.Error_, _response.rawResponse);
-                default:
-                    throw new errors.PaidError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
-                        rawResponse: _response.rawResponse,
-                    });
-            }
-        }
-
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.PaidError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /orders/{orderId}/cancel.");
-            case "unknown":
-                throw new errors.PaidError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
-    }
-
-    /**
-     * Schedules a plan upgrade or downgrade for an order with automatic proration calculation. Credits are applied for the unused portion of the current billing period.
-     *
-     * @param {string} orderId - The order ID (can be internal ID or display ID)
-     * @param {Paid.ProrationUpgradeRequest} request
-     * @param {Orders.RequestOptions} requestOptions - Request-specific configuration.
-     *
-     * @throws {@link Paid.BadRequestError}
-     * @throws {@link Paid.ForbiddenError}
-     * @throws {@link Paid.NotFoundError}
-     *
-     * @example
-     *     await client.orders.schedulePlanChange("orderId", {
-     *         orderVersion: 1,
-     *         effectiveDate: "2025-02-01T00:00:00Z",
-     *         updatedOrderLineAttributes: [{
-     *                 orderLineAttributeId: "a1b2c3d4-5678-90ab-cdef-1234567890ab",
-     *                 newPricing: {
-     *                     "unitPrice": 200,
-     *                     "currency": "USD"
-     *                 },
-     *                 newQuantity: 10
-     *             }]
-     *     })
-     */
-    public schedulePlanChange(
-        orderId: string,
-        request: Paid.ProrationUpgradeRequest,
-        requestOptions?: Orders.RequestOptions,
-    ): core.HttpResponsePromise<Paid.ProrationUpgradeResponse> {
-        return core.HttpResponsePromise.fromPromise(this.__schedulePlanChange(orderId, request, requestOptions));
-    }
-
-    private async __schedulePlanChange(
-        orderId: string,
-        request: Paid.ProrationUpgradeRequest,
-        requestOptions?: Orders.RequestOptions,
-    ): Promise<core.WithRawResponse<Paid.ProrationUpgradeResponse>> {
-        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
-            this._options?.headers,
-            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
-            requestOptions?.headers,
-        );
-        const _response = await core.fetcher({
-            url: core.url.join(
-                (await core.Supplier.get(this._options.baseUrl)) ??
-                    (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidEnvironment.Production,
-                `orders/${core.url.encodePathParam(orderId)}/schedule-plan-change`,
-            ),
-            method: "POST",
-            headers: _headers,
-            contentType: "application/json",
-            queryParameters: requestOptions?.queryParams,
-            requestType: "json",
-            body: request,
-            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
-            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
-            abortSignal: requestOptions?.abortSignal,
-        });
-        if (_response.ok) {
-            return { data: _response.body as Paid.ProrationUpgradeResponse, rawResponse: _response.rawResponse };
-        }
-
-        if (_response.error.reason === "status-code") {
-            switch (_response.error.statusCode) {
-                case 400:
-                    throw new Paid.BadRequestError(_response.error.body as Paid.Error_, _response.rawResponse);
-                case 403:
-                    throw new Paid.ForbiddenError(_response.error.body as Paid.Error_, _response.rawResponse);
-                case 404:
-                    throw new Paid.NotFoundError(_response.error.body as Paid.Error_, _response.rawResponse);
-                default:
-                    throw new errors.PaidError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
-                        rawResponse: _response.rawResponse,
-                    });
-            }
-        }
-
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.PaidError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.PaidTimeoutError(
-                    "Timeout exceeded when calling POST /orders/{orderId}/schedule-plan-change.",
-                );
-            case "unknown":
-                throw new errors.PaidError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
-    }
-
-    /**
-     * Retrieves all invoices associated with a specific order.
-     *
-     * @param {string} orderId - The order ID (can be internal ID or display ID)
-     * @param {Orders.RequestOptions} requestOptions - Request-specific configuration.
-     *
-     * @throws {@link Paid.ForbiddenError}
-     * @throws {@link Paid.NotFoundError}
-     *
-     * @example
-     *     await client.orders.getInvoices("orderId")
-     */
-    public getInvoices(
-        orderId: string,
-        requestOptions?: Orders.RequestOptions,
-    ): core.HttpResponsePromise<Paid.Invoice[]> {
-        return core.HttpResponsePromise.fromPromise(this.__getInvoices(orderId, requestOptions));
-    }
-
-    private async __getInvoices(
-        orderId: string,
-        requestOptions?: Orders.RequestOptions,
-    ): Promise<core.WithRawResponse<Paid.Invoice[]>> {
-        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
-            this._options?.headers,
-            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
-            requestOptions?.headers,
-        );
-        const _response = await core.fetcher({
-            url: core.url.join(
-                (await core.Supplier.get(this._options.baseUrl)) ??
-                    (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidEnvironment.Production,
-                `orders/${core.url.encodePathParam(orderId)}/invoices`,
+                    environments.PaidEnvironment.Default,
+                `orders/${core.url.encodePathParam(id)}/lines`,
             ),
             method: "GET",
             headers: _headers,
-            queryParameters: requestOptions?.queryParams,
+            queryParameters: { ..._queryParams, ...requestOptions?.queryParams },
             timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
             maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return { data: _response.body as Paid.Invoice[], rawResponse: _response.rawResponse };
+            return { data: _response.body as Paid.OrderLinesResponse, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 403:
-                    throw new Paid.ForbiddenError(_response.error.body as Paid.Error_, _response.rawResponse);
+                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
                 case 404:
-                    throw new Paid.NotFoundError(_response.error.body as Paid.Error_, _response.rawResponse);
+                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,
@@ -711,7 +557,7 @@ export class Orders {
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /orders/{orderId}/invoices.");
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /orders/{id}/lines.");
             case "unknown":
                 throw new errors.PaidError({
                     message: _response.error.errorMessage,
@@ -720,12 +566,7 @@ export class Orders {
         }
     }
 
-    protected async _getAuthorizationHeader(): Promise<string | undefined> {
-        const bearer = await core.Supplier.get(this._options.token);
-        if (bearer != null) {
-            return `Bearer ${bearer}`;
-        }
-
-        return undefined;
+    protected async _getAuthorizationHeader(): Promise<string> {
+        return `Bearer ${await core.Supplier.get(this._options.token)}`;
     }
 }

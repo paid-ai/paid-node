@@ -1,1438 +1,22 @@
 # Reference
-## Customers
-<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">list</a>() -> Paid.Customer[]</code></summary>
-<dl>
-<dd>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.customers.list();
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**requestOptions:** `Customers.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">create</a>({ ...params }) -> Paid.Customer</code></summary>
-<dl>
-<dd>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.customers.create({
-    name: "Acme, Inc.",
-    externalId: "acme-inc",
-    contacts: [{
-            salutation: "Mr.",
-            firstName: "John",
-            lastName: "Doe",
-            accountName: "Acme, Inc.",
-            email: "john.doe@acme.com",
-            phone: "+1-555-0100",
-            billingStreet: "123 Main Street",
-            billingCity: "San Francisco",
-            billingStateProvince: "CA",
-            billingCountry: "USA",
-            billingPostalCode: "94102"
-        }]
-});
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**request:** `Paid.CustomerCreate` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `Customers.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">get</a>(customerId) -> Paid.Customer</code></summary>
-<dl>
-<dd>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.customers.get("customerId");
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**customerId:** `string` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `Customers.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">update</a>(customerId, { ...params }) -> Paid.Customer</code></summary>
-<dl>
-<dd>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.customers.update("customerId", {
-    name: "Acme, Inc. (Updated)",
-    phone: "123-456-7890",
-    employeeCount: 101,
-    annualRevenue: 1000001
-});
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**customerId:** `string` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request:** `Paid.CustomerUpdate` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `Customers.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">delete</a>(customerId) -> void</code></summary>
-<dl>
-<dd>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.customers.delete("customerId");
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**customerId:** `string` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `Customers.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">checkEntitlement</a>(customerId, { ...params }) -> Paid.CustomersCheckEntitlementResponse</code></summary>
-<dl>
-<dd>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.customers.checkEntitlement("customerId", {
-    event_name: "event_name",
-    view: "all"
-});
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**customerId:** `string` — The customer ID
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request:** `Paid.CustomersCheckEntitlementRequest` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `Customers.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">getEntitlements</a>(customerId) -> Paid.EntitlementUsage[]</code></summary>
-<dl>
-<dd>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.customers.getEntitlements("customerId");
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**customerId:** `string` — The customer ID
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `Customers.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">getByExternalId</a>(externalId) -> Paid.Customer</code></summary>
-<dl>
-<dd>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.customers.getByExternalId("externalId");
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**externalId:** `string` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `Customers.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">updateByExternalId</a>(externalId, { ...params }) -> Paid.Customer</code></summary>
-<dl>
-<dd>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.customers.updateByExternalId("externalId", {});
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**externalId:** `string` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request:** `Paid.CustomerUpdate` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `Customers.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">deleteByExternalId</a>(externalId) -> void</code></summary>
-<dl>
-<dd>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.customers.deleteByExternalId("externalId");
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**externalId:** `string` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `Customers.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">getCostsByExternalId</a>(externalId, { ...params }) -> Paid.CostTracesResponse</code></summary>
-<dl>
-<dd>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.customers.getCostsByExternalId("externalId", {
-    limit: 1,
-    offset: 1,
-    startTime: "2024-01-15T09:30:00Z",
-    endTime: "2024-01-15T09:30:00Z"
-});
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**externalId:** `string` — The external ID of the customer
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request:** `Paid.CustomersGetCostsByExternalIdRequest` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `Customers.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">getUsageByExternalId</a>(externalId, { ...params }) -> Paid.UsageSummariesResponse</code></summary>
-<dl>
-<dd>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.customers.getUsageByExternalId("externalId", {
-    limit: 1,
-    offset: 1,
-    startTime: "2024-01-15T09:30:00Z",
-    endTime: "2024-01-15T09:30:00Z"
-});
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**externalId:** `string` — The external ID of the customer
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request:** `Paid.CustomersGetUsageByExternalIdRequest` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `Customers.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">listPaymentMethods</a>(externalId) -> Paid.PaymentMethod[]</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-Retrieves all payment methods associated with a customer identified by their external ID.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.customers.listPaymentMethods("externalId");
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**externalId:** `string` — The external ID of the customer
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `Customers.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">createPaymentMethod</a>(externalId, { ...params }) -> Paid.PaymentMethod</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-Creates a new payment method for a customer using a Stripe confirmation token.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.customers.createPaymentMethod("externalId", {
-    confirmationToken: "ctoken_1234567890",
-    returnUrl: "https://example.com/payment-method-added",
-    metadata: {
-        "source": "api"
-    }
-});
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**externalId:** `string` — The external ID of the customer
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request:** `Paid.CustomersCreatePaymentMethodRequest` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `Customers.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">deletePaymentMethod</a>(externalId, paymentMethodId) -> void</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-Deletes a specific payment method from a customer's account.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.customers.deletePaymentMethod("externalId", "paymentMethodId");
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**externalId:** `string` — The external ID of the customer
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**paymentMethodId:** `string` — The ID of the payment method to delete
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `Customers.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-## Agents
-<details><summary><code>client.agents.<a href="/src/api/resources/agents/client/Client.ts">list</a>() -> Paid.Agent[]</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-DEPRECATED: Use /products instead. Agents are now products with type='agent'.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.agents.list();
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**requestOptions:** `Agents.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.agents.<a href="/src/api/resources/agents/client/Client.ts">create</a>({ ...params }) -> Paid.Agent</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-DEPRECATED: Use POST /products instead.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.agents.create({
-    name: "Acme Agent",
-    description: "Acme Agent is an AI agent that does things.",
-    externalId: "acme-agent"
-});
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**request:** `Paid.AgentCreate` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `Agents.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.agents.<a href="/src/api/resources/agents/client/Client.ts">get</a>(agentId) -> Paid.Agent</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-DEPRECATED: Use GET /products/{productId} instead.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.agents.get("agentId");
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**agentId:** `string` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `Agents.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.agents.<a href="/src/api/resources/agents/client/Client.ts">update</a>(agentId, { ...params }) -> Paid.Agent</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-DEPRECATED: Use PUT /products/{productId} instead.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.agents.update("agentId", {
-    name: "Acme Agent (Updated)",
-    agentAttributes: [{
-            name: "Emails sent signal",
-            active: true,
-            pricing: {
-                eventName: "emails_sent",
-                taxable: true,
-                chargeType: "usage",
-                pricingModel: "PerUnit",
-                billingFrequency: "monthly",
-                pricePoints: {
-                    "USD": {
-                        tiers: [{
-                                minQuantity: 0,
-                                maxQuantity: 10,
-                                unitPrice: 100
-                            }, {
-                                minQuantity: 11,
-                                maxQuantity: 100,
-                                unitPrice: 90
-                            }, {
-                                minQuantity: 101,
-                                unitPrice: 80
-                            }]
-                    }
-                }
-            }
-        }]
-});
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**agentId:** `string` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request:** `Paid.AgentUpdate` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `Agents.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.agents.<a href="/src/api/resources/agents/client/Client.ts">delete</a>(agentId) -> void</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-DEPRECATED: Use DELETE /products/{productId} instead.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.agents.delete("agentId");
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**agentId:** `string` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `Agents.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.agents.<a href="/src/api/resources/agents/client/Client.ts">getByExternalId</a>(externalId) -> Paid.Agent</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-DEPRECATED: Use GET /products/external/{externalId} instead.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.agents.getByExternalId("externalId");
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**externalId:** `string` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `Agents.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.agents.<a href="/src/api/resources/agents/client/Client.ts">updateByExternalId</a>(externalId, { ...params }) -> Paid.Agent</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-DEPRECATED: Use PUT /products/external/{externalId} instead.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.agents.updateByExternalId("externalId", {
-    name: "Acme Agent (Updated)",
-    agentAttributes: [{
-            name: "Emails sent signal",
-            active: true,
-            pricing: {
-                eventName: "emails_sent",
-                taxable: true,
-                chargeType: "usage",
-                pricingModel: "PerUnit",
-                billingFrequency: "monthly",
-                pricePoints: {
-                    "USD": {
-                        unitPrice: 150
-                    }
-                }
-            }
-        }]
-});
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**externalId:** `string` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request:** `Paid.AgentUpdate` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `Agents.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.agents.<a href="/src/api/resources/agents/client/Client.ts">deleteByExternalId</a>(externalId) -> void</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-DEPRECATED: Use DELETE /products/external/{externalId} instead.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.agents.deleteByExternalId("externalId");
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**externalId:** `string` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `Agents.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
 ## Products
-<details><summary><code>client.products.<a href="/src/api/resources/products/client/Client.ts">list</a>() -> Paid.Product[]</code></summary>
+<details><summary><code>client.products.<a href="/src/api/resources/products/client/Client.ts">listProducts</a>({ ...params }) -> Paid.ProductListResponse</code></summary>
 <dl>
 <dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Get a list of products for the organization
+</dd>
+</dl>
+</dd>
+</dl>
 
 #### 🔌 Usage
 
@@ -1443,7 +27,7 @@ await client.agents.deleteByExternalId("externalId");
 <dd>
 
 ```typescript
-await client.products.list();
+await client.products.listProducts();
 
 ```
 </dd>
@@ -1455,6 +39,14 @@ await client.products.list();
 
 <dl>
 <dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.ListProductsRequest` 
+    
+</dd>
+</dl>
 
 <dl>
 <dd>
@@ -1471,9 +63,23 @@ await client.products.list();
 </dl>
 </details>
 
-<details><summary><code>client.products.<a href="/src/api/resources/products/client/Client.ts">create</a>({ ...params }) -> Paid.Product</code></summary>
+<details><summary><code>client.products.<a href="/src/api/resources/products/client/Client.ts">createProduct</a>({ ...params }) -> Paid.Product</code></summary>
 <dl>
 <dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Creates a new product for the organization
+</dd>
+</dl>
+</dd>
+</dl>
 
 #### 🔌 Usage
 
@@ -1484,11 +90,8 @@ await client.products.list();
 <dd>
 
 ```typescript
-await client.products.create({
-    name: "Acme Product",
-    description: "Acme Product does amazing things.",
-    externalId: "acme-product",
-    type: "product"
+await client.products.createProduct({
+    name: "name"
 });
 
 ```
@@ -1505,7 +108,7 @@ await client.products.create({
 <dl>
 <dd>
 
-**request:** `Paid.ProductCreate` 
+**request:** `Paid.CreateProductRequest` 
     
 </dd>
 </dl>
@@ -1525,9 +128,23 @@ await client.products.create({
 </dl>
 </details>
 
-<details><summary><code>client.products.<a href="/src/api/resources/products/client/Client.ts">get</a>(productId) -> Paid.Product</code></summary>
+<details><summary><code>client.products.<a href="/src/api/resources/products/client/Client.ts">getProductById</a>({ ...params }) -> Paid.Product</code></summary>
 <dl>
 <dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Get a product by ID
+</dd>
+</dl>
+</dd>
+</dl>
 
 #### 🔌 Usage
 
@@ -1538,7 +155,9 @@ await client.products.create({
 <dd>
 
 ```typescript
-await client.products.get("productId");
+await client.products.getProductById({
+    id: "id"
+});
 
 ```
 </dd>
@@ -1554,7 +173,7 @@ await client.products.get("productId");
 <dl>
 <dd>
 
-**productId:** `string` 
+**request:** `Paid.GetProductByIdRequest` 
     
 </dd>
 </dl>
@@ -1574,9 +193,23 @@ await client.products.get("productId");
 </dl>
 </details>
 
-<details><summary><code>client.products.<a href="/src/api/resources/products/client/Client.ts">update</a>(productId, { ...params }) -> Paid.Product</code></summary>
+<details><summary><code>client.products.<a href="/src/api/resources/products/client/Client.ts">updateProductById</a>({ ...params }) -> Paid.Product</code></summary>
 <dl>
 <dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Update a product by ID
+</dd>
+</dl>
+</dd>
+</dl>
 
 #### 🔌 Usage
 
@@ -1587,7 +220,10 @@ await client.products.get("productId");
 <dd>
 
 ```typescript
-await client.products.update("productId", {});
+await client.products.updateProductById({
+    id: "id",
+    body: {}
+});
 
 ```
 </dd>
@@ -1603,15 +239,7 @@ await client.products.update("productId", {});
 <dl>
 <dd>
 
-**productId:** `string` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request:** `Paid.ProductUpdate` 
+**request:** `Paid.UpdateProductByIdRequest` 
     
 </dd>
 </dl>
@@ -1631,9 +259,23 @@ await client.products.update("productId", {});
 </dl>
 </details>
 
-<details><summary><code>client.products.<a href="/src/api/resources/products/client/Client.ts">delete</a>(productId) -> void</code></summary>
+<details><summary><code>client.products.<a href="/src/api/resources/products/client/Client.ts">getProductByExternalId</a>({ ...params }) -> Paid.Product</code></summary>
 <dl>
 <dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Get a product by external ID
+</dd>
+</dl>
+</dd>
+</dl>
 
 #### 🔌 Usage
 
@@ -1644,7 +286,9 @@ await client.products.update("productId", {});
 <dd>
 
 ```typescript
-await client.products.delete("productId");
+await client.products.getProductByExternalId({
+    externalId: "externalId"
+});
 
 ```
 </dd>
@@ -1660,7 +304,7 @@ await client.products.delete("productId");
 <dl>
 <dd>
 
-**productId:** `string` 
+**request:** `Paid.GetProductByExternalIdRequest` 
     
 </dd>
 </dl>
@@ -1680,9 +324,23 @@ await client.products.delete("productId");
 </dl>
 </details>
 
-<details><summary><code>client.products.<a href="/src/api/resources/products/client/Client.ts">getByExternalId</a>(externalId) -> Paid.Product</code></summary>
+<details><summary><code>client.products.<a href="/src/api/resources/products/client/Client.ts">updateProductByExternalId</a>({ ...params }) -> Paid.Product</code></summary>
 <dl>
 <dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Update a product by external ID
+</dd>
+</dl>
+</dd>
+</dl>
 
 #### 🔌 Usage
 
@@ -1693,7 +351,10 @@ await client.products.delete("productId");
 <dd>
 
 ```typescript
-await client.products.getByExternalId("externalId");
+await client.products.updateProductByExternalId({
+    externalId: "externalId",
+    body: {}
+});
 
 ```
 </dd>
@@ -1709,7 +370,7 @@ await client.products.getByExternalId("externalId");
 <dl>
 <dd>
 
-**externalId:** `string` 
+**request:** `Paid.UpdateProductByExternalIdRequest` 
     
 </dd>
 </dl>
@@ -1729,9 +390,24 @@ await client.products.getByExternalId("externalId");
 </dl>
 </details>
 
-<details><summary><code>client.products.<a href="/src/api/resources/products/client/Client.ts">updateByExternalId</a>(externalId, { ...params }) -> Paid.Product</code></summary>
+## Customers
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">listCustomers</a>({ ...params }) -> Paid.CustomerListResponse</code></summary>
 <dl>
 <dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Get a list of customers for the organization
+</dd>
+</dl>
+</dd>
+</dl>
 
 #### 🔌 Usage
 
@@ -1742,7 +418,7 @@ await client.products.getByExternalId("externalId");
 <dd>
 
 ```typescript
-await client.products.updateByExternalId("externalId", {});
+await client.customers.listCustomers();
 
 ```
 </dd>
@@ -1758,7 +434,7 @@ await client.products.updateByExternalId("externalId", {});
 <dl>
 <dd>
 
-**externalId:** `string` 
+**request:** `Paid.ListCustomersRequest` 
     
 </dd>
 </dl>
@@ -1766,15 +442,7 @@ await client.products.updateByExternalId("externalId", {});
 <dl>
 <dd>
 
-**request:** `Paid.ProductUpdate` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `Products.RequestOptions` 
+**requestOptions:** `Customers.RequestOptions` 
     
 </dd>
 </dl>
@@ -1786,9 +454,23 @@ await client.products.updateByExternalId("externalId", {});
 </dl>
 </details>
 
-<details><summary><code>client.products.<a href="/src/api/resources/products/client/Client.ts">deleteByExternalId</a>(externalId) -> void</code></summary>
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">createCustomer</a>({ ...params }) -> Paid.Customer</code></summary>
 <dl>
 <dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Creates a new customer for the organization
+</dd>
+</dl>
+</dd>
+</dl>
 
 #### 🔌 Usage
 
@@ -1799,7 +481,9 @@ await client.products.updateByExternalId("externalId", {});
 <dd>
 
 ```typescript
-await client.products.deleteByExternalId("externalId");
+await client.customers.createCustomer({
+    name: "name"
+});
 
 ```
 </dd>
@@ -1815,7 +499,7 @@ await client.products.deleteByExternalId("externalId");
 <dl>
 <dd>
 
-**externalId:** `string` 
+**request:** `Paid.CreateCustomerRequest` 
     
 </dd>
 </dl>
@@ -1823,7 +507,399 @@ await client.products.deleteByExternalId("externalId");
 <dl>
 <dd>
 
-**requestOptions:** `Products.RequestOptions` 
+**requestOptions:** `Customers.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">getCustomerById</a>({ ...params }) -> Paid.Customer</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Get a customer by ID
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.customers.getCustomerById({
+    id: "id"
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.GetCustomerByIdRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Customers.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">updateCustomerById</a>({ ...params }) -> Paid.Customer</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Update a customer by ID
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.customers.updateCustomerById({
+    id: "id",
+    body: {}
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.UpdateCustomerByIdRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Customers.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">deleteCustomerById</a>({ ...params }) -> Paid.EmptyResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Delete a customer by ID
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.customers.deleteCustomerById({
+    id: "id"
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.DeleteCustomerByIdRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Customers.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">getCustomerByExternalId</a>({ ...params }) -> Paid.Customer</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Get a customer by external ID
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.customers.getCustomerByExternalId({
+    externalId: "externalId"
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.GetCustomerByExternalIdRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Customers.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">updateCustomerByExternalId</a>({ ...params }) -> Paid.Customer</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Update a customer by external ID
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.customers.updateCustomerByExternalId({
+    externalId: "externalId",
+    body: {}
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.UpdateCustomerByExternalIdRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Customers.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">deleteCustomerByExternalId</a>({ ...params }) -> Paid.EmptyResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Delete a customer by external ID
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.customers.deleteCustomerByExternalId({
+    externalId: "externalId"
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.DeleteCustomerByExternalIdRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Customers.RequestOptions` 
     
 </dd>
 </dl>
@@ -1836,9 +912,23 @@ await client.products.deleteByExternalId("externalId");
 </details>
 
 ## Contacts
-<details><summary><code>client.contacts.<a href="/src/api/resources/contacts/client/Client.ts">list</a>() -> Paid.Contact[]</code></summary>
+<details><summary><code>client.contacts.<a href="/src/api/resources/contacts/client/Client.ts">listContacts</a>({ ...params }) -> Paid.ContactListResponse</code></summary>
 <dl>
 <dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Get a list of contacts for the organization
+</dd>
+</dl>
+</dd>
+</dl>
 
 #### 🔌 Usage
 
@@ -1849,7 +939,7 @@ await client.products.deleteByExternalId("externalId");
 <dd>
 
 ```typescript
-await client.contacts.list();
+await client.contacts.listContacts();
 
 ```
 </dd>
@@ -1861,6 +951,14 @@ await client.contacts.list();
 
 <dl>
 <dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.ListContactsRequest` 
+    
+</dd>
+</dl>
 
 <dl>
 <dd>
@@ -1877,9 +975,23 @@ await client.contacts.list();
 </dl>
 </details>
 
-<details><summary><code>client.contacts.<a href="/src/api/resources/contacts/client/Client.ts">create</a>({ ...params }) -> Paid.Contact</code></summary>
+<details><summary><code>client.contacts.<a href="/src/api/resources/contacts/client/Client.ts">createContact</a>({ ...params }) -> Paid.Contact</code></summary>
 <dl>
 <dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Creates a new contact for the organization
+</dd>
+</dl>
+</dd>
+</dl>
 
 #### 🔌 Usage
 
@@ -1890,12 +1002,11 @@ await client.contacts.list();
 <dd>
 
 ```typescript
-await client.contacts.create({
-    customerExternalId: "acme-inc",
-    salutation: "Mr.",
-    firstName: "John",
-    lastName: "Doe",
-    email: "john.doe@example.com"
+await client.contacts.createContact({
+    customerId: "customerId",
+    firstName: "firstName",
+    lastName: "lastName",
+    email: "email"
 });
 
 ```
@@ -1912,7 +1023,7 @@ await client.contacts.create({
 <dl>
 <dd>
 
-**request:** `Paid.ContactCreate` 
+**request:** `Paid.CreateContactRequest` 
     
 </dd>
 </dl>
@@ -1932,9 +1043,23 @@ await client.contacts.create({
 </dl>
 </details>
 
-<details><summary><code>client.contacts.<a href="/src/api/resources/contacts/client/Client.ts">get</a>(contactId) -> Paid.Contact</code></summary>
+<details><summary><code>client.contacts.<a href="/src/api/resources/contacts/client/Client.ts">getContactById</a>({ ...params }) -> Paid.Contact</code></summary>
 <dl>
 <dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Get a contact by its ID
+</dd>
+</dl>
+</dd>
+</dl>
 
 #### 🔌 Usage
 
@@ -1945,7 +1070,9 @@ await client.contacts.create({
 <dd>
 
 ```typescript
-await client.contacts.get("contactId");
+await client.contacts.getContactById({
+    id: "id"
+});
 
 ```
 </dd>
@@ -1961,7 +1088,7 @@ await client.contacts.get("contactId");
 <dl>
 <dd>
 
-**contactId:** `string` 
+**request:** `Paid.GetContactByIdRequest` 
     
 </dd>
 </dl>
@@ -1981,9 +1108,23 @@ await client.contacts.get("contactId");
 </dl>
 </details>
 
-<details><summary><code>client.contacts.<a href="/src/api/resources/contacts/client/Client.ts">delete</a>(contactId) -> void</code></summary>
+<details><summary><code>client.contacts.<a href="/src/api/resources/contacts/client/Client.ts">updateContactById</a>({ ...params }) -> Paid.Contact</code></summary>
 <dl>
 <dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Update a contact by its ID
+</dd>
+</dl>
+</dd>
+</dl>
 
 #### 🔌 Usage
 
@@ -1994,7 +1135,10 @@ await client.contacts.get("contactId");
 <dd>
 
 ```typescript
-await client.contacts.delete("contactId");
+await client.contacts.updateContactById({
+    id: "id",
+    body: {}
+});
 
 ```
 </dd>
@@ -2010,7 +1154,7 @@ await client.contacts.delete("contactId");
 <dl>
 <dd>
 
-**contactId:** `string` 
+**request:** `Paid.UpdateContactByIdRequest` 
     
 </dd>
 </dl>
@@ -2030,9 +1174,23 @@ await client.contacts.delete("contactId");
 </dl>
 </details>
 
-<details><summary><code>client.contacts.<a href="/src/api/resources/contacts/client/Client.ts">getByExternalId</a>(externalId) -> Paid.Contact</code></summary>
+<details><summary><code>client.contacts.<a href="/src/api/resources/contacts/client/Client.ts">deleteContactById</a>({ ...params }) -> Paid.EmptyResponse</code></summary>
 <dl>
 <dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Delete a contact by its ID
+</dd>
+</dl>
+</dd>
+</dl>
 
 #### 🔌 Usage
 
@@ -2043,7 +1201,9 @@ await client.contacts.delete("contactId");
 <dd>
 
 ```typescript
-await client.contacts.getByExternalId("externalId");
+await client.contacts.deleteContactById({
+    id: "id"
+});
 
 ```
 </dd>
@@ -2059,7 +1219,7 @@ await client.contacts.getByExternalId("externalId");
 <dl>
 <dd>
 
-**externalId:** `string` 
+**request:** `Paid.DeleteContactByIdRequest` 
     
 </dd>
 </dl>
@@ -2079,9 +1239,23 @@ await client.contacts.getByExternalId("externalId");
 </dl>
 </details>
 
-<details><summary><code>client.contacts.<a href="/src/api/resources/contacts/client/Client.ts">deleteByExternalId</a>(externalId) -> void</code></summary>
+<details><summary><code>client.contacts.<a href="/src/api/resources/contacts/client/Client.ts">getContactByExternalId</a>({ ...params }) -> Paid.Contact</code></summary>
 <dl>
 <dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Get a contact by its external ID
+</dd>
+</dl>
+</dd>
+</dl>
 
 #### 🔌 Usage
 
@@ -2092,7 +1266,9 @@ await client.contacts.getByExternalId("externalId");
 <dd>
 
 ```typescript
-await client.contacts.deleteByExternalId("externalId");
+await client.contacts.getContactByExternalId({
+    externalId: "externalId"
+});
 
 ```
 </dd>
@@ -2108,7 +1284,138 @@ await client.contacts.deleteByExternalId("externalId");
 <dl>
 <dd>
 
-**externalId:** `string` 
+**request:** `Paid.GetContactByExternalIdRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Contacts.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.contacts.<a href="/src/api/resources/contacts/client/Client.ts">updateContactByExternalId</a>({ ...params }) -> Paid.Contact</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Update a contact by its external ID
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.contacts.updateContactByExternalId({
+    externalId: "externalId",
+    body: {}
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.UpdateContactByExternalIdRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Contacts.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.contacts.<a href="/src/api/resources/contacts/client/Client.ts">deleteContactByExternalId</a>({ ...params }) -> Paid.EmptyResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Delete a contact by its external ID
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.contacts.deleteContactByExternalId({
+    externalId: "externalId"
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.DeleteContactByExternalIdRequest` 
     
 </dd>
 </dl>
@@ -2129,9 +1436,23 @@ await client.contacts.deleteByExternalId("externalId");
 </details>
 
 ## Orders
-<details><summary><code>client.orders.<a href="/src/api/resources/orders/client/Client.ts">list</a>() -> Paid.Order[]</code></summary>
+<details><summary><code>client.orders.<a href="/src/api/resources/orders/client/Client.ts">listOrders</a>({ ...params }) -> Paid.OrderListResponse</code></summary>
 <dl>
 <dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Get a list of orders for the organization
+</dd>
+</dl>
+</dd>
+</dl>
 
 #### 🔌 Usage
 
@@ -2142,7 +1463,7 @@ await client.contacts.deleteByExternalId("externalId");
 <dd>
 
 ```typescript
-await client.orders.list();
+await client.orders.listOrders();
 
 ```
 </dd>
@@ -2158,55 +1479,7 @@ await client.orders.list();
 <dl>
 <dd>
 
-**requestOptions:** `Orders.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.orders.<a href="/src/api/resources/orders/client/Client.ts">create</a>({ ...params }) -> Paid.Order</code></summary>
-<dl>
-<dd>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.orders.create({
-    customerExternalId: "acme-inc",
-    name: "Acme Order",
-    description: "Acme Order is an order for Acme, Inc.",
-    startDate: "2025-01-01",
-    endDate: "2026-01-01",
-    currency: "USD"
-});
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**request:** `Paid.OrderCreate` 
+**request:** `Paid.ListOrdersRequest` 
     
 </dd>
 </dl>
@@ -2226,9 +1499,23 @@ await client.orders.create({
 </dl>
 </details>
 
-<details><summary><code>client.orders.<a href="/src/api/resources/orders/client/Client.ts">get</a>(orderId) -> Paid.Order</code></summary>
+<details><summary><code>client.orders.<a href="/src/api/resources/orders/client/Client.ts">createOrder</a>({ ...params }) -> Paid.Order</code></summary>
 <dl>
 <dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Creates a new order for the organization
+</dd>
+</dl>
+</dd>
+</dl>
 
 #### 🔌 Usage
 
@@ -2239,7 +1526,9 @@ await client.orders.create({
 <dd>
 
 ```typescript
-await client.orders.get("orderId");
+await client.orders.createOrder({
+    customerId: "customerId"
+});
 
 ```
 </dd>
@@ -2255,7 +1544,7 @@ await client.orders.get("orderId");
 <dl>
 <dd>
 
-**orderId:** `string` 
+**request:** `Paid.CreateOrderRequest` 
     
 </dd>
 </dl>
@@ -2275,9 +1564,23 @@ await client.orders.get("orderId");
 </dl>
 </details>
 
-<details><summary><code>client.orders.<a href="/src/api/resources/orders/client/Client.ts">delete</a>(orderId) -> void</code></summary>
+<details><summary><code>client.orders.<a href="/src/api/resources/orders/client/Client.ts">getOrderById</a>({ ...params }) -> Paid.Order</code></summary>
 <dl>
 <dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Get an order by ID
+</dd>
+</dl>
+</dd>
+</dl>
 
 #### 🔌 Usage
 
@@ -2288,7 +1591,9 @@ await client.orders.get("orderId");
 <dd>
 
 ```typescript
-await client.orders.delete("orderId");
+await client.orders.getOrderById({
+    id: "id"
+});
 
 ```
 </dd>
@@ -2304,7 +1609,7 @@ await client.orders.delete("orderId");
 <dl>
 <dd>
 
-**orderId:** `string` 
+**request:** `Paid.GetOrderByIdRequest` 
     
 </dd>
 </dl>
@@ -2324,9 +1629,23 @@ await client.orders.delete("orderId");
 </dl>
 </details>
 
-<details><summary><code>client.orders.<a href="/src/api/resources/orders/client/Client.ts">activate</a>(orderId) -> Paid.Order</code></summary>
+<details><summary><code>client.orders.<a href="/src/api/resources/orders/client/Client.ts">updateOrderById</a>({ ...params }) -> Paid.Order</code></summary>
 <dl>
 <dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Update an order by ID
+</dd>
+</dl>
+</dd>
+</dl>
 
 #### 🔌 Usage
 
@@ -2337,7 +1656,9 @@ await client.orders.delete("orderId");
 <dd>
 
 ```typescript
-await client.orders.activate("orderId");
+await client.orders.updateOrderById({
+    id: "id"
+});
 
 ```
 </dd>
@@ -2353,7 +1674,7 @@ await client.orders.activate("orderId");
 <dl>
 <dd>
 
-**orderId:** `string` 
+**request:** `Paid.UpdateOrderRequest` 
     
 </dd>
 </dl>
@@ -2373,7 +1694,7 @@ await client.orders.activate("orderId");
 </dl>
 </details>
 
-<details><summary><code>client.orders.<a href="/src/api/resources/orders/client/Client.ts">activateAndPay</a>(orderId, { ...params }) -> Paid.Order</code></summary>
+<details><summary><code>client.orders.<a href="/src/api/resources/orders/client/Client.ts">deleteOrderById</a>({ ...params }) -> Paid.EmptyResponse</code></summary>
 <dl>
 <dd>
 
@@ -2385,7 +1706,7 @@ await client.orders.activate("orderId");
 <dl>
 <dd>
 
-Activates the order and processes the initial payment using the provided Stripe confirmation token.
+Delete an order by ID
 </dd>
 </dl>
 </dd>
@@ -2400,9 +1721,8 @@ Activates the order and processes the initial payment using the provided Stripe 
 <dd>
 
 ```typescript
-await client.orders.activateAndPay("orderId", {
-    confirmationToken: "ctoken_1234567890",
-    returnUrl: "https://example.com/payment-complete"
+await client.orders.deleteOrderById({
+    id: "id"
 });
 
 ```
@@ -2419,15 +1739,7 @@ await client.orders.activateAndPay("orderId", {
 <dl>
 <dd>
 
-**orderId:** `string` — The order ID (can be internal ID or display ID)
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request:** `Paid.OrdersActivateAndPayRequest` 
+**request:** `Paid.DeleteOrderByIdRequest` 
     
 </dd>
 </dl>
@@ -2447,7 +1759,7 @@ await client.orders.activateAndPay("orderId", {
 </dl>
 </details>
 
-<details><summary><code>client.orders.<a href="/src/api/resources/orders/client/Client.ts">cancelRenewal</a>(orderId, { ...params }) -> Paid.CancelRenewalResponse</code></summary>
+<details><summary><code>client.orders.<a href="/src/api/resources/orders/client/Client.ts">getOrderLines</a>({ ...params }) -> Paid.OrderLinesResponse</code></summary>
 <dl>
 <dd>
 
@@ -2459,7 +1771,7 @@ await client.orders.activateAndPay("orderId", {
 <dl>
 <dd>
 
-Schedules the cancellation of an order's renewal from a specified date. The order will remain active until the cancellation date.
+Get the order lines for an order by ID
 </dd>
 </dl>
 </dd>
@@ -2474,9 +1786,8 @@ Schedules the cancellation of an order's renewal from a specified date. The orde
 <dd>
 
 ```typescript
-await client.orders.cancelRenewal("orderId", {
-    orderVersion: 1,
-    cancelFromDate: "2025-12-31T00:00:00Z"
+await client.orders.getOrderLines({
+    id: "id"
 });
 
 ```
@@ -2493,15 +1804,7 @@ await client.orders.cancelRenewal("orderId", {
 <dl>
 <dd>
 
-**orderId:** `string` — The order ID (can be internal ID or display ID)
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request:** `Paid.CancelRenewalRequest` 
+**request:** `Paid.GetOrderLinesRequest` 
     
 </dd>
 </dl>
@@ -2521,7 +1824,8 @@ await client.orders.cancelRenewal("orderId", {
 </dl>
 </details>
 
-<details><summary><code>client.orders.<a href="/src/api/resources/orders/client/Client.ts">schedulePlanChange</a>(orderId, { ...params }) -> Paid.ProrationUpgradeResponse</code></summary>
+## Invoices
+<details><summary><code>client.invoices.<a href="/src/api/resources/invoices/client/Client.ts">listInvoices</a>({ ...params }) -> Paid.InvoiceListResponse</code></summary>
 <dl>
 <dd>
 
@@ -2533,7 +1837,7 @@ await client.orders.cancelRenewal("orderId", {
 <dl>
 <dd>
 
-Schedules a plan upgrade or downgrade for an order with automatic proration calculation. Credits are applied for the unused portion of the current billing period.
+Get a list of invoices for the organization
 </dd>
 </dl>
 </dd>
@@ -2548,17 +1852,71 @@ Schedules a plan upgrade or downgrade for an order with automatic proration calc
 <dd>
 
 ```typescript
-await client.orders.schedulePlanChange("orderId", {
-    orderVersion: 1,
-    effectiveDate: "2025-02-01T00:00:00Z",
-    updatedOrderLineAttributes: [{
-            orderLineAttributeId: "a1b2c3d4-5678-90ab-cdef-1234567890ab",
-            newPricing: {
-                "unitPrice": 200,
-                "currency": "USD"
-            },
-            newQuantity: 10
-        }]
+await client.invoices.listInvoices();
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.ListInvoicesRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Invoices.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.invoices.<a href="/src/api/resources/invoices/client/Client.ts">getInvoiceById</a>({ ...params }) -> Paid.Invoice</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Get an invoice by ID
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.invoices.getInvoiceById({
+    id: "id"
 });
 
 ```
@@ -2575,7 +1933,7 @@ await client.orders.schedulePlanChange("orderId", {
 <dl>
 <dd>
 
-**orderId:** `string` — The order ID (can be internal ID or display ID)
+**request:** `Paid.GetInvoiceByIdRequest` 
     
 </dd>
 </dl>
@@ -2583,15 +1941,7 @@ await client.orders.schedulePlanChange("orderId", {
 <dl>
 <dd>
 
-**request:** `Paid.ProrationUpgradeRequest` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `Orders.RequestOptions` 
+**requestOptions:** `Invoices.RequestOptions` 
     
 </dd>
 </dl>
@@ -2603,7 +1953,7 @@ await client.orders.schedulePlanChange("orderId", {
 </dl>
 </details>
 
-<details><summary><code>client.orders.<a href="/src/api/resources/orders/client/Client.ts">getInvoices</a>(orderId) -> Paid.Invoice[]</code></summary>
+<details><summary><code>client.invoices.<a href="/src/api/resources/invoices/client/Client.ts">updateInvoiceById</a>({ ...params }) -> Paid.Invoice</code></summary>
 <dl>
 <dd>
 
@@ -2615,7 +1965,7 @@ await client.orders.schedulePlanChange("orderId", {
 <dl>
 <dd>
 
-Retrieves all invoices associated with a specific order.
+Update an invoice by ID
 </dd>
 </dl>
 </dd>
@@ -2630,72 +1980,8 @@ Retrieves all invoices associated with a specific order.
 <dd>
 
 ```typescript
-await client.orders.getInvoices("orderId");
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**orderId:** `string` — The order ID (can be internal ID or display ID)
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `Orders.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-## Plans
-<details><summary><code>client.plans.<a href="/src/api/resources/plans/client/Client.ts">getCurrent</a>({ ...params }) -> Paid.PlansGetCurrentResponse</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-Retrieves the currently active plan subscription for a customer by their external ID. Returns the plan details and subscription information.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.plans.getCurrent({
-    customerExternalId: "customerExternalId"
+await client.invoices.updateInvoiceById({
+    id: "id"
 });
 
 ```
@@ -2712,7 +1998,7 @@ await client.plans.getCurrent({
 <dl>
 <dd>
 
-**request:** `Paid.PlansGetCurrentRequest` 
+**request:** `Paid.UpdateInvoiceRequest` 
     
 </dd>
 </dl>
@@ -2720,56 +2006,7 @@ await client.plans.getCurrent({
 <dl>
 <dd>
 
-**requestOptions:** `Plans.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.plans.<a href="/src/api/resources/plans/client/Client.ts">getById</a>(planId) -> Paid.Plan</code></summary>
-<dl>
-<dd>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.plans.getById("planId");
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**planId:** `string` — The ID of the plan
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `Plans.RequestOptions` 
+**requestOptions:** `Invoices.RequestOptions` 
     
 </dd>
 </dl>
@@ -2781,9 +2018,23 @@ await client.plans.getById("planId");
 </dl>
 </details>
 
-<details><summary><code>client.plans.<a href="/src/api/resources/plans/client/Client.ts">getUsage</a>(planId, { ...params }) -> Paid.UsageSummariesResponse</code></summary>
+<details><summary><code>client.invoices.<a href="/src/api/resources/invoices/client/Client.ts">getInvoiceLines</a>({ ...params }) -> Paid.InvoiceLinesResponse</code></summary>
 <dl>
 <dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Get the invoice lines for an invoice by ID
+</dd>
+</dl>
+</dd>
+</dl>
 
 #### 🔌 Usage
 
@@ -2794,12 +2045,8 @@ await client.plans.getById("planId");
 <dd>
 
 ```typescript
-await client.plans.getUsage("planId", {
-    externalId: "externalId",
-    limit: 1,
-    offset: 1,
-    startTime: "2024-01-15T09:30:00Z",
-    endTime: "2024-01-15T09:30:00Z"
+await client.invoices.getInvoiceLines({
+    id: "id"
 });
 
 ```
@@ -2816,7 +2063,7 @@ await client.plans.getUsage("planId", {
 <dl>
 <dd>
 
-**planId:** `string` — The ID of the plan
+**request:** `Paid.GetInvoiceLinesRequest` 
     
 </dd>
 </dl>
@@ -2824,15 +2071,7 @@ await client.plans.getUsage("planId", {
 <dl>
 <dd>
 
-**request:** `Paid.PlansGetUsageRequest` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `Plans.RequestOptions` 
+**requestOptions:** `Invoices.RequestOptions` 
     
 </dd>
 </dl>
@@ -2844,7 +2083,8 @@ await client.plans.getUsage("planId", {
 </dl>
 </details>
 
-<details><summary><code>client.plans.<a href="/src/api/resources/plans/client/Client.ts">subscribe</a>(planId, { ...params }) -> Paid.Order</code></summary>
+## Signals
+<details><summary><code>client.signals.<a href="/src/api/resources/signals/client/Client.ts">createSignals</a>({ ...params }) -> Paid.BulkSignalsResponse</code></summary>
 <dl>
 <dd>
 
@@ -2856,7 +2096,7 @@ await client.plans.getUsage("planId", {
 <dl>
 <dd>
 
-Creates a new order for a customer subscribing to a plan. The order will be created with the plan's products and pricing attributes.
+Create multiple signals (usage events) in a single request. Each signal must include a customer attribution (either customerId or externalCustomerId) and a product attribution (either productId or externalProductId).
 </dd>
 </dl>
 </dd>
@@ -2871,400 +2111,11 @@ Creates a new order for a customer subscribing to a plan. The order will be crea
 <dd>
 
 ```typescript
-await client.plans.subscribe("planId", {
-    customerExternalId: "customerExternalId",
-    currency: "currency"
-});
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**planId:** `string` — The ID of the plan
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request:** `Paid.PlansSubscribeRequest` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `Plans.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.plans.<a href="/src/api/resources/plans/client/Client.ts">unsubscribe</a>(planId, { ...params }) -> Paid.CancelRenewalResponse</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-Cancels the renewal of an active order for a customer's plan subscription. The order will remain active until the cancellation date.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.plans.unsubscribe("planId", {
-    customerExternalId: "customerExternalId"
-});
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**planId:** `string` — The ID of the plan
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request:** `Paid.PlansUnsubscribeRequest` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `Plans.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.plans.<a href="/src/api/resources/plans/client/Client.ts">upgrade</a>({ ...params }) -> Paid.ProrationUpgradeResponse</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-Upgrades a customer from one plan to another with automatic proration. Credits are applied for the unused portion of the current billing period, and the order is updated with the new plan's pricing.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.plans.upgrade({
-    customerExternalId: "customerExternalId",
-    oldPlanId: "oldPlanId",
-    newPlanId: "newPlanId"
-});
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**request:** `Paid.PlansUpgradeRequest` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `Plans.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.plans.<a href="/src/api/resources/plans/client/Client.ts">getGroupById</a>(planGroupId) -> Paid.PlanGroup</code></summary>
-<dl>
-<dd>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.plans.getGroupById("planGroupId");
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**planGroupId:** `string` — The ID of the plan group
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `Plans.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.plans.<a href="/src/api/resources/plans/client/Client.ts">getGroupPlans</a>(planGroupId) -> Paid.PlanWithFeatures[]</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-Retrieves all plans in a plan group with their features (product-attribute pairs)
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.plans.getGroupPlans("planGroupId");
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**planGroupId:** `string` — The ID of the plan group
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `Plans.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-## Usage
-<details><summary><code>client.usage.<a href="/src/api/resources/usage/client/Client.ts">recordBulk</a>({ ...params }) -> void</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-DEPRECATED: Use POST /usage/v2/signals/bulk instead for cleaner field names.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.usage.recordBulk({
-    signals: [{}, {}, {}]
-});
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**request:** `Paid.UsageRecordBulkRequest` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `Usage.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.usage.<a href="/src/api/resources/usage/client/Client.ts">usageRecordBulkV2</a>({ ...params }) -> void</code></summary>
-<dl>
-<dd>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.usage.usageRecordBulkV2({
+await client.signals.createSignals({
     signals: [{
-            event_name: "emails_sent",
-            product_id: "prod_abc123def",
-            customer_id: "cus_xyz789ghi"
-        }, {
-            event_name: "emails_sent",
-            external_product_id: "acme-product",
-            external_customer_id: "acme-inc"
-        }, {
-            event_name: "meeting_booked",
-            product_id: "prod_abc123def",
-            external_customer_id: "acme-inc",
-            data: {
-                "meeting_duration": 30,
-                "meeting_type": "demo"
+            eventName: "eventName",
+            customer: {
+                customerId: "customerId"
             }
         }]
 });
@@ -3283,7 +2134,7 @@ await client.usage.usageRecordBulkV2({
 <dl>
 <dd>
 
-**request:** `Paid.UsageRecordBulkV2Request` 
+**request:** `Paid.BulkSignalsRequest` 
     
 </dd>
 </dl>
@@ -3291,184 +2142,7 @@ await client.usage.usageRecordBulkV2({
 <dl>
 <dd>
 
-**requestOptions:** `Usage.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.usage.<a href="/src/api/resources/usage/client/Client.ts">checkUsage</a>({ ...params }) -> Paid.UsageCheckUsageResponse</code></summary>
-<dl>
-<dd>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.usage.checkUsage({
-    externalCustomerId: "acme-inc",
-    externalProductId: "acme-agent"
-});
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**request:** `Paid.UsageCheckUsageRequest` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `Usage.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-## Traces
-<details><summary><code>client.traces.<a href="/src/api/resources/traces/client/Client.ts">getTraces</a>({ ...params }) -> Paid.TracesResponse</code></summary>
-<dl>
-<dd>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.traces.getTraces({
-    limit: 1,
-    offset: 1,
-    startTime: "2024-01-15T09:30:00Z",
-    endTime: "2024-01-15T09:30:00Z",
-    externalCustomerId: "externalCustomerId",
-    externalProductId: "externalProductId",
-    externalAgentId: "externalAgentId",
-    metadata: "metadata"
-});
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**request:** `Paid.GetTracesRequest` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `Traces.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-## Orders Lines
-<details><summary><code>client.orders.lines.<a href="/src/api/resources/orders/resources/lines/client/Client.ts">update</a>(orderId, { ...params }) -> Paid.Order</code></summary>
-<dl>
-<dd>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.orders.lines.update("orderId", {
-    lines: [{
-            name: "Order Line One",
-            description: "Order Line One is an order line for Acme, Inc."
-        }, {
-            name: "Order Line Two",
-            description: "Order Line Two is an order line for Acme, Inc."
-        }]
-});
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**orderId:** `string` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request:** `Paid.orders.LinesUpdateRequest` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `Lines.RequestOptions` 
+**requestOptions:** `Signals.RequestOptions` 
     
 </dd>
 </dl>

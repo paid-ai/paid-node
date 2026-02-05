@@ -5,7 +5,7 @@ import * as errors from "../../errors/index.js";
 import type * as Paid from "../index.js";
 
 export class InternalServerError extends errors.PaidError {
-    constructor(body: Paid.Error_, rawResponse?: core.RawResponse) {
+    constructor(body: Paid.ErrorResponse, rawResponse?: core.RawResponse) {
         super({
             message: "InternalServerError",
             statusCode: 500,
