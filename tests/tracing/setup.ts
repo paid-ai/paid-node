@@ -3,6 +3,7 @@
  * Modeled after Python SDK's conftest.py
  */
 import { afterEach, beforeEach } from "vitest";
+import { trace, context, propagation } from "@opentelemetry/api";
 import { NodeTracerProvider, SimpleSpanProcessor } from "@opentelemetry/sdk-trace-node";
 import { InMemorySpanExporter } from "@opentelemetry/sdk-trace-base";
 import { SEMRESATTRS_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
@@ -66,6 +67,10 @@ export function createTracingTestContext(): TracingTestContext {
     const cleanup = () => {
         exporter.reset();
         provider.shutdown();
+        // Remove global providers to prevent listener leaks between tests
+        trace.disable();
+        context.disable();
+        propagation.disable();
     };
 
     return { exporter, provider, cleanup };
@@ -90,6 +95,10 @@ export function createMinimalTracingTestContext(): TracingTestContext {
     const cleanup = () => {
         exporter.reset();
         provider.shutdown();
+        // Remove global providers to prevent listener leaks between tests
+        trace.disable();
+        context.disable();
+        propagation.disable();
     };
 
     return { exporter, provider, cleanup };
