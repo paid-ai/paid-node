@@ -28,6 +28,7 @@ export default defineConfig({
                     environment: "node",
                     root: "./tests/tracing",
                     include: ["**/*.test.{js,ts,jsx,tsx}"],
+                    setupFiles: ["../mock-server/setup.ts"],
                 },
             },
         ],

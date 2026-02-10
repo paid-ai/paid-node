@@ -1,15 +1,11 @@
 /**
  * Wrapper tests for PaidOpenAI, PaidAnthropic.
  * Tests the LLM client wrappers that add tracing.
- *
- * NOTE: These tests are currently skipped because the wrapper files use
- * path aliases (e.g., "tracing/tracing.js") that don't resolve in the test environment.
- * To enable these tests, the wrapper source files need to use relative imports.
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { TEST_PAID_API_KEY, TEST_EXTERNAL_CUSTOMER_ID, TEST_EXTERNAL_PRODUCT_ID } from "./constants";
 
-describe.skip("PaidOpenAI Wrapper", () => {
+describe("PaidOpenAI Wrapper", () => {
     let originalEnv: NodeJS.ProcessEnv;
 
     beforeEach(() => {
@@ -51,7 +47,7 @@ describe.skip("PaidOpenAI Wrapper", () => {
     });
 });
 
-describe.skip("PaidAnthropic Wrapper", () => {
+describe("PaidAnthropic Wrapper", () => {
     let originalEnv: NodeJS.ProcessEnv;
 
     beforeEach(() => {
@@ -74,14 +70,5 @@ describe.skip("PaidAnthropic Wrapper", () => {
             const mockAnthropic = {};
             expect(() => new PaidAnthropic(mockAnthropic as any)).toThrow("Paid tracer is not initialized");
         });
-    });
-});
-
-describe("Wrapper import path issue", () => {
-    it("documents that wrapper tests are skipped due to import path aliases", () => {
-        // The wrapper files use path aliases like "tracing/tracing.js" instead of relative imports.
-        // These aliases work in the build output but not in the test environment.
-        // To fix this, the wrapper source files should use relative imports like "../tracing.js"
-        expect(true).toBe(true);
     });
 });
