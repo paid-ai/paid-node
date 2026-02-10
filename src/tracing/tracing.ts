@@ -38,7 +38,16 @@ export function getPaidTracer(): Tracer | undefined {
 }
 
 let _isShuttingDown = false;
+// Use a global symbol to track listener registration across module reloads (e.g., in tests with vi.resetModules())
+const SHUTDOWN_LISTENERS_KEY = Symbol.for("paid-node-shutdown-listeners-registered");
 const setupGracefulShutdown = (shuttable: NodeSDK | SpanProcessor) => {
+    // Prevent registering listeners multiple times (survives module reloads in tests)
+    const globalObj = globalThis as Record<symbol, boolean>;
+    if (globalObj[SHUTDOWN_LISTENERS_KEY]) {
+        return;
+    }
+    globalObj[SHUTDOWN_LISTENERS_KEY] = true;
+
     ["SIGINT", "SIGTERM", "beforeExit", "uncaughtException", "unhandledRejection"].forEach((signal) => {
         process.on(signal, () => {
             if (_isShuttingDown) {
