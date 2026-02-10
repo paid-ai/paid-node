@@ -5,8 +5,8 @@ import type { ChatCompletion, ChatCompletionCreateParams } from "openai/resource
 import type { EmbeddingCreateParams } from "openai/resources/embeddings";
 import type { ImagesResponse, ImageGenerateParams } from "openai/resources/images";
 import type { CreateEmbeddingResponse } from "openai/resources/embeddings";
-import { getPaidTracer, getToken } from "tracing/tracing.js";
-import { getTracingContext } from "tracing/tracingContext.js";
+import { getPaidTracer, getToken } from "../tracing.js";
+import { getTracingContext } from "../tracingContext.js";
 
 export class PaidOpenAI {
     private readonly openai: OpenAI;

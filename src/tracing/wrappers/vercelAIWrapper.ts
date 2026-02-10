@@ -8,8 +8,8 @@ import {
     embed as originalEmbed,
     embedMany as originalEmbedMany,
 } from "ai";
-import { getPaidTracer, getToken } from "tracing/tracing.js";
-import { getTracingContext } from "tracing/tracingContext.js";
+import { getPaidTracer, getToken } from "../tracing.js";
+import { getTracingContext } from "../tracingContext.js";
 
 type GenerateTextParams = Parameters<typeof originalGenerateText>[0];
 type StreamTextParams = Parameters<typeof originalStreamText>[0];
