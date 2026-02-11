@@ -3,19 +3,14 @@
 import type * as Paid from "../index.js";
 
 export interface Contact {
-    id?: string;
-    externalId?: string;
-    organizationId?: string;
-    customerId?: string;
-    customerExternalId?: string;
-    salutation?: Paid.Salutation;
-    firstName?: string;
-    lastName?: string;
-    email?: string;
-    phone?: string;
-    billingStreet?: string;
-    billingCity?: string;
-    billingStateProvince?: string;
-    billingCountry?: string;
-    billingPostalCode?: string;
+    id: string;
+    customerId: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string | null;
+    billingAddress?: Paid.ContactBillingAddress | null;
+    externalId: string | null;
+    createdAt: string;
+    updatedAt: string;
 }

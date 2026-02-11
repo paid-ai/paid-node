@@ -1,4 +1,6 @@
-export type { CancelRenewalRequest } from "./CancelRenewalRequest.js";
-export type { OrderCreate } from "./OrderCreate.js";
-export type { OrdersActivateAndPayRequest } from "./OrdersActivateAndPayRequest.js";
-export type { ProrationUpgradeRequest } from "./ProrationUpgradeRequest.js";
+export type { CreateOrderRequest } from "./CreateOrderRequest.js";
+export type { DeleteOrderByIdRequest } from "./DeleteOrderByIdRequest.js";
+export type { GetOrderByIdRequest } from "./GetOrderByIdRequest.js";
+export type { GetOrderLinesRequest } from "./GetOrderLinesRequest.js";
+export type { ListOrdersRequest } from "./ListOrdersRequest.js";
+export type { UpdateOrderRequest } from "./UpdateOrderRequest.js";

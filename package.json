@@ -1,6 +1,6 @@
 {
     "name": "@paid-ai/paid-node",
-    "version": "1.0.1-alpha5",
+    "version": "1.0.1-alpha6",
     "private": false,
     "repository": "github:paid-ai/paid-node",
     "type": "commonjs",
@@ -175,6 +175,7 @@
         "@arizeai/openinference-instrumentation-anthropic": ">=0.1.2",
         "@arizeai/openinference-instrumentation-openai": ">=4.0.0",
         "@arizeai/openinference-semantic-conventions": ">=2.1.2",
+        "@traceloop/instrumentation-bedrock": ">=0.22.0",
         "winston": ">=3.0.0"
     },
     "peerDependencies": {
@@ -227,6 +228,7 @@
         "@mistralai/mistralai": ">=1.0.0",
         "ai": ">=5.0.0",
         "openai": ">=4.85.4",
+        "@aws-sdk/client-bedrock-runtime": "^3.941.0",
         "@types/express": "^4.17.21",
         "next": ">=13.0.0"
     },
