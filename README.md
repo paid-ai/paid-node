@@ -157,7 +157,6 @@ Auto-instrumentation supports the following AI libraries:
 ```
 openai
 anthropic
-bedrock
 ```
 
 #### Vercel AI SDK Integration
