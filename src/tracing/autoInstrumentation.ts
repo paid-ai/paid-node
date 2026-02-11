@@ -4,7 +4,6 @@ import type { TracerProvider } from "@opentelemetry/api";
 
 import type * as openai from "openai";
 import type * as anthropic from "@anthropic-ai/sdk";
-import type * as bedrock from "@aws-sdk/client-bedrock-runtime";
 import { getPaidTracerProvider, initializeTracing, logger } from "./tracing.js";
 
 let IS_INITIALIZED = false;
@@ -12,7 +11,6 @@ let IS_INITIALIZED = false;
 interface SupportedLibraries {
     openai?: typeof openai.OpenAI;
     anthropic?: typeof anthropic.Anthropic;
-    bedrock?: typeof bedrock;
 }
 
 const getInstrumentations = async (tracerProvider: TracerProvider): Promise<Instrumentation[]> => {
@@ -30,13 +28,6 @@ const getInstrumentations = async (tracerProvider: TracerProvider): Promise<Inst
         instrumentations.push(new AnthropicInstrumentation({ tracerProvider }));
     } catch {
         logger.debug("Anthropic instrumentation not available - @anthropic-ai/sdk package not installed");
-    }
-
-    try {
-        const { BedrockInstrumentation } = await import("@traceloop/instrumentation-bedrock");
-        instrumentations.push(new BedrockInstrumentation());
-    } catch {
-        logger.debug("Bedrock instrumentation not available - @aws-sdk/client-bedrock-runtime package not installed");
     }
 
     return instrumentations;
@@ -67,17 +58,6 @@ const getManualInstrumentations = async (
             anthropicInstrumentation.manuallyInstrument(libraries.anthropic);
         } catch {
             logger.warn("Failed to load Anthropic instrumentation");
-        }
-    }
-
-    if (libraries.bedrock) {
-        try {
-            const { BedrockInstrumentation } = await import("@traceloop/instrumentation-bedrock");
-            const bedrockInstrumentation = new BedrockInstrumentation();
-            instrumentations.push(bedrockInstrumentation);
-            bedrockInstrumentation.manuallyInstrument(libraries.bedrock);
-        } catch {
-            logger.warn("Failed to load Bedrock instrumentation");
         }
     }
 
