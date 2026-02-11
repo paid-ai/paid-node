@@ -137,7 +137,7 @@ describe("Auto Instrumentation", () => {
             await expect(paidAutoInstrument()).resolves.not.toThrow();
         });
 
-        it("should gracefully handle when Bedrock instrumentation is not available", async () => {
+        it("should gracefully handle when optional instrumentations are not available", async () => {
             const { initializeTracing, paidAutoInstrument } = await import("../../src/tracing/index.js");
 
             initializeTracing("test-api-key");
