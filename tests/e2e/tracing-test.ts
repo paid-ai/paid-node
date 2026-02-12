@@ -304,12 +304,13 @@ async function testOpenAIStreamingChatCompletion(): Promise<boolean> {
   }
 
   const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
-  // Use gpt-4.1-mini for streaming - gpt-5-nano has issues with streaming content
-  const streamingModel = "gpt-4.1-mini";
+  // gpt-5-nano is a reasoning model - needs enough tokens for reasoning + output
+  const streamingModel = "gpt-5-nano";
   const testPrompt = "Count from 1 to 5, one number per line.";
 
   try {
     // First, make a non-streaming call to get baseline token counts
+    // Reasoning models need more tokens (reasoning + output)
     const nonStreamResponse = await trace(
       {
         externalCustomerId: `${testPrefix}-external-customer`,
@@ -319,7 +320,7 @@ async function testOpenAIStreamingChatCompletion(): Promise<boolean> {
         return await openai.chat.completions.create({
           model: streamingModel,
           messages: [{ role: "user", content: testPrompt }],
-          max_tokens: 50,
+          max_completion_tokens: 500,
           stream: false,
         });
       }
@@ -339,7 +340,7 @@ async function testOpenAIStreamingChatCompletion(): Promise<boolean> {
         const stream = await openai.chat.completions.create({
           model: streamingModel,
           messages: [{ role: "user", content: testPrompt }],
-          max_tokens: 50,
+          max_completion_tokens: 500,
           stream: true,
           stream_options: { include_usage: true },
         });
