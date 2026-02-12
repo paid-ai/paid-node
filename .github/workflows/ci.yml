@@ -31,7 +31,7 @@ jobs:
 
       - name: Set up node
         uses: actions/setup-node@v4
-                
+
       - name: Install pnpm
         uses: pnpm/action-setup@v4
 
@@ -59,11 +59,19 @@ jobs:
       - name: Build
         run: pnpm build
 
-      - name: Run E2E tests
+      - name: Run E2E Smoke Tests
         env:
           PAID_API_TOKEN: ${{ secrets.PAID_API_TOKEN }}
           COMMIT_HASH: ${{ github.sha }}
         run: npx tsx tests/e2e/smoke-test.ts
+
+      - name: Run E2E Tracing Tests
+        env:
+          PAID_API_TOKEN: ${{ secrets.PAID_API_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          COMMIT_HASH: ${{ github.sha }}
+        run: npx tsx tests/e2e/tracing-test.ts
 
   publish:
     needs: [compile, test]
