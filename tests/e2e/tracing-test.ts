@@ -2,7 +2,7 @@
  * SDK Tracing E2E Test Script
  *
  * This script tests the Paid SDK tracing functionality with real AI providers.
- * It tests signal capture capabilities for OpenAI and Anthropic providers.
+ * It tests auto-instrumentation capabilities for OpenAI and Anthropic providers.
  *
  * Required environment variables:
  * - PAID_API_KEY: API key for Paid tracing and REST API
@@ -10,17 +10,16 @@
  * - ANTHROPIC_API_KEY: API key for Anthropic (optional, skips Anthropic tests if not set)
  *
  * Test coverage:
- * 1. Tracing initialization
- * 2. OpenAI wrapper (PaidOpenAI) - chat completions, embeddings
- * 3. Anthropic wrapper (PaidAnthropic) - messages
+ * 1. Auto-instrumentation initialization with paidAutoInstrument
+ * 2. OpenAI native SDK - chat completions, embeddings (auto-instrumented)
+ * 3. Anthropic native SDK - messages (auto-instrumented)
  * 4. Signal capture with trace() and signal()
- * 5. Signals REST API (createSignals)
+ * 5. Multi-provider tracing in single trace context
+ * 6. Signals REST API (createSignals)
  */
 
 import { PaidClient } from "../../dist/cjs/index.js";
-import { initializeTracing, trace, signal } from "../../dist/cjs/tracing/index.js";
-import { PaidOpenAI } from "../../dist/cjs/openai-wrapper/index.js";
-import { PaidAnthropic } from "../../dist/cjs/anthropic-wrapper/index.js";
+import { paidAutoInstrument, trace, signal } from "../../dist/cjs/tracing/index.js";
 import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
 
@@ -33,6 +32,9 @@ if (!PAID_API_KEY) {
   console.error("Error: PAID_API_KEY environment variable is required");
   process.exit(1);
 }
+
+// Set PAID_API_KEY for auto-instrumentation
+process.env.PAID_API_KEY = PAID_API_KEY;
 
 // Get commit hash and readable timestamp for test data identification
 const commitHash = process.env.COMMIT_HASH || "local";
@@ -117,30 +119,35 @@ async function cleanupTestResources(client: PaidClient) {
 }
 
 // ============================================================================
-// Tracing Tests
+// Auto-Instrumentation Tests
 // ============================================================================
 
-async function testTracingInitialization(): Promise<boolean> {
-  log("Testing: Tracing Initialization");
+async function testAutoInstrumentationInitialization(): Promise<boolean> {
+  log("Testing: Auto-Instrumentation Initialization");
 
   try {
-    initializeTracing(PAID_API_KEY);
-    log("  Tracing initialized successfully");
+    // Initialize auto-instrumentation with manual library references
+    await paidAutoInstrument({
+      openai: OpenAI,
+      anthropic: Anthropic,
+    });
+    log("  Auto-instrumentation initialized successfully");
     return true;
   } catch (error: any) {
-    throw new Error(`Tracing initialization failed: ${error.message}`);
+    throw new Error(`Auto-instrumentation initialization failed: ${error.message}`);
   }
 }
 
 async function testOpenAIChatCompletion(): Promise<boolean> {
-  log("Testing: OpenAI Chat Completion with Tracing");
+  log("Testing: OpenAI Chat Completion with Auto-Instrumentation");
 
   if (!OPENAI_API_KEY) {
     log("  Skipped: OPENAI_API_KEY not set");
-    return true; // Mark as passed but skipped
+    return true;
   }
 
-  const openaiClient = new OpenAI({ apiKey: OPENAI_API_KEY });
+  // Use native OpenAI SDK - auto-instrumented
+  const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
 
   try {
     const response = await trace(
@@ -149,8 +156,7 @@ async function testOpenAIChatCompletion(): Promise<boolean> {
         externalProductId: `${testPrefix}-external-product`,
       },
       async () => {
-        const paidOpenAI = new PaidOpenAI(openaiClient);
-        const completion = await paidOpenAI.chat.completions.create({
+        const completion = await openai.chat.completions.create({
           model: "gpt-4o-mini",
           messages: [{ role: "user", content: "Say 'Hello from E2E test' in exactly 5 words." }],
           max_tokens: 20,
@@ -187,14 +193,15 @@ async function testOpenAIChatCompletion(): Promise<boolean> {
 }
 
 async function testOpenAIEmbeddings(): Promise<boolean> {
-  log("Testing: OpenAI Embeddings with Tracing");
+  log("Testing: OpenAI Embeddings with Auto-Instrumentation");
 
   if (!OPENAI_API_KEY) {
     log("  Skipped: OPENAI_API_KEY not set");
     return true;
   }
 
-  const openaiClient = new OpenAI({ apiKey: OPENAI_API_KEY });
+  // Use native OpenAI SDK - auto-instrumented
+  const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
 
   try {
     const response = await trace(
@@ -203,8 +210,7 @@ async function testOpenAIEmbeddings(): Promise<boolean> {
         externalProductId: `${testPrefix}-external-product`,
       },
       async () => {
-        const paidOpenAI = new PaidOpenAI(openaiClient);
-        const embedding = await paidOpenAI.embeddings.create({
+        const embedding = await openai.embeddings.create({
           model: "text-embedding-3-small",
           input: "This is a test text for embedding generation.",
         });
@@ -234,14 +240,15 @@ async function testOpenAIEmbeddings(): Promise<boolean> {
 }
 
 async function testAnthropicMessages(): Promise<boolean> {
-  log("Testing: Anthropic Messages with Tracing");
+  log("Testing: Anthropic Messages with Auto-Instrumentation");
 
   if (!ANTHROPIC_API_KEY) {
     log("  Skipped: ANTHROPIC_API_KEY not set");
     return true;
   }
 
-  const anthropicClient = new Anthropic({ apiKey: ANTHROPIC_API_KEY });
+  // Use native Anthropic SDK - auto-instrumented
+  const anthropic = new Anthropic({ apiKey: ANTHROPIC_API_KEY });
 
   try {
     const response = await trace(
@@ -250,8 +257,7 @@ async function testAnthropicMessages(): Promise<boolean> {
         externalProductId: `${testPrefix}-external-product`,
       },
       async () => {
-        const paidAnthropic = new PaidAnthropic(anthropicClient);
-        const message = await paidAnthropic.messages.create({
+        const message = await anthropic.messages.create({
           model: "claude-3-5-haiku-latest",
           max_tokens: 50,
           messages: [{ role: "user", content: "Say 'Hello from E2E test' in exactly 5 words." }],
@@ -295,7 +301,8 @@ async function testSignalCapture(): Promise<boolean> {
     return true;
   }
 
-  const openaiClient = new OpenAI({ apiKey: OPENAI_API_KEY });
+  // Use native OpenAI SDK - auto-instrumented
+  const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
 
   try {
     await trace(
@@ -305,8 +312,7 @@ async function testSignalCapture(): Promise<boolean> {
       },
       async () => {
         // Make an API call to establish cost context
-        const paidOpenAI = new PaidOpenAI(openaiClient);
-        await paidOpenAI.chat.completions.create({
+        await openai.chat.completions.create({
           model: "gpt-4o-mini",
           messages: [{ role: "user", content: "Hi" }],
           max_tokens: 5,
@@ -341,8 +347,9 @@ async function testMultiProviderTracing(): Promise<boolean> {
     return true;
   }
 
-  const openaiClient = new OpenAI({ apiKey: OPENAI_API_KEY });
-  const anthropicClient = new Anthropic({ apiKey: ANTHROPIC_API_KEY });
+  // Use native SDKs - auto-instrumented
+  const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
+  const anthropic = new Anthropic({ apiKey: ANTHROPIC_API_KEY });
 
   try {
     const result = await trace(
@@ -351,18 +358,15 @@ async function testMultiProviderTracing(): Promise<boolean> {
         externalProductId: `${testPrefix}-external-product`,
       },
       async () => {
-        const paidOpenAI = new PaidOpenAI(openaiClient);
-        const paidAnthropic = new PaidAnthropic(anthropicClient);
-
         // Call OpenAI
-        const openaiResponse = await paidOpenAI.chat.completions.create({
+        const openaiResponse = await openai.chat.completions.create({
           model: "gpt-4o-mini",
           messages: [{ role: "user", content: "Say 'OpenAI'" }],
           max_tokens: 10,
         });
 
         // Call Anthropic
-        const anthropicResponse = await paidAnthropic.messages.create({
+        const anthropicResponse = await anthropic.messages.create({
           model: "claude-3-5-haiku-latest",
           max_tokens: 10,
           messages: [{ role: "user", content: "Say 'Anthropic'" }],
@@ -592,7 +596,7 @@ async function runTest(name: string, fn: () => Promise<boolean>, skippable = fal
 
 async function main() {
   log("=".repeat(70));
-  log("Starting Paid SDK Tracing E2E Tests");
+  log("Starting Paid SDK Tracing E2E Tests (Auto-Instrumentation)");
   log("=".repeat(70));
   log(`Test Prefix: ${testPrefix}`);
   log(`OpenAI API Key: ${OPENAI_API_KEY ? "Set" : "Not Set"}`);
@@ -614,11 +618,11 @@ async function main() {
 
   log("");
   log("=".repeat(70));
-  log("Running Tracing Tests");
+  log("Running Auto-Instrumentation Tracing Tests");
   log("=".repeat(70));
 
-  // Run tracing tests
-  await runTest("Tracing Initialization", testTracingInitialization);
+  // Run tracing tests - auto-instrumentation must be initialized first
+  await runTest("Auto-Instrumentation Initialization", testAutoInstrumentationInitialization);
   await runTest("OpenAI Chat Completion", testOpenAIChatCompletion, true);
   await runTest("OpenAI Embeddings", testOpenAIEmbeddings, true);
   await runTest("Anthropic Messages", testAnthropicMessages, true);
