@@ -35,8 +35,8 @@ if (!PAID_API_TOKEN) {
   process.exit(1);
 }
 
-// Set PAID_API_TOKEN for auto-instrumentation
-process.env.PAID_API_TOKEN = PAID_API_TOKEN;
+// Set PAID_API_KEY for auto-instrumentation (initializeTracing looks for PAID_API_KEY)
+process.env.PAID_API_KEY = PAID_API_TOKEN;
 
 // Get commit hash and readable timestamp for test data identification
 const commitHash = process.env.COMMIT_HASH || "local";
@@ -304,9 +304,30 @@ async function testOpenAIStreamingChatCompletion(): Promise<boolean> {
   }
 
   const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
+  const testPrompt = "Say exactly: Hello World";
 
   try {
-    const result = await trace(
+    // First, make a non-streaming call to get baseline token counts
+    const nonStreamResponse = await trace(
+      {
+        externalCustomerId: `${testPrefix}-external-customer`,
+        externalProductId: `${testPrefix}-external-product`,
+      },
+      async () => {
+        return await openai.chat.completions.create({
+          model: "gpt-4o-mini",
+          messages: [{ role: "user", content: testPrompt }],
+          max_tokens: 20,
+          stream: false,
+        });
+      }
+    );
+
+    const expectedInputTokens = nonStreamResponse.usage!.prompt_tokens;
+    log(`  Non-streaming baseline - Input tokens: ${expectedInputTokens}`);
+
+    // Now make a streaming call with the same prompt
+    const streamResult = await trace(
       {
         externalCustomerId: `${testPrefix}-external-customer`,
         externalProductId: `${testPrefix}-external-product`,
@@ -314,8 +335,8 @@ async function testOpenAIStreamingChatCompletion(): Promise<boolean> {
       async () => {
         const stream = await openai.chat.completions.create({
           model: "gpt-4o-mini",
-          messages: [{ role: "user", content: "Count from 1 to 5, one number per line." }],
-          max_tokens: 50,
+          messages: [{ role: "user", content: testPrompt }],
+          max_tokens: 20,
           stream: true,
           stream_options: { include_usage: true },
         });
@@ -327,7 +348,6 @@ async function testOpenAIStreamingChatCompletion(): Promise<boolean> {
           if (chunk.choices[0]?.delta?.content) {
             fullContent += chunk.choices[0].delta.content;
           }
-          // Usage is included in the final chunk when stream_options.include_usage is true
           if (chunk.usage) {
             usage = chunk.usage;
           }
@@ -337,24 +357,38 @@ async function testOpenAIStreamingChatCompletion(): Promise<boolean> {
       }
     );
 
-    // Validate streaming worked
-    if (!result.content || result.content.length === 0) {
+    // Validate streaming returned content
+    if (!streamResult.content || streamResult.content.length === 0) {
       throw new Error("Streaming returned no content");
     }
 
-    // Validate usage was captured
-    if (!result.usage) {
+    // Validate usage was captured from stream
+    if (!streamResult.usage) {
       throw new Error("Streaming did not return usage information");
     }
-    if (typeof result.usage.prompt_tokens !== "number" || result.usage.prompt_tokens <= 0) {
-      throw new Error(`Invalid prompt_tokens in stream: ${result.usage.prompt_tokens}`);
-    }
-    if (typeof result.usage.completion_tokens !== "number" || result.usage.completion_tokens <= 0) {
-      throw new Error(`Invalid completion_tokens in stream: ${result.usage.completion_tokens}`);
+
+    // Validate token counts match between streaming and non-streaming (same prompt = same input tokens)
+    const streamInputTokens = streamResult.usage.prompt_tokens;
+    const streamOutputTokens = streamResult.usage.completion_tokens;
+    const streamTotalTokens = streamResult.usage.total_tokens;
+
+    if (streamInputTokens !== expectedInputTokens) {
+      throw new Error(
+        `Token count mismatch: streaming input_tokens (${streamInputTokens}) !== non-streaming input_tokens (${expectedInputTokens})`
+      );
     }
 
-    log(`  Streaming successful - Content length: ${result.content.length} chars`);
-    log(`  Token usage - Input: ${result.usage.prompt_tokens}, Output: ${result.usage.completion_tokens}`);
+    // Validate total_tokens = prompt_tokens + completion_tokens
+    const calculatedTotal = streamInputTokens + streamOutputTokens;
+    if (streamTotalTokens !== calculatedTotal) {
+      throw new Error(
+        `Token count inconsistency: total_tokens (${streamTotalTokens}) !== prompt_tokens + completion_tokens (${calculatedTotal})`
+      );
+    }
+
+    log(`  Streaming successful - Content: "${streamResult.content.trim()}"`);
+    log(`  Token usage validated - Input: ${streamInputTokens}, Output: ${streamOutputTokens}, Total: ${streamTotalTokens}`);
+    log(`  Input tokens match between streaming and non-streaming: ${streamInputTokens} === ${expectedInputTokens}`);
     return true;
   } catch (error: any) {
     throw new Error(`OpenAI streaming chat completion failed: ${error.message}`);
@@ -370,9 +404,29 @@ async function testAnthropicStreamingMessages(): Promise<boolean> {
   }
 
   const anthropic = new Anthropic({ apiKey: ANTHROPIC_API_KEY });
+  const testPrompt = "Say exactly: Hello World";
 
   try {
-    const result = await trace(
+    // First, make a non-streaming call to get baseline token counts
+    const nonStreamResponse = await trace(
+      {
+        externalCustomerId: `${testPrefix}-external-customer`,
+        externalProductId: `${testPrefix}-external-product`,
+      },
+      async () => {
+        return await anthropic.messages.create({
+          model: "claude-3-5-haiku-latest",
+          max_tokens: 20,
+          messages: [{ role: "user", content: testPrompt }],
+        });
+      }
+    );
+
+    const expectedInputTokens = nonStreamResponse.usage.input_tokens;
+    log(`  Non-streaming baseline - Input tokens: ${expectedInputTokens}`);
+
+    // Now make a streaming call with the same prompt
+    const streamResult = await trace(
       {
         externalCustomerId: `${testPrefix}-external-customer`,
         externalProductId: `${testPrefix}-external-product`,
@@ -380,8 +434,8 @@ async function testAnthropicStreamingMessages(): Promise<boolean> {
       async () => {
         const stream = anthropic.messages.stream({
           model: "claude-3-5-haiku-latest",
-          max_tokens: 50,
-          messages: [{ role: "user", content: "Count from 1 to 5, one number per line." }],
+          max_tokens: 20,
+          messages: [{ role: "user", content: testPrompt }],
         });
 
         let fullContent = "";
@@ -402,24 +456,29 @@ async function testAnthropicStreamingMessages(): Promise<boolean> {
       }
     );
 
-    // Validate streaming worked
-    if (!result.content || result.content.length === 0) {
+    // Validate streaming returned content
+    if (!streamResult.content || streamResult.content.length === 0) {
       throw new Error("Streaming returned no content");
     }
 
-    // Validate usage was captured
-    if (!result.usage) {
+    // Validate usage was captured from stream
+    if (!streamResult.usage) {
       throw new Error("Streaming did not return usage information");
     }
-    if (typeof result.usage.input_tokens !== "number" || result.usage.input_tokens <= 0) {
-      throw new Error(`Invalid input_tokens in stream: ${result.usage.input_tokens}`);
-    }
-    if (typeof result.usage.output_tokens !== "number" || result.usage.output_tokens <= 0) {
-      throw new Error(`Invalid output_tokens in stream: ${result.usage.output_tokens}`);
+
+    // Validate token counts match between streaming and non-streaming (same prompt = same input tokens)
+    const streamInputTokens = streamResult.usage.input_tokens;
+    const streamOutputTokens = streamResult.usage.output_tokens;
+
+    if (streamInputTokens !== expectedInputTokens) {
+      throw new Error(
+        `Token count mismatch: streaming input_tokens (${streamInputTokens}) !== non-streaming input_tokens (${expectedInputTokens})`
+      );
     }
 
-    log(`  Streaming successful - Content length: ${result.content.length} chars`);
-    log(`  Token usage - Input: ${result.usage.input_tokens}, Output: ${result.usage.output_tokens}`);
+    log(`  Streaming successful - Content: "${streamResult.content.trim()}"`);
+    log(`  Token usage validated - Input: ${streamInputTokens}, Output: ${streamOutputTokens}`);
+    log(`  Input tokens match between streaming and non-streaming: ${streamInputTokens} === ${expectedInputTokens}`);
     return true;
   } catch (error: any) {
     throw new Error(`Anthropic streaming messages failed: ${error.message}`);
