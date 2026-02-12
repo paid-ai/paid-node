@@ -151,6 +151,74 @@ async function testAnthropicWrapperExport() {
     }
 }
 
+async function testRequireInESM() {
+    // Test that require() is NOT available in pure ESM
+    // This verifies we're actually running in ESM mode
+    if (typeof require === "function") {
+        throw new Error("require() should NOT be available in ESM - test environment is not pure ESM");
+    }
+
+    // Try to use require directly - should fail
+    let requireWorks = false;
+    try {
+        const path = require("path");
+        requireWorks = true;
+    } catch (e) {
+        // Expected: require is not defined
+        if (!e.message.includes("require is not defined")) {
+            throw new Error(`Unexpected error: ${e.message}`);
+        }
+    }
+
+    if (requireWorks) {
+        throw new Error("require() worked in ESM - this should not happen!");
+    }
+}
+
+async function testAISDKAnthropicInstrumentationInESM() {
+    // This test verifies that we detect the Anthropic instrumentation silent failure
+    // The ai-sdk-wrapper uses require() to load Anthropic instrumentation,
+    // which silently fails in ESM because require() is not available.
+
+    // Read the source file to verify it contains require()
+    const fs = await import("fs");
+    const path = await import("path");
+    const { fileURLToPath } = await import("url");
+
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const sourceFile = path.join(__dirname, "../../dist/esm/ai-sdk-wrapper/index.mjs");
+
+    const content = fs.readFileSync(sourceFile, "utf-8");
+
+    // Check if the file contains require() for Anthropic
+    const hasRequireForAnthropic = content.includes('require("@arizeai/openinference-instrumentation-anthropic")');
+
+    if (hasRequireForAnthropic) {
+        // This is a known issue - require() in ESM will fail silently
+        // The test should WARN about this, not fail, since it's a known limitation
+        log("  WARNING: ai-sdk-wrapper uses require() for Anthropic instrumentation");
+        log("  WARNING: This will silently fail in pure ESM environments");
+        log("  WARNING: Anthropic auto-instrumentation will NOT work in ESM");
+
+        // Verify that require actually fails in ESM
+        let requireFailed = false;
+        try {
+            require("@arizeai/openinference-instrumentation-anthropic");
+        } catch (e) {
+            requireFailed = true;
+        }
+
+        if (requireFailed) {
+            // This confirms the issue exists
+            throw new Error(
+                "Anthropic instrumentation uses require() which fails in ESM. " +
+                "Consider using dynamic import() for ESM compatibility."
+            );
+        }
+    }
+}
+
 // ============================================================================
 // Main
 // ============================================================================
@@ -172,6 +240,8 @@ async function main() {
     await runTest("AI SDK wrapper export (critical - uses require())", testAISDKWrapperExport);
     await runTest("OpenAI wrapper export (PaidOpenAI)", testOpenAIWrapperExport);
     await runTest("Anthropic wrapper export (PaidAnthropic)", testAnthropicWrapperExport);
+    await runTest("Verify require() not available in ESM", testRequireInESM);
+    await runTest("AI SDK Anthropic instrumentation in ESM (known issue)", testAISDKAnthropicInstrumentationInESM);
 
     log("");
     log("=".repeat(70));

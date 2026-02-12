@@ -37,6 +37,30 @@ import { initializeTracing, getPaidTracerProvider, getPaidTracer } from "../trac
 
 // Track if instrumentation has been registered
 let initialized = false;
+let anthropicInitialized = false;
+
+/**
+ * Try to load and register Anthropic instrumentation asynchronously
+ * This uses dynamic import() for ESM compatibility
+ */
+async function tryLoadAnthropicInstrumentation(): Promise<void> {
+    if (anthropicInitialized) return;
+
+    try {
+        const provider = getPaidTracerProvider();
+        const { AnthropicInstrumentation } = await import("@arizeai/openinference-instrumentation-anthropic");
+        registerInstrumentations({
+            instrumentations: [
+                new AnthropicInstrumentation({
+                    tracerProvider: provider,
+                }),
+            ],
+        });
+        anthropicInitialized = true;
+    } catch {
+        // Anthropic instrumentation not available, skip
+    }
+}
 
 /**
  * Initialize AI SDK tracing (called automatically on module import)
@@ -62,30 +86,18 @@ function initialize(): void {
         }
     }
 
-    // Register OpenInference instrumentations
-    const instrumentations = [];
-
-    // Add OpenAI instrumentation
-    instrumentations.push(
-        new OpenAIInstrumentation({
-            tracerProvider: provider,
-        })
-    );
-
-    // Optionally add Anthropic instrumentation if available
-    try {
-        const { AnthropicInstrumentation } = require("@arizeai/openinference-instrumentation-anthropic");
-        instrumentations.push(
-            new AnthropicInstrumentation({
-                tracerProvider: provider,
-            })
-        );
-    } catch {
-        // Anthropic instrumentation not available, skip
-    }
-
+    // Register OpenAI instrumentation synchronously
     registerInstrumentations({
-        instrumentations,
+        instrumentations: [
+            new OpenAIInstrumentation({
+                tracerProvider: provider,
+            }),
+        ],
+    });
+
+    // Try to load Anthropic instrumentation asynchronously (ESM compatible)
+    tryLoadAnthropicInstrumentation().catch(() => {
+        // Silently ignore - Anthropic instrumentation is optional
     });
 
     initialized = true;
