@@ -67,7 +67,7 @@ jobs:
 
       - name: Run E2E Tracing Tests
         env:
-          PAID_API_KEY: ${{ secrets.PAID_API_KEY }}
+          PAID_API_TOKEN: ${{ secrets.PAID_API_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           COMMIT_HASH: ${{ github.sha }}

@@ -5,7 +5,7 @@
  * It tests auto-instrumentation capabilities for OpenAI and Anthropic providers.
  *
  * Required environment variables:
- * - PAID_API_KEY: API key for Paid tracing and REST API
+ * - PAID_API_TOKEN: API token for Paid tracing and REST API
  * - OPENAI_API_KEY: API key for OpenAI (optional, skips OpenAI tests if not set)
  * - ANTHROPIC_API_KEY: API key for Anthropic (optional, skips Anthropic tests if not set)
  *
@@ -24,17 +24,17 @@ import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
 
 // Environment variables
-const PAID_API_KEY = process.env.PAID_API_KEY;
+const PAID_API_TOKEN = process.env.PAID_API_TOKEN;
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
-if (!PAID_API_KEY) {
-  console.error("Error: PAID_API_KEY environment variable is required");
+if (!PAID_API_TOKEN) {
+  console.error("Error: PAID_API_TOKEN environment variable is required");
   process.exit(1);
 }
 
-// Set PAID_API_KEY for auto-instrumentation
-process.env.PAID_API_KEY = PAID_API_KEY;
+// Set PAID_API_TOKEN for auto-instrumentation
+process.env.PAID_API_TOKEN = PAID_API_TOKEN;
 
 // Get commit hash and readable timestamp for test data identification
 const commitHash = process.env.COMMIT_HASH || "local";
@@ -605,7 +605,7 @@ async function main() {
 
   // Initialize the REST API client
   const client = new PaidClient({
-    token: PAID_API_KEY,
+    token: PAID_API_TOKEN,
   });
 
   // Setup test resources
