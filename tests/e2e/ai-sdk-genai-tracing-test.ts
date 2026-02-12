@@ -97,23 +97,38 @@ function log(message: string) {
 }
 
 /**
- * Get organization ID from API key
+ * Get organization ID from API key with retry logic
  */
 async function getOrganizationId(): Promise<string> {
-    const response = await fetch(`${PAID_API_BASE_URL}/api/organizations/organizationId`, {
-        method: "GET",
-        headers: {
-            Authorization: `Bearer ${PAID_API_TOKEN}`,
-            "Content-Type": "application/json",
-        },
-    });
+    const maxRetries = 3;
+    let lastError: Error | null = null;
 
-    if (!response.ok) {
-        throw new Error(`Failed to get organization ID: ${response.status} ${response.statusText}`);
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            const response = await fetch(`${PAID_API_BASE_URL}/api/organizations/organizationId`, {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${PAID_API_TOKEN}`,
+                    "Content-Type": "application/json",
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to get organization ID: ${response.status} ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            return data.organizationId;
+        } catch (error: any) {
+            lastError = error;
+            log(`  Attempt ${attempt}/${maxRetries} failed: ${error.message}`);
+            if (attempt < maxRetries) {
+                await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
+            }
+        }
     }
 
-    const data = await response.json();
-    return data.organizationId;
+    throw lastError || new Error("Failed to get organization ID after retries");
 }
 
 /**
