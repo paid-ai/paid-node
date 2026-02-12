@@ -5,7 +5,7 @@ import { mergeHeaders, mergeOnlyDefinedHeaders } from "../../../../core/headers.
 import * as core from "../../../../core/index.js";
 import * as environments from "../../../../environments.js";
 import * as errors from "../../../../errors/index.js";
-import type * as Paid from "../../../index.js";
+import * as Paid from "../../../index.js";
 
 export declare namespace Contacts {
     export interface Options extends BaseClientOptions {}
@@ -16,21 +16,44 @@ export declare namespace Contacts {
 export class Contacts {
     protected readonly _options: Contacts.Options;
 
-    constructor(_options: Contacts.Options = {}) {
+    constructor(_options: Contacts.Options) {
         this._options = _options;
     }
 
     /**
+     * Get a list of contacts for the organization
+     *
+     * @param {Paid.ListContactsRequest} request
      * @param {Contacts.RequestOptions} requestOptions - Request-specific configuration.
      *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.InternalServerError}
+     *
      * @example
-     *     await client.contacts.list()
+     *     await client.contacts.listContacts()
      */
-    public list(requestOptions?: Contacts.RequestOptions): core.HttpResponsePromise<Paid.Contact[]> {
-        return core.HttpResponsePromise.fromPromise(this.__list(requestOptions));
+    public listContacts(
+        request: Paid.ListContactsRequest = {},
+        requestOptions?: Contacts.RequestOptions,
+    ): core.HttpResponsePromise<Paid.ContactListResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__listContacts(request, requestOptions));
     }
 
-    private async __list(requestOptions?: Contacts.RequestOptions): Promise<core.WithRawResponse<Paid.Contact[]>> {
+    private async __listContacts(
+        request: Paid.ListContactsRequest = {},
+        requestOptions?: Contacts.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.ContactListResponse>> {
+        const { limit, offset } = request;
+        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
+        if (limit != null) {
+            _queryParams.limit = limit.toString();
+        }
+
+        if (offset != null) {
+            _queryParams.offset = offset.toString();
+        }
+
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             this._options?.headers,
             mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
@@ -40,26 +63,38 @@ export class Contacts {
             url: core.url.join(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidEnvironment.Production,
-                "contacts",
+                    environments.PaidEnvironment.Default,
+                "contacts/",
             ),
             method: "GET",
             headers: _headers,
-            queryParameters: requestOptions?.queryParams,
+            queryParameters: { ..._queryParams, ...requestOptions?.queryParams },
             timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
             maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return { data: _response.body as Paid.Contact[], rawResponse: _response.rawResponse };
+            return { data: _response.body as Paid.ContactListResponse, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
-            throw new errors.PaidError({
-                statusCode: _response.error.statusCode,
-                body: _response.error.body,
-                rawResponse: _response.rawResponse,
-            });
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
         }
 
         switch (_response.error.reason) {
@@ -70,7 +105,7 @@ export class Contacts {
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /contacts.");
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /contacts/.");
             case "unknown":
                 throw new errors.PaidError({
                     message: _response.error.errorMessage,
@@ -80,27 +115,32 @@ export class Contacts {
     }
 
     /**
-     * @param {Paid.ContactCreate} request
+     * Creates a new contact for the organization
+     *
+     * @param {Paid.CreateContactRequest} request
      * @param {Contacts.RequestOptions} requestOptions - Request-specific configuration.
      *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.InternalServerError}
+     *
      * @example
-     *     await client.contacts.create({
-     *         customerExternalId: "acme-inc",
-     *         salutation: "Mr.",
-     *         firstName: "John",
-     *         lastName: "Doe",
-     *         email: "john.doe@example.com"
+     *     await client.contacts.createContact({
+     *         customerId: "customerId",
+     *         firstName: "firstName",
+     *         lastName: "lastName",
+     *         email: "email"
      *     })
      */
-    public create(
-        request: Paid.ContactCreate,
+    public createContact(
+        request: Paid.CreateContactRequest,
         requestOptions?: Contacts.RequestOptions,
     ): core.HttpResponsePromise<Paid.Contact> {
-        return core.HttpResponsePromise.fromPromise(this.__create(request, requestOptions));
+        return core.HttpResponsePromise.fromPromise(this.__createContact(request, requestOptions));
     }
 
-    private async __create(
-        request: Paid.ContactCreate,
+    private async __createContact(
+        request: Paid.CreateContactRequest,
         requestOptions?: Contacts.RequestOptions,
     ): Promise<core.WithRawResponse<Paid.Contact>> {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
@@ -112,8 +152,8 @@ export class Contacts {
             url: core.url.join(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidEnvironment.Production,
-                "contacts",
+                    environments.PaidEnvironment.Default,
+                "contacts/",
             ),
             method: "POST",
             headers: _headers,
@@ -130,11 +170,23 @@ export class Contacts {
         }
 
         if (_response.error.reason === "status-code") {
-            throw new errors.PaidError({
-                statusCode: _response.error.statusCode,
-                body: _response.error.body,
-                rawResponse: _response.rawResponse,
-            });
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
         }
 
         switch (_response.error.reason) {
@@ -145,7 +197,7 @@ export class Contacts {
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /contacts.");
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /contacts/.");
             case "unknown":
                 throw new errors.PaidError({
                     message: _response.error.errorMessage,
@@ -155,20 +207,32 @@ export class Contacts {
     }
 
     /**
-     * @param {string} contactId
+     * Get a contact by its ID
+     *
+     * @param {Paid.GetContactByIdRequest} request
      * @param {Contacts.RequestOptions} requestOptions - Request-specific configuration.
      *
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.InternalServerError}
+     *
      * @example
-     *     await client.contacts.get("contactId")
+     *     await client.contacts.getContactById({
+     *         id: "id"
+     *     })
      */
-    public get(contactId: string, requestOptions?: Contacts.RequestOptions): core.HttpResponsePromise<Paid.Contact> {
-        return core.HttpResponsePromise.fromPromise(this.__get(contactId, requestOptions));
+    public getContactById(
+        request: Paid.GetContactByIdRequest,
+        requestOptions?: Contacts.RequestOptions,
+    ): core.HttpResponsePromise<Paid.Contact> {
+        return core.HttpResponsePromise.fromPromise(this.__getContactById(request, requestOptions));
     }
 
-    private async __get(
-        contactId: string,
+    private async __getContactById(
+        request: Paid.GetContactByIdRequest,
         requestOptions?: Contacts.RequestOptions,
     ): Promise<core.WithRawResponse<Paid.Contact>> {
+        const { id } = request;
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             this._options?.headers,
             mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
@@ -178,8 +242,8 @@ export class Contacts {
             url: core.url.join(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidEnvironment.Production,
-                `contacts/${core.url.encodePathParam(contactId)}`,
+                    environments.PaidEnvironment.Default,
+                `contacts/${core.url.encodePathParam(id)}`,
             ),
             method: "GET",
             headers: _headers,
@@ -193,11 +257,23 @@ export class Contacts {
         }
 
         if (_response.error.reason === "status-code") {
-            throw new errors.PaidError({
-                statusCode: _response.error.statusCode,
-                body: _response.error.body,
-                rawResponse: _response.rawResponse,
-            });
+            switch (_response.error.statusCode) {
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
         }
 
         switch (_response.error.reason) {
@@ -208,7 +284,7 @@ export class Contacts {
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /contacts/{contactId}.");
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /contacts/{id}.");
             case "unknown":
                 throw new errors.PaidError({
                     message: _response.error.errorMessage,
@@ -218,20 +294,34 @@ export class Contacts {
     }
 
     /**
-     * @param {string} contactId
+     * Update a contact by its ID
+     *
+     * @param {Paid.UpdateContactByIdRequest} request
      * @param {Contacts.RequestOptions} requestOptions - Request-specific configuration.
      *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.InternalServerError}
+     *
      * @example
-     *     await client.contacts.delete("contactId")
+     *     await client.contacts.updateContactById({
+     *         id: "id",
+     *         body: {}
+     *     })
      */
-    public delete(contactId: string, requestOptions?: Contacts.RequestOptions): core.HttpResponsePromise<void> {
-        return core.HttpResponsePromise.fromPromise(this.__delete(contactId, requestOptions));
+    public updateContactById(
+        request: Paid.UpdateContactByIdRequest,
+        requestOptions?: Contacts.RequestOptions,
+    ): core.HttpResponsePromise<Paid.Contact> {
+        return core.HttpResponsePromise.fromPromise(this.__updateContactById(request, requestOptions));
     }
 
-    private async __delete(
-        contactId: string,
+    private async __updateContactById(
+        request: Paid.UpdateContactByIdRequest,
         requestOptions?: Contacts.RequestOptions,
-    ): Promise<core.WithRawResponse<void>> {
+    ): Promise<core.WithRawResponse<Paid.Contact>> {
+        const { id, body: _body } = request;
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             this._options?.headers,
             mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
@@ -241,8 +331,100 @@ export class Contacts {
             url: core.url.join(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidEnvironment.Production,
-                `contacts/${core.url.encodePathParam(contactId)}`,
+                    environments.PaidEnvironment.Default,
+                `contacts/${core.url.encodePathParam(id)}`,
+            ),
+            method: "PUT",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: _body,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.Contact, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling PUT /contacts/{id}.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Delete a contact by its ID
+     *
+     * @param {Paid.DeleteContactByIdRequest} request
+     * @param {Contacts.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.contacts.deleteContactById({
+     *         id: "id"
+     *     })
+     */
+    public deleteContactById(
+        request: Paid.DeleteContactByIdRequest,
+        requestOptions?: Contacts.RequestOptions,
+    ): core.HttpResponsePromise<Paid.EmptyResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__deleteContactById(request, requestOptions));
+    }
+
+    private async __deleteContactById(
+        request: Paid.DeleteContactByIdRequest,
+        requestOptions?: Contacts.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.EmptyResponse>> {
+        const { id } = request;
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `contacts/${core.url.encodePathParam(id)}`,
             ),
             method: "DELETE",
             headers: _headers,
@@ -252,15 +434,27 @@ export class Contacts {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return { data: undefined, rawResponse: _response.rawResponse };
+            return { data: _response.body as Paid.EmptyResponse, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
-            throw new errors.PaidError({
-                statusCode: _response.error.statusCode,
-                body: _response.error.body,
-                rawResponse: _response.rawResponse,
-            });
+            switch (_response.error.statusCode) {
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
         }
 
         switch (_response.error.reason) {
@@ -271,7 +465,7 @@ export class Contacts {
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidTimeoutError("Timeout exceeded when calling DELETE /contacts/{contactId}.");
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling DELETE /contacts/{id}.");
             case "unknown":
                 throw new errors.PaidError({
                     message: _response.error.errorMessage,
@@ -281,23 +475,32 @@ export class Contacts {
     }
 
     /**
-     * @param {string} externalId
+     * Get a contact by its external ID
+     *
+     * @param {Paid.GetContactByExternalIdRequest} request
      * @param {Contacts.RequestOptions} requestOptions - Request-specific configuration.
      *
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.InternalServerError}
+     *
      * @example
-     *     await client.contacts.getByExternalId("externalId")
+     *     await client.contacts.getContactByExternalId({
+     *         externalId: "externalId"
+     *     })
      */
-    public getByExternalId(
-        externalId: string,
+    public getContactByExternalId(
+        request: Paid.GetContactByExternalIdRequest,
         requestOptions?: Contacts.RequestOptions,
     ): core.HttpResponsePromise<Paid.Contact> {
-        return core.HttpResponsePromise.fromPromise(this.__getByExternalId(externalId, requestOptions));
+        return core.HttpResponsePromise.fromPromise(this.__getContactByExternalId(request, requestOptions));
     }
 
-    private async __getByExternalId(
-        externalId: string,
+    private async __getContactByExternalId(
+        request: Paid.GetContactByExternalIdRequest,
         requestOptions?: Contacts.RequestOptions,
     ): Promise<core.WithRawResponse<Paid.Contact>> {
+        const { externalId } = request;
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             this._options?.headers,
             mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
@@ -307,7 +510,7 @@ export class Contacts {
             url: core.url.join(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidEnvironment.Production,
+                    environments.PaidEnvironment.Default,
                 `contacts/external/${core.url.encodePathParam(externalId)}`,
             ),
             method: "GET",
@@ -322,11 +525,23 @@ export class Contacts {
         }
 
         if (_response.error.reason === "status-code") {
-            throw new errors.PaidError({
-                statusCode: _response.error.statusCode,
-                body: _response.error.body,
-                rawResponse: _response.rawResponse,
-            });
+            switch (_response.error.statusCode) {
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
         }
 
         switch (_response.error.reason) {
@@ -347,23 +562,34 @@ export class Contacts {
     }
 
     /**
-     * @param {string} externalId
+     * Update a contact by its external ID
+     *
+     * @param {Paid.UpdateContactByExternalIdRequest} request
      * @param {Contacts.RequestOptions} requestOptions - Request-specific configuration.
      *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.InternalServerError}
+     *
      * @example
-     *     await client.contacts.deleteByExternalId("externalId")
+     *     await client.contacts.updateContactByExternalId({
+     *         externalId: "externalId",
+     *         body: {}
+     *     })
      */
-    public deleteByExternalId(
-        externalId: string,
+    public updateContactByExternalId(
+        request: Paid.UpdateContactByExternalIdRequest,
         requestOptions?: Contacts.RequestOptions,
-    ): core.HttpResponsePromise<void> {
-        return core.HttpResponsePromise.fromPromise(this.__deleteByExternalId(externalId, requestOptions));
+    ): core.HttpResponsePromise<Paid.Contact> {
+        return core.HttpResponsePromise.fromPromise(this.__updateContactByExternalId(request, requestOptions));
     }
 
-    private async __deleteByExternalId(
-        externalId: string,
+    private async __updateContactByExternalId(
+        request: Paid.UpdateContactByExternalIdRequest,
         requestOptions?: Contacts.RequestOptions,
-    ): Promise<core.WithRawResponse<void>> {
+    ): Promise<core.WithRawResponse<Paid.Contact>> {
+        const { externalId, body: _body } = request;
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             this._options?.headers,
             mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
@@ -373,7 +599,99 @@ export class Contacts {
             url: core.url.join(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidEnvironment.Production,
+                    environments.PaidEnvironment.Default,
+                `contacts/external/${core.url.encodePathParam(externalId)}`,
+            ),
+            method: "PUT",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: _body,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.Contact, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling PUT /contacts/external/{externalId}.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Delete a contact by its external ID
+     *
+     * @param {Paid.DeleteContactByExternalIdRequest} request
+     * @param {Contacts.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.contacts.deleteContactByExternalId({
+     *         externalId: "externalId"
+     *     })
+     */
+    public deleteContactByExternalId(
+        request: Paid.DeleteContactByExternalIdRequest,
+        requestOptions?: Contacts.RequestOptions,
+    ): core.HttpResponsePromise<Paid.EmptyResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__deleteContactByExternalId(request, requestOptions));
+    }
+
+    private async __deleteContactByExternalId(
+        request: Paid.DeleteContactByExternalIdRequest,
+        requestOptions?: Contacts.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.EmptyResponse>> {
+        const { externalId } = request;
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
                 `contacts/external/${core.url.encodePathParam(externalId)}`,
             ),
             method: "DELETE",
@@ -384,15 +702,27 @@ export class Contacts {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return { data: undefined, rawResponse: _response.rawResponse };
+            return { data: _response.body as Paid.EmptyResponse, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
-            throw new errors.PaidError({
-                statusCode: _response.error.statusCode,
-                body: _response.error.body,
-                rawResponse: _response.rawResponse,
-            });
+            switch (_response.error.statusCode) {
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
         }
 
         switch (_response.error.reason) {
@@ -414,12 +744,7 @@ export class Contacts {
         }
     }
 
-    protected async _getAuthorizationHeader(): Promise<string | undefined> {
-        const bearer = await core.Supplier.get(this._options.token);
-        if (bearer != null) {
-            return `Bearer ${bearer}`;
-        }
-
-        return undefined;
+    protected async _getAuthorizationHeader(): Promise<string> {
+        return `Bearer ${await core.Supplier.get(this._options.token)}`;
     }
 }

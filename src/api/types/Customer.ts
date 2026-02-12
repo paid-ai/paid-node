@@ -4,17 +4,17 @@ import type * as Paid from "../index.js";
 
 export interface Customer {
     id: string;
-    organizationId: string;
     name: string;
-    externalId?: string;
-    phone?: string;
-    employeeCount?: number;
-    annualRevenue?: number;
-    taxExemptStatus?: Paid.TaxExemptStatus;
-    creationSource?: Paid.CreationSource;
-    creationState?: Paid.CreationState;
-    website?: string;
-    billingAddress?: Paid.Address;
-    /** Flexible JSON field for storing custom metadata about the customer */
-    metadata?: Record<string, unknown>;
+    legalName: string | null;
+    email: string;
+    phone: string;
+    website: string;
+    externalId: string | null;
+    billingAddress?: Paid.CustomerBillingAddress | null;
+    creationState: Paid.CustomerCreationState;
+    churnDate: string | null;
+    vatNumber: string | null;
+    metadata: Record<string, unknown> | null;
+    createdAt: string;
+    updatedAt: string;
 }

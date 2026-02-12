@@ -5,99 +5,110 @@ import { PaidClient } from "../../src/Client";
 import { mockServerPool } from "../mock-server/MockServerPool";
 
 describe("Customers", () => {
-    test("list", async () => {
+    test("listCustomers (1)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = [
-            {
-                id: "id",
-                organizationId: "organizationId",
-                name: "name",
-                externalId: "externalId",
-                phone: "phone",
-                employeeCount: 1.1,
-                annualRevenue: 1.1,
-                taxExemptStatus: "none",
-                creationSource: "manual",
-                creationState: "active",
-                website: "website",
-                billingAddress: {
-                    line1: "line1",
-                    line2: "line2",
-                    city: "city",
-                    state: "state",
-                    zipCode: "zipCode",
-                    country: "country",
-                },
-                metadata: { key: "value" },
-            },
-        ];
-        server.mockEndpoint().get("/customers").respondWith().statusCode(200).jsonBody(rawResponseBody).build();
-
-        const response = await client.customers.list();
-        expect(response).toEqual([
-            {
-                id: "id",
-                organizationId: "organizationId",
-                name: "name",
-                externalId: "externalId",
-                phone: "phone",
-                employeeCount: 1.1,
-                annualRevenue: 1.1,
-                taxExemptStatus: "none",
-                creationSource: "manual",
-                creationState: "active",
-                website: "website",
-                billingAddress: {
-                    line1: "line1",
-                    line2: "line2",
-                    city: "city",
-                    state: "state",
-                    zipCode: "zipCode",
-                    country: "country",
-                },
-                metadata: {
-                    key: "value",
-                },
-            },
-        ]);
-    });
-
-    test("create", async () => {
-        const server = mockServerPool.createServer();
-        const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = {
-            name: "Acme, Inc.",
-            externalId: "acme-inc",
-            contacts: [
+        const rawResponseBody = {
+            data: [
                 {
-                    salutation: "Mr.",
-                    firstName: "John",
-                    lastName: "Doe",
-                    accountName: "Acme, Inc.",
-                    email: "john.doe@acme.com",
-                    phone: "+1-555-0100",
-                    billingStreet: "123 Main Street",
-                    billingCity: "San Francisco",
-                    billingStateProvince: "CA",
-                    billingCountry: "USA",
-                    billingPostalCode: "94102",
+                    id: "id",
+                    name: "name",
+                    legalName: "legalName",
+                    email: "email",
+                    phone: "phone",
+                    website: "website",
+                    externalId: "externalId",
+                    creationState: "draft",
+                    churnDate: "2024-01-15T09:30:00Z",
+                    vatNumber: "vatNumber",
+                    metadata: { key: "value" },
+                    createdAt: "2024-01-15T09:30:00Z",
+                    updatedAt: "2024-01-15T09:30:00Z",
                 },
             ],
+            pagination: { limit: 1, offset: 1, total: 1, hasMore: true },
         };
+        server.mockEndpoint().get("/customers/").respondWith().statusCode(200).jsonBody(rawResponseBody).build();
+
+        const response = await client.customers.listCustomers();
+        expect(response).toEqual({
+            data: [
+                {
+                    id: "id",
+                    name: "name",
+                    legalName: "legalName",
+                    email: "email",
+                    phone: "phone",
+                    website: "website",
+                    externalId: "externalId",
+                    creationState: "draft",
+                    churnDate: "2024-01-15T09:30:00Z",
+                    vatNumber: "vatNumber",
+                    metadata: {
+                        key: "value",
+                    },
+                    createdAt: "2024-01-15T09:30:00Z",
+                    updatedAt: "2024-01-15T09:30:00Z",
+                },
+            ],
+            pagination: {
+                limit: 1,
+                offset: 1,
+                total: 1,
+                hasMore: true,
+            },
+        });
+    });
+
+    test("listCustomers (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: "error" };
+        server.mockEndpoint().get("/customers/").respondWith().statusCode(400).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.customers.listCustomers();
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("listCustomers (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: "error" };
+        server.mockEndpoint().get("/customers/").respondWith().statusCode(403).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.customers.listCustomers();
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("listCustomers (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: "error" };
+        server.mockEndpoint().get("/customers/").respondWith().statusCode(500).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.customers.listCustomers();
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("createCustomer (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { name: "name" };
         const rawResponseBody = {
-            id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
-            organizationId: "organizationId",
-            name: "Acme, Inc.",
-            externalId: "acme-inc",
+            id: "id",
+            name: "name",
+            legalName: "legalName",
+            email: "email",
             phone: "phone",
-            employeeCount: 1.1,
-            annualRevenue: 1.1,
-            taxExemptStatus: "none",
-            creationSource: "manual",
-            creationState: "active",
             website: "website",
+            externalId: "externalId",
             billingAddress: {
                 line1: "line1",
                 line2: "line2",
@@ -106,48 +117,33 @@ describe("Customers", () => {
                 zipCode: "zipCode",
                 country: "country",
             },
+            creationState: "draft",
+            churnDate: "2024-01-15T09:30:00Z",
+            vatNumber: "vatNumber",
             metadata: { key: "value" },
+            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
         };
         server
             .mockEndpoint()
-            .post("/customers")
+            .post("/customers/")
             .jsonBody(rawRequestBody)
             .respondWith()
             .statusCode(200)
             .jsonBody(rawResponseBody)
             .build();
 
-        const response = await client.customers.create({
-            name: "Acme, Inc.",
-            externalId: "acme-inc",
-            contacts: [
-                {
-                    salutation: "Mr.",
-                    firstName: "John",
-                    lastName: "Doe",
-                    accountName: "Acme, Inc.",
-                    email: "john.doe@acme.com",
-                    phone: "+1-555-0100",
-                    billingStreet: "123 Main Street",
-                    billingCity: "San Francisco",
-                    billingStateProvince: "CA",
-                    billingCountry: "USA",
-                    billingPostalCode: "94102",
-                },
-            ],
+        const response = await client.customers.createCustomer({
+            name: "name",
         });
         expect(response).toEqual({
-            id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
-            organizationId: "organizationId",
-            name: "Acme, Inc.",
-            externalId: "acme-inc",
+            id: "id",
+            name: "name",
+            legalName: "legalName",
+            email: "email",
             phone: "phone",
-            employeeCount: 1.1,
-            annualRevenue: 1.1,
-            taxExemptStatus: "none",
-            creationSource: "manual",
-            creationState: "active",
             website: "website",
+            externalId: "externalId",
             billingAddress: {
                 line1: "line1",
                 line2: "line2",
@@ -156,307 +152,417 @@ describe("Customers", () => {
                 zipCode: "zipCode",
                 country: "country",
             },
+            creationState: "draft",
+            churnDate: "2024-01-15T09:30:00Z",
+            vatNumber: "vatNumber",
             metadata: {
                 key: "value",
             },
+            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
         });
     });
 
-    test("get", async () => {
+    test("createCustomer (2)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-
-        const rawResponseBody = {
-            id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
-            organizationId: "organizationId",
-            name: "Acme, Inc.",
-            externalId: "acme-inc",
-            phone: "123-456-7890",
-            employeeCount: 100,
-            annualRevenue: 1000000,
-            taxExemptStatus: "exempt",
-            creationSource: "api",
-            creationState: "active",
-            website: "https://acme.com",
-            billingAddress: {
-                line1: "123 Main St",
-                line2: "Apt 4B",
-                city: "Anytown",
-                state: "CA",
-                zipCode: "12345",
-                country: "US",
-            },
-            metadata: { key: "value" },
-        };
+        const rawRequestBody = { name: "x" };
+        const rawResponseBody = { error: "error" };
         server
             .mockEndpoint()
-            .get("/customers/customerId")
-            .respondWith()
-            .statusCode(200)
-            .jsonBody(rawResponseBody)
-            .build();
-
-        const response = await client.customers.get("customerId");
-        expect(response).toEqual({
-            id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
-            organizationId: "organizationId",
-            name: "Acme, Inc.",
-            externalId: "acme-inc",
-            phone: "123-456-7890",
-            employeeCount: 100,
-            annualRevenue: 1000000,
-            taxExemptStatus: "exempt",
-            creationSource: "api",
-            creationState: "active",
-            website: "https://acme.com",
-            billingAddress: {
-                line1: "123 Main St",
-                line2: "Apt 4B",
-                city: "Anytown",
-                state: "CA",
-                zipCode: "12345",
-                country: "US",
-            },
-            metadata: {
-                key: "value",
-            },
-        });
-    });
-
-    test("update", async () => {
-        const server = mockServerPool.createServer();
-        const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = {
-            name: "Acme, Inc. (Updated)",
-            phone: "123-456-7890",
-            employeeCount: 101,
-            annualRevenue: 1000001,
-        };
-        const rawResponseBody = {
-            id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
-            organizationId: "organizationId",
-            name: "Acme, Inc. (Updated)",
-            externalId: "acme-inc",
-            phone: "123-456-7890",
-            employeeCount: 101,
-            annualRevenue: 1000001,
-            taxExemptStatus: "none",
-            creationSource: "manual",
-            creationState: "active",
-            website: "website",
-            billingAddress: {
-                line1: "line1",
-                line2: "line2",
-                city: "city",
-                state: "state",
-                zipCode: "zipCode",
-                country: "country",
-            },
-            metadata: { key: "value" },
-        };
-        server
-            .mockEndpoint()
-            .put("/customers/customerId")
+            .post("/customers/")
             .jsonBody(rawRequestBody)
-            .respondWith()
-            .statusCode(200)
-            .jsonBody(rawResponseBody)
-            .build();
-
-        const response = await client.customers.update("customerId", {
-            name: "Acme, Inc. (Updated)",
-            phone: "123-456-7890",
-            employeeCount: 101,
-            annualRevenue: 1000001,
-        });
-        expect(response).toEqual({
-            id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
-            organizationId: "organizationId",
-            name: "Acme, Inc. (Updated)",
-            externalId: "acme-inc",
-            phone: "123-456-7890",
-            employeeCount: 101,
-            annualRevenue: 1000001,
-            taxExemptStatus: "none",
-            creationSource: "manual",
-            creationState: "active",
-            website: "website",
-            billingAddress: {
-                line1: "line1",
-                line2: "line2",
-                city: "city",
-                state: "state",
-                zipCode: "zipCode",
-                country: "country",
-            },
-            metadata: {
-                key: "value",
-            },
-        });
-    });
-
-    test("delete", async () => {
-        const server = mockServerPool.createServer();
-        const client = new PaidClient({ token: "test", environment: server.baseUrl });
-
-        server.mockEndpoint().delete("/customers/customerId").respondWith().statusCode(200).build();
-
-        const response = await client.customers.delete("customerId");
-        expect(response).toEqual(undefined);
-    });
-
-    test("checkEntitlement (1)", async () => {
-        const server = mockServerPool.createServer();
-        const client = new PaidClient({ token: "test", environment: server.baseUrl });
-
-        const rawResponseBody = { entitled: true };
-        server
-            .mockEndpoint()
-            .get("/customers/customerId/entitlement")
-            .respondWith()
-            .statusCode(200)
-            .jsonBody(rawResponseBody)
-            .build();
-
-        const response = await client.customers.checkEntitlement("customerId", {
-            event_name: "event_name",
-            view: "all",
-        });
-        expect(response).toEqual({
-            entitled: true,
-        });
-    });
-
-    test("checkEntitlement (2)", async () => {
-        const server = mockServerPool.createServer();
-        const client = new PaidClient({ token: "test", environment: server.baseUrl });
-
-        const rawResponseBody = { error: {} };
-        server
-            .mockEndpoint()
-            .get("/customers/customerId/entitlement")
             .respondWith()
             .statusCode(400)
             .jsonBody(rawResponseBody)
             .build();
 
         await expect(async () => {
-            return await client.customers.checkEntitlement("customerId", {
-                event_name: "event_name",
+            return await client.customers.createCustomer({
+                name: "x",
             });
         }).rejects.toThrow(Paid.BadRequestError);
     });
 
-    test("checkEntitlement (3)", async () => {
+    test("createCustomer (3)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-
-        const rawResponseBody = { error: {} };
+        const rawRequestBody = { name: "x" };
+        const rawResponseBody = { error: "error" };
         server
             .mockEndpoint()
-            .get("/customers/customerId/entitlement")
-            .respondWith()
-            .statusCode(404)
-            .jsonBody(rawResponseBody)
-            .build();
-
-        await expect(async () => {
-            return await client.customers.checkEntitlement("customerId", {
-                event_name: "event_name",
-            });
-        }).rejects.toThrow(Paid.NotFoundError);
-    });
-
-    test("getEntitlements (1)", async () => {
-        const server = mockServerPool.createServer();
-        const client = new PaidClient({ token: "test", environment: server.baseUrl });
-
-        const rawResponseBody = [
-            {
-                id: "id",
-                createdAt: "2024-01-15T09:30:00Z",
-                updatedAt: "2024-01-15T09:30:00Z",
-                organizationId: "organizationId",
-                productId: "productId",
-                entitlementId: "entitlementId",
-                customerId: "customerId",
-                startDate: "2024-01-15T09:30:00Z",
-                endDate: "2024-01-15T09:30:00Z",
-                total: 1000000,
-                available: 1000000,
-                used: 1000000,
-            },
-        ];
-        server
-            .mockEndpoint()
-            .get("/customers/customerId/credit-bundles")
-            .respondWith()
-            .statusCode(200)
-            .jsonBody(rawResponseBody)
-            .build();
-
-        const response = await client.customers.getEntitlements("customerId");
-        expect(response).toEqual([
-            {
-                id: "id",
-                createdAt: "2024-01-15T09:30:00Z",
-                updatedAt: "2024-01-15T09:30:00Z",
-                organizationId: "organizationId",
-                productId: "productId",
-                entitlementId: "entitlementId",
-                customerId: "customerId",
-                startDate: "2024-01-15T09:30:00Z",
-                endDate: "2024-01-15T09:30:00Z",
-                total: 1000000,
-                available: 1000000,
-                used: 1000000,
-            },
-        ]);
-    });
-
-    test("getEntitlements (2)", async () => {
-        const server = mockServerPool.createServer();
-        const client = new PaidClient({ token: "test", environment: server.baseUrl });
-
-        const rawResponseBody = { error: {} };
-        server
-            .mockEndpoint()
-            .get("/customers/customerId/credit-bundles")
+            .post("/customers/")
+            .jsonBody(rawRequestBody)
             .respondWith()
             .statusCode(403)
             .jsonBody(rawResponseBody)
             .build();
 
         await expect(async () => {
-            return await client.customers.getEntitlements("customerId");
+            return await client.customers.createCustomer({
+                name: "x",
+            });
         }).rejects.toThrow(Paid.ForbiddenError);
     });
 
-    test("getByExternalId", async () => {
+    test("createCustomer (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { name: "x" };
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .post("/customers/")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.createCustomer({
+                name: "x",
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("getCustomerById (1)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         const rawResponseBody = {
-            id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
-            organizationId: "organizationId",
-            name: "Acme, Inc.",
-            externalId: "acme-inc",
-            phone: "123-456-7890",
-            employeeCount: 100,
-            annualRevenue: 1000000,
-            taxExemptStatus: "exempt",
-            creationSource: "api",
-            creationState: "active",
-            website: "https://acme.com",
+            id: "id",
+            name: "name",
+            legalName: "legalName",
+            email: "email",
+            phone: "phone",
+            website: "website",
+            externalId: "externalId",
             billingAddress: {
-                line1: "123 Main St",
-                line2: "Apt 4B",
-                city: "Anytown",
-                state: "CA",
-                zipCode: "12345",
-                country: "US",
+                line1: "line1",
+                line2: "line2",
+                city: "city",
+                state: "state",
+                zipCode: "zipCode",
+                country: "country",
             },
+            creationState: "draft",
+            churnDate: "2024-01-15T09:30:00Z",
+            vatNumber: "vatNumber",
             metadata: { key: "value" },
+            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
+        };
+        server.mockEndpoint().get("/customers/id").respondWith().statusCode(200).jsonBody(rawResponseBody).build();
+
+        const response = await client.customers.getCustomerById({
+            id: "id",
+        });
+        expect(response).toEqual({
+            id: "id",
+            name: "name",
+            legalName: "legalName",
+            email: "email",
+            phone: "phone",
+            website: "website",
+            externalId: "externalId",
+            billingAddress: {
+                line1: "line1",
+                line2: "line2",
+                city: "city",
+                state: "state",
+                zipCode: "zipCode",
+                country: "country",
+            },
+            creationState: "draft",
+            churnDate: "2024-01-15T09:30:00Z",
+            vatNumber: "vatNumber",
+            metadata: {
+                key: "value",
+            },
+            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
+        });
+    });
+
+    test("getCustomerById (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: "error" };
+        server.mockEndpoint().get("/customers/id").respondWith().statusCode(403).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.customers.getCustomerById({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("getCustomerById (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: "error" };
+        server.mockEndpoint().get("/customers/id").respondWith().statusCode(404).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.customers.getCustomerById({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("getCustomerById (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: "error" };
+        server.mockEndpoint().get("/customers/id").respondWith().statusCode(500).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.customers.getCustomerById({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("updateCustomerById (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = {
+            id: "id",
+            name: "name",
+            legalName: "legalName",
+            email: "email",
+            phone: "phone",
+            website: "website",
+            externalId: "externalId",
+            billingAddress: {
+                line1: "line1",
+                line2: "line2",
+                city: "city",
+                state: "state",
+                zipCode: "zipCode",
+                country: "country",
+            },
+            creationState: "draft",
+            churnDate: "2024-01-15T09:30:00Z",
+            vatNumber: "vatNumber",
+            metadata: { key: "value" },
+            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
+        };
+        server
+            .mockEndpoint()
+            .put("/customers/id")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.customers.updateCustomerById({
+            id: "id",
+            body: {},
+        });
+        expect(response).toEqual({
+            id: "id",
+            name: "name",
+            legalName: "legalName",
+            email: "email",
+            phone: "phone",
+            website: "website",
+            externalId: "externalId",
+            billingAddress: {
+                line1: "line1",
+                line2: "line2",
+                city: "city",
+                state: "state",
+                zipCode: "zipCode",
+                country: "country",
+            },
+            creationState: "draft",
+            churnDate: "2024-01-15T09:30:00Z",
+            vatNumber: "vatNumber",
+            metadata: {
+                key: "value",
+            },
+            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
+        });
+    });
+
+    test("updateCustomerById (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .put("/customers/id")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.updateCustomerById({
+                id: "id",
+                body: {},
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("updateCustomerById (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .put("/customers/id")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.updateCustomerById({
+                id: "id",
+                body: {},
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("updateCustomerById (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .put("/customers/id")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.updateCustomerById({
+                id: "id",
+                body: {},
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("updateCustomerById (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .put("/customers/id")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.updateCustomerById({
+                id: "id",
+                body: {},
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("deleteCustomerById (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = {};
+        server.mockEndpoint().delete("/customers/id").respondWith().statusCode(200).jsonBody(rawResponseBody).build();
+
+        const response = await client.customers.deleteCustomerById({
+            id: "id",
+        });
+        expect(response).toEqual({});
+    });
+
+    test("deleteCustomerById (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: "error" };
+        server.mockEndpoint().delete("/customers/id").respondWith().statusCode(403).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.customers.deleteCustomerById({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("deleteCustomerById (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: "error" };
+        server.mockEndpoint().delete("/customers/id").respondWith().statusCode(404).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.customers.deleteCustomerById({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("deleteCustomerById (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: "error" };
+        server.mockEndpoint().delete("/customers/id").respondWith().statusCode(500).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.customers.deleteCustomerById({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("getCustomerByExternalId (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = {
+            id: "id",
+            name: "name",
+            legalName: "legalName",
+            email: "email",
+            phone: "phone",
+            website: "website",
+            externalId: "externalId",
+            billingAddress: {
+                line1: "line1",
+                line2: "line2",
+                city: "city",
+                state: "state",
+                zipCode: "zipCode",
+                country: "country",
+            },
+            creationState: "draft",
+            churnDate: "2024-01-15T09:30:00Z",
+            vatNumber: "vatNumber",
+            metadata: { key: "value" },
+            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
         };
         server
             .mockEndpoint()
@@ -466,49 +572,17 @@ describe("Customers", () => {
             .jsonBody(rawResponseBody)
             .build();
 
-        const response = await client.customers.getByExternalId("externalId");
-        expect(response).toEqual({
-            id: "63fd642c-569d-44f9-8d67-5cf4944a16cc",
-            organizationId: "organizationId",
-            name: "Acme, Inc.",
-            externalId: "acme-inc",
-            phone: "123-456-7890",
-            employeeCount: 100,
-            annualRevenue: 1000000,
-            taxExemptStatus: "exempt",
-            creationSource: "api",
-            creationState: "active",
-            website: "https://acme.com",
-            billingAddress: {
-                line1: "123 Main St",
-                line2: "Apt 4B",
-                city: "Anytown",
-                state: "CA",
-                zipCode: "12345",
-                country: "US",
-            },
-            metadata: {
-                key: "value",
-            },
-        });
-    });
-
-    test("updateByExternalId", async () => {
-        const server = mockServerPool.createServer();
-        const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = {};
-        const rawResponseBody = {
-            id: "id",
-            organizationId: "organizationId",
-            name: "name",
+        const response = await client.customers.getCustomerByExternalId({
             externalId: "externalId",
+        });
+        expect(response).toEqual({
+            id: "id",
+            name: "name",
+            legalName: "legalName",
+            email: "email",
             phone: "phone",
-            employeeCount: 1.1,
-            annualRevenue: 1.1,
-            taxExemptStatus: "none",
-            creationSource: "manual",
-            creationState: "active",
             website: "website",
+            externalId: "externalId",
             billingAddress: {
                 line1: "line1",
                 line2: "line2",
@@ -517,7 +591,103 @@ describe("Customers", () => {
                 zipCode: "zipCode",
                 country: "country",
             },
+            creationState: "draft",
+            churnDate: "2024-01-15T09:30:00Z",
+            vatNumber: "vatNumber",
+            metadata: {
+                key: "value",
+            },
+            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
+        });
+    });
+
+    test("getCustomerByExternalId (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .get("/customers/external/externalId")
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.getCustomerByExternalId({
+                externalId: "externalId",
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("getCustomerByExternalId (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .get("/customers/external/externalId")
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.getCustomerByExternalId({
+                externalId: "externalId",
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("getCustomerByExternalId (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .get("/customers/external/externalId")
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.getCustomerByExternalId({
+                externalId: "externalId",
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("updateCustomerByExternalId (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = {
+            id: "id",
+            name: "name",
+            legalName: "legalName",
+            email: "email",
+            phone: "phone",
+            website: "website",
+            externalId: "externalId",
+            billingAddress: {
+                line1: "line1",
+                line2: "line2",
+                city: "city",
+                state: "state",
+                zipCode: "zipCode",
+                country: "country",
+            },
+            creationState: "draft",
+            churnDate: "2024-01-15T09:30:00Z",
+            vatNumber: "vatNumber",
             metadata: { key: "value" },
+            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
         };
         server
             .mockEndpoint()
@@ -528,19 +698,18 @@ describe("Customers", () => {
             .jsonBody(rawResponseBody)
             .build();
 
-        const response = await client.customers.updateByExternalId("externalId", {});
+        const response = await client.customers.updateCustomerByExternalId({
+            externalId: "externalId",
+            body: {},
+        });
         expect(response).toEqual({
             id: "id",
-            organizationId: "organizationId",
             name: "name",
-            externalId: "externalId",
+            legalName: "legalName",
+            email: "email",
             phone: "phone",
-            employeeCount: 1.1,
-            annualRevenue: 1.1,
-            taxExemptStatus: "none",
-            creationSource: "manual",
-            creationState: "active",
             website: "website",
+            externalId: "externalId",
             billingAddress: {
                 line1: "line1",
                 line2: "line2",
@@ -549,512 +718,25 @@ describe("Customers", () => {
                 zipCode: "zipCode",
                 country: "country",
             },
+            creationState: "draft",
+            churnDate: "2024-01-15T09:30:00Z",
+            vatNumber: "vatNumber",
             metadata: {
                 key: "value",
             },
-        });
-    });
-
-    test("deleteByExternalId", async () => {
-        const server = mockServerPool.createServer();
-        const client = new PaidClient({ token: "test", environment: server.baseUrl });
-
-        server.mockEndpoint().delete("/customers/external/externalId").respondWith().statusCode(200).build();
-
-        const response = await client.customers.deleteByExternalId("externalId");
-        expect(response).toEqual(undefined);
-    });
-
-    test("getCostsByExternalId (1)", async () => {
-        const server = mockServerPool.createServer();
-        const client = new PaidClient({ token: "test", environment: server.baseUrl });
-
-        const rawResponseBody = {
-            traces: [
-                {
-                    name: "trace.openai.agents.on_agent",
-                    vendor: "openai",
-                    model: "model",
-                    cost: { amount: 0.00001725, currency: "USD" },
-                    startTimeUnixNano: "1759774597906209000",
-                    endTimeUnixNano: "1759774599194165000",
-                    attributes: {
-                        gen_ai: {
-                            system: "openai",
-                            operation: { name: "on_agent" },
-                            request: { model: "gpt-4o-mini" },
-                            usage: { input_tokens: 27, output_tokens: 22 },
-                        },
-                        external_customer_id: "your_external_customer_id",
-                        external_agent_id: "your_external_agent_id",
-                    },
-                },
-                {
-                    name: "trace.openai.agents.on_agent",
-                    vendor: "openai",
-                    model: "model",
-                    cost: { amount: 0.0000219, currency: "USD" },
-                    startTimeUnixNano: "1759774599472853000",
-                    endTimeUnixNano: "1759774600619994000",
-                    attributes: { gen_ai: { system: "openai", request: { model: "gpt-4o-mini" } } },
-                },
-            ],
-            meta: {
-                limit: 100,
-                offset: 0,
-                count: 2,
-                hasMore: false,
-                startTime: "2024-01-15T09:30:00Z",
-                endTime: "2024-01-15T09:30:00Z",
-                externalCustomerId: "externalCustomerId",
-                externalProductId: "externalProductId",
-                metadata: "metadata",
-            },
-        };
-        server
-            .mockEndpoint()
-            .get("/customers/external/externalId/costs")
-            .respondWith()
-            .statusCode(200)
-            .jsonBody(rawResponseBody)
-            .build();
-
-        const response = await client.customers.getCostsByExternalId("externalId", {
-            limit: 1,
-            offset: 1,
-            startTime: "2024-01-15T09:30:00Z",
-            endTime: "2024-01-15T09:30:00Z",
-        });
-        expect(response).toEqual({
-            traces: [
-                {
-                    name: "trace.openai.agents.on_agent",
-                    vendor: "openai",
-                    model: "model",
-                    cost: {
-                        amount: 0.00001725,
-                        currency: "USD",
-                    },
-                    startTimeUnixNano: "1759774597906209000",
-                    endTimeUnixNano: "1759774599194165000",
-                    attributes: {
-                        gen_ai: {
-                            system: "openai",
-                            operation: {
-                                name: "on_agent",
-                            },
-                            request: {
-                                model: "gpt-4o-mini",
-                            },
-                            usage: {
-                                input_tokens: 27,
-                                output_tokens: 22,
-                            },
-                        },
-                        external_customer_id: "your_external_customer_id",
-                        external_agent_id: "your_external_agent_id",
-                    },
-                },
-                {
-                    name: "trace.openai.agents.on_agent",
-                    vendor: "openai",
-                    model: "model",
-                    cost: {
-                        amount: 0.0000219,
-                        currency: "USD",
-                    },
-                    startTimeUnixNano: "1759774599472853000",
-                    endTimeUnixNano: "1759774600619994000",
-                    attributes: {
-                        gen_ai: {
-                            system: "openai",
-                            request: {
-                                model: "gpt-4o-mini",
-                            },
-                        },
-                    },
-                },
-            ],
-            meta: {
-                limit: 100,
-                offset: 0,
-                count: 2,
-                hasMore: false,
-                startTime: "2024-01-15T09:30:00Z",
-                endTime: "2024-01-15T09:30:00Z",
-                externalCustomerId: "externalCustomerId",
-                externalProductId: "externalProductId",
-                metadata: "metadata",
-            },
-        });
-    });
-
-    test("getCostsByExternalId (2)", async () => {
-        const server = mockServerPool.createServer();
-        const client = new PaidClient({ token: "test", environment: server.baseUrl });
-
-        const rawResponseBody = { error: {} };
-        server
-            .mockEndpoint()
-            .get("/customers/external/externalId/costs")
-            .respondWith()
-            .statusCode(400)
-            .jsonBody(rawResponseBody)
-            .build();
-
-        await expect(async () => {
-            return await client.customers.getCostsByExternalId("externalId");
-        }).rejects.toThrow(Paid.BadRequestError);
-    });
-
-    test("getCostsByExternalId (3)", async () => {
-        const server = mockServerPool.createServer();
-        const client = new PaidClient({ token: "test", environment: server.baseUrl });
-
-        const rawResponseBody = { error: {} };
-        server
-            .mockEndpoint()
-            .get("/customers/external/externalId/costs")
-            .respondWith()
-            .statusCode(403)
-            .jsonBody(rawResponseBody)
-            .build();
-
-        await expect(async () => {
-            return await client.customers.getCostsByExternalId("externalId");
-        }).rejects.toThrow(Paid.ForbiddenError);
-    });
-
-    test("getCostsByExternalId (4)", async () => {
-        const server = mockServerPool.createServer();
-        const client = new PaidClient({ token: "test", environment: server.baseUrl });
-
-        const rawResponseBody = { error: {} };
-        server
-            .mockEndpoint()
-            .get("/customers/external/externalId/costs")
-            .respondWith()
-            .statusCode(404)
-            .jsonBody(rawResponseBody)
-            .build();
-
-        await expect(async () => {
-            return await client.customers.getCostsByExternalId("externalId");
-        }).rejects.toThrow(Paid.NotFoundError);
-    });
-
-    test("getUsageByExternalId (1)", async () => {
-        const server = mockServerPool.createServer();
-        const client = new PaidClient({ token: "test", environment: server.baseUrl });
-
-        const rawResponseBody = {
-            data: [
-                {
-                    id: "550e8400-e29b-41d4-a716-446655440000",
-                    eventName: "api_calls",
-                    eventsQuantity: 1500,
-                    startDate: "2024-01-01T00:00:00Z",
-                    endDate: "2024-01-31T23:59:59Z",
-                    subtotal: 50000,
-                    nextBillingDate: "2024-02-01T00:00:00Z",
-                    customerId: "7d0b6fce-d82a-433d-8315-c994f8f1d68d",
-                    orderId: "8e1c7fdf-e93b-52e5-b827-557766661111",
-                    orderLineId: "9f2d8eeg-f04c-63f6-c938-668877772222",
-                    orderLineAttributeId: "0a3e9ffh-g15d-74g7-d049-779988883333",
-                    invoiceId: "1b4f0ggi-h26e-85h8-e15a-880099994444",
-                    invoiceLineId: "2c5g1hhj-i37f-96i9-f26b-991100005555",
-                    createdAt: "2024-01-15T10:30:00Z",
-                    updatedAt: "2024-01-15T10:30:00Z",
-                    order: { id: "8e1c7fdf-e93b-52e5-b827-557766661111", displayId: "ORD-12345" },
-                    orderLine: { id: "9f2d8eeg-f04c-63f6-c938-668877772222", displayId: "OL-67890" },
-                },
-                {
-                    id: "660f9511-f3ac-52e6-b827-557766662222",
-                    eventName: "api_calls",
-                    eventsQuantity: 2000,
-                    startDate: "2024-02-01T00:00:00Z",
-                    endDate: "2024-02-29T23:59:59Z",
-                    subtotal: 75000,
-                    nextBillingDate: "2024-03-01T00:00:00Z",
-                    customerId: "7d0b6fce-d82a-433d-8315-c994f8f1d68d",
-                    orderId: "8e1c7fdf-e93b-52e5-b827-557766661111",
-                    orderLineId: "9f2d8eeg-f04c-63f6-c938-668877772222",
-                    orderLineAttributeId: "0a3e9ffh-g15d-74g7-d049-779988883333",
-                    createdAt: "2024-02-15T10:30:00Z",
-                    updatedAt: "2024-02-15T10:30:00Z",
-                    order: { id: "8e1c7fdf-e93b-52e5-b827-557766661111", displayId: "ORD-12345" },
-                    orderLine: { id: "9f2d8eeg-f04c-63f6-c938-668877772222", displayId: "OL-67890" },
-                },
-            ],
-            pagination: { limit: 100, offset: 0, total: 2, hasMore: false },
-        };
-        server
-            .mockEndpoint()
-            .get("/customers/external/externalId/usage")
-            .respondWith()
-            .statusCode(200)
-            .jsonBody(rawResponseBody)
-            .build();
-
-        const response = await client.customers.getUsageByExternalId("externalId", {
-            limit: 1,
-            offset: 1,
-            startTime: "2024-01-15T09:30:00Z",
-            endTime: "2024-01-15T09:30:00Z",
-        });
-        expect(response).toEqual({
-            data: [
-                {
-                    id: "550e8400-e29b-41d4-a716-446655440000",
-                    eventName: "api_calls",
-                    eventsQuantity: 1500,
-                    startDate: "2024-01-01T00:00:00Z",
-                    endDate: "2024-01-31T23:59:59Z",
-                    subtotal: 50000,
-                    nextBillingDate: "2024-02-01T00:00:00Z",
-                    customerId: "7d0b6fce-d82a-433d-8315-c994f8f1d68d",
-                    orderId: "8e1c7fdf-e93b-52e5-b827-557766661111",
-                    orderLineId: "9f2d8eeg-f04c-63f6-c938-668877772222",
-                    orderLineAttributeId: "0a3e9ffh-g15d-74g7-d049-779988883333",
-                    invoiceId: "1b4f0ggi-h26e-85h8-e15a-880099994444",
-                    invoiceLineId: "2c5g1hhj-i37f-96i9-f26b-991100005555",
-                    createdAt: "2024-01-15T10:30:00Z",
-                    updatedAt: "2024-01-15T10:30:00Z",
-                    order: {
-                        id: "8e1c7fdf-e93b-52e5-b827-557766661111",
-                        displayId: "ORD-12345",
-                    },
-                    orderLine: {
-                        id: "9f2d8eeg-f04c-63f6-c938-668877772222",
-                        displayId: "OL-67890",
-                    },
-                },
-                {
-                    id: "660f9511-f3ac-52e6-b827-557766662222",
-                    eventName: "api_calls",
-                    eventsQuantity: 2000,
-                    startDate: "2024-02-01T00:00:00Z",
-                    endDate: "2024-02-29T23:59:59Z",
-                    subtotal: 75000,
-                    nextBillingDate: "2024-03-01T00:00:00Z",
-                    customerId: "7d0b6fce-d82a-433d-8315-c994f8f1d68d",
-                    orderId: "8e1c7fdf-e93b-52e5-b827-557766661111",
-                    orderLineId: "9f2d8eeg-f04c-63f6-c938-668877772222",
-                    orderLineAttributeId: "0a3e9ffh-g15d-74g7-d049-779988883333",
-                    createdAt: "2024-02-15T10:30:00Z",
-                    updatedAt: "2024-02-15T10:30:00Z",
-                    order: {
-                        id: "8e1c7fdf-e93b-52e5-b827-557766661111",
-                        displayId: "ORD-12345",
-                    },
-                    orderLine: {
-                        id: "9f2d8eeg-f04c-63f6-c938-668877772222",
-                        displayId: "OL-67890",
-                    },
-                },
-            ],
-            pagination: {
-                limit: 100,
-                offset: 0,
-                total: 2,
-                hasMore: false,
-            },
-        });
-    });
-
-    test("getUsageByExternalId (2)", async () => {
-        const server = mockServerPool.createServer();
-        const client = new PaidClient({ token: "test", environment: server.baseUrl });
-
-        const rawResponseBody = { error: {} };
-        server
-            .mockEndpoint()
-            .get("/customers/external/externalId/usage")
-            .respondWith()
-            .statusCode(400)
-            .jsonBody(rawResponseBody)
-            .build();
-
-        await expect(async () => {
-            return await client.customers.getUsageByExternalId("externalId");
-        }).rejects.toThrow(Paid.BadRequestError);
-    });
-
-    test("getUsageByExternalId (3)", async () => {
-        const server = mockServerPool.createServer();
-        const client = new PaidClient({ token: "test", environment: server.baseUrl });
-
-        const rawResponseBody = { error: {} };
-        server
-            .mockEndpoint()
-            .get("/customers/external/externalId/usage")
-            .respondWith()
-            .statusCode(403)
-            .jsonBody(rawResponseBody)
-            .build();
-
-        await expect(async () => {
-            return await client.customers.getUsageByExternalId("externalId");
-        }).rejects.toThrow(Paid.ForbiddenError);
-    });
-
-    test("getUsageByExternalId (4)", async () => {
-        const server = mockServerPool.createServer();
-        const client = new PaidClient({ token: "test", environment: server.baseUrl });
-
-        const rawResponseBody = { error: {} };
-        server
-            .mockEndpoint()
-            .get("/customers/external/externalId/usage")
-            .respondWith()
-            .statusCode(404)
-            .jsonBody(rawResponseBody)
-            .build();
-
-        await expect(async () => {
-            return await client.customers.getUsageByExternalId("externalId");
-        }).rejects.toThrow(Paid.NotFoundError);
-    });
-
-    test("listPaymentMethods (1)", async () => {
-        const server = mockServerPool.createServer();
-        const client = new PaidClient({ token: "test", environment: server.baseUrl });
-
-        const rawResponseBody = [
-            {
-                id: "pm_1234567890",
-                type: "card",
-                card: { brand: "visa", last4: "4242", expMonth: 12, expYear: 2025 },
-                usBankAccount: { bankName: "bankName", last4: "last4", accountType: "checking" },
-                isDefault: true,
-                createdAt: "2024-01-15T10:30:00Z",
-            },
-        ];
-        server
-            .mockEndpoint()
-            .get("/customers/external/externalId/payment-methods")
-            .respondWith()
-            .statusCode(200)
-            .jsonBody(rawResponseBody)
-            .build();
-
-        const response = await client.customers.listPaymentMethods("externalId");
-        expect(response).toEqual([
-            {
-                id: "pm_1234567890",
-                type: "card",
-                card: {
-                    brand: "visa",
-                    last4: "4242",
-                    expMonth: 12,
-                    expYear: 2025,
-                },
-                usBankAccount: {
-                    bankName: "bankName",
-                    last4: "last4",
-                    accountType: "checking",
-                },
-                isDefault: true,
-                createdAt: "2024-01-15T10:30:00Z",
-            },
-        ]);
-    });
-
-    test("listPaymentMethods (2)", async () => {
-        const server = mockServerPool.createServer();
-        const client = new PaidClient({ token: "test", environment: server.baseUrl });
-
-        const rawResponseBody = { error: {} };
-        server
-            .mockEndpoint()
-            .get("/customers/external/externalId/payment-methods")
-            .respondWith()
-            .statusCode(403)
-            .jsonBody(rawResponseBody)
-            .build();
-
-        await expect(async () => {
-            return await client.customers.listPaymentMethods("externalId");
-        }).rejects.toThrow(Paid.ForbiddenError);
-    });
-
-    test("listPaymentMethods (3)", async () => {
-        const server = mockServerPool.createServer();
-        const client = new PaidClient({ token: "test", environment: server.baseUrl });
-
-        const rawResponseBody = { error: {} };
-        server
-            .mockEndpoint()
-            .get("/customers/external/externalId/payment-methods")
-            .respondWith()
-            .statusCode(404)
-            .jsonBody(rawResponseBody)
-            .build();
-
-        await expect(async () => {
-            return await client.customers.listPaymentMethods("externalId");
-        }).rejects.toThrow(Paid.NotFoundError);
-    });
-
-    test("createPaymentMethod (1)", async () => {
-        const server = mockServerPool.createServer();
-        const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = {
-            confirmationToken: "ctoken_1234567890",
-            returnUrl: "https://example.com/payment-method-added",
-            metadata: { source: "api" },
-        };
-        const rawResponseBody = {
-            id: "id",
-            type: "card",
-            card: { brand: "brand", last4: "last4", expMonth: 1, expYear: 1 },
-            usBankAccount: { bankName: "bankName", last4: "last4", accountType: "checking" },
-            isDefault: true,
             createdAt: "2024-01-15T09:30:00Z",
-        };
-        server
-            .mockEndpoint()
-            .post("/customers/external/externalId/payment-methods")
-            .jsonBody(rawRequestBody)
-            .respondWith()
-            .statusCode(200)
-            .jsonBody(rawResponseBody)
-            .build();
-
-        const response = await client.customers.createPaymentMethod("externalId", {
-            confirmationToken: "ctoken_1234567890",
-            returnUrl: "https://example.com/payment-method-added",
-            metadata: {
-                source: "api",
-            },
-        });
-        expect(response).toEqual({
-            id: "id",
-            type: "card",
-            card: {
-                brand: "brand",
-                last4: "last4",
-                expMonth: 1,
-                expYear: 1,
-            },
-            usBankAccount: {
-                bankName: "bankName",
-                last4: "last4",
-                accountType: "checking",
-            },
-            isDefault: true,
-            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
         });
     });
 
-    test("createPaymentMethod (2)", async () => {
+    test("updateCustomerByExternalId (2)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = { confirmationToken: "confirmationToken", returnUrl: "returnUrl" };
-        const rawResponseBody = { error: {} };
+        const rawRequestBody = {};
+        const rawResponseBody = { error: "error" };
         server
             .mockEndpoint()
-            .post("/customers/external/externalId/payment-methods")
+            .put("/customers/external/externalId")
             .jsonBody(rawRequestBody)
             .respondWith()
             .statusCode(400)
@@ -1062,21 +744,21 @@ describe("Customers", () => {
             .build();
 
         await expect(async () => {
-            return await client.customers.createPaymentMethod("externalId", {
-                confirmationToken: "confirmationToken",
-                returnUrl: "returnUrl",
+            return await client.customers.updateCustomerByExternalId({
+                externalId: "externalId",
+                body: {},
             });
         }).rejects.toThrow(Paid.BadRequestError);
     });
 
-    test("createPaymentMethod (3)", async () => {
+    test("updateCustomerByExternalId (3)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = { confirmationToken: "confirmationToken", returnUrl: "returnUrl" };
-        const rawResponseBody = { error: {} };
+        const rawRequestBody = {};
+        const rawResponseBody = { error: "error" };
         server
             .mockEndpoint()
-            .post("/customers/external/externalId/payment-methods")
+            .put("/customers/external/externalId")
             .jsonBody(rawRequestBody)
             .respondWith()
             .statusCode(403)
@@ -1084,21 +766,21 @@ describe("Customers", () => {
             .build();
 
         await expect(async () => {
-            return await client.customers.createPaymentMethod("externalId", {
-                confirmationToken: "confirmationToken",
-                returnUrl: "returnUrl",
+            return await client.customers.updateCustomerByExternalId({
+                externalId: "externalId",
+                body: {},
             });
         }).rejects.toThrow(Paid.ForbiddenError);
     });
 
-    test("createPaymentMethod (4)", async () => {
+    test("updateCustomerByExternalId (4)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = { confirmationToken: "confirmationToken", returnUrl: "returnUrl" };
-        const rawResponseBody = { error: {} };
+        const rawRequestBody = {};
+        const rawResponseBody = { error: "error" };
         server
             .mockEndpoint()
-            .post("/customers/external/externalId/payment-methods")
+            .put("/customers/external/externalId")
             .jsonBody(rawRequestBody)
             .respondWith()
             .statusCode(404)
@@ -1106,61 +788,111 @@ describe("Customers", () => {
             .build();
 
         await expect(async () => {
-            return await client.customers.createPaymentMethod("externalId", {
-                confirmationToken: "confirmationToken",
-                returnUrl: "returnUrl",
+            return await client.customers.updateCustomerByExternalId({
+                externalId: "externalId",
+                body: {},
             });
         }).rejects.toThrow(Paid.NotFoundError);
     });
 
-    test("deletePaymentMethod (1)", async () => {
+    test("updateCustomerByExternalId (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .put("/customers/external/externalId")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.updateCustomerByExternalId({
+                externalId: "externalId",
+                body: {},
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("deleteCustomerByExternalId (1)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
+        const rawResponseBody = {};
         server
             .mockEndpoint()
-            .delete("/customers/external/externalId/payment-methods/paymentMethodId")
+            .delete("/customers/external/externalId")
             .respondWith()
             .statusCode(200)
+            .jsonBody(rawResponseBody)
             .build();
 
-        const response = await client.customers.deletePaymentMethod("externalId", "paymentMethodId");
-        expect(response).toEqual(undefined);
+        const response = await client.customers.deleteCustomerByExternalId({
+            externalId: "externalId",
+        });
+        expect(response).toEqual({});
     });
 
-    test("deletePaymentMethod (2)", async () => {
+    test("deleteCustomerByExternalId (2)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: {} };
+        const rawResponseBody = { error: "error" };
         server
             .mockEndpoint()
-            .delete("/customers/external/externalId/payment-methods/paymentMethodId")
+            .delete("/customers/external/externalId")
             .respondWith()
             .statusCode(403)
             .jsonBody(rawResponseBody)
             .build();
 
         await expect(async () => {
-            return await client.customers.deletePaymentMethod("externalId", "paymentMethodId");
+            return await client.customers.deleteCustomerByExternalId({
+                externalId: "externalId",
+            });
         }).rejects.toThrow(Paid.ForbiddenError);
     });
 
-    test("deletePaymentMethod (3)", async () => {
+    test("deleteCustomerByExternalId (3)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: {} };
+        const rawResponseBody = { error: "error" };
         server
             .mockEndpoint()
-            .delete("/customers/external/externalId/payment-methods/paymentMethodId")
+            .delete("/customers/external/externalId")
             .respondWith()
             .statusCode(404)
             .jsonBody(rawResponseBody)
             .build();
 
         await expect(async () => {
-            return await client.customers.deletePaymentMethod("externalId", "paymentMethodId");
+            return await client.customers.deleteCustomerByExternalId({
+                externalId: "externalId",
+            });
         }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("deleteCustomerByExternalId (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .delete("/customers/external/externalId")
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.deleteCustomerByExternalId({
+                externalId: "externalId",
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
     });
 });
