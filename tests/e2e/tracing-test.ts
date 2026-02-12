@@ -12,10 +12,12 @@
  * Test coverage:
  * 1. Auto-instrumentation initialization with paidAutoInstrument
  * 2. OpenAI native SDK - chat completions, embeddings (auto-instrumented)
- * 3. Anthropic native SDK - messages (auto-instrumented)
- * 4. Signal capture with trace() and signal()
- * 5. Multi-provider tracing in single trace context
- * 6. Signals REST API (createSignals)
+ * 3. OpenAI streaming chat completions with token usage validation
+ * 4. Anthropic native SDK - messages (auto-instrumented)
+ * 5. Anthropic streaming messages with token usage validation
+ * 6. Signal capture with trace() and signal()
+ * 7. Multi-provider tracing in single trace context
+ * 8. Signals REST API (createSignals)
  */
 
 import { PaidClient } from "../../dist/cjs/index.js";
@@ -290,6 +292,137 @@ async function testAnthropicMessages(): Promise<boolean> {
     return true;
   } catch (error: any) {
     throw new Error(`Anthropic messages failed: ${error.message}`);
+  }
+}
+
+async function testOpenAIStreamingChatCompletion(): Promise<boolean> {
+  log("Testing: OpenAI Streaming Chat Completion with Auto-Instrumentation");
+
+  if (!OPENAI_API_KEY) {
+    log("  Skipped: OPENAI_API_KEY not set");
+    return true;
+  }
+
+  const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
+
+  try {
+    const result = await trace(
+      {
+        externalCustomerId: `${testPrefix}-external-customer`,
+        externalProductId: `${testPrefix}-external-product`,
+      },
+      async () => {
+        const stream = await openai.chat.completions.create({
+          model: "gpt-4o-mini",
+          messages: [{ role: "user", content: "Count from 1 to 5, one number per line." }],
+          max_tokens: 50,
+          stream: true,
+          stream_options: { include_usage: true },
+        });
+
+        let fullContent = "";
+        let usage: { prompt_tokens: number; completion_tokens: number; total_tokens: number } | null = null;
+
+        for await (const chunk of stream) {
+          if (chunk.choices[0]?.delta?.content) {
+            fullContent += chunk.choices[0].delta.content;
+          }
+          // Usage is included in the final chunk when stream_options.include_usage is true
+          if (chunk.usage) {
+            usage = chunk.usage;
+          }
+        }
+
+        return { content: fullContent, usage };
+      }
+    );
+
+    // Validate streaming worked
+    if (!result.content || result.content.length === 0) {
+      throw new Error("Streaming returned no content");
+    }
+
+    // Validate usage was captured
+    if (!result.usage) {
+      throw new Error("Streaming did not return usage information");
+    }
+    if (typeof result.usage.prompt_tokens !== "number" || result.usage.prompt_tokens <= 0) {
+      throw new Error(`Invalid prompt_tokens in stream: ${result.usage.prompt_tokens}`);
+    }
+    if (typeof result.usage.completion_tokens !== "number" || result.usage.completion_tokens <= 0) {
+      throw new Error(`Invalid completion_tokens in stream: ${result.usage.completion_tokens}`);
+    }
+
+    log(`  Streaming successful - Content length: ${result.content.length} chars`);
+    log(`  Token usage - Input: ${result.usage.prompt_tokens}, Output: ${result.usage.completion_tokens}`);
+    return true;
+  } catch (error: any) {
+    throw new Error(`OpenAI streaming chat completion failed: ${error.message}`);
+  }
+}
+
+async function testAnthropicStreamingMessages(): Promise<boolean> {
+  log("Testing: Anthropic Streaming Messages with Auto-Instrumentation");
+
+  if (!ANTHROPIC_API_KEY) {
+    log("  Skipped: ANTHROPIC_API_KEY not set");
+    return true;
+  }
+
+  const anthropic = new Anthropic({ apiKey: ANTHROPIC_API_KEY });
+
+  try {
+    const result = await trace(
+      {
+        externalCustomerId: `${testPrefix}-external-customer`,
+        externalProductId: `${testPrefix}-external-product`,
+      },
+      async () => {
+        const stream = anthropic.messages.stream({
+          model: "claude-3-5-haiku-latest",
+          max_tokens: 50,
+          messages: [{ role: "user", content: "Count from 1 to 5, one number per line." }],
+        });
+
+        let fullContent = "";
+
+        for await (const event of stream) {
+          if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
+            fullContent += event.delta.text;
+          }
+        }
+
+        // Get the final message which includes usage
+        const finalMessage = await stream.finalMessage();
+
+        return {
+          content: fullContent,
+          usage: finalMessage.usage,
+        };
+      }
+    );
+
+    // Validate streaming worked
+    if (!result.content || result.content.length === 0) {
+      throw new Error("Streaming returned no content");
+    }
+
+    // Validate usage was captured
+    if (!result.usage) {
+      throw new Error("Streaming did not return usage information");
+    }
+    if (typeof result.usage.input_tokens !== "number" || result.usage.input_tokens <= 0) {
+      throw new Error(`Invalid input_tokens in stream: ${result.usage.input_tokens}`);
+    }
+    if (typeof result.usage.output_tokens !== "number" || result.usage.output_tokens <= 0) {
+      throw new Error(`Invalid output_tokens in stream: ${result.usage.output_tokens}`);
+    }
+
+    log(`  Streaming successful - Content length: ${result.content.length} chars`);
+    log(`  Token usage - Input: ${result.usage.input_tokens}, Output: ${result.usage.output_tokens}`);
+    return true;
+  } catch (error: any) {
+    throw new Error(`Anthropic streaming messages failed: ${error.message}`);
   }
 }
 
@@ -625,7 +758,9 @@ async function main() {
   await runTest("Auto-Instrumentation Initialization", testAutoInstrumentationInitialization);
   await runTest("OpenAI Chat Completion", testOpenAIChatCompletion, true);
   await runTest("OpenAI Embeddings", testOpenAIEmbeddings, true);
+  await runTest("OpenAI Streaming Chat Completion", testOpenAIStreamingChatCompletion, true);
   await runTest("Anthropic Messages", testAnthropicMessages, true);
+  await runTest("Anthropic Streaming Messages", testAnthropicStreamingMessages, true);
   await runTest("Signal Capture", testSignalCapture, true);
   await runTest("Multi-Provider Tracing", testMultiProviderTracing, true);
 
