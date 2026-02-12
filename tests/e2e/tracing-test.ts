@@ -304,6 +304,8 @@ async function testOpenAIStreamingChatCompletion(): Promise<boolean> {
   }
 
   const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
+  // Use gpt-4.1-mini for streaming - gpt-5-nano has issues with streaming content
+  const streamingModel = "gpt-4.1-mini";
   const testPrompt = "Count from 1 to 5, one number per line.";
 
   try {
@@ -315,9 +317,9 @@ async function testOpenAIStreamingChatCompletion(): Promise<boolean> {
       },
       async () => {
         return await openai.chat.completions.create({
-          model: "gpt-5-nano",
+          model: streamingModel,
           messages: [{ role: "user", content: testPrompt }],
-          max_completion_tokens: 50,
+          max_tokens: 50,
           stream: false,
         });
       }
@@ -335,9 +337,9 @@ async function testOpenAIStreamingChatCompletion(): Promise<boolean> {
       },
       async () => {
         const stream = await openai.chat.completions.create({
-          model: "gpt-5-nano",
+          model: streamingModel,
           messages: [{ role: "user", content: testPrompt }],
-          max_completion_tokens: 50,
+          max_tokens: 50,
           stream: true,
           stream_options: { include_usage: true },
         });
@@ -352,11 +354,6 @@ async function testOpenAIStreamingChatCompletion(): Promise<boolean> {
           const deltaContent = chunk.choices?.[0]?.delta?.content;
           if (deltaContent) {
             fullContent += deltaContent;
-          }
-          // Handle text field in delta (alternative format)
-          const deltaText = (chunk.choices?.[0]?.delta as any)?.text;
-          if (deltaText && !deltaContent) {
-            fullContent += deltaText;
           }
           // Capture usage from final chunk
           if (chunk.usage) {
