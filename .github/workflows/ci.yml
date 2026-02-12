@@ -79,6 +79,9 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: npx tsx tests/e2e/ai-sdk-genai-tracing-test.ts
 
+      - name: Run ESM Compatibility Test
+        run: node tests/e2e/esm-compatibility-test.mjs
+
   publish:
     needs: [compile, test]
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
