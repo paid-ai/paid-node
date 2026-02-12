@@ -57,11 +57,19 @@ async function testListProducts() {
 
 async function testCreateProduct() {
   log("Testing: Create Product");
+  const expectedName = `${testPrefix}-Product`;
+  const expectedDescription = "SDK smoke test product";
   const product = await client.products.createProduct({
-    name: `${testPrefix}-Product`,
-    description: "SDK smoke test product",
+    name: expectedName,
+    description: expectedDescription,
   });
   createdResources.productId = product.id;
+  if (product.name !== expectedName) {
+    throw new Error(`Product name mismatch: expected "${expectedName}", got "${product.name}"`);
+  }
+  if (product.description !== expectedDescription) {
+    throw new Error(`Product description mismatch: expected "${expectedDescription}", got "${product.description}"`);
+  }
   log(`  Created product: ${product.id} (${product.name})`);
   return true;
 }
@@ -75,6 +83,13 @@ async function testGetProduct() {
   const product = await client.products.getProductById({
     id: createdResources.productId,
   });
+  if (product.id !== createdResources.productId) {
+    throw new Error(`Product ID mismatch: expected "${createdResources.productId}", got "${product.id}"`);
+  }
+  const expectedName = `${testPrefix}-Product`;
+  if (product.name !== expectedName) {
+    throw new Error(`Product name mismatch: expected "${expectedName}", got "${product.name}"`);
+  }
   log(`  Retrieved product: ${product.id} (${product.name})`);
   return true;
 }
@@ -85,12 +100,16 @@ async function testUpdateProduct() {
     log("  Skipped: No product created");
     return false;
   }
+  const updatedDescription = "SDK smoke test product - updated";
   const product = await client.products.updateProductById({
     id: createdResources.productId,
     body: {
-      description: "SDK smoke test product - updated",
+      description: updatedDescription,
     },
   });
+  if (product.description !== updatedDescription) {
+    throw new Error(`Product description not updated: expected "${updatedDescription}", got "${product.description}"`);
+  }
   log(`  Updated product: ${product.id}`);
   return true;
 }
@@ -104,8 +123,9 @@ async function testListCustomers() {
 
 async function testCreateCustomer() {
   log("Testing: Create Customer");
+  const expectedName = `${testPrefix}-Customer`;
   const customer = await client.customers.createCustomer({
-    name: `${testPrefix}-Customer`,
+    name: expectedName,
     billingAddress: {
       line1: "123 Test Street",
       city: "Test City",
@@ -113,6 +133,9 @@ async function testCreateCustomer() {
     },
   });
   createdResources.customerId = customer.id;
+  if (customer.name !== expectedName) {
+    throw new Error(`Customer name mismatch: expected "${expectedName}", got "${customer.name}"`);
+  }
   log(`  Created customer: ${customer.id} (${customer.name})`);
   return true;
 }
@@ -126,6 +149,13 @@ async function testGetCustomer() {
   const customer = await client.customers.getCustomerById({
     id: createdResources.customerId,
   });
+  if (customer.id !== createdResources.customerId) {
+    throw new Error(`Customer ID mismatch: expected "${createdResources.customerId}", got "${customer.id}"`);
+  }
+  const expectedName = `${testPrefix}-Customer`;
+  if (customer.name !== expectedName) {
+    throw new Error(`Customer name mismatch: expected "${expectedName}", got "${customer.name}"`);
+  }
   log(`  Retrieved customer: ${customer.id} (${customer.name})`);
   return true;
 }
@@ -136,16 +166,20 @@ async function testUpdateCustomer() {
     log("  Skipped: No customer created");
     return false;
   }
+  const updatedAddress = {
+    line1: "456 Updated Street",
+    city: "Updated City",
+    country: "US",
+  };
   const customer = await client.customers.updateCustomerById({
     id: createdResources.customerId,
     body: {
-      billingAddress: {
-        line1: "456 Updated Street",
-        city: "Updated City",
-        country: "US",
-      },
+      billingAddress: updatedAddress,
     },
   });
+  if (customer.billingAddress?.line1 !== updatedAddress.line1) {
+    throw new Error(`Customer address not updated: expected "${updatedAddress.line1}", got "${customer.billingAddress?.line1}"`);
+  }
   log(`  Updated customer: ${customer.id}`);
   return true;
 }
@@ -163,13 +197,25 @@ async function testCreateContact() {
     log("  Skipped: No customer created");
     return false;
   }
+  const expectedFirstName = "Test";
+  const expectedLastName = "Contact";
+  const expectedEmail = `${testPrefix}@example.com`;
   const contact = await client.contacts.createContact({
     customerId: createdResources.customerId,
-    firstName: "Test",
-    lastName: "Contact",
-    email: `${testPrefix}@example.com`,
+    firstName: expectedFirstName,
+    lastName: expectedLastName,
+    email: expectedEmail,
   });
   createdResources.contactId = contact.id;
+  if (contact.firstName !== expectedFirstName) {
+    throw new Error(`Contact firstName mismatch: expected "${expectedFirstName}", got "${contact.firstName}"`);
+  }
+  if (contact.lastName !== expectedLastName) {
+    throw new Error(`Contact lastName mismatch: expected "${expectedLastName}", got "${contact.lastName}"`);
+  }
+  if (contact.email !== expectedEmail) {
+    throw new Error(`Contact email mismatch: expected "${expectedEmail}", got "${contact.email}"`);
+  }
   log(`  Created contact: ${contact.id} (${contact.firstName} ${contact.lastName})`);
   return true;
 }
@@ -183,7 +229,13 @@ async function testGetContact() {
   const contact = await client.contacts.getContactById({
     id: createdResources.contactId,
   });
-  log(`  Retrieved contact: ${contact.id}`);
+  if (contact.id !== createdResources.contactId) {
+    throw new Error(`Contact ID mismatch: expected "${createdResources.contactId}", got "${contact.id}"`);
+  }
+  if (contact.firstName !== "Test" || contact.lastName !== "Contact") {
+    throw new Error(`Contact name mismatch: expected "Test Contact", got "${contact.firstName} ${contact.lastName}"`);
+  }
+  log(`  Retrieved contact: ${contact.id} (${contact.firstName} ${contact.lastName})`);
   return true;
 }
 
@@ -204,6 +256,9 @@ async function testCreateOrder() {
     customerId: createdResources.customerId,
   });
   createdResources.orderId = order.id;
+  if (order.customerId !== createdResources.customerId) {
+    throw new Error(`Order customerId mismatch: expected "${createdResources.customerId}", got "${order.customerId}"`);
+  }
   log(`  Created order: ${order.id}`);
   return true;
 }
@@ -217,6 +272,12 @@ async function testGetOrder() {
   const order = await client.orders.getOrderById({
     id: createdResources.orderId,
   });
+  if (order.id !== createdResources.orderId) {
+    throw new Error(`Order ID mismatch: expected "${createdResources.orderId}", got "${order.id}"`);
+  }
+  if (order.customerId !== createdResources.customerId) {
+    throw new Error(`Order customerId mismatch: expected "${createdResources.customerId}", got "${order.customerId}"`);
+  }
   log(`  Retrieved order: ${order.id}`);
   return true;
 }

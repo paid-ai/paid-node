@@ -41,7 +41,7 @@ jobs:
       - name: Test
         run: pnpm test
 
-  smoke-test:
+  e2e:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -59,7 +59,7 @@ jobs:
       - name: Build
         run: pnpm build
 
-      - name: Run smoke tests
+      - name: Run E2E tests
         env:
           PAID_API_TOKEN: ${{ secrets.PAID_API_TOKEN }}
           COMMIT_HASH: ${{ github.sha }}
