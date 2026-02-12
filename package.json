@@ -81,6 +81,18 @@
             },
             "default": "./dist/cjs/vercel-wrapper/index.js"
         },
+        "./ai-sdk": {
+            "types": "./dist/cjs/ai-sdk-wrapper/index.d.ts",
+            "import": {
+                "types": "./dist/esm/ai-sdk-wrapper/index.d.mts",
+                "default": "./dist/esm/ai-sdk-wrapper/index.mjs"
+            },
+            "require": {
+                "types": "./dist/cjs/ai-sdk-wrapper/index.d.ts",
+                "default": "./dist/cjs/ai-sdk-wrapper/index.js"
+            },
+            "default": "./dist/cjs/ai-sdk-wrapper/index.js"
+        },
         "./tracing": {
             "types": "./dist/cjs/tracing/index.d.ts",
             "import": {
@@ -259,6 +271,9 @@
             ],
             "vercel": [
                 "./dist/cjs/vercel-wrapper/index.d.ts"
+            ],
+            "ai-sdk": [
+                "./dist/cjs/ai-sdk-wrapper/index.d.ts"
             ],
             "tracing": [
                 "./dist/cjs/tracing/index.d.ts"
