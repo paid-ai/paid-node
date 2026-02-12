@@ -161,7 +161,7 @@ async function testOpenAIChatCompletion(): Promise<boolean> {
         const completion = await openai.chat.completions.create({
           model: "gpt-5-nano",
           messages: [{ role: "user", content: "Say 'Hello from E2E test' in exactly 5 words." }],
-          max_tokens: 20,
+          max_completion_tokens: 20,
         });
         return completion;
       }
@@ -317,7 +317,7 @@ async function testOpenAIStreamingChatCompletion(): Promise<boolean> {
         return await openai.chat.completions.create({
           model: "gpt-5-nano",
           messages: [{ role: "user", content: testPrompt }],
-          max_tokens: 20,
+          max_completion_tokens: 20,
           stream: false,
         });
       }
@@ -336,7 +336,7 @@ async function testOpenAIStreamingChatCompletion(): Promise<boolean> {
         const stream = await openai.chat.completions.create({
           model: "gpt-5-nano",
           messages: [{ role: "user", content: testPrompt }],
-          max_tokens: 20,
+          max_completion_tokens: 20,
           stream: true,
           stream_options: { include_usage: true },
         });
@@ -425,33 +425,43 @@ async function testAnthropicStreamingMessages(): Promise<boolean> {
     const expectedInputTokens = nonStreamResponse.usage.input_tokens;
     log(`  Non-streaming baseline - Input tokens: ${expectedInputTokens}`);
 
-    // Now make a streaming call with the same prompt
+    // Now make a streaming call with the same prompt using stream: true parameter
     const streamResult = await trace(
       {
         externalCustomerId: `${testPrefix}-external-customer`,
         externalProductId: `${testPrefix}-external-product`,
       },
       async () => {
-        const stream = anthropic.messages.stream({
+        const stream = await anthropic.messages.create({
           model: "claude-haiku-4-5",
           max_tokens: 20,
           messages: [{ role: "user", content: testPrompt }],
+          stream: true,
         });
 
         let fullContent = "";
+        let inputTokens = 0;
+        let outputTokens = 0;
 
         for await (const event of stream) {
+          if (event.type === "message_start" && event.message.usage) {
+            // message_start contains input_tokens (comes first)
+            inputTokens = event.message.usage.input_tokens;
+          }
           if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
             fullContent += event.delta.text;
           }
+          if (event.type === "message_delta" && event.usage) {
+            // message_delta contains output_tokens (comes last)
+            outputTokens = event.usage.output_tokens;
+          }
         }
 
-        // Get the final message which includes usage
-        const finalMessage = await stream.finalMessage();
+        const usage = { input_tokens: inputTokens, output_tokens: outputTokens };
 
         return {
           content: fullContent,
-          usage: finalMessage.usage,
+          usage,
         };
       }
     );
@@ -507,7 +517,7 @@ async function testSignalCapture(): Promise<boolean> {
         await openai.chat.completions.create({
           model: "gpt-5-nano",
           messages: [{ role: "user", content: "Hi" }],
-          max_tokens: 5,
+          max_completion_tokens: 5,
         });
 
         // Send a signal with cost tracing enabled
@@ -554,7 +564,7 @@ async function testMultiProviderTracing(): Promise<boolean> {
         const openaiResponse = await openai.chat.completions.create({
           model: "gpt-5-nano",
           messages: [{ role: "user", content: "Say 'OpenAI'" }],
-          max_tokens: 10,
+          max_completion_tokens: 10,
         });
 
         // Call Anthropic
