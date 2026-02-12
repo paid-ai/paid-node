@@ -64,7 +64,7 @@ export class Products {
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
                     environments.PaidEnvironment.Default,
-                "productss/",
+                "products/",
             ),
             method: "GET",
             headers: _headers,
