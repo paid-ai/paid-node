@@ -2,22 +2,25 @@
  * SDK Tracing E2E Test Script
  *
  * This script tests the Paid SDK tracing functionality with real AI providers.
- * It tests auto-instrumentation capabilities for OpenAI and Anthropic providers.
+ * It validates the full data flow: auto-instrumentation -> signal capture -> API verification.
  *
  * Required environment variables:
  * - PAID_API_TOKEN: API token for Paid tracing and REST API
  * - OPENAI_API_KEY: API key for OpenAI (optional, skips OpenAI tests if not set)
  * - ANTHROPIC_API_KEY: API key for Anthropic (optional, skips Anthropic tests if not set)
+ * - PAID_API_BASE_URL: Base URL for Paid API (optional, defaults to https://api.paid.ai)
  *
  * Test coverage:
  * 1. Auto-instrumentation initialization with paidAutoInstrument
  * 2. OpenAI native SDK - chat completions, embeddings (auto-instrumented)
  * 3. OpenAI streaming chat completions with token usage validation
  * 4. Anthropic native SDK - messages (auto-instrumented)
- * 5. Anthropic streaming messages with token usage validation
- * 6. Signal capture with trace() and signal()
- * 7. Multi-provider tracing in single trace context
- * 8. Signals REST API (createSignals)
+ * 5. Signal capture with trace() and signal()
+ * 6. Multi-provider tracing in single trace context
+ * 7. Signals REST API (createSignals)
+ * 8. Signal verification - read back signals from analytics API to verify:
+ *    - Auto-instrumented signals are captured with correct model/token data
+ *    - REST API created signals are recorded in ClickHouse
  */
 
 import { PaidClient } from "../../dist/cjs/index.js";
