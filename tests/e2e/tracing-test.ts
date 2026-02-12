@@ -159,7 +159,7 @@ async function testOpenAIChatCompletion(): Promise<boolean> {
       },
       async () => {
         const completion = await openai.chat.completions.create({
-          model: "gpt-4o-mini",
+          model: "gpt-5-nano",
           messages: [{ role: "user", content: "Say 'Hello from E2E test' in exactly 5 words." }],
           max_tokens: 20,
         });
@@ -260,7 +260,7 @@ async function testAnthropicMessages(): Promise<boolean> {
       },
       async () => {
         const message = await anthropic.messages.create({
-          model: "claude-3-5-haiku-latest",
+          model: "claude-haiku-4-5",
           max_tokens: 50,
           messages: [{ role: "user", content: "Say 'Hello from E2E test' in exactly 5 words." }],
         });
@@ -315,7 +315,7 @@ async function testOpenAIStreamingChatCompletion(): Promise<boolean> {
       },
       async () => {
         return await openai.chat.completions.create({
-          model: "gpt-4o-mini",
+          model: "gpt-5-nano",
           messages: [{ role: "user", content: testPrompt }],
           max_tokens: 20,
           stream: false,
@@ -334,7 +334,7 @@ async function testOpenAIStreamingChatCompletion(): Promise<boolean> {
       },
       async () => {
         const stream = await openai.chat.completions.create({
-          model: "gpt-4o-mini",
+          model: "gpt-5-nano",
           messages: [{ role: "user", content: testPrompt }],
           max_tokens: 20,
           stream: true,
@@ -415,7 +415,7 @@ async function testAnthropicStreamingMessages(): Promise<boolean> {
       },
       async () => {
         return await anthropic.messages.create({
-          model: "claude-3-5-haiku-latest",
+          model: "claude-haiku-4-5",
           max_tokens: 20,
           messages: [{ role: "user", content: testPrompt }],
         });
@@ -433,7 +433,7 @@ async function testAnthropicStreamingMessages(): Promise<boolean> {
       },
       async () => {
         const stream = anthropic.messages.stream({
-          model: "claude-3-5-haiku-latest",
+          model: "claude-haiku-4-5",
           max_tokens: 20,
           messages: [{ role: "user", content: testPrompt }],
         });
@@ -505,7 +505,7 @@ async function testSignalCapture(): Promise<boolean> {
       async () => {
         // Make an API call to establish cost context
         await openai.chat.completions.create({
-          model: "gpt-4o-mini",
+          model: "gpt-5-nano",
           messages: [{ role: "user", content: "Hi" }],
           max_tokens: 5,
         });
@@ -552,14 +552,14 @@ async function testMultiProviderTracing(): Promise<boolean> {
       async () => {
         // Call OpenAI
         const openaiResponse = await openai.chat.completions.create({
-          model: "gpt-4o-mini",
+          model: "gpt-5-nano",
           messages: [{ role: "user", content: "Say 'OpenAI'" }],
           max_tokens: 10,
         });
 
         // Call Anthropic
         const anthropicResponse = await anthropic.messages.create({
-          model: "claude-3-5-haiku-latest",
+          model: "claude-haiku-4-5",
           max_tokens: 10,
           messages: [{ role: "user", content: "Say 'Anthropic'" }],
         });
@@ -615,7 +615,7 @@ async function testSignalsAPI(client: PaidClient): Promise<boolean> {
           attribution: createdResources.productId ? { productId: createdResources.productId } : undefined,
           data: {
             provider: "openai",
-            model: "gpt-4o-mini",
+            model: "gpt-5-nano",
             input_tokens: 100,
             output_tokens: 50,
           },
@@ -649,7 +649,7 @@ async function testSignalsAPI(client: PaidClient): Promise<boolean> {
           attribution: createdResources.productId ? { productId: createdResources.productId } : undefined,
           data: {
             provider: "anthropic",
-            model: "claude-3-5-haiku-latest",
+            model: "claude-haiku-4-5",
             input_tokens: 80,
             output_tokens: 30,
           },
@@ -718,7 +718,7 @@ async function testSignalsAPIProviderEvents(client: PaidClient): Promise<boolean
     {
       provider: "openai",
       events: [
-        { name: "chat_completion", model: "gpt-4o", input: 150, output: 200 },
+        { name: "chat_completion", model: "gpt-5-nano", input: 150, output: 200 },
         { name: "embedding", model: "text-embedding-3-large", input: 500 },
         { name: "image_generation", model: "dall-e-3", count: 1 },
       ],
@@ -726,8 +726,8 @@ async function testSignalsAPIProviderEvents(client: PaidClient): Promise<boolean
     {
       provider: "anthropic",
       events: [
-        { name: "message", model: "claude-3-5-sonnet-latest", input: 200, output: 150 },
-        { name: "message_with_cache", model: "claude-3-5-sonnet-latest", input: 1000, output: 100, cache_read: 800 },
+        { name: "message", model: "claude-haiku-4-5", input: 200, output: 150 },
+        { name: "message_with_cache", model: "claude-haiku-4-5", input: 1000, output: 100, cache_read: 800 },
       ],
     },
   ];
