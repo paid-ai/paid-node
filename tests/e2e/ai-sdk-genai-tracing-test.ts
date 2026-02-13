@@ -311,7 +311,7 @@ async function createProductWithCredits(): Promise<{ id: string; attributes: any
                     {
                         id: `${testPrefix}-credit-benefit`,
                         creditsCurrencyId: resources.creditsCurrencyId,
-                        recipient: "customer",
+                        recipient: "organization",
                         amount: 10000, // 10,000 credits
                         allocationCadence: "upfront",
                     },
