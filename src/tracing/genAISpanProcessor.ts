@@ -303,10 +303,20 @@ export class GenAISpanProcessor implements SpanProcessor {
             span.setAttribute("external_agent_id", externalAgentId);
         }
 
-        // Update span name with prefix
+        // Set event_name based on span kind for billing attribution
+        // The billing service uses event_name to match against product pricing eventName
+        const spanKind = (attrs[OPENINFERENCE_SPAN_KIND] || mappedAttrs[OPENINFERENCE_SPAN_KIND]) as string | undefined;
+        if (spanKind === OpenInferenceSpanKinds.LLM) {
+            span.setAttribute("event_name", "llm");
+        } else if (spanKind === OpenInferenceSpanKinds.EMBEDDING) {
+            span.setAttribute("event_name", "embedding");
+        }
+
+        // Update span name with prefix and .signal suffix
+        // The .signal suffix tells the collector to process this as a billable signal
         const name = readableSpan.name;
         if (name && !name.startsWith(GenAISpanProcessor.SPAN_NAME_PREFIX)) {
-            span.updateName(`${GenAISpanProcessor.SPAN_NAME_PREFIX}${name}`);
+            span.updateName(`${GenAISpanProcessor.SPAN_NAME_PREFIX}${name}.signal`);
         }
 
         // Handle content filtering if storePrompt is false

@@ -601,6 +601,7 @@ async function testGenerateTextWithTracing(): Promise<boolean> {
                     prompt: "Say 'Hello from AI SDK GenAI tracing test' in exactly 7 words.",
                     maxOutputTokens: 50,
                 });
+
                 return response;
             }
         );
@@ -685,6 +686,7 @@ async function testOpenAISdkWithTracing(): Promise<boolean> {
                     ],
                     max_tokens: 50,
                 });
+
                 return response;
             }
         );
