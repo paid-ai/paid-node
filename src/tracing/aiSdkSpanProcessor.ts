@@ -13,11 +13,14 @@ import type { SpanProcessor, Span, ReadableSpan } from "@opentelemetry/sdk-trace
 import { getTracingContext } from "./tracingContext.js";
 
 // AI SDK -> GenAI attribute mapping (essential for billing)
+// Supports both AI SDK v4 (promptTokens/completionTokens) and v5 (inputTokens/outputTokens)
 const ATTRIBUTE_MAP: Record<string, string> = {
     "ai.model.id": "gen_ai.request.model",
     "ai.model.provider": "gen_ai.system",
     "ai.usage.promptTokens": "gen_ai.usage.input_tokens",
     "ai.usage.completionTokens": "gen_ai.usage.output_tokens",
+    "ai.usage.inputTokens": "gen_ai.usage.input_tokens",
+    "ai.usage.outputTokens": "gen_ai.usage.output_tokens",
     "ai.response.model": "gen_ai.response.model",
     "ai.response.id": "gen_ai.response.id",
 };
@@ -68,8 +71,9 @@ export class AISDKSpanProcessor implements SpanProcessor {
         }
 
         // Calculate total tokens if we have input and output
-        const inputTokens = attrs["ai.usage.promptTokens"] as number | undefined;
-        const outputTokens = attrs["ai.usage.completionTokens"] as number | undefined;
+        // Support both AI SDK v4 (promptTokens) and v5 (inputTokens)
+        const inputTokens = (attrs["ai.usage.promptTokens"] ?? attrs["ai.usage.inputTokens"]) as number | undefined;
+        const outputTokens = (attrs["ai.usage.completionTokens"] ?? attrs["ai.usage.outputTokens"]) as number | undefined;
         if (inputTokens !== undefined && outputTokens !== undefined) {
             attrs["gen_ai.usage.total_tokens"] = inputTokens + outputTokens;
         }
@@ -78,11 +82,16 @@ export class AISDKSpanProcessor implements SpanProcessor {
         const name = span.name.toLowerCase();
         attrs["event_name"] = name.includes("embed") ? "embedding" : "llm";
 
-        // Add span name prefix for collector
+        // Add span name prefix and signal suffix for collector
         // SpanImpl.name is a regular property, so we can modify it directly
-        if (!span.name.startsWith("paid.trace.")) {
-            (span as { name: string }).name = `paid.trace.${span.name}.signal`;
+        let finalName = span.name;
+        if (!finalName.startsWith("paid.trace.")) {
+            finalName = `paid.trace.${finalName}`;
         }
+        if (!finalName.endsWith(".signal")) {
+            finalName = `${finalName}.signal`;
+        }
+        (span as { name: string }).name = finalName;
     }
 
     async shutdown(): Promise<void> {}
