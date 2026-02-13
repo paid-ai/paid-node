@@ -779,8 +779,8 @@ async function testVerifyCreditsConsumed(
             log(`  SUCCESS: ${operationName} credits were consumed!`);
             return true;
         } else {
-            log(`  WARNING: ${operationName} credits were not consumed within expected time`);
-            return true; // Don't fail for now
+            log(`  FAILED: ${operationName} credits were not consumed within expected time`);
+            return false;
         }
     } catch (error: any) {
         throw new Error(`${operationName} credit verification failed: ${error.message}`);
