@@ -70,7 +70,7 @@ export async function paidAutoInstrument(libraries?: SupportedLibraries): Promis
         return;
     }
 
-    initializeTracing(); // try initializing tracing
+    initializeTracing({}); // try initializing tracing
 
     const tracerProvider = getPaidTracerProvider();
 

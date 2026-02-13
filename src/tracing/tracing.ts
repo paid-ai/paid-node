@@ -1,5 +1,5 @@
 import { SpanStatusCode } from "@opentelemetry/api";
-import type { Tracer } from "@opentelemetry/api";
+import type { Tracer, TracerProvider } from "@opentelemetry/api";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { NodeSDK } from "@opentelemetry/sdk-node";
 import { resourceFromAttributes } from "@opentelemetry/resources";
@@ -27,8 +27,8 @@ export function getToken(): string | undefined {
     return paidApiToken;
 }
 
-let paidTracerProvider: NodeTracerProvider | undefined = undefined;
-export function getPaidTracerProvider(): NodeTracerProvider | undefined {
+let paidTracerProvider: TracerProvider | undefined = undefined;
+export function getPaidTracerProvider(): TracerProvider | undefined {
     return paidTracerProvider;
 }
 
@@ -53,7 +53,38 @@ const setupGracefulShutdown = (shuttable: NodeSDK | SpanProcessor) => {
     });
 };
 
-export function initializeTracing(apiKey?: string, collectorEndpoint?: string): void {
+export interface InitializeTracingOptions {
+    apiKey?: string;
+    collectorEndpoint?: string;
+    tracerProvider?: TracerProvider;
+}
+
+/**
+ * Initialize the Paid tracing SDK.
+ *
+ * @param optionsOrApiKey - Either an options object or an API key string (for backward compatibility)
+ * @param collectorEndpoint - Optional collector endpoint (only used when first param is a string)
+ */
+export function initializeTracing(
+    optionsOrApiKey?: InitializeTracingOptions | string,
+    collectorEndpoint?: string,
+): void {
+    // Support both old API (string, string) and new API (options object)
+    let apiKey: string | undefined;
+    let endpoint: string | undefined;
+    let tracerProvider: TracerProvider | undefined;
+
+    if (typeof optionsOrApiKey === "string") {
+        // Old API: initializeTracing(apiKey, collectorEndpoint)
+        apiKey = optionsOrApiKey;
+        endpoint = collectorEndpoint;
+    } else {
+        // New API: initializeTracing({ apiKey, collectorEndpoint, tracerProvider })
+        apiKey = optionsOrApiKey?.apiKey;
+        endpoint = optionsOrApiKey?.collectorEndpoint;
+        tracerProvider = optionsOrApiKey?.tracerProvider;
+    }
+
     const paidEnabled = (process.env.PAID_ENABLED || "true") !== "false";
     if (!paidEnabled) {
         logger.info("Paid tracing is disabled via PAID_ENABLED environment variable");
@@ -78,14 +109,23 @@ export function initializeTracing(apiKey?: string, collectorEndpoint?: string): 
         paidApiToken = apiKey;
     }
 
-    const url = collectorEndpoint || DEFAULT_COLLECTOR_ENDPOINT;
+    // If a tracer provider is passed in, use it directly
+    if (tracerProvider) {
+        paidTracerProvider = tracerProvider;
+        paidTracer = paidTracerProvider.getTracer("paid.node");
+        logger.info("Paid tracing SDK initialized with external tracer provider");
+        return;
+    }
+
+    // Otherwise, create our own tracer provider (but don't register it globally)
+    const url = endpoint || DEFAULT_COLLECTOR_ENDPOINT;
     const exporter = new OTLPTraceExporter({ url });
     const spanProcessor = new SimpleSpanProcessor(exporter);
-    paidTracerProvider = new NodeTracerProvider({
+    const nodeTracerProvider = new NodeTracerProvider({
         resource: resourceFromAttributes({ "api.key": paidApiToken }),
         spanProcessors: [spanProcessor, new PaidSpanProcessor()],
     });
-    paidTracerProvider.register();
+    paidTracerProvider = nodeTracerProvider;
     paidTracer = paidTracerProvider.getTracer("paid.node");
     setupGracefulShutdown(spanProcessor);
     logger.info(`Paid tracing SDK initialized with collector endpoint: ${url}`);
