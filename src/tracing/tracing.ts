@@ -5,9 +5,10 @@ import { NodeSDK } from "@opentelemetry/sdk-node";
 import { resourceFromAttributes } from "@opentelemetry/resources";
 import { NodeTracerProvider, SimpleSpanProcessor } from "@opentelemetry/sdk-trace-node";
 import type { SpanProcessor } from "@opentelemetry/sdk-trace-node";
+import { registerInstrumentations } from "@opentelemetry/instrumentation";
 import winston from "winston";
 import { runWithTracingContext } from "./tracingContext.js";
-import { PaidSpanProcessor } from "./spanProcessor.js";
+import { GenAISpanProcessor } from "./genAISpanProcessor.js";
 
 export const logger: winston.Logger = winston.createLogger({
     level: "silent", // Default to 'silent' to avoid logging unless set via environment variable
@@ -53,7 +54,71 @@ const setupGracefulShutdown = (shuttable: NodeSDK | SpanProcessor) => {
     });
 };
 
-export function initializeTracing(apiKey?: string, collectorEndpoint?: string): void {
+let instrumentationsRegistered = false;
+
+/**
+ * Register OpenInference instrumentations for available AI SDK packages.
+ * Automatically detects which packages are installed and instruments them.
+ */
+async function registerAvailableInstrumentations(): Promise<void> {
+    if (instrumentationsRegistered || !paidTracerProvider) {
+        return;
+    }
+
+    const instrumentations: any[] = [];
+
+    // Try to register OpenAI instrumentation if package is available
+    try {
+        const { OpenAIInstrumentation } = await import("@arizeai/openinference-instrumentation-openai");
+        instrumentations.push(new OpenAIInstrumentation({ tracerProvider: paidTracerProvider }));
+        logger.debug("OpenAI instrumentation registered");
+    } catch {
+        logger.debug("OpenAI instrumentation not available - @arizeai/openinference-instrumentation-openai not installed");
+    }
+
+    // Try to register Anthropic instrumentation if package is available
+    try {
+        const { AnthropicInstrumentation } = await import("@arizeai/openinference-instrumentation-anthropic");
+        instrumentations.push(new AnthropicInstrumentation({ tracerProvider: paidTracerProvider }));
+        logger.debug("Anthropic instrumentation registered");
+    } catch {
+        logger.debug("Anthropic instrumentation not available - @arizeai/openinference-instrumentation-anthropic not installed");
+    }
+
+    if (instrumentations.length > 0) {
+        registerInstrumentations({
+            instrumentations,
+            tracerProvider: paidTracerProvider,
+        });
+        logger.info(`Registered ${instrumentations.length} OpenInference instrumentation(s)`);
+    }
+
+    instrumentationsRegistered = true;
+}
+
+export interface InitializeTracingOptions {
+    apiKey?: string;
+    collectorEndpoint?: string;
+}
+
+export async function initializeTracing(options?: InitializeTracingOptions): Promise<void>;
+export async function initializeTracing(apiKey?: string, collectorEndpoint?: string): Promise<void>;
+export async function initializeTracing(
+    apiKeyOrOptions?: string | InitializeTracingOptions,
+    collectorEndpoint?: string,
+): Promise<void> {
+    // Handle both old signature (apiKey, collectorEndpoint) and new signature (options)
+    let apiKey: string | undefined;
+    let endpoint: string | undefined;
+
+    if (typeof apiKeyOrOptions === "object" && apiKeyOrOptions !== null) {
+        apiKey = apiKeyOrOptions.apiKey;
+        endpoint = apiKeyOrOptions.collectorEndpoint;
+    } else {
+        apiKey = apiKeyOrOptions;
+        endpoint = collectorEndpoint;
+    }
+
     const paidEnabled = (process.env.PAID_ENABLED || "true") !== "false";
     if (!paidEnabled) {
         logger.info("Paid tracing is disabled via PAID_ENABLED environment variable");
@@ -62,7 +127,7 @@ export function initializeTracing(apiKey?: string, collectorEndpoint?: string): 
     const token = getToken();
 
     if (!!token) {
-        logger.info("Tracing is already initialized - skipping re-intialization");
+        logger.info("Tracing is already initialized - skipping re-initialization");
         return;
     }
 
@@ -78,17 +143,23 @@ export function initializeTracing(apiKey?: string, collectorEndpoint?: string): 
         paidApiToken = apiKey;
     }
 
-    const url = collectorEndpoint || DEFAULT_COLLECTOR_ENDPOINT;
+    const url = endpoint || DEFAULT_COLLECTOR_ENDPOINT;
     const exporter = new OTLPTraceExporter({ url });
     const spanProcessor = new SimpleSpanProcessor(exporter);
+
+    // Use GenAISpanProcessor which handles both AI SDK and direct OpenAI/Anthropic SDK calls
+    // It maps attributes to GenAI semantic conventions, adds event_name for billing, and .signal suffix
     paidTracerProvider = new NodeTracerProvider({
         resource: resourceFromAttributes({ "api.key": paidApiToken }),
-        spanProcessors: [spanProcessor, new PaidSpanProcessor()],
+        spanProcessors: [spanProcessor, new GenAISpanProcessor()],
     });
     paidTracerProvider.register();
     paidTracer = paidTracerProvider.getTracer("paid.node");
     setupGracefulShutdown(spanProcessor);
     logger.info(`Paid tracing SDK initialized with collector endpoint: ${url}`);
+
+    // Automatically register instrumentations for available AI packages
+    await registerAvailableInstrumentations();
 }
 
 export async function trace<F extends (...args: any[]) => any>(

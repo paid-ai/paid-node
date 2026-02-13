@@ -37,8 +37,8 @@ import { openai } from "@ai-sdk/openai";
 import { generateText, streamText } from "ai";
 import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
-// Import trace and initializeAISDKTracing for manual initialization
-import { trace, initializeAISDKTracing } from "../../dist/cjs/ai-sdk-wrapper/index.js";
+// Import trace and initializeTracing
+import { trace, initializeTracing } from "../../dist/cjs/ai-sdk-wrapper/index.js";
 
 // Environment configuration
 const PAID_API_TOKEN = process.env.PAID_API_TOKEN;
@@ -63,13 +63,7 @@ if (!ANTHROPIC_API_KEY) {
 }
 
 // Set PAID_API_KEY for tracing initialization
-// Note: This must be set before calling initializeAISDKTracing() since
-// static imports run before any code, and the auto-init would fail without the key
 process.env.PAID_API_KEY = PAID_API_TOKEN;
-
-// Manually initialize tracing now that PAID_API_KEY is set
-// Pass empty options to force re-initialization since auto-init failed (no API key at import time)
-initializeAISDKTracing({});
 
 // Initialize SDK clients
 const openaiClient = new OpenAI({ apiKey: OPENAI_API_KEY });
@@ -828,6 +822,9 @@ async function runTest(name: string, fn: () => Promise<boolean>, skippable = fal
 }
 
 async function main() {
+    // Initialize tracing (must be done after PAID_API_KEY is set)
+    await initializeTracing();
+
     log("=".repeat(70));
     log("AI SDK GenAI Tracing E2E Test - Multi-SDK Credits Verification");
     log("=".repeat(70));
@@ -870,23 +867,19 @@ async function main() {
     await Promise.all([
         runTest(
             "Verify GenerateText Credits Consumed",
-            () => testVerifyCreditsConsumed("GenerateText", resources.generateText),
-            true
+            () => testVerifyCreditsConsumed("GenerateText", resources.generateText)
         ),
         runTest(
             "Verify StreamText Credits Consumed",
-            () => testVerifyCreditsConsumed("StreamText", resources.streamText),
-            true
+            () => testVerifyCreditsConsumed("StreamText", resources.streamText)
         ),
         runTest(
             "Verify OpenAI SDK Credits Consumed",
-            () => testVerifyCreditsConsumed("OpenAI SDK", resources.openaiSdk),
-            true
+            () => testVerifyCreditsConsumed("OpenAI SDK", resources.openaiSdk)
         ),
         runTest(
             "Verify Anthropic SDK Credits Consumed",
-            () => testVerifyCreditsConsumed("Anthropic SDK", resources.anthropicSdk),
-            true
+            () => testVerifyCreditsConsumed("Anthropic SDK", resources.anthropicSdk)
         ),
     ]);
 
