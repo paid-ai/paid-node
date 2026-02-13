@@ -182,28 +182,33 @@ export async function trace<F extends (...args: any[]) => any>(
     }
     const { externalCustomerId, externalProductId: externalAgentId, storePrompt, metadata } = options;
 
-    return await tracer.startActiveSpan("parent_span", async (span) => {
-        try {
-            const res = await runWithTracingContext(
-                {
-                    externalCustomerId,
-                    externalProductId: externalAgentId,
-                    storePrompt,
-                    metadata,
-                },
-                async () => await fn(...args),
-            );
-            span.setStatus({ code: SpanStatusCode.OK });
-            return res;
-        } catch (error: any) {
-            span.setStatus({
-                code: SpanStatusCode.ERROR,
-                message: error.message,
+    // IMPORTANT: Set up the tracing context BEFORE creating any spans
+    // This ensures that onStart() in GenAISpanProcessor can access the context
+    // when spans are created (both the parent span and any child spans from instrumentation)
+    return await runWithTracingContext(
+        {
+            externalCustomerId,
+            externalProductId: externalAgentId,
+            storePrompt,
+            metadata,
+        },
+        async () => {
+            return await tracer.startActiveSpan("parent_span", async (span) => {
+                try {
+                    const res = await fn(...args);
+                    span.setStatus({ code: SpanStatusCode.OK });
+                    return res;
+                } catch (error: any) {
+                    span.setStatus({
+                        code: SpanStatusCode.ERROR,
+                        message: error.message,
+                    });
+                    span.recordException(error);
+                    throw error;
+                } finally {
+                    span.end();
+                }
             });
-            span.recordException(error);
-            throw error;
-        } finally {
-            span.end();
-        }
-    });
+        },
+    );
 }
