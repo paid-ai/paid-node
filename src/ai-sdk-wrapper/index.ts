@@ -41,8 +41,8 @@ import winston from "winston";
 import { runWithTracingContext } from "../tracing/tracingContext.js";
 import { AISDKSpanProcessor } from "../tracing/aiSdkSpanProcessor.js";
 
-// Re-export span processor and constants for advanced users
-export { AISDKSpanProcessor, GenAIAttributes, AISDKAttributes } from "../tracing/aiSdkSpanProcessor.js";
+// Re-export span processor for advanced users
+export { AISDKSpanProcessor } from "../tracing/aiSdkSpanProcessor.js";
 
 // Re-export signal for manual signal sending
 export { signal } from "../tracing/signal.js";
