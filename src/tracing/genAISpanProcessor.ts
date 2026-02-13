@@ -142,26 +142,65 @@ const PROVIDER_MAPPING: Record<string, string> = {
 };
 
 /**
- * Check if a span is from AI SDK based on its attributes
+ * Check if a span should be processed for billing attribution.
+ *
+ * This function is permissive to ensure we capture spans from:
+ * - Vercel AI SDK (ai.generateText, ai.streamText, etc.)
+ * - OpenInference instrumentation for OpenAI (openai.chat, ChatCompletion, etc.)
+ * - OpenInference instrumentation for Anthropic (anthropic.messages, Messages, etc.)
+ * - Any span with GenAI semantic convention attributes
  */
-function isAISDKSpan(span: ReadableSpan): boolean {
+function shouldProcessSpan(span: ReadableSpan): boolean {
     const attrs = span.attributes;
-    // Check for AI SDK specific attributes
-    return !!(
+    const name = span.name.toLowerCase();
+
+    // Check for AI SDK specific attributes (may be set at span start)
+    if (
         attrs[AISDKAttributes.MODEL_ID] ||
         attrs[AISDKAttributes.MODEL_PROVIDER] ||
         attrs[AISDKAttributes.OPERATION_ID] ||
         attrs[GenAIAttributes.REQUEST_MODEL] ||
-        attrs[GenAIAttributes.PROVIDER_NAME] ||
-        // Also check span name patterns
-        span.name.includes("ai.generateText") ||
-        span.name.includes("ai.streamText") ||
-        span.name.includes("ai.generateObject") ||
-        span.name.includes("ai.streamObject") ||
-        span.name.includes("ai.embed") ||
-        span.name.includes("ai.embedMany") ||
-        span.name.includes("ai.toolCall")
-    );
+        attrs[GenAIAttributes.PROVIDER_NAME]
+    ) {
+        return true;
+    }
+
+    // Check for OpenInference span kind attribute
+    if (attrs[OPENINFERENCE_SPAN_KIND]) {
+        return true;
+    }
+
+    // Check span name patterns for Vercel AI SDK
+    if (
+        name.includes("ai.generatetext") ||
+        name.includes("ai.streamtext") ||
+        name.includes("ai.generateobject") ||
+        name.includes("ai.streamobject") ||
+        name.includes("ai.embed") ||
+        name.includes("ai.toolcall")
+    ) {
+        return true;
+    }
+
+    // Check span name patterns for OpenInference OpenAI instrumentation
+    if (
+        name.includes("openai") ||
+        name.includes("chatcompletion") ||
+        name.includes("chat_completion") ||
+        name.includes("completion")
+    ) {
+        return true;
+    }
+
+    // Check span name patterns for OpenInference Anthropic instrumentation
+    if (
+        name.includes("anthropic") ||
+        name.includes("messages")
+    ) {
+        return true;
+    }
+
+    return false;
 }
 
 /**
@@ -240,13 +279,17 @@ export class GenAISpanProcessor implements SpanProcessor {
 
     onStart(span: Span, _parentContext?: Context): void {
         const readableSpan = span as unknown as ReadableSpan;
+        const { externalCustomerId, externalProductId: externalAgentId, storePrompt } = getTracingContext();
 
-        // Only process AI SDK spans
-        if (!isAISDKSpan(readableSpan)) {
+        // If we're in a trace() context with customer/product IDs, always add Paid attributes
+        // This ensures billing attribution works even if span attributes aren't set yet
+        const hasTracingContext = !!(externalCustomerId || externalAgentId);
+
+        // Only process spans that are AI-related or have tracing context
+        if (!hasTracingContext && !shouldProcessSpan(readableSpan)) {
             return;
         }
 
-        const { externalCustomerId, externalProductId: externalAgentId, storePrompt } = getTracingContext();
         const attrs = readableSpan.attributes;
 
         // Add GenAI semantic convention attributes by mapping from AI SDK attributes
