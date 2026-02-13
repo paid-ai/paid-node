@@ -304,6 +304,7 @@ async function createProductWithCredits(
         active: true,
         description: `Product for ${name} with credits`,
         ProductAttribute: [
+            // Attribute 1: Recurring fee that grants credits via creditBenefits
             {
                 name: `${name} Platform Fee`,
                 pricing: {
@@ -327,6 +328,22 @@ async function createProductWithCredits(
                         allocationCadence: "upfront",
                     },
                 ],
+            },
+            // Attribute 2: Usage-based attribute that consumes credits for LLM calls
+            {
+                name: `${name} LLM Usage`,
+                pricing: {
+                    chargeType: "usage",
+                    pricingModel: "PrepaidCredits",
+                    eventName: "llm",
+                    creditsCurrencyId,
+                    PricePoints: {
+                        USD: {
+                            unitPrice: 1, // 1 credit per unit of usage
+                            currency: "USD",
+                        },
+                    },
+                },
             },
         ],
     };
@@ -362,15 +379,26 @@ async function createOrder(
     productId: string,
     productAttributes: any[]
 ): Promise<string> {
-    const attr = productAttributes[0];
-    const usdPricePoint = attr.pricing.PricePoints?.USD || attr.pricing.pricePoint || {};
+    // Build order line attributes for ALL product attributes
+    const orderLineAttributes = productAttributes.map((attr) => {
+        const usdPricePoint = attr.pricing.PricePoints?.USD || attr.pricing.pricePoint || {};
+        const pricePoint: Record<string, unknown> = {
+            currency: "USD",
+            unitPrice: usdPricePoint.unitPrice || 0,
+        };
+        if (usdPricePoint.tiers) pricePoint.tiers = usdPricePoint.tiers;
 
-    const pricePoint: Record<string, unknown> = {
-        currency: "USD",
-        unitPrice: usdPricePoint.unitPrice || 0,
-    };
-
-    if (usdPricePoint.tiers) pricePoint.tiers = usdPricePoint.tiers;
+        return {
+            productAttributeId: attr.id,
+            productAttributeName: attr.name,
+            quantity: 1,
+            pricing: {
+                ...attr.pricing,
+                pricePoint,
+                creditBenefits: attr.creditBenefits,
+            },
+        };
+    });
 
     const orderData = {
         customerId,
@@ -379,19 +407,8 @@ async function createOrder(
         orderLines: [
             {
                 productId,
-                name: attr.name,
-                ProductAttribute: [
-                    {
-                        productAttributeId: attr.id,
-                        productAttributeName: attr.name,
-                        quantity: 1,
-                        pricing: {
-                            ...attr.pricing,
-                            pricePoint,
-                            creditBenefits: attr.creditBenefits,
-                        },
-                    },
-                ],
+                name: productAttributes[0]?.name || "Order Line",
+                ProductAttribute: orderLineAttributes,
             },
         ],
     };
