@@ -24,11 +24,15 @@ const ATTRIBUTE_MAP: Record<string, string> = {
 
 function isAISDKSpan(span: ReadableSpan): boolean {
     const attrs = span.attributes;
+    const name = span.name.toLowerCase();
+    // Check for AI SDK specific attributes (most reliable)
+    // Also check span name - account for PaidSpanProcessor prefix (paid.trace.ai.xxx)
     return !!(
         attrs["ai.model.id"] ||
         attrs["ai.model.provider"] ||
         attrs["ai.operationId"] ||
-        span.name.toLowerCase().startsWith("ai.")
+        name.startsWith("ai.") ||
+        name.includes(".ai.")
     );
 }
 
