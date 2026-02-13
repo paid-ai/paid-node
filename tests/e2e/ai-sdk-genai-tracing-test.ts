@@ -824,41 +824,45 @@ async function main() {
     log("=".repeat(70));
     await runTest("Tracing Auto-Initialized", testTracingAutoInitialized);
 
-    // Phase 3: AI Calls (4 different SDK/methods, each uses different credits currency)
+    // Phase 3: AI Calls (4 different SDK/methods, each uses different credits currency) - PARALLEL
     log("");
     log("=".repeat(70));
-    log("Phase 3: AI Calls (4 SDK Methods, Each Uses Different Credits Currency)");
+    log("Phase 3: AI Calls (4 SDK Methods in Parallel, Each Uses Different Credits Currency)");
     log("=".repeat(70));
-    await runTest("AI SDK generateText with Tracing", testGenerateTextWithTracing);
-    await runTest("AI SDK streamText with Tracing", testStreamTextWithTracing);
-    await runTest("OpenAI SDK with Tracing", testOpenAISdkWithTracing);
-    await runTest("Anthropic SDK with Tracing", testAnthropicSdkWithTracing);
+    await Promise.all([
+        runTest("AI SDK generateText with Tracing", testGenerateTextWithTracing),
+        runTest("AI SDK streamText with Tracing", testStreamTextWithTracing),
+        runTest("OpenAI SDK with Tracing", testOpenAISdkWithTracing),
+        runTest("Anthropic SDK with Tracing", testAnthropicSdkWithTracing),
+    ]);
 
-    // Phase 4: Credits Verification (Separate for each operation)
+    // Phase 4: Credits Verification (Separate for each operation) - PARALLEL
     log("");
     log("=".repeat(70));
-    log("Phase 4: Credits Consumption Verification (Independent per SDK)");
+    log("Phase 4: Credits Consumption Verification (Independent per SDK, Parallel)");
     log("=".repeat(70));
-    await runTest(
-        "Verify GenerateText Credits Consumed",
-        () => testVerifyCreditsConsumed("GenerateText", resources.generateText),
-        true
-    );
-    await runTest(
-        "Verify StreamText Credits Consumed",
-        () => testVerifyCreditsConsumed("StreamText", resources.streamText),
-        true
-    );
-    await runTest(
-        "Verify OpenAI SDK Credits Consumed",
-        () => testVerifyCreditsConsumed("OpenAI SDK", resources.openaiSdk),
-        true
-    );
-    await runTest(
-        "Verify Anthropic SDK Credits Consumed",
-        () => testVerifyCreditsConsumed("Anthropic SDK", resources.anthropicSdk),
-        true
-    );
+    await Promise.all([
+        runTest(
+            "Verify GenerateText Credits Consumed",
+            () => testVerifyCreditsConsumed("GenerateText", resources.generateText),
+            true
+        ),
+        runTest(
+            "Verify StreamText Credits Consumed",
+            () => testVerifyCreditsConsumed("StreamText", resources.streamText),
+            true
+        ),
+        runTest(
+            "Verify OpenAI SDK Credits Consumed",
+            () => testVerifyCreditsConsumed("OpenAI SDK", resources.openaiSdk),
+            true
+        ),
+        runTest(
+            "Verify Anthropic SDK Credits Consumed",
+            () => testVerifyCreditsConsumed("Anthropic SDK", resources.anthropicSdk),
+            true
+        ),
+    ]);
 
 
     // Summary
