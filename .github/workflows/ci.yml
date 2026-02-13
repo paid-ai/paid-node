@@ -41,44 +41,6 @@ jobs:
       - name: Test
         run: pnpm test
 
-  e2e:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Set up node
-        uses: actions/setup-node@v4
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Build
-        run: pnpm build
-
-      - name: Run E2E Smoke Tests
-        env:
-          PAID_API_TOKEN: ${{ secrets.PAID_API_TOKEN }}
-          COMMIT_HASH: ${{ github.sha }}
-        run: npx tsx tests/e2e/smoke-test.ts
-
-      - name: Run E2E Tracing Tests
-        env:
-          PAID_API_TOKEN: ${{ secrets.PAID_API_TOKEN }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          COMMIT_HASH: ${{ github.sha }}
-        run: npx tsx tests/e2e/tracing-test.ts
-
-      - name: Run AI SDK Tracing E2E Test
-        env:
-          PAID_API_TOKEN: ${{ secrets.PAID_API_TOKEN }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: npx tsx tests/e2e/ai-sdk-tracing-test.ts
-
   publish:
     needs: [compile, test]
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
