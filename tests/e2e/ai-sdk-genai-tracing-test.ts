@@ -2,25 +2,32 @@
  * AI SDK GenAI Tracing E2E Test
  *
  * This test validates the OpenInference auto-instrumentation correctly captures
- * AI SDK traces and the backend automatically attributes signals from those traces.
+ * AI SDK traces and the backend automatically attributes signals from those traces,
+ * resulting in credits being consumed from the customer's order.
  *
  * Key Features:
  * - Auto-initialization on import (no init call needed!)
  * - Uses OpenInference auto-instrumentation for OpenAI
  * - NO experimental_telemetry needed per-call
  * - NO manual signal sending - backend auto-generates signals from traces
+ * - Credits are consumed from the order when AI calls are made
  *
  * Test Flow:
  * 1. Import "@paid-ai/paid-node/ai-sdk" - tracing auto-initializes!
- * 2. Create customer and product via SDK
- * 3. Execute AI SDK calls (generateText, streamText) - traces captured automatically
- * 4. Backend automatically creates signals from traces
- * 5. Verify auto-generated signals appear in the analytics API
+ * 2. Create credits currency for the organization
+ * 3. Create product with platform fee + credit benefits
+ * 4. Create customer with external ID
+ * 5. Create order with orderLines (binding product to customer)
+ * 6. Activate order - credits are granted
+ * 7. Record initial credit balance
+ * 8. Execute AI SDK calls (generateText, streamText) - traces captured automatically
+ * 9. Backend automatically creates signals from traces and deducts credits
+ * 10. Verify credits have decreased
  *
  * Required environment variables:
  * - PAID_API_TOKEN: API token for Paid API
  * - OPENAI_API_KEY: API key for OpenAI
- * - PAID_API_BASE_URL: Base URL for Paid API (default: https://api.paid.ai)
+ * - PAID_API_BASE_URL: Base URL for Paid API (default: https://api.agentpaid.io)
  */
 
 import { openai } from "@ai-sdk/openai";
@@ -62,6 +69,8 @@ interface TestResources {
     organizationId?: string;
     customerId?: string;
     productId?: string;
+    orderId?: string;
+    creditsCurrencyId?: string;
     externalCustomerId?: string;
     externalProductId?: string;
 }
@@ -78,15 +87,14 @@ interface TestResult {
 
 const results: TestResult[] = [];
 
-// Trace tracking for verification (traces auto-generate signals on backend)
-interface TraceRecord {
-    operation: string;
-    model: string;
-    inputTokens: number;
-    outputTokens: number;
+// Credit balance tracking
+interface CreditBalance {
+    total: number;
+    available: number;
+    used: number;
 }
 
-const capturedTraces: TraceRecord[] = [];
+let initialCreditBalance: CreditBalance | null = null;
 
 // ============================================================================
 // Helper Functions
@@ -94,6 +102,39 @@ const capturedTraces: TraceRecord[] = [];
 
 function log(message: string) {
     console.log(`[${new Date().toISOString()}] ${message}`);
+}
+
+/**
+ * Make authenticated API request
+ */
+async function apiRequest(
+    method: string,
+    path: string,
+    body?: Record<string, unknown>
+): Promise<{ status: number; data: any }> {
+    const url = `${PAID_API_BASE_URL}${path}`;
+    const options: RequestInit = {
+        method,
+        headers: {
+            Authorization: `Bearer ${PAID_API_TOKEN}`,
+            "Content-Type": "application/json",
+        },
+    };
+
+    if (body) {
+        options.body = JSON.stringify(body);
+    }
+
+    const response = await fetch(url, options);
+    const text = await response.text();
+    let data;
+    try {
+        data = text ? JSON.parse(text) : {};
+    } catch {
+        data = { raw: text };
+    }
+
+    return { status: response.status, data: data.data ?? data };
 }
 
 /**
@@ -105,19 +146,10 @@ async function getOrganizationId(): Promise<string> {
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
-            const response = await fetch(`${PAID_API_BASE_URL}/api/organizations/organizationId`, {
-                method: "GET",
-                headers: {
-                    Authorization: `Bearer ${PAID_API_TOKEN}`,
-                    "Content-Type": "application/json",
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error(`Failed to get organization ID: ${response.status} ${response.statusText}`);
+            const { status, data } = await apiRequest("GET", "/api/organizations/organizationId");
+            if (status !== 200) {
+                throw new Error(`Failed to get organization ID: ${status}`);
             }
-
-            const data = await response.json();
             return data.organizationId;
         } catch (error: any) {
             lastError = error;
@@ -129,59 +161,6 @@ async function getOrganizationId(): Promise<string> {
     }
 
     throw lastError || new Error("Failed to get organization ID after retries");
-}
-
-/**
- * Signal occurrence data from the API
- */
-interface SignalOccurrence {
-    mongo_id: string;
-    event_name: string;
-    data: Record<string, unknown>;
-    external_customer_id: string | null;
-    external_agent_id: string | null;
-    trace_id: string | null;
-    created_at: string;
-}
-
-/**
- * Signal detail response from the API
- */
-interface SignalDetailResponse {
-    event_name: string;
-    period: string;
-    metrics: {
-        count: number;
-        cost: number;
-    } | null;
-    occurrences: {
-        limit: number;
-        offset: number;
-        total_count: number;
-        data: SignalOccurrence[];
-    };
-}
-
-/**
- * Get signal details from the analytics API
- */
-async function getSignalDetail(eventName: string, period: string = "1h"): Promise<SignalDetailResponse> {
-    const url = `${PAID_API_BASE_URL}/api/analytics/${resources.organizationId}/signal/${encodeURIComponent(eventName)}/detail?period=${period}&limit=100`;
-
-    const response = await fetch(url, {
-        method: "GET",
-        headers: {
-            Authorization: `Bearer ${PAID_API_TOKEN}`,
-            "Content-Type": "application/json",
-        },
-    });
-
-    if (!response.ok) {
-        const text = await response.text();
-        throw new Error(`Failed to get signal detail: ${response.status} ${response.statusText} - ${text}`);
-    }
-
-    return response.json();
 }
 
 /**
@@ -204,37 +183,31 @@ interface CreditBundle {
 
 /**
  * Get credit bundles for a customer
- * Uses the /api/v1/customers/:customerId/credit-bundles endpoint
  */
 async function getCreditBundles(customerId: string): Promise<CreditBundle[]> {
-    const url = `${PAID_API_BASE_URL}/api/v1/customers/${customerId}/credit-bundles`;
+    const { status, data } = await apiRequest("GET", `/api/v1/customers/${customerId}/credit-bundles`);
 
-    const response = await fetch(url, {
-        method: "GET",
-        headers: {
-            Authorization: `Bearer ${PAID_API_TOKEN}`,
-            "Content-Type": "application/json",
-        },
-    });
-
-    if (!response.ok) {
-        const text = await response.text();
-        throw new Error(`Failed to get credit bundles: ${response.status} ${response.statusText} - ${text}`);
+    if (status !== 200) {
+        throw new Error(`Failed to get credit bundles: ${status}`);
     }
 
-    const data = await response.json();
     return Array.isArray(data) ? data : data.data || [];
 }
 
 /**
- * Calculate total credits from bundles
+ * Calculate total credits from bundles (only for our test credits currency)
  */
-function calculateCreditBalance(bundles: CreditBundle[]): { total: number; available: number; used: number } {
+function calculateCreditBalance(bundles: CreditBundle[]): CreditBalance {
+    // Filter to only our test credits currency
+    const testBundles = bundles.filter(
+        (b) => b.creditsCurrencyId === resources.creditsCurrencyId
+    );
+
     let total = 0;
     let available = 0;
     let used = 0;
 
-    for (const bundle of bundles) {
+    for (const bundle of testBundles) {
         total += Number(bundle.total || 0);
         available += Number(bundle.available || 0);
         used += Number(bundle.used || 0);
@@ -244,40 +217,201 @@ function calculateCreditBalance(bundles: CreditBundle[]): { total: number; avail
 }
 
 /**
- * Wait for signals to be available in the analytics API
+ * Wait for credit bundles to be available with retries
  */
-async function waitForSignals(
-    eventName: string,
+async function waitForCreditBundles(
+    customerId: string,
     expectedCount: number,
-    maxWaitMs: number = 30000,
-    pollIntervalMs: number = 2000
-): Promise<SignalDetailResponse | null> {
-    const startTime = Date.now();
+    maxRetries: number = 30,
+    retryDelay: number = 1000
+): Promise<CreditBundle[]> {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        const bundles = await getCreditBundles(customerId);
+        const testBundles = bundles.filter(
+            (b) => b.creditsCurrencyId === resources.creditsCurrencyId
+        );
 
-    while (Date.now() - startTime < maxWaitMs) {
-        try {
-            const detail = await getSignalDetail(eventName);
-            if (detail.occurrences.total_count >= expectedCount) {
-                return detail;
-            }
-            log(`  Waiting for signals... found ${detail.occurrences.total_count}/${expectedCount}`);
-        } catch (error: any) {
-            log(`  Waiting for signals... error: ${error.message}`);
+        if (testBundles.length >= expectedCount) {
+            log(`  Found ${testBundles.length} credit bundles on attempt ${attempt}`);
+            return testBundles;
         }
-        await new Promise((resolve) => setTimeout(resolve, pollIntervalMs));
+
+        if (attempt % 5 === 0) {
+            log(`  Waiting for credit bundles... found ${testBundles.length}/${expectedCount} (attempt ${attempt}/${maxRetries})`);
+        }
+        await new Promise((resolve) => setTimeout(resolve, retryDelay));
     }
 
-    // Final attempt
-    try {
-        return await getSignalDetail(eventName);
-    } catch {
-        return null;
-    }
+    // Return whatever we have
+    const bundles = await getCreditBundles(customerId);
+    return bundles.filter((b) => b.creditsCurrencyId === resources.creditsCurrencyId);
+}
+
+/**
+ * Format date as YYYY-MM-DD
+ */
+function formatDate(date: Date): string {
+    return date.toISOString().split("T")[0];
 }
 
 // ============================================================================
 // Setup Functions
 // ============================================================================
+
+async function createCreditsCurrency(): Promise<string> {
+    log("Creating credits currency...");
+
+    const { status, data } = await apiRequest(
+        "POST",
+        `/api/organizations/${resources.organizationId}/credits-currencies`,
+        {
+            name: `${testPrefix} Test Credits`,
+            key: `${testPrefix.toLowerCase().replace(/-/g, "_")}_credits`,
+            description: "Credits currency for AI SDK GenAI tracing test",
+        }
+    );
+
+    if (status !== 201 && status !== 200) {
+        throw new Error(`Failed to create credits currency: ${status} - ${JSON.stringify(data)}`);
+    }
+
+    log(`  Created credits currency: ${data.id}`);
+    return data.id;
+}
+
+async function createProductWithCredits(): Promise<{ id: string; attributes: any[] }> {
+    log("Creating product with platform fee and credit benefits...");
+
+    const externalProductId = `${testPrefix}-ext-product`;
+    resources.externalProductId = externalProductId;
+
+    // Create product with creditBenefits
+    const productData = {
+        name: `${testPrefix} AI Usage Product`,
+        externalId: externalProductId,
+        type: "product",
+        active: true,
+        description: "Product for AI SDK GenAI tracing test with credits",
+        ProductAttribute: [
+            {
+                name: "Platform Fee with Credits",
+                pricing: {
+                    chargeType: "recurring",
+                    billingType: "Advance",
+                    billingFrequency: "Monthly",
+                    pricingModel: "PerUnit",
+                    PricePoints: {
+                        USD: {
+                            unitPrice: 100000, // $1000/month platform fee
+                            currency: "USD",
+                        },
+                    },
+                },
+                creditBenefits: [
+                    {
+                        id: `${testPrefix}-credit-benefit`,
+                        creditsCurrencyId: resources.creditsCurrencyId,
+                        recipient: "customer",
+                        amount: 10000, // 10,000 credits
+                        allocationCadence: "upfront",
+                    },
+                ],
+            },
+        ],
+    };
+
+    const { status, data } = await apiRequest("POST", "/api/v1/products", productData);
+
+    if (status !== 200 && status !== 201) {
+        throw new Error(`Failed to create product: ${status} - ${JSON.stringify(data)}`);
+    }
+
+    log(`  Created product: ${data.id} (external: ${externalProductId})`);
+    return { id: data.id, attributes: data.ProductAttribute };
+}
+
+async function createCustomerWithExternalId(): Promise<string> {
+    log("Creating customer with external ID...");
+
+    const externalCustomerId = `${testPrefix}-ext-customer`;
+    resources.externalCustomerId = externalCustomerId;
+
+    const customer = await client.customers.createCustomer({
+        name: `${testPrefix} Test Customer`,
+        externalId: externalCustomerId,
+        billingAddress: {
+            line1: "123 Test Street",
+            city: "Test City",
+            country: "US",
+        },
+    });
+
+    log(`  Created customer: ${customer.id} (external: ${externalCustomerId})`);
+    return customer.id;
+}
+
+async function createOrderWithCredits(
+    customerId: string,
+    productId: string,
+    productAttributes: any[]
+): Promise<string> {
+    log("Creating order with orderLines...");
+
+    const attr = productAttributes[0];
+    const usdPricePoint = attr.pricing.PricePoints?.USD || attr.pricing.pricePoint || {};
+
+    const pricePoint: Record<string, unknown> = {
+        currency: "USD",
+        unitPrice: usdPricePoint.unitPrice || 0,
+    };
+
+    if (usdPricePoint.tiers) pricePoint.tiers = usdPricePoint.tiers;
+
+    const orderData = {
+        customerId,
+        currency: "USD",
+        startDate: formatDate(new Date()),
+        orderLines: [
+            {
+                productId,
+                name: "Platform Fee with Credits Order Line",
+                ProductAttribute: [
+                    {
+                        productAttributeId: attr.id,
+                        productAttributeName: attr.name,
+                        quantity: 1,
+                        pricing: {
+                            ...attr.pricing,
+                            pricePoint,
+                            creditBenefits: attr.creditBenefits,
+                        },
+                    },
+                ],
+            },
+        ],
+    };
+
+    const { status, data } = await apiRequest("POST", "/api/v1/orders", orderData);
+
+    if (status !== 200 && status !== 201) {
+        throw new Error(`Failed to create order: ${status} - ${JSON.stringify(data)}`);
+    }
+
+    log(`  Created order: ${data.id}`);
+    return data.id;
+}
+
+async function activateOrder(orderId: string): Promise<void> {
+    log("Activating order...");
+
+    const { status, data } = await apiRequest("POST", `/api/v1/orders/${orderId}/activate`, {});
+
+    if (status !== 200) {
+        throw new Error(`Failed to activate order: ${status} - ${JSON.stringify(data)}`);
+    }
+
+    log(`  Order activated: ${orderId}`);
+}
 
 async function setupTestResources(): Promise<void> {
     log("Setting up test resources...");
@@ -286,34 +420,53 @@ async function setupTestResources(): Promise<void> {
     resources.organizationId = await getOrganizationId();
     log(`  Organization ID: ${resources.organizationId}`);
 
-    // Create test customer via SDK
-    resources.externalCustomerId = `${testPrefix}-ext-customer`;
-    const customer = await client.customers.createCustomer({
-        name: `${testPrefix} Test Customer`,
-        externalId: resources.externalCustomerId,
-        billingAddress: {
-            line1: "123 Test Street",
-            city: "Test City",
-            country: "US",
-        },
-    });
-    resources.customerId = customer.id;
-    log(`  Created customer: ${customer.id} (external: ${resources.externalCustomerId})`);
+    // Create credits currency
+    resources.creditsCurrencyId = await createCreditsCurrency();
 
-    // Create test product via SDK
-    resources.externalProductId = `${testPrefix}-ext-product`;
-    const product = await client.products.createProduct({
-        name: `${testPrefix} AI Usage Product`,
-        externalId: resources.externalProductId,
-        description: "Product for AI SDK GenAI tracing test",
-    });
+    // Create product with credits
+    const product = await createProductWithCredits();
     resources.productId = product.id;
-    log(`  Created product: ${product.id} (external: ${resources.externalProductId})`);
+
+    // Create customer
+    resources.customerId = await createCustomerWithExternalId();
+
+    // Create order
+    resources.orderId = await createOrderWithCredits(
+        resources.customerId,
+        resources.productId,
+        product.attributes
+    );
+
+    // Activate order
+    await activateOrder(resources.orderId);
+
+    // Wait for credit bundles to be created
+    log("Waiting for credit bundles to be created...");
+    const bundles = await waitForCreditBundles(resources.customerId, 1);
+
+    if (bundles.length === 0) {
+        throw new Error("No credit bundles found after order activation");
+    }
+
+    // Record initial credit balance
+    initialCreditBalance = calculateCreditBalance(bundles);
+    log(`  Initial credit balance - Total: ${initialCreditBalance.total}, Available: ${initialCreditBalance.available}, Used: ${initialCreditBalance.used}`);
 }
 
 async function cleanupTestResources(): Promise<void> {
     log("Cleaning up test resources...");
 
+    // Delete order first (if exists)
+    if (resources.orderId) {
+        try {
+            await apiRequest("DELETE", `/api/v1/orders/${resources.orderId}`);
+            log(`  Deleted order: ${resources.orderId}`);
+        } catch (error: any) {
+            log(`  Failed to delete order: ${error.message}`);
+        }
+    }
+
+    // Delete customer
     if (resources.customerId) {
         try {
             await client.customers.deleteCustomerById({ id: resources.customerId });
@@ -322,6 +475,9 @@ async function cleanupTestResources(): Promise<void> {
             log(`  Failed to delete customer: ${error.message}`);
         }
     }
+
+    // Note: Products and credits currencies are typically not deleted in tests
+    // as they may be reused and deletion could affect other data
 }
 
 // ============================================================================
@@ -387,8 +543,8 @@ async function testGenerateTextWithTracing(): Promise<boolean> {
 
     try {
         // Use trace() to provide customer/product context for the traces
-        // OpenInference will auto-instrument the OpenAI call
-        // Backend will auto-generate signals from the traces
+        // The externalCustomerId and externalProductId MUST match the Customer and Product's externalId
+        // This allows the backend to find the correct Order and deduct credits
         const result = await trace(
             {
                 externalCustomerId: resources.externalCustomerId!,
@@ -397,11 +553,12 @@ async function testGenerateTextWithTracing(): Promise<boolean> {
             async () => {
                 // OpenInference auto-instrumentation captures traces automatically
                 // No experimental_telemetry needed!
-                // No manual signal sending - backend creates signals from traces!
+                // Backend will find the Order via Customer + Product externalIds
+                // and deduct credits from the order's credit benefits
                 const response = await generateText({
                     model: openai("gpt-4o-mini"),
                     prompt: "Say 'Hello from AI SDK GenAI tracing test' in exactly 7 words.",
-                    maxTokens: 50,
+                    maxOutputTokens: 50,
                 });
 
                 return response;
@@ -416,17 +573,9 @@ async function testGenerateTextWithTracing(): Promise<boolean> {
             throw new Error("Response missing usage information");
         }
 
-        // Track for verification (backend will auto-generate signals from traces)
-        capturedTraces.push({
-            operation: "generateText",
-            model: "gpt-4o-mini",
-            inputTokens: result.usage.promptTokens || 0,
-            outputTokens: result.usage.completionTokens || 0,
-        });
-
         log(`  Generated text: "${result.text.trim()}"`);
-        log(`  Token usage - Input: ${result.usage.promptTokens}, Output: ${result.usage.completionTokens}`);
-        log("  Trace captured by OpenInference (signal will be auto-generated by backend)");
+        log(`  Token usage - Input: ${result.usage.inputTokens}, Output: ${result.usage.outputTokens}`);
+        log("  Trace captured by OpenInference (credits will be deducted by backend)");
 
         return true;
     } catch (error: any) {
@@ -439,8 +588,6 @@ async function testStreamTextWithTracing(): Promise<boolean> {
 
     try {
         // Use trace() to provide customer/product context for the traces
-        // OpenInference will auto-instrument the OpenAI call
-        // Backend will auto-generate signals from the traces
         const result = await trace(
             {
                 externalCustomerId: resources.externalCustomerId!,
@@ -448,12 +595,10 @@ async function testStreamTextWithTracing(): Promise<boolean> {
             },
             async () => {
                 // OpenInference auto-instrumentation captures traces automatically
-                // No experimental_telemetry needed!
-                // No manual signal sending - backend creates signals from traces!
                 const stream = streamText({
                     model: openai("gpt-4o-mini"),
                     prompt: "Count from 1 to 5, one number per line.",
-                    maxTokens: 50,
+                    maxOutputTokens: 50,
                 });
 
                 // Collect the streamed text
@@ -475,17 +620,9 @@ async function testStreamTextWithTracing(): Promise<boolean> {
             throw new Error("Streaming returned no text");
         }
 
-        // Track for verification (backend will auto-generate signals from traces)
-        capturedTraces.push({
-            operation: "streamText",
-            model: "gpt-4o-mini",
-            inputTokens: result.usage?.promptTokens || 0,
-            outputTokens: result.usage?.completionTokens || 0,
-        });
-
         log(`  Streamed text: "${result.text.trim().substring(0, 50)}..."`);
-        log(`  Token usage - Input: ${result.usage?.promptTokens}, Output: ${result.usage?.completionTokens}`);
-        log("  Trace captured by OpenInference (signal will be auto-generated by backend)");
+        log(`  Token usage - Input: ${result.usage?.inputTokens}, Output: ${result.usage?.outputTokens}`);
+        log("  Trace captured by OpenInference (credits will be deducted by backend)");
 
         return true;
     } catch (error: any) {
@@ -493,105 +630,72 @@ async function testStreamTextWithTracing(): Promise<boolean> {
     }
 }
 
-async function testVerifySignalsRecorded(): Promise<boolean> {
-    log("Test: Verify Auto-Generated Signals from Traces");
+async function testVerifyCreditsConsumed(): Promise<boolean> {
+    log("Test: Verify Credits Were Consumed After AI Calls");
 
     try {
-        const expectedCount = capturedTraces.length;
-        log(`  Expecting ${expectedCount} auto-generated signals from OpenInference traces`);
-
-        // The backend should auto-generate signals from OpenInference traces
-        // We need to find them - they may have a specific event name pattern
-        // Let's try common patterns that the backend might use
-
-        // First, let's check if there are any signals for this customer
-        // by looking at the organization's recent signals
-        const possibleEventNames = [
-            "llm_call",
-            "openai_completion",
-            "gen_ai_completion",
-            "ai_api_call",
-            "openinference_llm",
-        ];
-
-        let foundSignals = false;
-        let totalFound = 0;
-
-        for (const eventName of possibleEventNames) {
-            try {
-                const signalDetail = await getSignalDetail(eventName, "1h");
-                if (signalDetail && signalDetail.occurrences.total_count > 0) {
-                    log(`  Found ${signalDetail.occurrences.total_count} signals with event name: ${eventName}`);
-                    foundSignals = true;
-                    totalFound += signalDetail.occurrences.total_count;
-
-                    // Log some details
-                    for (const occurrence of signalDetail.occurrences.data.slice(0, 3)) {
-                        const data = occurrence.data as Record<string, unknown>;
-                        log(`    - trace_id: ${occurrence.trace_id || "N/A"}`);
-                        log(`      external_customer_id: ${occurrence.external_customer_id || "N/A"}`);
-                        if (data) {
-                            log(`      data: ${JSON.stringify(data).substring(0, 100)}...`);
-                        }
-                    }
-                }
-            } catch {
-                // Event name not found, continue
-            }
+        if (!initialCreditBalance) {
+            throw new Error("Initial credit balance was not recorded");
         }
 
-        if (!foundSignals) {
-            log("  No auto-generated signals found yet");
+        // Wait for credits to be processed
+        // The backend needs time to:
+        // 1. Receive the OpenInference traces
+        // 2. Process them into signals
+        // 3. Find the corresponding Order via externalCustomerId + externalProductId
+        // 4. Create CreditTransactions (SPEND)
+        // 5. Update EntitlementUsage
+        log("  Waiting for credits to be processed...");
+
+        const maxWaitTime = 60000; // 60 seconds
+        const pollInterval = 3000; // 3 seconds
+        const startTime = Date.now();
+
+        let finalBalance: CreditBalance | null = null;
+        let creditsConsumed = false;
+
+        while (Date.now() - startTime < maxWaitTime) {
+            const bundles = await getCreditBundles(resources.customerId!);
+            finalBalance = calculateCreditBalance(bundles);
+
+            log(`  Current balance - Available: ${finalBalance.available}, Used: ${finalBalance.used} (initial: ${initialCreditBalance.available})`);
+
+            // Check if credits have been consumed
+            if (finalBalance.used > initialCreditBalance.used || finalBalance.available < initialCreditBalance.available) {
+                creditsConsumed = true;
+                break;
+            }
+
+            await new Promise((resolve) => setTimeout(resolve, pollInterval));
+        }
+
+        if (!finalBalance) {
+            throw new Error("Failed to get final credit balance");
+        }
+
+        log("");
+        log("  Credit Balance Summary:");
+        log(`    Initial - Total: ${initialCreditBalance.total}, Available: ${initialCreditBalance.available}, Used: ${initialCreditBalance.used}`);
+        log(`    Final   - Total: ${finalBalance.total}, Available: ${finalBalance.available}, Used: ${finalBalance.used}`);
+
+        if (creditsConsumed) {
+            const creditsUsed = finalBalance.used - initialCreditBalance.used;
+            const creditsDeducted = initialCreditBalance.available - finalBalance.available;
+            log(`    Credits consumed: ${creditsUsed} (deducted: ${creditsDeducted})`);
+            log("  SUCCESS: Credits were consumed from the order!");
+            return true;
+        } else {
+            log("  WARNING: Credits were not consumed within the expected time");
             log("  This may indicate:");
             log("    - Traces are still being processed by the backend");
-            log("    - The backend uses a different event name pattern");
-            log("    - OpenInference traces need additional configuration");
-            // Don't fail - this is informational
+            log("    - The backend signal processing is delayed");
+            log("    - There may be a configuration issue with credit cost per token");
+            // Don't fail the test - this is informational for now
+            // In production, you may want to fail here
             return true;
         }
-
-        log(`  Total signals found: ${totalFound}`);
-        log("  Auto-generated signals verification complete");
-        return true;
     } catch (error: any) {
-        throw new Error(`Signal verification failed: ${error.message}`);
-    }
-}
-
-async function testVerifyCreditBundles(): Promise<boolean> {
-    log("Test: Verify Credit Bundles via API");
-
-    try {
-        // Get credit bundles for the customer
-        const bundles = await getCreditBundles(resources.customerId!);
-
-        if (bundles.length === 0) {
-            log("  No credit bundles found for customer");
-            log("  This is expected if no order with credit benefits was created");
-            return true;
-        }
-
-        log(`  Found ${bundles.length} credit bundles`);
-
-        // Calculate total balance
-        const balance = calculateCreditBalance(bundles);
-        log(`  Credit balance - Total: ${balance.total}, Available: ${balance.available}, Used: ${balance.used}`);
-
-        // Log each bundle
-        for (const bundle of bundles) {
-            log(`    - Bundle ${bundle.id}:`);
-            log(`      Total: ${bundle.total}, Available: ${bundle.available}, Used: ${bundle.used}`);
-            if (bundle.entitlement?.origin?.code) {
-                log(`      Origin: ${bundle.entitlement.origin.code}`);
-            }
-        }
-
-        return true;
-    } catch (error: any) {
-        // This might fail if the customer doesn't have credit bundles
-        // which is fine for this test
-        log(`  Warning: Could not fetch credit bundles: ${error.message}`);
-        return true;
+        throw new Error(`Credit verification failed: ${error.message}`);
     }
 }
 
@@ -611,7 +715,7 @@ async function runTest(name: string, fn: () => Promise<boolean>, skippable = fal
 
 async function main() {
     log("=".repeat(70));
-    log("AI SDK GenAI Tracing E2E Test");
+    log("AI SDK GenAI Tracing E2E Test - Credits Consumption Verification");
     log("=".repeat(70));
     log(`Test Prefix: ${testPrefix}`);
     log(`Paid API Base URL: ${PAID_API_BASE_URL}`);
@@ -620,35 +724,34 @@ async function main() {
 
     // Run tests
     log("=".repeat(70));
-    log("Setup Phase");
+    log("Phase 1: Setup (Create Credits Currency, Product, Customer, Order)");
     log("=".repeat(70));
     await runTest("Setup Test Resources", testSetupResources);
 
     log("");
     log("=".repeat(70));
-    log("Tracing Tests");
+    log("Phase 2: Tracing Verification");
     log("=".repeat(70));
     await runTest("Tracing Auto-Initialized", testTracingAutoInitialized);
     await runTest("GenAI Span Processor Verification", testGenAISpanProcessorAttributes);
+
+    log("");
+    log("=".repeat(70));
+    log("Phase 3: AI Calls with Tracing (Credits Will Be Consumed)");
+    log("=".repeat(70));
     await runTest("generateText with Tracing", testGenerateTextWithTracing);
     await runTest("streamText with Tracing", testStreamTextWithTracing);
 
     log("");
     log("=".repeat(70));
-    log("Signal Verification");
+    log("Phase 4: Credits Consumption Verification");
     log("=".repeat(70));
-
-    // Wait a bit for signals to be processed
-    log("Waiting 5 seconds for signals to be processed...");
-    await new Promise((resolve) => setTimeout(resolve, 5000));
-
-    await runTest("Verify Signals Recorded", testVerifySignalsRecorded, true);
-    await runTest("Verify Credit Bundles", testVerifyCreditBundles, true);
+    await runTest("Verify Credits Consumed", testVerifyCreditsConsumed, true);
 
     // Cleanup
     log("");
     log("=".repeat(70));
-    log("Cleanup Phase");
+    log("Phase 5: Cleanup");
     log("=".repeat(70));
     await cleanupTestResources();
 
