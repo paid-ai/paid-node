@@ -8,7 +8,7 @@
  */
 
 import { fileURLToPath } from "url";
-import { dirname, join } from "path";
+import { dirname } from "path";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -102,34 +102,24 @@ async function testGenAISpanProcessor() {
 
 async function testAISDKWrapperExport() {
     // Test ai-sdk wrapper export
-    // This is the critical test - it uses require() internally
-    try {
-        const aiSdkModule = await import("../../dist/esm/ai-sdk-wrapper/index.mjs");
+    const aiSdkModule = await import("../../dist/esm/ai-sdk-wrapper/index.mjs");
 
-        if (!aiSdkModule.GenAISpanProcessor) {
-            throw new Error("GenAISpanProcessor not exported from ai-sdk wrapper");
-        }
+    if (!aiSdkModule.GenAISpanProcessor) {
+        throw new Error("GenAISpanProcessor not exported from ai-sdk wrapper");
+    }
 
-        if (typeof aiSdkModule.trace !== "function") {
-            throw new Error("trace not exported from ai-sdk wrapper");
-        }
+    if (typeof aiSdkModule.trace !== "function") {
+        throw new Error("trace not exported from ai-sdk wrapper");
+    }
 
-        if (typeof aiSdkModule.initializeAISDKTracing !== "function") {
-            throw new Error("initializeAISDKTracing not exported from ai-sdk wrapper");
-        }
+    if (typeof aiSdkModule.initializeAISDKTracing !== "function") {
+        throw new Error("initializeAISDKTracing not exported from ai-sdk wrapper");
+    }
 
-        // Verify GenAISpanProcessor can be instantiated
-        const processor = new aiSdkModule.GenAISpanProcessor();
-        if (typeof processor.onStart !== "function") {
-            throw new Error("GenAISpanProcessor from ai-sdk wrapper missing onStart method");
-        }
-    } catch (error) {
-        // Check if it's the require() ESM compatibility issue
-        if (error.message.includes("require is not defined") ||
-            error.message.includes("require is not a function")) {
-            throw new Error(`ESM compatibility issue: ${error.message}`);
-        }
-        throw error;
+    // Verify GenAISpanProcessor can be instantiated
+    const processor = new aiSdkModule.GenAISpanProcessor();
+    if (typeof processor.onStart !== "function") {
+        throw new Error("GenAISpanProcessor from ai-sdk wrapper missing onStart method");
     }
 }
 
@@ -151,71 +141,33 @@ async function testAnthropicWrapperExport() {
     }
 }
 
-async function testRequireInESM() {
-    // Test that require() is NOT available in pure ESM
-    // This verifies we're actually running in ESM mode
-    if (typeof require === "function") {
-        throw new Error("require() should NOT be available in ESM - test environment is not pure ESM");
-    }
-
-    // Try to use require directly - should fail
-    let requireWorks = false;
-    try {
-        const path = require("path");
-        requireWorks = true;
-    } catch (e) {
-        // Expected: require is not defined
-        if (!e.message.includes("require is not defined")) {
-            throw new Error(`Unexpected error: ${e.message}`);
-        }
-    }
-
-    if (requireWorks) {
-        throw new Error("require() worked in ESM - this should not happen!");
-    }
-}
-
-async function testAISDKAnthropicInstrumentationInESM() {
-    // This test verifies that we detect the Anthropic instrumentation silent failure
-    // The ai-sdk-wrapper uses require() to load Anthropic instrumentation,
-    // which silently fails in ESM because require() is not available.
-
-    // Read the source file to verify it contains require()
+async function testStaticImportsInAISDKWrapper() {
+    // Verify that ai-sdk-wrapper uses static imports (ESM compatible)
     const fs = await import("fs");
     const path = await import("path");
-    const { fileURLToPath } = await import("url");
 
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = path.dirname(__filename);
     const sourceFile = path.join(__dirname, "../../dist/esm/ai-sdk-wrapper/index.mjs");
-
     const content = fs.readFileSync(sourceFile, "utf-8");
 
-    // Check if the file contains require() for Anthropic
-    const hasRequireForAnthropic = content.includes('require("@arizeai/openinference-instrumentation-anthropic")');
+    // Check that both OpenAI and Anthropic are imported statically
+    const hasOpenAIImport = content.includes('from "@arizeai/openinference-instrumentation-openai"') ||
+                           content.includes('from"@arizeai/openinference-instrumentation-openai"');
+    const hasAnthropicImport = content.includes('from "@arizeai/openinference-instrumentation-anthropic"') ||
+                              content.includes('from"@arizeai/openinference-instrumentation-anthropic"');
 
-    if (hasRequireForAnthropic) {
-        // This is a known issue - require() in ESM will fail silently
-        // The test should WARN about this, not fail, since it's a known limitation
-        log("  WARNING: ai-sdk-wrapper uses require() for Anthropic instrumentation");
-        log("  WARNING: This will silently fail in pure ESM environments");
-        log("  WARNING: Anthropic auto-instrumentation will NOT work in ESM");
+    if (!hasOpenAIImport) {
+        throw new Error("OpenAI instrumentation should be imported statically");
+    }
+    if (!hasAnthropicImport) {
+        throw new Error("Anthropic instrumentation should be imported statically");
+    }
 
-        // Verify that require actually fails in ESM
-        let requireFailed = false;
-        try {
-            require("@arizeai/openinference-instrumentation-anthropic");
-        } catch (e) {
-            requireFailed = true;
-        }
+    // Verify no require() calls for these packages
+    const hasRequireOpenAI = content.includes('require("@arizeai/openinference-instrumentation-openai")');
+    const hasRequireAnthropic = content.includes('require("@arizeai/openinference-instrumentation-anthropic")');
 
-        if (requireFailed) {
-            // This confirms the issue exists
-            throw new Error(
-                "Anthropic instrumentation uses require() which fails in ESM. " +
-                "Consider using dynamic import() for ESM compatibility."
-            );
-        }
+    if (hasRequireOpenAI || hasRequireAnthropic) {
+        throw new Error("Should use static imports, not require() for instrumentations");
     }
 }
 
@@ -237,11 +189,10 @@ async function main() {
     await runTest("Main package export (PaidClient)", testMainExport);
     await runTest("Tracing export (initializeTracing, trace, signal)", testTracingExport);
     await runTest("GenAI Span Processor export", testGenAISpanProcessor);
-    await runTest("AI SDK wrapper export (critical - uses require())", testAISDKWrapperExport);
+    await runTest("AI SDK wrapper export", testAISDKWrapperExport);
     await runTest("OpenAI wrapper export (PaidOpenAI)", testOpenAIWrapperExport);
     await runTest("Anthropic wrapper export (PaidAnthropic)", testAnthropicWrapperExport);
-    await runTest("Verify require() not available in ESM", testRequireInESM);
-    await runTest("AI SDK Anthropic instrumentation in ESM (known issue)", testAISDKAnthropicInstrumentationInESM);
+    await runTest("Static imports in AI SDK wrapper (ESM compatible)", testStaticImportsInAISDKWrapper);
 
     log("");
     log("=".repeat(70));
