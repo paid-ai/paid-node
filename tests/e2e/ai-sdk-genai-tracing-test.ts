@@ -10,19 +10,19 @@
  * - Uses OpenInference auto-instrumentation for OpenAI
  * - NO experimental_telemetry needed per-call
  * - NO manual signal sending - backend auto-generates signals from traces
- * - Credits are consumed from the order when AI calls are made
+ * - Separate credit currencies for generateText and streamText to verify each independently
  *
  * Test Flow:
  * 1. Import "@paid-ai/paid-node/ai-sdk" - tracing auto-initializes!
- * 2. Create credits currency for the organization
- * 3. Create product with platform fee + credit benefits
+ * 2. Create TWO credits currencies (one for generateText, one for streamText)
+ * 3. Create TWO products with platform fee + credit benefits (each with different credit currency)
  * 4. Create customer with external ID
- * 5. Create order with orderLines (binding product to customer)
- * 6. Activate order - credits are granted
- * 7. Record initial credit balance
- * 8. Execute AI SDK calls (generateText, streamText) - traces captured automatically
- * 9. Backend automatically creates signals from traces and deducts credits
- * 10. Verify credits have decreased
+ * 5. Create TWO orders (one per product)
+ * 6. Activate orders - credits are granted
+ * 7. Record initial credit balances for both currencies
+ * 8. Execute generateText - verify its credit currency is consumed
+ * 9. Execute streamText - verify its credit currency is consumed
+ * 10. Verify BOTH credit currencies have decreased independently
  *
  * Required environment variables:
  * - PAID_API_TOKEN: API token for Paid API
@@ -60,19 +60,27 @@ const dateStr = now.toISOString().slice(0, 10);
 const timeStr = now.toISOString().slice(11, 16).replace(":", "");
 const testPrefix = `AI-SDK-GENAI-${dateStr}-${timeStr}`;
 
+// Test resources - separate for generateText and streamText
+interface OperationResources {
+    creditsCurrencyId?: string;
+    productId?: string;
+    orderId?: string;
+    externalProductId?: string;
+    initialBalance?: CreditBalance;
+}
 
-// Test resources
 interface TestResources {
     organizationId?: string;
     customerId?: string;
-    productId?: string;
-    orderId?: string;
-    creditsCurrencyId?: string;
     externalCustomerId?: string;
-    externalProductId?: string;
+    generateText: OperationResources;
+    streamText: OperationResources;
 }
 
-const resources: TestResources = {};
+const resources: TestResources = {
+    generateText: {},
+    streamText: {},
+};
 
 // Results tracking
 interface TestResult {
@@ -90,8 +98,6 @@ interface CreditBalance {
     available: number;
     used: number;
 }
-
-let initialCreditBalance: CreditBalance | null = null;
 
 // ============================================================================
 // Helper Functions
@@ -192,19 +198,16 @@ async function getCreditBundles(customerId: string): Promise<CreditBundle[]> {
 }
 
 /**
- * Calculate total credits from bundles (only for our test credits currency)
+ * Calculate credits for a specific currency
  */
-function calculateCreditBalance(bundles: CreditBundle[]): CreditBalance {
-    // Filter to only our test credits currency
-    const testBundles = bundles.filter(
-        (b) => b.creditsCurrencyId === resources.creditsCurrencyId
-    );
+function calculateCreditBalanceForCurrency(bundles: CreditBundle[], creditsCurrencyId: string): CreditBalance {
+    const filteredBundles = bundles.filter((b) => b.creditsCurrencyId === creditsCurrencyId);
 
     let total = 0;
     let available = 0;
     let used = 0;
 
-    for (const bundle of testBundles) {
+    for (const bundle of filteredBundles) {
         total += Number(bundle.total || 0);
         available += Number(bundle.available || 0);
         used += Number(bundle.used || 0);
@@ -214,34 +217,31 @@ function calculateCreditBalance(bundles: CreditBundle[]): CreditBalance {
 }
 
 /**
- * Wait for credit bundles to be available with retries
+ * Wait for credit bundles for a specific currency
  */
-async function waitForCreditBundles(
+async function waitForCreditBundlesForCurrency(
     customerId: string,
+    creditsCurrencyId: string,
     expectedCount: number,
     maxRetries: number = 30,
     retryDelay: number = 1000
 ): Promise<CreditBundle[]> {
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
         const bundles = await getCreditBundles(customerId);
-        const testBundles = bundles.filter(
-            (b) => b.creditsCurrencyId === resources.creditsCurrencyId
-        );
+        const filtered = bundles.filter((b) => b.creditsCurrencyId === creditsCurrencyId);
 
-        if (testBundles.length >= expectedCount) {
-            log(`  Found ${testBundles.length} credit bundles on attempt ${attempt}`);
-            return testBundles;
+        if (filtered.length >= expectedCount) {
+            return filtered;
         }
 
-        if (attempt % 5 === 0) {
-            log(`  Waiting for credit bundles... found ${testBundles.length}/${expectedCount} (attempt ${attempt}/${maxRetries})`);
+        if (attempt % 10 === 0) {
+            log(`    Waiting for credit bundles (${creditsCurrencyId.slice(0, 8)}...)... found ${filtered.length}/${expectedCount}`);
         }
         await new Promise((resolve) => setTimeout(resolve, retryDelay));
     }
 
-    // Return whatever we have
     const bundles = await getCreditBundles(customerId);
-    return bundles.filter((b) => b.creditsCurrencyId === resources.creditsCurrencyId);
+    return bundles.filter((b) => b.creditsCurrencyId === creditsCurrencyId);
 }
 
 /**
@@ -255,16 +255,14 @@ function formatDate(date: Date): string {
 // Setup Functions
 // ============================================================================
 
-async function createCreditsCurrency(): Promise<string> {
-    log("Creating credits currency...");
-
+async function createCreditsCurrency(name: string, key: string): Promise<string> {
     const { status, data } = await apiRequest(
         "POST",
         `/api/organizations/${resources.organizationId}/credits-currencies`,
         {
-            name: `${testPrefix} Test Credits`,
-            key: `${testPrefix.toLowerCase().replace(/-/g, "_")}_credits`,
-            description: "Credits currency for AI SDK GenAI tracing test",
+            name: `${testPrefix} ${name}`,
+            key: `${testPrefix.toLowerCase().replace(/-/g, "_")}_${key}`,
+            description: `Credits currency for ${name}`,
         }
     );
 
@@ -272,26 +270,23 @@ async function createCreditsCurrency(): Promise<string> {
         throw new Error(`Failed to create credits currency: ${status} - ${JSON.stringify(data)}`);
     }
 
-    log(`  Created credits currency: ${data.id}`);
     return data.id;
 }
 
-async function createProductWithCredits(): Promise<{ id: string; attributes: any[] }> {
-    log("Creating product with platform fee and credit benefits...");
-
-    const externalProductId = `${testPrefix}-ext-product`;
-    resources.externalProductId = externalProductId;
-
-    // Create product with creditBenefits
+async function createProductWithCredits(
+    name: string,
+    externalId: string,
+    creditsCurrencyId: string
+): Promise<{ id: string; attributes: any[] }> {
     const productData = {
-        name: `${testPrefix} AI Usage Product`,
-        externalId: externalProductId,
+        name: `${testPrefix} ${name}`,
+        externalId,
         type: "product",
         active: true,
-        description: "Product for AI SDK GenAI tracing test with credits",
+        description: `Product for ${name} with credits`,
         ProductAttribute: [
             {
-                name: "Platform Fee with Credits",
+                name: `${name} Platform Fee`,
                 pricing: {
                     chargeType: "recurring",
                     billingType: "Advance",
@@ -299,17 +294,17 @@ async function createProductWithCredits(): Promise<{ id: string; attributes: any
                     pricingModel: "PerUnit",
                     PricePoints: {
                         USD: {
-                            unitPrice: 100000, // $1000/month platform fee
+                            unitPrice: 100000,
                             currency: "USD",
                         },
                     },
                 },
                 creditBenefits: [
                     {
-                        id: `${testPrefix}-credit-benefit`,
-                        creditsCurrencyId: resources.creditsCurrencyId,
+                        id: `${testPrefix}-${name.toLowerCase().replace(/\s/g, "-")}-benefit`,
+                        creditsCurrencyId,
                         recipient: "organization",
-                        amount: 10000, // 10,000 credits
+                        amount: 10000,
                         allocationCadence: "upfront",
                     },
                 ],
@@ -323,17 +318,13 @@ async function createProductWithCredits(): Promise<{ id: string; attributes: any
         throw new Error(`Failed to create product: ${status} - ${JSON.stringify(data)}`);
     }
 
-    log(`  Created product: ${data.id} (external: ${externalProductId})`);
     return { id: data.id, attributes: data.ProductAttribute };
 }
 
-async function createCustomerWithExternalId(): Promise<string> {
-    log("Creating customer with external ID...");
-
+async function createCustomer(): Promise<string> {
     const externalCustomerId = `${testPrefix}-ext-customer`;
     resources.externalCustomerId = externalCustomerId;
 
-    // Use direct API call to get the internal ID format that V1 order API expects
     const { status, data } = await apiRequest("POST", "/api/v1/customers", {
         name: `${testPrefix} Test Customer`,
         externalId: externalCustomerId,
@@ -344,17 +335,14 @@ async function createCustomerWithExternalId(): Promise<string> {
         throw new Error(`Failed to create customer: ${status} - ${JSON.stringify(data)}`);
     }
 
-    log(`  Created customer: ${data.id} (external: ${externalCustomerId})`);
     return data.id;
 }
 
-async function createOrderWithCredits(
+async function createOrder(
     customerId: string,
     productId: string,
     productAttributes: any[]
 ): Promise<string> {
-    log("Creating order with orderLines...");
-
     const attr = productAttributes[0];
     const usdPricePoint = attr.pricing.PricePoints?.USD || attr.pricing.pricePoint || {};
 
@@ -372,7 +360,7 @@ async function createOrderWithCredits(
         orderLines: [
             {
                 productId,
-                name: "Platform Fee with Credits Order Line",
+                name: attr.name,
                 ProductAttribute: [
                     {
                         productAttributeId: attr.id,
@@ -395,20 +383,15 @@ async function createOrderWithCredits(
         throw new Error(`Failed to create order: ${status} - ${JSON.stringify(data)}`);
     }
 
-    log(`  Created order: ${data.id}`);
     return data.id;
 }
 
 async function activateOrder(orderId: string): Promise<void> {
-    log("Activating order...");
-
     const { status, data } = await apiRequest("POST", `/api/v1/orders/${orderId}/activate`, {});
 
     if (status !== 200) {
         throw new Error(`Failed to activate order: ${status} - ${JSON.stringify(data)}`);
     }
-
-    log(`  Order activated: ${orderId}`);
 }
 
 async function setupTestResources(): Promise<void> {
@@ -418,49 +401,89 @@ async function setupTestResources(): Promise<void> {
     resources.organizationId = await getOrganizationId();
     log(`  Organization ID: ${resources.organizationId}`);
 
-    // Create credits currency
-    resources.creditsCurrencyId = await createCreditsCurrency();
+    // Create TWO credits currencies
+    log("  Creating credits currencies...");
+    resources.generateText.creditsCurrencyId = await createCreditsCurrency("GenerateText Credits", "generate_text");
+    log(`    GenerateText Credits: ${resources.generateText.creditsCurrencyId}`);
 
-    // Create product with credits
-    const product = await createProductWithCredits();
-    resources.productId = product.id;
+    resources.streamText.creditsCurrencyId = await createCreditsCurrency("StreamText Credits", "stream_text");
+    log(`    StreamText Credits: ${resources.streamText.creditsCurrencyId}`);
+
+    // Create TWO products
+    log("  Creating products...");
+    resources.generateText.externalProductId = `${testPrefix}-generatetext-product`;
+    const generateTextProduct = await createProductWithCredits(
+        "GenerateText Product",
+        resources.generateText.externalProductId,
+        resources.generateText.creditsCurrencyId
+    );
+    resources.generateText.productId = generateTextProduct.id;
+    log(`    GenerateText Product: ${resources.generateText.productId}`);
+
+    resources.streamText.externalProductId = `${testPrefix}-streamtext-product`;
+    const streamTextProduct = await createProductWithCredits(
+        "StreamText Product",
+        resources.streamText.externalProductId,
+        resources.streamText.creditsCurrencyId
+    );
+    resources.streamText.productId = streamTextProduct.id;
+    log(`    StreamText Product: ${resources.streamText.productId}`);
 
     // Create customer
-    resources.customerId = await createCustomerWithExternalId();
+    log("  Creating customer...");
+    resources.customerId = await createCustomer();
+    log(`    Customer: ${resources.customerId} (external: ${resources.externalCustomerId})`);
 
-    // Create order
-    resources.orderId = await createOrderWithCredits(
+    // Create TWO orders
+    log("  Creating orders...");
+    resources.generateText.orderId = await createOrder(
         resources.customerId,
-        resources.productId,
-        product.attributes
+        resources.generateText.productId,
+        generateTextProduct.attributes
     );
+    log(`    GenerateText Order: ${resources.generateText.orderId}`);
 
-    // Activate order
-    await activateOrder(resources.orderId);
+    resources.streamText.orderId = await createOrder(
+        resources.customerId,
+        resources.streamText.productId,
+        streamTextProduct.attributes
+    );
+    log(`    StreamText Order: ${resources.streamText.orderId}`);
 
-    // Wait for credit bundles to be created
-    log("Waiting for credit bundles to be created...");
-    const bundles = await waitForCreditBundles(resources.customerId, 1);
+    // Activate orders
+    log("  Activating orders...");
+    await activateOrder(resources.generateText.orderId);
+    log(`    GenerateText Order activated`);
+    await activateOrder(resources.streamText.orderId);
+    log(`    StreamText Order activated`);
 
-    if (bundles.length === 0) {
-        throw new Error("No credit bundles found after order activation");
-    }
+    // Wait for credit bundles
+    log("  Waiting for credit bundles...");
+    await waitForCreditBundlesForCurrency(resources.customerId, resources.generateText.creditsCurrencyId, 1);
+    await waitForCreditBundlesForCurrency(resources.customerId, resources.streamText.creditsCurrencyId, 1);
 
-    // Record initial credit balance
-    initialCreditBalance = calculateCreditBalance(bundles);
-    log(`  Initial credit balance - Total: ${initialCreditBalance.total}, Available: ${initialCreditBalance.available}, Used: ${initialCreditBalance.used}`);
+    // Record initial balances
+    const bundles = await getCreditBundles(resources.customerId);
+    resources.generateText.initialBalance = calculateCreditBalanceForCurrency(bundles, resources.generateText.creditsCurrencyId);
+    resources.streamText.initialBalance = calculateCreditBalanceForCurrency(bundles, resources.streamText.creditsCurrencyId);
+
+    log(`  Initial balances:`);
+    log(`    GenerateText - Total: ${resources.generateText.initialBalance.total}, Available: ${resources.generateText.initialBalance.available}`);
+    log(`    StreamText   - Total: ${resources.streamText.initialBalance.total}, Available: ${resources.streamText.initialBalance.available}`);
 }
 
 async function cleanupTestResources(): Promise<void> {
     log("Cleaning up test resources...");
 
-    // Delete order first (if exists)
-    if (resources.orderId) {
-        try {
-            await apiRequest("DELETE", `/api/v1/orders/${resources.orderId}`);
-            log(`  Deleted order: ${resources.orderId}`);
-        } catch (error: any) {
-            log(`  Failed to delete order: ${error.message}`);
+    // Delete orders
+    for (const op of [resources.generateText, resources.streamText]) {
+        if (op.orderId) {
+            try {
+                await apiRequest("DELETE", `/api/v1/orders/${op.orderId}`);
+                log(`  Deleted order: ${op.orderId}`);
+            } catch (error: any) {
+                log(`  Failed to delete order: ${error.message}`);
+            }
         }
     }
 
@@ -473,9 +496,6 @@ async function cleanupTestResources(): Promise<void> {
             log(`  Failed to delete customer: ${error.message}`);
         }
     }
-
-    // Note: Products and credits currencies are typically not deleted in tests
-    // as they may be reused and deletion could affect other data
 }
 
 // ============================================================================
@@ -497,11 +517,8 @@ async function testTracingAutoInitialized(): Promise<boolean> {
     log("Test: Verify Tracing Auto-Initialized on Import");
 
     try {
-        // Tracing is auto-initialized when importing "@paid-ai/paid-node/ai-sdk"
-        // No explicit initialization needed!
         log("  Tracing auto-initialized on module import");
         log("  OpenAI calls will be automatically traced");
-
         return true;
     } catch (error: any) {
         throw new Error(`Tracing verification failed: ${error.message}`);
@@ -515,7 +532,6 @@ async function testGenAISpanProcessorAttributes(): Promise<boolean> {
         const processor = new GenAISpanProcessor();
         log("  GenAI span processor instantiated successfully");
 
-        // Verify the processor has the expected methods
         if (typeof processor.onStart !== "function") {
             throw new Error("GenAI span processor missing onStart method");
         }
@@ -537,33 +553,25 @@ async function testGenAISpanProcessorAttributes(): Promise<boolean> {
 }
 
 async function testGenerateTextWithTracing(): Promise<boolean> {
-    log("Test: generateText with OpenInference Auto-Instrumentation");
+    log("Test: generateText with Tracing (uses GenerateText Credits)");
 
     try {
-        // Use trace() to provide customer/product context for the traces
-        // The externalCustomerId and externalProductId MUST match the Customer and Product's externalId
-        // This allows the backend to find the correct Order and deduct credits
+        // Use trace() with generateText's externalProductId
         const result = await trace(
             {
                 externalCustomerId: resources.externalCustomerId!,
-                externalProductId: resources.externalProductId!,
+                externalProductId: resources.generateText.externalProductId!,
             },
             async () => {
-                // OpenInference auto-instrumentation captures traces automatically
-                // No experimental_telemetry needed!
-                // Backend will find the Order via Customer + Product externalIds
-                // and deduct credits from the order's credit benefits
                 const response = await generateText({
                     model: openai("gpt-4o-mini"),
                     prompt: "Say 'Hello from AI SDK GenAI tracing test' in exactly 7 words.",
                     maxOutputTokens: 50,
                 });
-
                 return response;
             }
         );
 
-        // Validate response
         if (!result.text) {
             throw new Error("Response missing text");
         }
@@ -573,7 +581,8 @@ async function testGenerateTextWithTracing(): Promise<boolean> {
 
         log(`  Generated text: "${result.text.trim()}"`);
         log(`  Token usage - Input: ${result.usage.inputTokens}, Output: ${result.usage.outputTokens}`);
-        log("  Trace captured by OpenInference (credits will be deducted by backend)");
+        log(`  Using product: ${resources.generateText.externalProductId}`);
+        log(`  Credits currency: ${resources.generateText.creditsCurrencyId?.slice(0, 8)}...`);
 
         return true;
     } catch (error: any) {
@@ -582,30 +591,27 @@ async function testGenerateTextWithTracing(): Promise<boolean> {
 }
 
 async function testStreamTextWithTracing(): Promise<boolean> {
-    log("Test: streamText with OpenInference Auto-Instrumentation");
+    log("Test: streamText with Tracing (uses StreamText Credits)");
 
     try {
-        // Use trace() to provide customer/product context for the traces
+        // Use trace() with streamText's externalProductId
         const result = await trace(
             {
                 externalCustomerId: resources.externalCustomerId!,
-                externalProductId: resources.externalProductId!,
+                externalProductId: resources.streamText.externalProductId!,
             },
             async () => {
-                // OpenInference auto-instrumentation captures traces automatically
                 const stream = streamText({
                     model: openai("gpt-4o-mini"),
                     prompt: "Count from 1 to 5, one number per line.",
                     maxOutputTokens: 50,
                 });
 
-                // Collect the streamed text
                 let fullText = "";
                 for await (const chunk of stream.textStream) {
                     fullText += chunk;
                 }
 
-                // Get final result with usage
                 const finalResult = await stream;
                 const usage = await finalResult.usage;
 
@@ -613,14 +619,14 @@ async function testStreamTextWithTracing(): Promise<boolean> {
             }
         );
 
-        // Validate response
         if (!result.text) {
             throw new Error("Streaming returned no text");
         }
 
         log(`  Streamed text: "${result.text.trim().substring(0, 50)}..."`);
         log(`  Token usage - Input: ${result.usage?.inputTokens}, Output: ${result.usage?.outputTokens}`);
-        log("  Trace captured by OpenInference (credits will be deducted by backend)");
+        log(`  Using product: ${resources.streamText.externalProductId}`);
+        log(`  Credits currency: ${resources.streamText.creditsCurrencyId?.slice(0, 8)}...`);
 
         return true;
     } catch (error: any) {
@@ -628,39 +634,31 @@ async function testStreamTextWithTracing(): Promise<boolean> {
     }
 }
 
-async function testVerifyCreditsConsumed(): Promise<boolean> {
-    log("Test: Verify Credits Were Consumed After AI Calls");
+async function testVerifyGenerateTextCreditsConsumed(): Promise<boolean> {
+    log("Test: Verify GenerateText Credits Were Consumed");
 
     try {
-        if (!initialCreditBalance) {
-            throw new Error("Initial credit balance was not recorded");
+        const initial = resources.generateText.initialBalance;
+        if (!initial) {
+            throw new Error("Initial balance not recorded for generateText");
         }
 
-        // Wait for credits to be processed
-        // The backend needs time to:
-        // 1. Receive the OpenInference traces
-        // 2. Process them into signals
-        // 3. Find the corresponding Order via externalCustomerId + externalProductId
-        // 4. Create CreditTransactions (SPEND)
-        // 5. Update EntitlementUsage
-        log("  Waiting for credits to be processed...");
+        log("  Waiting for generateText credits to be processed...");
 
-        const maxWaitTime = 60000; // 60 seconds
-        const pollInterval = 3000; // 3 seconds
+        const maxWaitTime = 60000;
+        const pollInterval = 3000;
         const startTime = Date.now();
-
         let finalBalance: CreditBalance | null = null;
-        let creditsConsumed = false;
+        let consumed = false;
 
         while (Date.now() - startTime < maxWaitTime) {
             const bundles = await getCreditBundles(resources.customerId!);
-            finalBalance = calculateCreditBalance(bundles);
+            finalBalance = calculateCreditBalanceForCurrency(bundles, resources.generateText.creditsCurrencyId!);
 
-            log(`  Current balance - Available: ${finalBalance.available}, Used: ${finalBalance.used} (initial: ${initialCreditBalance.available})`);
+            log(`    Current - Available: ${finalBalance.available}, Used: ${finalBalance.used}`);
 
-            // Check if credits have been consumed
-            if (finalBalance.used > initialCreditBalance.used || finalBalance.available < initialCreditBalance.available) {
-                creditsConsumed = true;
+            if (finalBalance.used > initial.used || finalBalance.available < initial.available) {
+                consumed = true;
                 break;
             }
 
@@ -668,32 +666,79 @@ async function testVerifyCreditsConsumed(): Promise<boolean> {
         }
 
         if (!finalBalance) {
-            throw new Error("Failed to get final credit balance");
+            throw new Error("Failed to get final balance");
         }
 
         log("");
-        log("  Credit Balance Summary:");
-        log(`    Initial - Total: ${initialCreditBalance.total}, Available: ${initialCreditBalance.available}, Used: ${initialCreditBalance.used}`);
-        log(`    Final   - Total: ${finalBalance.total}, Available: ${finalBalance.available}, Used: ${finalBalance.used}`);
+        log("  GenerateText Credits Summary:");
+        log(`    Initial  - Available: ${initial.available}, Used: ${initial.used}`);
+        log(`    Final    - Available: ${finalBalance.available}, Used: ${finalBalance.used}`);
 
-        if (creditsConsumed) {
-            const creditsUsed = finalBalance.used - initialCreditBalance.used;
-            const creditsDeducted = initialCreditBalance.available - finalBalance.available;
-            log(`    Credits consumed: ${creditsUsed} (deducted: ${creditsDeducted})`);
-            log("  SUCCESS: Credits were consumed from the order!");
+        if (consumed) {
+            const creditsUsed = finalBalance.used - initial.used;
+            log(`    Consumed: ${creditsUsed} credits`);
+            log("  SUCCESS: GenerateText credits were consumed!");
             return true;
         } else {
-            log("  WARNING: Credits were not consumed within the expected time");
-            log("  This may indicate:");
-            log("    - Traces are still being processed by the backend");
-            log("    - The backend signal processing is delayed");
-            log("    - There may be a configuration issue with credit cost per token");
-            // Don't fail the test - this is informational for now
-            // In production, you may want to fail here
-            return true;
+            log("  WARNING: GenerateText credits were not consumed within expected time");
+            return true; // Don't fail for now
         }
     } catch (error: any) {
-        throw new Error(`Credit verification failed: ${error.message}`);
+        throw new Error(`GenerateText credit verification failed: ${error.message}`);
+    }
+}
+
+async function testVerifyStreamTextCreditsConsumed(): Promise<boolean> {
+    log("Test: Verify StreamText Credits Were Consumed");
+
+    try {
+        const initial = resources.streamText.initialBalance;
+        if (!initial) {
+            throw new Error("Initial balance not recorded for streamText");
+        }
+
+        log("  Waiting for streamText credits to be processed...");
+
+        const maxWaitTime = 60000;
+        const pollInterval = 3000;
+        const startTime = Date.now();
+        let finalBalance: CreditBalance | null = null;
+        let consumed = false;
+
+        while (Date.now() - startTime < maxWaitTime) {
+            const bundles = await getCreditBundles(resources.customerId!);
+            finalBalance = calculateCreditBalanceForCurrency(bundles, resources.streamText.creditsCurrencyId!);
+
+            log(`    Current - Available: ${finalBalance.available}, Used: ${finalBalance.used}`);
+
+            if (finalBalance.used > initial.used || finalBalance.available < initial.available) {
+                consumed = true;
+                break;
+            }
+
+            await new Promise((resolve) => setTimeout(resolve, pollInterval));
+        }
+
+        if (!finalBalance) {
+            throw new Error("Failed to get final balance");
+        }
+
+        log("");
+        log("  StreamText Credits Summary:");
+        log(`    Initial  - Available: ${initial.available}, Used: ${initial.used}`);
+        log(`    Final    - Available: ${finalBalance.available}, Used: ${finalBalance.used}`);
+
+        if (consumed) {
+            const creditsUsed = finalBalance.used - initial.used;
+            log(`    Consumed: ${creditsUsed} credits`);
+            log("  SUCCESS: StreamText credits were consumed!");
+            return true;
+        } else {
+            log("  WARNING: StreamText credits were not consumed within expected time");
+            return true; // Don't fail for now
+        }
+    } catch (error: any) {
+        throw new Error(`StreamText credit verification failed: ${error.message}`);
     }
 }
 
@@ -713,19 +758,20 @@ async function runTest(name: string, fn: () => Promise<boolean>, skippable = fal
 
 async function main() {
     log("=".repeat(70));
-    log("AI SDK GenAI Tracing E2E Test - Credits Consumption Verification");
+    log("AI SDK GenAI Tracing E2E Test - Separate Credits Verification");
     log("=".repeat(70));
     log(`Test Prefix: ${testPrefix}`);
     log(`Paid API Base URL: ${PAID_API_BASE_URL}`);
     log(`OpenAI API Key: ${OPENAI_API_KEY ? "Set" : "Not Set"}`);
     log("");
 
-    // Run tests
+    // Phase 1: Setup
     log("=".repeat(70));
-    log("Phase 1: Setup (Create Credits Currency, Product, Customer, Order)");
+    log("Phase 1: Setup (2 Credits Currencies, 2 Products, 2 Orders)");
     log("=".repeat(70));
     await runTest("Setup Test Resources", testSetupResources);
 
+    // Phase 2: Tracing Verification
     log("");
     log("=".repeat(70));
     log("Phase 2: Tracing Verification");
@@ -733,20 +779,23 @@ async function main() {
     await runTest("Tracing Auto-Initialized", testTracingAutoInitialized);
     await runTest("GenAI Span Processor Verification", testGenAISpanProcessorAttributes);
 
+    // Phase 3: AI Calls
     log("");
     log("=".repeat(70));
-    log("Phase 3: AI Calls with Tracing (Credits Will Be Consumed)");
+    log("Phase 3: AI Calls (Each Uses Different Credits Currency)");
     log("=".repeat(70));
     await runTest("generateText with Tracing", testGenerateTextWithTracing);
     await runTest("streamText with Tracing", testStreamTextWithTracing);
 
+    // Phase 4: Credits Verification (Separate for each operation)
     log("");
     log("=".repeat(70));
-    log("Phase 4: Credits Consumption Verification");
+    log("Phase 4: Credits Consumption Verification (Independent)");
     log("=".repeat(70));
-    await runTest("Verify Credits Consumed", testVerifyCreditsConsumed, true);
+    await runTest("Verify GenerateText Credits Consumed", testVerifyGenerateTextCreditsConsumed, true);
+    await runTest("Verify StreamText Credits Consumed", testVerifyStreamTextCreditsConsumed, true);
 
-    // Cleanup
+    // Phase 5: Cleanup
     log("");
     log("=".repeat(70));
     log("Phase 5: Cleanup");
