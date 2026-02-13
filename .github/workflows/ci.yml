@@ -73,12 +73,11 @@ jobs:
           COMMIT_HASH: ${{ github.sha }}
         run: npx tsx tests/e2e/tracing-test.ts
 
-      - name: Run E2E AI SDK GenAI Tracing Tests
+      - name: Run E2E AI SDK Tracing Tests
         env:
           PAID_API_TOKEN: ${{ secrets.PAID_API_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: npx tsx tests/e2e/ai-sdk-genai-tracing-test.ts
+        run: npx tsx tests/e2e/ai-sdk-tracing-test.ts
 
       - name: Run ESM Compatibility Test
         run: node tests/e2e/esm-compatibility-test.mjs
