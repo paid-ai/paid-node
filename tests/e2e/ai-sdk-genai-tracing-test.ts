@@ -34,7 +34,6 @@ import { openai } from "@ai-sdk/openai";
 import { generateText, streamText } from "ai";
 // Just import to auto-initialize tracing!
 import { GenAISpanProcessor, trace } from "../../dist/cjs/ai-sdk-wrapper/index.js";
-import { PaidClient } from "../../dist/cjs/index.js";
 
 // Environment configuration
 const PAID_API_TOKEN = process.env.PAID_API_TOKEN;
@@ -61,8 +60,6 @@ const dateStr = now.toISOString().slice(0, 10);
 const timeStr = now.toISOString().slice(11, 16).replace(":", "");
 const testPrefix = `AI-SDK-GENAI-${dateStr}-${timeStr}`;
 
-// Initialize SDK client
-const client = new PaidClient({ token: PAID_API_TOKEN });
 
 // Test resources
 interface TestResources {
@@ -336,18 +333,19 @@ async function createCustomerWithExternalId(): Promise<string> {
     const externalCustomerId = `${testPrefix}-ext-customer`;
     resources.externalCustomerId = externalCustomerId;
 
-    const customer = await client.customers.createCustomer({
+    // Use direct API call to get the internal ID format that V1 order API expects
+    const { status, data } = await apiRequest("POST", "/api/v1/customers", {
         name: `${testPrefix} Test Customer`,
         externalId: externalCustomerId,
-        billingAddress: {
-            line1: "123 Test Street",
-            city: "Test City",
-            country: "US",
-        },
+        email: `test-${Date.now()}@example.com`,
     });
 
-    log(`  Created customer: ${customer.id} (external: ${externalCustomerId})`);
-    return customer.id;
+    if (status !== 201 && status !== 200) {
+        throw new Error(`Failed to create customer: ${status} - ${JSON.stringify(data)}`);
+    }
+
+    log(`  Created customer: ${data.id} (external: ${externalCustomerId})`);
+    return data.id;
 }
 
 async function createOrderWithCredits(
@@ -469,7 +467,7 @@ async function cleanupTestResources(): Promise<void> {
     // Delete customer
     if (resources.customerId) {
         try {
-            await client.customers.deleteCustomerById({ id: resources.customerId });
+            await apiRequest("DELETE", `/api/v1/customers/${resources.customerId}`);
             log(`  Deleted customer: ${resources.customerId}`);
         } catch (error: any) {
             log(`  Failed to delete customer: ${error.message}`);
