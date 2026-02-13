@@ -472,31 +472,6 @@ async function setupTestResources(): Promise<void> {
     log(`    StreamText   - Total: ${resources.streamText.initialBalance.total}, Available: ${resources.streamText.initialBalance.available}`);
 }
 
-async function cleanupTestResources(): Promise<void> {
-    log("Cleaning up test resources...");
-
-    // Delete orders
-    for (const op of [resources.generateText, resources.streamText]) {
-        if (op.orderId) {
-            try {
-                await apiRequest("DELETE", `/api/v1/orders/${op.orderId}`);
-                log(`  Deleted order: ${op.orderId}`);
-            } catch (error: any) {
-                log(`  Failed to delete order: ${error.message}`);
-            }
-        }
-    }
-
-    // Delete customer
-    if (resources.customerId) {
-        try {
-            await apiRequest("DELETE", `/api/v1/customers/${resources.customerId}`);
-            log(`  Deleted customer: ${resources.customerId}`);
-        } catch (error: any) {
-            log(`  Failed to delete customer: ${error.message}`);
-        }
-    }
-}
 
 // ============================================================================
 // Test Functions
@@ -795,12 +770,6 @@ async function main() {
     await runTest("Verify GenerateText Credits Consumed", testVerifyGenerateTextCreditsConsumed, true);
     await runTest("Verify StreamText Credits Consumed", testVerifyStreamTextCreditsConsumed, true);
 
-    // Phase 5: Cleanup
-    log("");
-    log("=".repeat(70));
-    log("Phase 5: Cleanup");
-    log("=".repeat(70));
-    await cleanupTestResources();
 
     // Summary
     log("");
