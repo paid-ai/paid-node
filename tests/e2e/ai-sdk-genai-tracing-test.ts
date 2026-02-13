@@ -37,8 +37,8 @@ import { openai } from "@ai-sdk/openai";
 import { generateText, streamText } from "ai";
 import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
-// Just import to auto-initialize tracing!
-import { trace } from "../../dist/cjs/ai-sdk-wrapper/index.js";
+// Import trace and initializeAISDKTracing for manual initialization
+import { trace, initializeAISDKTracing } from "../../dist/cjs/ai-sdk-wrapper/index.js";
 
 // Environment configuration
 const PAID_API_TOKEN = process.env.PAID_API_TOKEN;
@@ -63,7 +63,13 @@ if (!ANTHROPIC_API_KEY) {
 }
 
 // Set PAID_API_KEY for tracing initialization
+// Note: This must be set before calling initializeAISDKTracing() since
+// static imports run before any code, and the auto-init would fail without the key
 process.env.PAID_API_KEY = PAID_API_TOKEN;
+
+// Manually initialize tracing now that PAID_API_KEY is set
+// Pass empty options to force re-initialization since auto-init failed (no API key at import time)
+initializeAISDKTracing({});
 
 // Initialize SDK clients
 const openaiClient = new OpenAI({ apiKey: OPENAI_API_KEY });
