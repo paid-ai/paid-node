@@ -20,7 +20,7 @@ import { initializeAISDKTracing, trace, getAISDKTracerProvider } from "../../dis
 
 const PAID_API_TOKEN = process.env.PAID_API_TOKEN;
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-const PAID_API_BASE_URL = process.env.PAID_API_BASE_URL || "https://api.paid.ai";
+const PAID_API_BASE_URL = process.env.PAID_API_BASE_URL || "https://api.agentpaid.io";
 
 if (!PAID_API_TOKEN) {
     console.error("Error: PAID_API_TOKEN environment variable is required");
