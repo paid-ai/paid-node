@@ -17,7 +17,7 @@
 
 import { generateText } from "ai";
 import { openai } from "@ai-sdk/openai";
-import { initializeAISDKTracing, trace, getAISDKTracerProvider } from "../../dist/cjs/ai-sdk-wrapper/index.js";
+import { initializeTracing, trace, getPaidTracerProvider } from "../../dist/cjs/tracing/index.js";
 
 const PAID_API_TOKEN = process.env.PAID_API_TOKEN;
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
@@ -337,8 +337,8 @@ async function main() {
     log("Phase 2: Initialize Tracing and Make AI SDK Call");
     log("=".repeat(70));
 
-    initializeAISDKTracing();
-    const tracerProvider = getAISDKTracerProvider();
+    initializeTracing();
+    const tracerProvider = getPaidTracerProvider();
     if (!tracerProvider) {
         log("ERROR: Tracer provider not initialized");
         process.exit(1);

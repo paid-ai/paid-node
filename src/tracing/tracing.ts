@@ -8,6 +8,7 @@ import type { SpanProcessor } from "@opentelemetry/sdk-trace-node";
 import winston from "winston";
 import { runWithTracingContext } from "./tracingContext.js";
 import { PaidSpanProcessor } from "./spanProcessor.js";
+import { AISDKSpanProcessor } from "./aiSdkSpanProcessor.js";
 
 export const logger: winston.Logger = winston.createLogger({
     level: "silent", // Default to 'silent' to avoid logging unless set via environment variable
@@ -83,7 +84,7 @@ export function initializeTracing(apiKey?: string, collectorEndpoint?: string): 
     const spanProcessor = new SimpleSpanProcessor(exporter);
     paidTracerProvider = new NodeTracerProvider({
         resource: resourceFromAttributes({ "api.key": paidApiToken }),
-        spanProcessors: [spanProcessor, new PaidSpanProcessor()],
+        spanProcessors: [spanProcessor, new PaidSpanProcessor(), new AISDKSpanProcessor()],
     });
     paidTracerProvider.register();
     paidTracer = paidTracerProvider.getTracer("paid.node");
