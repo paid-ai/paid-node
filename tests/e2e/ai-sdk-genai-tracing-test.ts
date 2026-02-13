@@ -337,9 +337,10 @@ async function createProductWithCredits(
                     pricingModel: "PrepaidCredits",
                     eventName: "llm",
                     creditsCurrencyId,
+                    creditCost: 1, // 1 credit consumed per unit of usage
                     PricePoints: {
                         USD: {
-                            unitPrice: 1, // 1 credit per unit of usage
+                            unitPrice: 1,
                             currency: "USD",
                         },
                     },
