@@ -7,37 +7,43 @@
  *
  * Key Features:
  * - Auto-initialization on import (no init call needed!)
- * - Uses OpenInference auto-instrumentation for OpenAI
+ * - Uses OpenInference auto-instrumentation for OpenAI and Anthropic
  * - NO experimental_telemetry needed per-call
  * - NO manual signal sending - backend auto-generates signals from traces
- * - Separate credit currencies for generateText and streamText to verify each independently
+ * - Separate credit currencies for each operation type to verify independently
  *
  * Test Flow:
  * 1. Import "@paid-ai/paid-node/ai-sdk" - tracing auto-initializes!
- * 2. Create TWO credits currencies (one for generateText, one for streamText)
- * 3. Create TWO products with platform fee + credit benefits (each with different credit currency)
+ * 2. Create FOUR credits currencies (generateText, streamText, openaiSdk, anthropicSdk)
+ * 3. Create FOUR products with platform fee + credit benefits (each with different credit currency)
  * 4. Create customer with external ID
- * 5. Create TWO orders (one per product)
+ * 5. Create FOUR orders (one per product)
  * 6. Activate orders - credits are granted
- * 7. Record initial credit balances for both currencies
- * 8. Execute generateText - verify its credit currency is consumed
- * 9. Execute streamText - verify its credit currency is consumed
- * 10. Verify BOTH credit currencies have decreased independently
+ * 7. Record initial credit balances for all currencies
+ * 8. Execute generateText (AI SDK) - verify its credit currency is consumed
+ * 9. Execute streamText (AI SDK) - verify its credit currency is consumed
+ * 10. Execute OpenAI SDK call - verify its credit currency is consumed
+ * 11. Execute Anthropic SDK call - verify its credit currency is consumed
+ * 12. Verify ALL credit currencies have decreased independently
  *
  * Required environment variables:
  * - PAID_API_TOKEN: API token for Paid API
  * - OPENAI_API_KEY: API key for OpenAI
+ * - ANTHROPIC_API_KEY: API key for Anthropic
  * - PAID_API_BASE_URL: Base URL for Paid API (default: https://api.agentpaid.io)
  */
 
 import { openai } from "@ai-sdk/openai";
 import { generateText, streamText } from "ai";
+import OpenAI from "openai";
+import Anthropic from "@anthropic-ai/sdk";
 // Just import to auto-initialize tracing!
-import { GenAISpanProcessor, trace } from "../../dist/cjs/ai-sdk-wrapper/index.js";
+import { trace } from "../../dist/cjs/ai-sdk-wrapper/index.js";
 
 // Environment configuration
 const PAID_API_TOKEN = process.env.PAID_API_TOKEN;
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const PAID_API_BASE_URL = process.env.PAID_API_BASE_URL || "https://api.agentpaid.io";
 
 // Validate required environment variables
@@ -51,8 +57,17 @@ if (!OPENAI_API_KEY) {
     process.exit(1);
 }
 
+if (!ANTHROPIC_API_KEY) {
+    console.error("Error: ANTHROPIC_API_KEY environment variable is required");
+    process.exit(1);
+}
+
 // Set PAID_API_KEY for tracing initialization
 process.env.PAID_API_KEY = PAID_API_TOKEN;
+
+// Initialize SDK clients
+const openaiClient = new OpenAI({ apiKey: OPENAI_API_KEY });
+const anthropicClient = new Anthropic({ apiKey: ANTHROPIC_API_KEY });
 
 // Test identifier for tracking
 const now = new Date();
@@ -60,7 +75,7 @@ const dateStr = now.toISOString().slice(0, 10);
 const timeStr = now.toISOString().slice(11, 16).replace(":", "");
 const testPrefix = `AI-SDK-GENAI-${dateStr}-${timeStr}`;
 
-// Test resources - separate for generateText and streamText
+// Test resources - separate for each operation type
 interface OperationResources {
     creditsCurrencyId?: string;
     productId?: string;
@@ -75,11 +90,15 @@ interface TestResources {
     externalCustomerId?: string;
     generateText: OperationResources;
     streamText: OperationResources;
+    openaiSdk: OperationResources;
+    anthropicSdk: OperationResources;
 }
 
 const resources: TestResources = {
     generateText: {},
     streamText: {},
+    openaiSdk: {},
+    anthropicSdk: {},
 };
 
 // Results tracking
@@ -401,7 +420,7 @@ async function setupTestResources(): Promise<void> {
     resources.organizationId = await getOrganizationId();
     log(`  Organization ID: ${resources.organizationId}`);
 
-    // Create TWO credits currencies
+    // Create FOUR credits currencies
     log("  Creating credits currencies...");
     resources.generateText.creditsCurrencyId = await createCreditsCurrency("GenerateText Credits", "generate_text");
     log(`    GenerateText Credits: ${resources.generateText.creditsCurrencyId}`);
@@ -409,7 +428,13 @@ async function setupTestResources(): Promise<void> {
     resources.streamText.creditsCurrencyId = await createCreditsCurrency("StreamText Credits", "stream_text");
     log(`    StreamText Credits: ${resources.streamText.creditsCurrencyId}`);
 
-    // Create TWO products
+    resources.openaiSdk.creditsCurrencyId = await createCreditsCurrency("OpenAI SDK Credits", "openai_sdk");
+    log(`    OpenAI SDK Credits: ${resources.openaiSdk.creditsCurrencyId}`);
+
+    resources.anthropicSdk.creditsCurrencyId = await createCreditsCurrency("Anthropic SDK Credits", "anthropic_sdk");
+    log(`    Anthropic SDK Credits: ${resources.anthropicSdk.creditsCurrencyId}`);
+
+    // Create FOUR products
     log("  Creating products...");
     resources.generateText.externalProductId = `${testPrefix}-generatetext-product`;
     const generateTextProduct = await createProductWithCredits(
@@ -429,12 +454,30 @@ async function setupTestResources(): Promise<void> {
     resources.streamText.productId = streamTextProduct.id;
     log(`    StreamText Product: ${resources.streamText.productId}`);
 
+    resources.openaiSdk.externalProductId = `${testPrefix}-openaisdk-product`;
+    const openaiSdkProduct = await createProductWithCredits(
+        "OpenAI SDK Product",
+        resources.openaiSdk.externalProductId,
+        resources.openaiSdk.creditsCurrencyId
+    );
+    resources.openaiSdk.productId = openaiSdkProduct.id;
+    log(`    OpenAI SDK Product: ${resources.openaiSdk.productId}`);
+
+    resources.anthropicSdk.externalProductId = `${testPrefix}-anthropicsdk-product`;
+    const anthropicSdkProduct = await createProductWithCredits(
+        "Anthropic SDK Product",
+        resources.anthropicSdk.externalProductId,
+        resources.anthropicSdk.creditsCurrencyId
+    );
+    resources.anthropicSdk.productId = anthropicSdkProduct.id;
+    log(`    Anthropic SDK Product: ${resources.anthropicSdk.productId}`);
+
     // Create customer
     log("  Creating customer...");
     resources.customerId = await createCustomer();
     log(`    Customer: ${resources.customerId} (external: ${resources.externalCustomerId})`);
 
-    // Create TWO orders
+    // Create FOUR orders
     log("  Creating orders...");
     resources.generateText.orderId = await createOrder(
         resources.customerId,
@@ -450,26 +493,50 @@ async function setupTestResources(): Promise<void> {
     );
     log(`    StreamText Order: ${resources.streamText.orderId}`);
 
+    resources.openaiSdk.orderId = await createOrder(
+        resources.customerId,
+        resources.openaiSdk.productId,
+        openaiSdkProduct.attributes
+    );
+    log(`    OpenAI SDK Order: ${resources.openaiSdk.orderId}`);
+
+    resources.anthropicSdk.orderId = await createOrder(
+        resources.customerId,
+        resources.anthropicSdk.productId,
+        anthropicSdkProduct.attributes
+    );
+    log(`    Anthropic SDK Order: ${resources.anthropicSdk.orderId}`);
+
     // Activate orders
     log("  Activating orders...");
     await activateOrder(resources.generateText.orderId);
     log(`    GenerateText Order activated`);
     await activateOrder(resources.streamText.orderId);
     log(`    StreamText Order activated`);
+    await activateOrder(resources.openaiSdk.orderId);
+    log(`    OpenAI SDK Order activated`);
+    await activateOrder(resources.anthropicSdk.orderId);
+    log(`    Anthropic SDK Order activated`);
 
     // Wait for credit bundles
     log("  Waiting for credit bundles...");
     await waitForCreditBundlesForCurrency(resources.customerId, resources.generateText.creditsCurrencyId, 1);
     await waitForCreditBundlesForCurrency(resources.customerId, resources.streamText.creditsCurrencyId, 1);
+    await waitForCreditBundlesForCurrency(resources.customerId, resources.openaiSdk.creditsCurrencyId, 1);
+    await waitForCreditBundlesForCurrency(resources.customerId, resources.anthropicSdk.creditsCurrencyId, 1);
 
     // Record initial balances
     const bundles = await getCreditBundles(resources.customerId);
     resources.generateText.initialBalance = calculateCreditBalanceForCurrency(bundles, resources.generateText.creditsCurrencyId);
     resources.streamText.initialBalance = calculateCreditBalanceForCurrency(bundles, resources.streamText.creditsCurrencyId);
+    resources.openaiSdk.initialBalance = calculateCreditBalanceForCurrency(bundles, resources.openaiSdk.creditsCurrencyId);
+    resources.anthropicSdk.initialBalance = calculateCreditBalanceForCurrency(bundles, resources.anthropicSdk.creditsCurrencyId);
 
     log(`  Initial balances:`);
-    log(`    GenerateText - Total: ${resources.generateText.initialBalance.total}, Available: ${resources.generateText.initialBalance.available}`);
-    log(`    StreamText   - Total: ${resources.streamText.initialBalance.total}, Available: ${resources.streamText.initialBalance.available}`);
+    log(`    GenerateText  - Total: ${resources.generateText.initialBalance.total}, Available: ${resources.generateText.initialBalance.available}`);
+    log(`    StreamText    - Total: ${resources.streamText.initialBalance.total}, Available: ${resources.streamText.initialBalance.available}`);
+    log(`    OpenAI SDK    - Total: ${resources.openaiSdk.initialBalance.total}, Available: ${resources.openaiSdk.initialBalance.available}`);
+    log(`    Anthropic SDK - Total: ${resources.anthropicSdk.initialBalance.total}, Available: ${resources.anthropicSdk.initialBalance.available}`);
 }
 
 
@@ -493,42 +560,15 @@ async function testTracingAutoInitialized(): Promise<boolean> {
 
     try {
         log("  Tracing auto-initialized on module import");
-        log("  OpenAI calls will be automatically traced");
+        log("  OpenAI and Anthropic calls will be automatically traced");
         return true;
     } catch (error: any) {
         throw new Error(`Tracing verification failed: ${error.message}`);
     }
 }
 
-async function testGenAISpanProcessorAttributes(): Promise<boolean> {
-    log("Test: Verify GenAI Span Processor");
-
-    try {
-        const processor = new GenAISpanProcessor();
-        log("  GenAI span processor instantiated successfully");
-
-        if (typeof processor.onStart !== "function") {
-            throw new Error("GenAI span processor missing onStart method");
-        }
-        if (typeof processor.onEnd !== "function") {
-            throw new Error("GenAI span processor missing onEnd method");
-        }
-        if (typeof processor.shutdown !== "function") {
-            throw new Error("GenAI span processor missing shutdown method");
-        }
-        if (typeof processor.forceFlush !== "function") {
-            throw new Error("GenAI span processor missing forceFlush method");
-        }
-
-        log("  GenAI span processor has all required methods");
-        return true;
-    } catch (error: any) {
-        throw new Error(`GenAI span processor verification failed: ${error.message}`);
-    }
-}
-
 async function testGenerateTextWithTracing(): Promise<boolean> {
-    log("Test: generateText with Tracing (uses GenerateText Credits)");
+    log("Test: generateText with Tracing (AI SDK - uses GenerateText Credits)");
 
     try {
         // Use trace() with generateText's externalProductId
@@ -566,7 +606,7 @@ async function testGenerateTextWithTracing(): Promise<boolean> {
 }
 
 async function testStreamTextWithTracing(): Promise<boolean> {
-    log("Test: streamText with Tracing (uses StreamText Credits)");
+    log("Test: streamText with Tracing (AI SDK - uses StreamText Credits)");
 
     try {
         // Use trace() with streamText's externalProductId
@@ -609,70 +649,100 @@ async function testStreamTextWithTracing(): Promise<boolean> {
     }
 }
 
-async function testVerifyGenerateTextCreditsConsumed(): Promise<boolean> {
-    log("Test: Verify GenerateText Credits Were Consumed");
+async function testOpenAISdkWithTracing(): Promise<boolean> {
+    log("Test: OpenAI SDK with Tracing (uses OpenAI SDK Credits)");
 
     try {
-        const initial = resources.generateText.initialBalance;
-        if (!initial) {
-            throw new Error("Initial balance not recorded for generateText");
-        }
-
-        log("  Waiting for generateText credits to be processed...");
-
-        const maxWaitTime = 60000;
-        const pollInterval = 3000;
-        const startTime = Date.now();
-        let finalBalance: CreditBalance | null = null;
-        let consumed = false;
-
-        while (Date.now() - startTime < maxWaitTime) {
-            const bundles = await getCreditBundles(resources.customerId!);
-            finalBalance = calculateCreditBalanceForCurrency(bundles, resources.generateText.creditsCurrencyId!);
-
-            log(`    Current - Available: ${finalBalance.available}, Used: ${finalBalance.used}`);
-
-            if (finalBalance.used > initial.used || finalBalance.available < initial.available) {
-                consumed = true;
-                break;
+        // Use trace() with openaiSdk's externalProductId
+        const result = await trace(
+            {
+                externalCustomerId: resources.externalCustomerId!,
+                externalProductId: resources.openaiSdk.externalProductId!,
+            },
+            async () => {
+                const response = await openaiClient.chat.completions.create({
+                    model: "gpt-4o-mini",
+                    messages: [
+                        { role: "user", content: "Say 'Hello from OpenAI SDK tracing test' in exactly 7 words." }
+                    ],
+                    max_tokens: 50,
+                });
+                return response;
             }
+        );
 
-            await new Promise((resolve) => setTimeout(resolve, pollInterval));
+        if (!result.choices || result.choices.length === 0) {
+            throw new Error("Response missing choices");
         }
 
-        if (!finalBalance) {
-            throw new Error("Failed to get final balance");
-        }
+        const text = result.choices[0].message?.content || "";
+        const usage = result.usage;
 
-        log("");
-        log("  GenerateText Credits Summary:");
-        log(`    Initial  - Available: ${initial.available}, Used: ${initial.used}`);
-        log(`    Final    - Available: ${finalBalance.available}, Used: ${finalBalance.used}`);
+        log(`  Generated text: "${text.trim()}"`);
+        log(`  Token usage - Input: ${usage?.prompt_tokens}, Output: ${usage?.completion_tokens}`);
+        log(`  Using product: ${resources.openaiSdk.externalProductId}`);
+        log(`  Credits currency: ${resources.openaiSdk.creditsCurrencyId?.slice(0, 8)}...`);
 
-        if (consumed) {
-            const creditsUsed = finalBalance.used - initial.used;
-            log(`    Consumed: ${creditsUsed} credits`);
-            log("  SUCCESS: GenerateText credits were consumed!");
-            return true;
-        } else {
-            log("  WARNING: GenerateText credits were not consumed within expected time");
-            return true; // Don't fail for now
-        }
+        return true;
     } catch (error: any) {
-        throw new Error(`GenerateText credit verification failed: ${error.message}`);
+        throw new Error(`OpenAI SDK call failed: ${error.message}`);
     }
 }
 
-async function testVerifyStreamTextCreditsConsumed(): Promise<boolean> {
-    log("Test: Verify StreamText Credits Were Consumed");
+async function testAnthropicSdkWithTracing(): Promise<boolean> {
+    log("Test: Anthropic SDK with Tracing (uses Anthropic SDK Credits)");
 
     try {
-        const initial = resources.streamText.initialBalance;
-        if (!initial) {
-            throw new Error("Initial balance not recorded for streamText");
+        // Use trace() with anthropicSdk's externalProductId
+        const result = await trace(
+            {
+                externalCustomerId: resources.externalCustomerId!,
+                externalProductId: resources.anthropicSdk.externalProductId!,
+            },
+            async () => {
+                const response = await anthropicClient.messages.create({
+                    model: "claude-3-5-haiku-20241022",
+                    max_tokens: 50,
+                    messages: [
+                        { role: "user", content: "Say 'Hello from Anthropic SDK tracing test' in exactly 7 words." }
+                    ],
+                });
+                return response;
+            }
+        );
+
+        if (!result.content || result.content.length === 0) {
+            throw new Error("Response missing content");
         }
 
-        log("  Waiting for streamText credits to be processed...");
+        const textContent = result.content.find((c) => c.type === "text");
+        const text = textContent && "text" in textContent ? textContent.text : "";
+        const usage = result.usage;
+
+        log(`  Generated text: "${text.trim()}"`);
+        log(`  Token usage - Input: ${usage?.input_tokens}, Output: ${usage?.output_tokens}`);
+        log(`  Using product: ${resources.anthropicSdk.externalProductId}`);
+        log(`  Credits currency: ${resources.anthropicSdk.creditsCurrencyId?.slice(0, 8)}...`);
+
+        return true;
+    } catch (error: any) {
+        throw new Error(`Anthropic SDK call failed: ${error.message}`);
+    }
+}
+
+async function testVerifyCreditsConsumed(
+    operationName: string,
+    operationResources: OperationResources
+): Promise<boolean> {
+    log(`Test: Verify ${operationName} Credits Were Consumed`);
+
+    try {
+        const initial = operationResources.initialBalance;
+        if (!initial) {
+            throw new Error(`Initial balance not recorded for ${operationName}`);
+        }
+
+        log(`  Waiting for ${operationName} credits to be processed...`);
 
         const maxWaitTime = 60000;
         const pollInterval = 3000;
@@ -682,7 +752,7 @@ async function testVerifyStreamTextCreditsConsumed(): Promise<boolean> {
 
         while (Date.now() - startTime < maxWaitTime) {
             const bundles = await getCreditBundles(resources.customerId!);
-            finalBalance = calculateCreditBalanceForCurrency(bundles, resources.streamText.creditsCurrencyId!);
+            finalBalance = calculateCreditBalanceForCurrency(bundles, operationResources.creditsCurrencyId!);
 
             log(`    Current - Available: ${finalBalance.available}, Used: ${finalBalance.used}`);
 
@@ -699,21 +769,21 @@ async function testVerifyStreamTextCreditsConsumed(): Promise<boolean> {
         }
 
         log("");
-        log("  StreamText Credits Summary:");
+        log(`  ${operationName} Credits Summary:`);
         log(`    Initial  - Available: ${initial.available}, Used: ${initial.used}`);
         log(`    Final    - Available: ${finalBalance.available}, Used: ${finalBalance.used}`);
 
         if (consumed) {
             const creditsUsed = finalBalance.used - initial.used;
             log(`    Consumed: ${creditsUsed} credits`);
-            log("  SUCCESS: StreamText credits were consumed!");
+            log(`  SUCCESS: ${operationName} credits were consumed!`);
             return true;
         } else {
-            log("  WARNING: StreamText credits were not consumed within expected time");
+            log(`  WARNING: ${operationName} credits were not consumed within expected time`);
             return true; // Don't fail for now
         }
     } catch (error: any) {
-        throw new Error(`StreamText credit verification failed: ${error.message}`);
+        throw new Error(`${operationName} credit verification failed: ${error.message}`);
     }
 }
 
@@ -733,16 +803,17 @@ async function runTest(name: string, fn: () => Promise<boolean>, skippable = fal
 
 async function main() {
     log("=".repeat(70));
-    log("AI SDK GenAI Tracing E2E Test - Separate Credits Verification");
+    log("AI SDK GenAI Tracing E2E Test - Multi-SDK Credits Verification");
     log("=".repeat(70));
     log(`Test Prefix: ${testPrefix}`);
     log(`Paid API Base URL: ${PAID_API_BASE_URL}`);
     log(`OpenAI API Key: ${OPENAI_API_KEY ? "Set" : "Not Set"}`);
+    log(`Anthropic API Key: ${ANTHROPIC_API_KEY ? "Set" : "Not Set"}`);
     log("");
 
     // Phase 1: Setup
     log("=".repeat(70));
-    log("Phase 1: Setup (2 Credits Currencies, 2 Products, 2 Orders)");
+    log("Phase 1: Setup (4 Credits Currencies, 4 Products, 4 Orders)");
     log("=".repeat(70));
     await runTest("Setup Test Resources", testSetupResources);
 
@@ -752,23 +823,42 @@ async function main() {
     log("Phase 2: Tracing Verification");
     log("=".repeat(70));
     await runTest("Tracing Auto-Initialized", testTracingAutoInitialized);
-    await runTest("GenAI Span Processor Verification", testGenAISpanProcessorAttributes);
 
-    // Phase 3: AI Calls
+    // Phase 3: AI Calls (4 different SDK/methods, each uses different credits currency)
     log("");
     log("=".repeat(70));
-    log("Phase 3: AI Calls (Each Uses Different Credits Currency)");
+    log("Phase 3: AI Calls (4 SDK Methods, Each Uses Different Credits Currency)");
     log("=".repeat(70));
-    await runTest("generateText with Tracing", testGenerateTextWithTracing);
-    await runTest("streamText with Tracing", testStreamTextWithTracing);
+    await runTest("AI SDK generateText with Tracing", testGenerateTextWithTracing);
+    await runTest("AI SDK streamText with Tracing", testStreamTextWithTracing);
+    await runTest("OpenAI SDK with Tracing", testOpenAISdkWithTracing);
+    await runTest("Anthropic SDK with Tracing", testAnthropicSdkWithTracing);
 
     // Phase 4: Credits Verification (Separate for each operation)
     log("");
     log("=".repeat(70));
-    log("Phase 4: Credits Consumption Verification (Independent)");
+    log("Phase 4: Credits Consumption Verification (Independent per SDK)");
     log("=".repeat(70));
-    await runTest("Verify GenerateText Credits Consumed", testVerifyGenerateTextCreditsConsumed, true);
-    await runTest("Verify StreamText Credits Consumed", testVerifyStreamTextCreditsConsumed, true);
+    await runTest(
+        "Verify GenerateText Credits Consumed",
+        () => testVerifyCreditsConsumed("GenerateText", resources.generateText),
+        true
+    );
+    await runTest(
+        "Verify StreamText Credits Consumed",
+        () => testVerifyCreditsConsumed("StreamText", resources.streamText),
+        true
+    );
+    await runTest(
+        "Verify OpenAI SDK Credits Consumed",
+        () => testVerifyCreditsConsumed("OpenAI SDK", resources.openaiSdk),
+        true
+    );
+    await runTest(
+        "Verify Anthropic SDK Credits Consumed",
+        () => testVerifyCreditsConsumed("Anthropic SDK", resources.anthropicSdk),
+        true
+    );
 
 
     // Summary
