@@ -17,6 +17,9 @@ importers:
       '@arizeai/openinference-semantic-conventions':
         specifier: '>=2.1.2'
         version: 2.1.7
+      '@arizeai/openinference-vercel':
+        specifier: ^2.7.0
+        version: 2.7.0(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.39.0)
       '@opentelemetry/api':
         specifier: '>=1.9.0'
         version: 1.9.0
@@ -136,6 +139,12 @@ packages:
   '@arizeai/openinference-core@2.0.5':
     resolution: {integrity: sha512-BnufYaFqmG9twkz/9DHX9WTcOs7YvVAYaufau5tdjOT1c0Y8niJwmNWzV36phNPg3c7SmdD5OYLuzeAUN0T3pQ==}
 
+  '@arizeai/openinference-genai@0.1.6':
+    resolution: {integrity: sha512-SYXKe/wKS5rrXfq2nrxvNqy3qtJzZeIp3AWAMWzmkKqd5e0R/jAquuAawhIY8Jxof0jhuhYm/QBsE+tqEg8fkg==}
+    peerDependencies:
+      '@opentelemetry/api': '>=1.9.0'
+      '@opentelemetry/semantic-conventions': '>=1.37.0'
+
   '@arizeai/openinference-instrumentation-anthropic@0.1.7':
     resolution: {integrity: sha512-TaxOkNLQftIgqvtT5R64FaRPGGf6E0nm6+8J3g7JF4A6lPYnLLquc/HyMN+ttckqavXcIfLYn7qKa4AfZm4kuA==}
 
@@ -144,6 +153,11 @@ packages:
 
   '@arizeai/openinference-semantic-conventions@2.1.7':
     resolution: {integrity: sha512-KyBfwxkSusPvxHBaW/TJ0japEbXCNziW9o6/IRKiPu+gp5TMKIagV2NKvt47rWYa4Jc0Nl+SvAPm+yxkdJqVbg==}
+
+  '@arizeai/openinference-vercel@2.7.0':
+    resolution: {integrity: sha512-UoRh3tenlsxhCK5fw8YrPpMfiBfhG49XOQOZTZul/iGWWKPbBEhrlEfxB8jLZYGh2iCIJLx+F3Vhx0Ojn3LvPQ==}
+    peerDependencies:
+      '@opentelemetry/api': '>=1.7.0 <2.0.0'
 
   '@aws-crypto/crc32@5.2.0':
     resolution: {integrity: sha512-nLbCWqQNgUiwwtFsen1AdzAtvuLRsQS8rYgMuxCrdKf9kOssamGLuPwyTY9wyYblNr9+1XM8v6zoDTPPSIeANg==}
@@ -2487,6 +2501,12 @@ snapshots:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
 
+  '@arizeai/openinference-genai@0.1.6(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.39.0)':
+    dependencies:
+      '@arizeai/openinference-semantic-conventions': 2.1.7
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/semantic-conventions': 1.39.0
+
   '@arizeai/openinference-instrumentation-anthropic@0.1.7':
     dependencies:
       '@arizeai/openinference-core': 2.0.5
@@ -2508,6 +2528,16 @@ snapshots:
       - supports-color
 
   '@arizeai/openinference-semantic-conventions@2.1.7': {}
+
+  '@arizeai/openinference-vercel@2.7.0(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.39.0)':
+    dependencies:
+      '@arizeai/openinference-core': 2.0.5
+      '@arizeai/openinference-genai': 0.1.6(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.39.0)
+      '@arizeai/openinference-semantic-conventions': 2.1.7
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
+    transitivePeerDependencies:
+      - '@opentelemetry/semantic-conventions'
 
   '@aws-crypto/crc32@5.2.0':
     dependencies:
