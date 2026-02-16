@@ -1,0 +1,71 @@
+[
+    {
+        "scope": "https://api.openai.com:443",
+        "method": "POST",
+        "path": "/v1/responses",
+        "body": {
+            "model": "gpt-4o-mini",
+            "input": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "input_text",
+                            "text": "Generate a simple greeting."
+                        }
+                    ]
+                }
+            ],
+            "text": {
+                "format": {
+                    "type": "json_schema",
+                    "strict": true,
+                    "name": "response",
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "greeting": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "greeting"
+                        ],
+                        "additionalProperties": false,
+                        "$schema": "http://json-schema.org/draft-07/schema#"
+                    }
+                }
+            }
+        },
+        "status": 200,
+        "response": [
+            "1b7707001c07e5186abfeca6a9be3979c2a24db7f62c13e445649afb97b6104c425f2c4144fafcb5f9a993e7eef11552364d1d56bf9fce44c9381bab8ede864b64ab98f702a4f2654156a90a5b65ab23dade0eb810c630eadf7c81d210af1e09770dad4d729d1deec3bddc19882af5b2abc2965cc8ecdedb4d69c9bff71fcd816eb45655faeab268729d8cfc01cfc912a64736f23e683958dc67d4c51e3adf45e53be45bf1527b2e8ba3c6bc595680d411021740b523346fc691a9e2ddae84eb7a940a64748017730a8f1ed92d954e8e48b2c3d2bc08261dc2eb600505669bdc9a97e6c6dff0ea51dcb8c5be1e31de5ed0d9f581d3e033297addb2395d0093c099df2dbb785a9f9d7971c7860a16d7fb74fee3d491d5a4d1a0750550201ccd69a6109842c752e772d56118856305e74a047fdd57d74d61b5a8d75f496df756d95fae1e7d55b130bbb48a155e556fd76cfb9fbe3f79d7f791fc6da67880f536346f5ff54758f5be8446da45bb360026d9465036c5d9bed23fb93412428d7f4a6018b40a3bf4296a3e501aeeae3752978d23e6f919e5fc961f093bae4c97b49c9f72c8384bf24116c12121400439f52da6777ce47809e6d82427eb1317dbc6182d5981894763d10de08e43ef9cc0701d0346335f973213c18df92dfa06b13262662248bd22b4c30b30d8cc5c4a749a4bed80b32ccb357ab60964c50297b89d42ce326fbcb064d0cf940fe92d9f852a174143d69dadc0b96416e4cf7ab0d8ba4b51d9a5bc40046a78f6fca72a9ae25650e86118572d37149c2b10cc35ee3e957b151887f52939799d9614090bd5b4a2cc2fd41f1978981163b13013169ec7cd1dc8c4cbecc2d1eb46208d74b0844cd31d87193545676ebfc6ce84c68170ff0f03"
+        ],
+        "rawHeaders": {
+            "alt-svc": "h3=\":443\"; ma=86400",
+            "cf-cache-status": "DYNAMIC",
+            "cf-ray": "9ceee5c1eb14a6f7-LHR",
+            "connection": "keep-alive",
+            "content-encoding": "br",
+            "content-type": "application/json",
+            "date": "Mon, 16 Feb 2026 17:52:14 GMT",
+            "openai-organization": "agentpaid",
+            "openai-processing-ms": "772",
+            "openai-project": "proj_g54CtVh9wETqz1duiA1cw9Kw",
+            "openai-version": "2020-10-01",
+            "server": "cloudflare",
+            "set-cookie": "REDACTED",
+            "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+            "transfer-encoding": "chunked",
+            "x-content-type-options": "nosniff",
+            "x-ratelimit-limit-requests": "10000",
+            "x-ratelimit-limit-tokens": "200000",
+            "x-ratelimit-remaining-requests": "9996",
+            "x-ratelimit-remaining-tokens": "199946",
+            "x-ratelimit-reset-requests": "28.594s",
+            "x-ratelimit-reset-tokens": "16ms",
+            "x-request-id": "req_e80303c06f0c4bcea14da6883ea6bebb"
+        },
+        "responseIsBinary": false
+    }
+]

@@ -1,0 +1,51 @@
+[
+    {
+        "scope": "https://api.openai.com:443",
+        "method": "POST",
+        "path": "/v1/responses",
+        "body": {
+            "model": "gpt-4o-mini",
+            "input": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "input_text",
+                            "text": "Say hello in exactly 3 words."
+                        }
+                    ]
+                }
+            ]
+        },
+        "status": 200,
+        "response": [
+            "1b0906202c0eec866f27fc7406d6f4d36e146190999bca72f1b03d4a7e57dab2c3d80922d267d66cca4773cc269b57e9aa8682251558745a01a4abafefffde790e168570588471bcdce4873d2c6aa93513665b87ec90d3e84a5d1dc274ae50a40126f6ff9b1f750f9d6cbc0b0afdce8d685a58752790338cf1bce9de3aba3541eea76679d984847c264991a94c128d3568f28a56a9a5738c219b40cdb4c3796a2c2c12f64c89be423e1b166478980f45bfbc2d35a28684f955ea49edf142df8409853bae53e48ab82508c33ede9899ec28a2db5c638783230d26fd204af208d7d3748acb1c50f50ba0f8179d0439d2e67f523c9756b3b9833ada1d0ed16138b9a04714cb0f4e7b98a4aaf9437a9e34ce6e2f0d9b1c1b421025038d244e94761966a04b48a95dce362f59fa85a2f181e231d14fbbc76bf4cab8acdedb16b32359241aff9dadfc49f0c77ae3e45dce96588b5fd0d6b9d2985a6a8968115ef03dedbbfa1d5652e963f63702cec54c94f625a4c32b74cf765ab665920325e57318f8250f373e78ee13c7c485c7e702973fbb0f73290e72bda606d7b497f1560e9f0852121a38482529b258a354b94eb01585920cfe0b226a1c57265ce52301ac51af8bd11b176f66d9bb635e94fbed6a3a70e08a4c1c5474cb443381f1bb6311844b19d73f133327db395bddb72529972c12655ab6c8709fc4ef68bc485a19aca7c0f0896bfb1cde9eac0d4f8b74b964c5ffa23d6e21cc246156dc378ff7b0890f7d434086f76e"
+        ],
+        "rawHeaders": {
+            "alt-svc": "h3=\":443\"; ma=86400",
+            "cf-cache-status": "DYNAMIC",
+            "cf-ray": "9ceee5991cb6a6f7-LHR",
+            "connection": "keep-alive",
+            "content-encoding": "br",
+            "content-type": "application/json",
+            "date": "Mon, 16 Feb 2026 17:52:07 GMT",
+            "openai-organization": "agentpaid",
+            "openai-processing-ms": "1045",
+            "openai-project": "proj_g54CtVh9wETqz1duiA1cw9Kw",
+            "openai-version": "2020-10-01",
+            "server": "cloudflare",
+            "set-cookie": "REDACTED",
+            "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+            "transfer-encoding": "chunked",
+            "x-content-type-options": "nosniff",
+            "x-ratelimit-limit-requests": "10000",
+            "x-ratelimit-limit-tokens": "200000",
+            "x-ratelimit-remaining-requests": "9999",
+            "x-ratelimit-remaining-tokens": "199966",
+            "x-ratelimit-reset-requests": "8.64s",
+            "x-ratelimit-reset-tokens": "10ms",
+            "x-request-id": "req_844e7e20bb4d4308b715cfe6d0b36e31"
+        },
+        "responseIsBinary": false
+    }
+]

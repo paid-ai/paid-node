@@ -1,0 +1,73 @@
+[
+    {
+        "scope": "https://api.openai.com:443",
+        "method": "POST",
+        "path": "/v1/responses",
+        "body": {
+            "model": "gpt-4o-mini",
+            "input": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "input_text",
+                            "text": "What is the weather in San Francisco?"
+                        }
+                    ]
+                }
+            ],
+            "tools": [
+                {
+                    "type": "function",
+                    "name": "getWeather",
+                    "description": "Get the weather for a location",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "location": {
+                                "type": "string",
+                                "description": "The city name"
+                            }
+                        },
+                        "required": [
+                            "location"
+                        ],
+                        "additionalProperties": false,
+                        "$schema": "http://json-schema.org/draft-07/schema#"
+                    }
+                }
+            ],
+            "tool_choice": "auto"
+        },
+        "status": 200,
+        "response": [
+            "1b7f07009c07b60d7b2b49a968deb11f33763f9dbf7719992b1cf8db3b7dd1cd0ec9a5623c42aa0d22d2d5b7155874faa4020897c94f7f9fb18dc449aca197e485b1962a6e4c7569fba76239ec36163c4ea1043a624bfd4c2e10c6bef2cf3ca04dc78a551a0a729056f751f540d6438a9c1befa501925a71e5c0cba475eeb4147df25169c399a8a75154d2556556e51246f90f602d0863b404b9ea807c6e711d918ab3ccf92a4acf213fb99a42f36c929778a33a7348e50c9ec18b2dac7e448871b221f02e47baeb66f1a4206bb7f99c8f293c66d16e2137c326ca4e0ef18a309946bc16270030a7d0ad712a6efc8e155b953653a7598c4fcde8ecd28cdb19388ba36cb4533fc63093b8339fd9e7f1a8929407fd6f0eb2cb113ad25c13b3200403ba0439d1d393947bce978e3bccf61e87d8afbfacc3ecf8bce5aca8650a7bc00efe1b6ccfafb7f606c3f27b7d1dc7f1782f4fa9d5d75c40be586a95dadf5e42c4a7c796fc5cfbc1d6c6d4ddfc1cff653e4f613b877016f5c84de74b3d1d4a434a781deee826cf2b353a9a20a452e2885856fae24d36b1e03681435b39a933de152302d9427a059b6c8e91a42c846a8215981110246600b00469a7cce2c7314224ad9addb4be73a69a4ec3a64d6618d350488a23945191044f9ae8c2f601cde54024ef33b9a1b57bc2d9879f598bb0571d342e274ef7bee589135c8b52625bce25add71e96b1443d311aa8d06b4bdfeb276a13dd39f9fa1d629d12cf67e3b17f7cd0ba9c74d24af71e4dacdb695291a8be9a1b888ae26da79dca27033c2af5940a99e782b682aefd3a1eed33c79ea4520672e248d07bb83952e70b1aa632e76306a8845e4b97b99d83b49091ef8311562fdbe3b6d2464e9869b86e2cf871521d39fe2cb5d8c51655dfda01"
+        ],
+        "rawHeaders": {
+            "alt-svc": "h3=\":443\"; ma=86400",
+            "cf-cache-status": "DYNAMIC",
+            "cf-ray": "9cef1b6c4cc86c94-LHR",
+            "connection": "keep-alive",
+            "content-encoding": "br",
+            "content-type": "application/json",
+            "date": "Mon, 16 Feb 2026 18:28:52 GMT",
+            "openai-organization": "agentpaid",
+            "openai-processing-ms": "1091",
+            "openai-project": "proj_g54CtVh9wETqz1duiA1cw9Kw",
+            "openai-version": "2020-10-01",
+            "server": "cloudflare",
+            "set-cookie": "REDACTED",
+            "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+            "transfer-encoding": "chunked",
+            "x-content-type-options": "nosniff",
+            "x-ratelimit-limit-requests": "10000",
+            "x-ratelimit-limit-tokens": "200000",
+            "x-ratelimit-remaining-requests": "9999",
+            "x-ratelimit-remaining-tokens": "199732",
+            "x-ratelimit-reset-requests": "8.64s",
+            "x-ratelimit-reset-tokens": "80ms",
+            "x-request-id": "req_c79c059505ec4d01a8f507d29813eeb7"
+        },
+        "responseIsBinary": false
+    }
+]

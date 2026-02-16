@@ -1,0 +1,73 @@
+[
+    {
+        "scope": "https://api.openai.com:443",
+        "method": "POST",
+        "path": "/v1/responses",
+        "body": {
+            "model": "gpt-4o-mini",
+            "input": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "input_text",
+                            "text": "First get the weather in San Francisco, then tell me if I need a jacket."
+                        }
+                    ]
+                }
+            ],
+            "tools": [
+                {
+                    "type": "function",
+                    "name": "getWeather",
+                    "description": "Get the weather for a location",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "location": {
+                                "type": "string",
+                                "description": "The city name"
+                            }
+                        },
+                        "required": [
+                            "location"
+                        ],
+                        "additionalProperties": false,
+                        "$schema": "http://json-schema.org/draft-07/schema#"
+                    }
+                }
+            ],
+            "tool_choice": "auto"
+        },
+        "status": 200,
+        "response": [
+            "1b7f07009c0576c3f5a289112f7f744ab31e192de9b57719333faee0fc8053a57ce4a50611e9eaab6b2b16f963a2035a4431d44f05102e939f7b898c9d73b366bd242f030609a42e6d3faa919b6563ffa49d12d321cebb516110d29bfd99af4469084e70a12ba3b0d2e0c513887027559969c45bd98108e42bad3d8baff4b8465beb400175348a4abaaaccaa9c474ffe8bec8e496e9b72d501f9dce23a2615a7c0f92a4acf213f16cfa079363d67ef4d97b943ea1c249ec18bcdad7ed0c438d908789713dd7553d81464fd0df1e984c2630aed1672336ca2ecf0e0bd10261388d7fc0400e638ba35cec48dadc00962be15b593c4f87891ceae899a02cbe2281bfdf1b531cc24eecc5746c16468cf6b9ef99188105f06db50a02f052118304d90133d3d49b1e77ce5b8c37cfb7b88fdb901e7303bb2a8fb67452de3d80176f4dfc473d8e48afac7e97e36af74bb8ff3b8559d93e702f2c5524b74fbdb4b88f8e2d88a9f6b3fd8da98ba839fe3bfc8e7296ca711cea21eb9e9325f4e07be2125bc0f737acbcf2f74a3a309422a258e8865a52fde66530b6e1338b495939ae35d3122902da417f1269b069294a5504db002330282c40c009620ed9459fc344688a455b39bd60f1e74f14fd7f4369d04a6a190144728a322099e34d1858d5734170391bccfe486bedd13ce3efccc72c15e79d0b89c38ddbb96a74e70750529b12de792bed71e56b1446d8c7a4b74dafc2479a236d19d93afdc31d629f17c36197eedc3fae5a4a695ee3d9a58b7995491a8be14dc4094176fad6e27c6fd29e6cbc92f6446081a185d3b97fbd13ed3f024953294c691a0f7343d52e71b860e99f331035442af2eccdc28409acbc88f650acb97ed715b6a2b0d338d564c821f4d75e4f875ba79ed2f545fff3b"
+        ],
+        "rawHeaders": {
+            "alt-svc": "h3=\":443\"; ma=86400",
+            "cf-cache-status": "DYNAMIC",
+            "cf-ray": "9cef1b747bc46c94-LHR",
+            "connection": "keep-alive",
+            "content-encoding": "br",
+            "content-type": "application/json",
+            "date": "Mon, 16 Feb 2026 18:28:53 GMT",
+            "openai-organization": "agentpaid",
+            "openai-processing-ms": "684",
+            "openai-project": "proj_g54CtVh9wETqz1duiA1cw9Kw",
+            "openai-version": "2020-10-01",
+            "server": "cloudflare",
+            "set-cookie": "REDACTED",
+            "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+            "transfer-encoding": "chunked",
+            "x-content-type-options": "nosniff",
+            "x-ratelimit-limit-requests": "10000",
+            "x-ratelimit-limit-tokens": "200000",
+            "x-ratelimit-remaining-requests": "9998",
+            "x-ratelimit-remaining-tokens": "199723",
+            "x-ratelimit-reset-requests": "16.325s",
+            "x-ratelimit-reset-tokens": "83ms",
+            "x-request-id": "req_1be6f304a73f4221b90672f662a16ae7"
+        },
+        "responseIsBinary": false
+    }
+]
