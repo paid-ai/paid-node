@@ -80,13 +80,13 @@ function getCassetteName(testName: string): string {
     return `${testName.replace(/[^a-zA-Z0-9]/g, "_")}.json`;
 }
 
-// Skip all tests if OPENAI_API_KEY is not available
-// AI SDK uses the new OpenAI Responses API which has compatibility issues with nock.back recording
-const hasApiKey = !!process.env.OPENAI_API_KEY;
-const describeIfApiKey = hasApiKey ? describe : describe.skip;
-
-describeIfApiKey("AI SDK Tracing", () => {
+describe("AI SDK Tracing", () => {
     beforeAll(async () => {
+        // Set dummy API key for nock playback mode (AI SDK validates key exists before HTTP call)
+        if (!process.env.OPENAI_API_KEY) {
+            process.env.OPENAI_API_KEY = "sk-test-dummy-key-for-nock-playback";
+        }
+
         // Set up test infrastructure once
         testExporter = new InMemorySpanExporter();
         testProvider = new NodeTracerProvider({
@@ -119,7 +119,7 @@ describeIfApiKey("AI SDK Tracing", () => {
                     { externalCustomerId: "cust-ai-sdk", externalProductId: "agent-1" },
                     async () => {
                         const result = await generateText({
-                            model: openai("gpt-4o-mini", { apiKey: process.env.OPENAI_API_KEY || "test-key" }),
+                            model: openai("gpt-4o-mini", { apiKey: process.env.OPENAI_API_KEY || "sk-test-dummy-key-for-nock-playback" }),
                             prompt: "Say hello in exactly 3 words.",
                             maxTokens: 32,
                         });
@@ -152,7 +152,7 @@ describeIfApiKey("AI SDK Tracing", () => {
 
                 await runWithTracingContext({ externalCustomerId: "cust-usage" }, async () => {
                     const result = await generateText({
-                        model: openai("gpt-4o-mini", { apiKey: process.env.OPENAI_API_KEY || "test-key" }),
+                        model: openai("gpt-4o-mini", { apiKey: process.env.OPENAI_API_KEY || "sk-test-dummy-key-for-nock-playback" }),
                         prompt: "Hello",
                         maxTokens: 32,
                     });
@@ -187,7 +187,7 @@ describeIfApiKey("AI SDK Tracing", () => {
 
                 await runWithTracingContext({ externalCustomerId: "cust-stream" }, async () => {
                     const result = await streamText({
-                        model: openai("gpt-4o-mini", { apiKey: process.env.OPENAI_API_KEY || "test-key" }),
+                        model: openai("gpt-4o-mini", { apiKey: process.env.OPENAI_API_KEY || "sk-test-dummy-key-for-nock-playback" }),
                         prompt: "Say hello",
                         maxTokens: 32,
                     });
@@ -224,7 +224,7 @@ describeIfApiKey("AI SDK Tracing", () => {
 
                 await runWithTracingContext({ externalCustomerId: "cust-tool" }, async () => {
                     const result = await generateText({
-                        model: openai("gpt-4o-mini", { apiKey: process.env.OPENAI_API_KEY || "test-key" }),
+                        model: openai("gpt-4o-mini", { apiKey: process.env.OPENAI_API_KEY || "sk-test-dummy-key-for-nock-playback" }),
                         prompt: "What is the weather in San Francisco?",
                         maxTokens: 100,
                         maxSteps: 2,
@@ -274,7 +274,7 @@ describeIfApiKey("AI SDK Tracing", () => {
 
                 await runWithTracingContext({ externalCustomerId: "cust-object" }, async () => {
                     const result = await generateObject({
-                        model: openai("gpt-4o-mini", { apiKey: process.env.OPENAI_API_KEY || "test-key" }),
+                        model: openai("gpt-4o-mini", { apiKey: process.env.OPENAI_API_KEY || "sk-test-dummy-key-for-nock-playback" }),
                         schema: PersonSchema,
                         prompt: "Generate a fictional person with name, age, and occupation.",
                         maxTokens: 100,
@@ -312,7 +312,7 @@ describeIfApiKey("AI SDK Tracing", () => {
 
                 await runWithTracingContext({ externalCustomerId: "cust-object-usage" }, async () => {
                     const result = await generateObject({
-                        model: openai("gpt-4o-mini", { apiKey: process.env.OPENAI_API_KEY || "test-key" }),
+                        model: openai("gpt-4o-mini", { apiKey: process.env.OPENAI_API_KEY || "sk-test-dummy-key-for-nock-playback" }),
                         schema: SimpleSchema,
                         prompt: "Generate a simple greeting.",
                         maxTokens: 50,
@@ -348,7 +348,7 @@ describeIfApiKey("AI SDK Tracing", () => {
 
                 await runWithTracingContext({ externalCustomerId: "cust-agent" }, async () => {
                     const result = await generateText({
-                        model: openai("gpt-4o-mini", { apiKey: process.env.OPENAI_API_KEY || "test-key" }),
+                        model: openai("gpt-4o-mini", { apiKey: process.env.OPENAI_API_KEY || "sk-test-dummy-key-for-nock-playback" }),
                         prompt: "First get the weather in San Francisco, then tell me if I need a jacket.",
                         maxTokens: 200,
                         maxSteps: 3,
@@ -402,7 +402,7 @@ describeIfApiKey("AI SDK Tracing", () => {
 
                 await runWithTracingContext({ externalCustomerId: "cust-multi-tool" }, async () => {
                     const result = await generateText({
-                        model: openai("gpt-4o-mini", { apiKey: process.env.OPENAI_API_KEY || "test-key" }),
+                        model: openai("gpt-4o-mini", { apiKey: process.env.OPENAI_API_KEY || "sk-test-dummy-key-for-nock-playback" }),
                         prompt:
                             "What is 25 * 4? Then add 10 to the result. Use the calculator tool for each operation.",
                         maxTokens: 200,
