@@ -52,6 +52,28 @@ nock.back.fixtures = cassettesDir;
 const nockMode = (process.env.NOCK_BACK_MODE as nock.BackMode) || "lockdown";
 nock.back.setMode(nockMode);
 
+// Headers to redact in recorded cassettes (for security)
+const HEADERS_TO_REDACT = ["x-api-key", "authorization", "set-cookie"];
+
+// Redact sensitive headers but preserve request-id and cf-ray
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function afterRecord(recordings: any[]): any[] {
+    return recordings.map((recording) => {
+        if (recording.rawHeaders && typeof recording.rawHeaders === "object") {
+            const headers = recording.rawHeaders as Record<string, string>;
+            for (const header of HEADERS_TO_REDACT) {
+                if (headers[header]) {
+                    headers[header] = "REDACTED";
+                }
+            }
+        }
+        return recording;
+    });
+}
+
+// nock.back options with afterRecord hook
+const nockBackOptions = { afterRecord };
+
 // Helper to get cassette filename from test name
 function getCassetteName(testName: string): string {
     return `${testName.replace(/[^a-zA-Z0-9]/g, "_")}.json`;
@@ -87,7 +109,7 @@ describe("Auto-Instrumentation Integration", () => {
     describe("OpenAI Chat Completions", () => {
         it("should create span for chat completion with context attributes", async () => {
             const cassetteName = getCassetteName("openai_chat_completion");
-            const { nockDone } = await nock.back(cassetteName);
+            const { nockDone } = await nock.back(cassetteName, nockBackOptions);
 
             try {
                 const OpenAI = (await import("openai")).default;
@@ -117,7 +139,7 @@ describe("Auto-Instrumentation Integration", () => {
 
         it("should create span for streaming chat completion", async () => {
             const cassetteName = getCassetteName("openai_chat_completion_stream");
-            const { nockDone } = await nock.back(cassetteName);
+            const { nockDone } = await nock.back(cassetteName, nockBackOptions);
 
             try {
                 const OpenAI = (await import("openai")).default;
@@ -155,7 +177,7 @@ describe("Auto-Instrumentation Integration", () => {
 
         it("should capture token usage attributes", async () => {
             const cassetteName = getCassetteName("openai_token_usage");
-            const { nockDone } = await nock.back(cassetteName);
+            const { nockDone } = await nock.back(cassetteName, nockBackOptions);
 
             try {
                 const OpenAI = (await import("openai")).default;
@@ -183,7 +205,7 @@ describe("Auto-Instrumentation Integration", () => {
 
         it("should capture exact token counts matching API response", async () => {
             const cassetteName = getCassetteName("openai_exact_token_count");
-            const { nockDone } = await nock.back(cassetteName);
+            const { nockDone } = await nock.back(cassetteName, nockBackOptions);
 
             try {
                 const OpenAI = (await import("openai")).default;
@@ -232,7 +254,7 @@ describe("Auto-Instrumentation Integration", () => {
 
         it("should capture exact token counts in streaming with stream_options", async () => {
             const cassetteName = getCassetteName("openai_stream_exact_token_count");
-            const { nockDone } = await nock.back(cassetteName);
+            const { nockDone } = await nock.back(cassetteName, nockBackOptions);
 
             try {
                 const OpenAI = (await import("openai")).default;
@@ -291,7 +313,7 @@ describe("Auto-Instrumentation Integration", () => {
     describe("OpenAI Embeddings", () => {
         it("should create span for embeddings", async () => {
             const cassetteName = getCassetteName("openai_embeddings");
-            const { nockDone } = await nock.back(cassetteName);
+            const { nockDone } = await nock.back(cassetteName, nockBackOptions);
 
             try {
                 const OpenAI = (await import("openai")).default;
@@ -321,7 +343,7 @@ describe("Auto-Instrumentation Integration", () => {
     describe("Anthropic Messages", () => {
         it("should create span for message creation with context attributes", async () => {
             const cassetteName = getCassetteName("anthropic_message");
-            const { nockDone } = await nock.back(cassetteName);
+            const { nockDone } = await nock.back(cassetteName, nockBackOptions);
 
             try {
                 const Anthropic = (await import("@anthropic-ai/sdk")).default;
@@ -351,7 +373,7 @@ describe("Auto-Instrumentation Integration", () => {
 
         it("should create span for streaming messages", async () => {
             const cassetteName = getCassetteName("anthropic_message_stream");
-            const { nockDone } = await nock.back(cassetteName);
+            const { nockDone } = await nock.back(cassetteName, nockBackOptions);
 
             try {
                 const Anthropic = (await import("@anthropic-ai/sdk")).default;
@@ -390,7 +412,7 @@ describe("Auto-Instrumentation Integration", () => {
     describe("Multi-Provider Context", () => {
         it("should capture spans from multiple providers in single trace context", async () => {
             const cassetteName = getCassetteName("multi_provider");
-            const { nockDone } = await nock.back(cassetteName);
+            const { nockDone } = await nock.back(cassetteName, nockBackOptions);
 
             try {
                 const OpenAI = (await import("openai")).default;
@@ -427,7 +449,7 @@ describe("Auto-Instrumentation Integration", () => {
     describe("Prompt Filtering", () => {
         it("should filter prompt content when storePrompt is false", async () => {
             const cassetteName = getCassetteName("prompt_filtered");
-            const { nockDone } = await nock.back(cassetteName);
+            const { nockDone } = await nock.back(cassetteName, nockBackOptions);
 
             try {
                 const OpenAI = (await import("openai")).default;
@@ -461,7 +483,7 @@ describe("Auto-Instrumentation Integration", () => {
 
         it("should keep prompt content when storePrompt is true", async () => {
             const cassetteName = getCassetteName("prompt_stored");
-            const { nockDone } = await nock.back(cassetteName);
+            const { nockDone } = await nock.back(cassetteName, nockBackOptions);
 
             try {
                 const OpenAI = (await import("openai")).default;
@@ -497,7 +519,7 @@ describe("Auto-Instrumentation Integration", () => {
 
         it("should filter prompt content in streaming with storePrompt false", async () => {
             const cassetteName = getCassetteName("prompt_filtered_stream");
-            const { nockDone } = await nock.back(cassetteName);
+            const { nockDone } = await nock.back(cassetteName, nockBackOptions);
 
             try {
                 const OpenAI = (await import("openai")).default;

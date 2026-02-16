@@ -15,20 +15,20 @@
         },
         "status": 200,
         "response": [
-            "1b4603001c056e2cb3497c9d8dd41942892826e709dd5e3da2d6925ed37acd7c95a617573805980a2c3a5337efb94d18782cdf1813031bbc96e55d24e1a084f3bb7e59a24d12698ee678b35fb1757743b1078354fee6e655c66ecddeadb5592b1e9dbf3793f2a68ec1ad1586c1de29d71af251946c7d4102cf223ce81926eaba28a98a694a076724bb14c3aa63959245b0ca166b85157456343408a300287f06ee2a23ef610b057a57f02582190bd49459b320fb3b8841709dddb8f7f95e19722c47e2da053911e2c6002e6a9b85b0f0af7f949d71d86f115b59e3cc3676b7ded04b5919564de9b4e27ac5a92392800a58f3c04ac336dbde47bbaae779d56105b04a75a3afca428b8e991c6a5aa42351a7fa0c84443b9c5aa0b73ce976ec39c0b789bce1fdf68cd5cf7b7e322ec2b34d146bc4c021b3ed73875598bb88911465e48542a86317fb0d0c86168e812f150327b5e12a9065fb0e2a9475d91615dfd102f000"
+            "1b4603401c056ebbf1399270a8f5a41968e7b4a637bf38555ec1bc9c544a1085be56d061e96ac4dc6e799e57d2425f2e225aaa28f688353a472a448e44c9e8d465971a0ff5b13001ca2e93e9a72f04798420917f0b6b5e8903f7195e969c5d56c1603c0d06cb65553a59c0fc67e22b58083c34f4e0fb113401fd315344b56d55b3aed45121d54445b199f29b683091bf8e58aa1d51b145d5d1d7c700a2de730a5f5cf82eb74211eee99e9448ac41082eac6a2172ff80c1bae3caa6becdf7b54526ec4942bf21532aea08a0c6ecaeadaaffe91fef572af301829ca946fbdfc3bf996f552ce517165c953d94a647794438605a0a8b08725cf7770f57c02face637ca7fa54bcf596f9003406957e50c00cf545be8cda784c060baa07c18e962e455ba23a4997dd89a537bd7fc7e316fd20321a3427c3a60a2c77b82facc4592cc18937fbd0cb6e92d8f2f08061615d60ac5a753daa8f5a708fd4e38d56ddd578d38b01218"
         ],
         "rawHeaders": {
             "access-control-expose-headers": "X-Request-ID",
             "alt-svc": "h3=\":443\"; ma=86400",
             "cf-cache-status": "DYNAMIC",
-            "cf-ray": "REDACTED",
+            "cf-ray": "9ceebd6d1db625e8-LHR",
             "connection": "keep-alive",
             "content-encoding": "br",
             "content-type": "application/json",
-            "date": "Mon, 16 Feb 2026 15:16:33 GMT",
-            "openai-organization": "REDACTED",
-            "openai-processing-ms": "353",
-            "openai-project": "REDACTED",
+            "date": "Mon, 16 Feb 2026 17:24:42 GMT",
+            "openai-organization": "agentpaid",
+            "openai-processing-ms": "367",
+            "openai-project": "proj_g54CtVh9wETqz1duiA1cw9Kw",
             "openai-version": "2020-10-01",
             "server": "cloudflare",
             "set-cookie": "REDACTED",
@@ -38,11 +38,11 @@
             "x-openai-proxy-wasm": "v0.1",
             "x-ratelimit-limit-requests": "10000",
             "x-ratelimit-limit-tokens": "200000",
-            "x-ratelimit-remaining-requests": "9998",
+            "x-ratelimit-remaining-requests": "9997",
             "x-ratelimit-remaining-tokens": "199996",
-            "x-ratelimit-reset-requests": "14.392s",
+            "x-ratelimit-reset-requests": "23.879s",
             "x-ratelimit-reset-tokens": "1ms",
-            "x-request-id": "req_12ad4a6e89e049bd9cbab23f630b5514"
+            "x-request-id": "req_04e14a57b2774835b5af99d2d17e605e"
         },
         "responseIsBinary": false
     }
