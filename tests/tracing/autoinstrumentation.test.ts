@@ -2,18 +2,22 @@
  * Auto-instrumentation tests for OpenAI and Anthropic.
  *
  * Tests that auto-instrumentation correctly captures spans and attributes
- * when making SDK calls to OpenAI and Anthropic (mocked via nock).
+ * when making SDK calls to OpenAI and Anthropic.
  *
- * Uses nock to mock API responses, allowing tests to run without real API keys.
+ * Uses nock.back to record/replay HTTP interactions (similar to pytest-vcr).
  *
- * Note: Due to how Node.js module caching works with OpenTelemetry instrumentation,
- * these tests run as a single suite to avoid instrumentation state issues between tests.
+ * Recording cassettes:
+ *   OPENAI_API_KEY=sk-... ANTHROPIC_API_KEY=sk-... NOCK_BACK_MODE=record pnpm test --project tracing
+ *
+ * Running with recorded cassettes (default):
+ *   pnpm test --project tracing
  */
-import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach, vi } from "vitest";
 import { NodeTracerProvider, SimpleSpanProcessor } from "@opentelemetry/sdk-trace-node";
 import { InMemorySpanExporter } from "@opentelemetry/sdk-trace-base";
 import { resourceFromAttributes } from "@opentelemetry/resources";
 import nock from "nock";
+import path from "path";
 import { PaidSpanProcessor } from "../../src/tracing/spanProcessor";
 import { AISDKSpanProcessor } from "../../src/tracing/aiSdkSpanProcessor";
 import { runWithTracingContext } from "../../src/tracing/tracingContext";
@@ -40,199 +44,21 @@ vi.mock("../../src/tracing/tracing", () => ({
     },
 }));
 
-// Mock OpenAI chat completion response
-const mockOpenAIChatCompletionResponse = {
-    id: "chatcmpl-test123",
-    object: "chat.completion",
-    created: 1704067200,
-    model: "gpt-4-0613",
-    choices: [
-        {
-            index: 0,
-            message: {
-                role: "assistant",
-                content: "Hello! How can I help you today?",
-            },
-            logprobs: null,
-            finish_reason: "stop",
-        },
-    ],
-    usage: {
-        prompt_tokens: 12,
-        completion_tokens: 9,
-        total_tokens: 21,
-    },
-    system_fingerprint: "fp_test",
-};
+// Configure nock.back for cassette recording/playback
+const cassettesDir = path.join(__dirname, "cassettes");
+nock.back.fixtures = cassettesDir;
 
-// Mock OpenAI embedding response
-const mockOpenAIEmbeddingResponse = {
-    object: "list",
-    data: [
-        {
-            object: "embedding",
-            index: 0,
-            embedding: new Array(1536).fill(0.1),
-        },
-    ],
-    model: "text-embedding-ada-002",
-    usage: {
-        prompt_tokens: 8,
-        total_tokens: 8,
-    },
-};
+// Set mode based on environment variable (default: lockdown for CI)
+const nockMode = (process.env.NOCK_BACK_MODE as nock.BackMode) || "lockdown";
+nock.back.setMode(nockMode);
 
-// Mock Anthropic message response
-const mockAnthropicMessageResponse = {
-    id: "msg_test123",
-    type: "message",
-    role: "assistant",
-    content: [
-        {
-            type: "text",
-            text: "Hello! I'm Claude. How can I help you?",
-        },
-    ],
-    model: "claude-sonnet-4-20250514",
-    stop_reason: "end_turn",
-    stop_sequence: null,
-    usage: {
-        input_tokens: 15,
-        output_tokens: 12,
-    },
-};
-
-// Helper to create SSE stream body for OpenAI streaming responses
-function createOpenAIStreamBody(): string {
-    const chunks = [
-        {
-            id: "chatcmpl-stream123",
-            object: "chat.completion.chunk",
-            created: 1704067200,
-            model: "gpt-4-0613",
-            choices: [{ index: 0, delta: { role: "assistant", content: "" }, finish_reason: null }],
-        },
-        {
-            id: "chatcmpl-stream123",
-            object: "chat.completion.chunk",
-            created: 1704067200,
-            model: "gpt-4-0613",
-            choices: [{ index: 0, delta: { content: "Hello" }, finish_reason: null }],
-        },
-        {
-            id: "chatcmpl-stream123",
-            object: "chat.completion.chunk",
-            created: 1704067200,
-            model: "gpt-4-0613",
-            choices: [{ index: 0, delta: { content: " world" }, finish_reason: null }],
-        },
-        {
-            id: "chatcmpl-stream123",
-            object: "chat.completion.chunk",
-            created: 1704067200,
-            model: "gpt-4-0613",
-            choices: [{ index: 0, delta: { content: "!" }, finish_reason: null }],
-        },
-        {
-            id: "chatcmpl-stream123",
-            object: "chat.completion.chunk",
-            created: 1704067200,
-            model: "gpt-4-0613",
-            choices: [{ index: 0, delta: {}, finish_reason: "stop" }],
-            usage: { prompt_tokens: 10, completion_tokens: 3, total_tokens: 13 },
-        },
-    ];
-
-    let body = "";
-    for (const chunk of chunks) {
-        body += `data: ${JSON.stringify(chunk)}\n\n`;
-    }
-    body += "data: [DONE]\n\n";
-    return body;
-}
-
-// Helper to create SSE stream body for Anthropic streaming responses
-function createAnthropicStreamBody(): string {
-    const events = [
-        {
-            event: "message_start",
-            data: {
-                type: "message_start",
-                message: {
-                    id: "msg_stream123",
-                    type: "message",
-                    role: "assistant",
-                    content: [],
-                    model: "claude-sonnet-4-20250514",
-                    stop_reason: null,
-                    stop_sequence: null,
-                    usage: { input_tokens: 12, output_tokens: 0 },
-                },
-            },
-        },
-        { event: "content_block_start", data: { type: "content_block_start", index: 0, content_block: { type: "text", text: "" } } },
-        { event: "content_block_delta", data: { type: "content_block_delta", index: 0, delta: { type: "text_delta", text: "Hello" } } },
-        { event: "content_block_delta", data: { type: "content_block_delta", index: 0, delta: { type: "text_delta", text: " from" } } },
-        { event: "content_block_delta", data: { type: "content_block_delta", index: 0, delta: { type: "text_delta", text: " Claude!" } } },
-        { event: "content_block_stop", data: { type: "content_block_stop", index: 0 } },
-        { event: "message_delta", data: { type: "message_delta", delta: { stop_reason: "end_turn", stop_sequence: null }, usage: { output_tokens: 5 } } },
-        { event: "message_stop", data: { type: "message_stop" } },
-    ];
-
-    let body = "";
-    for (const { event, data } of events) {
-        body += `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
-    }
-    return body;
-}
-
-// Setup nock interceptors
-function setupNockInterceptors() {
-    // OpenAI chat completions (non-streaming)
-    nock("https://api.openai.com")
-        .post("/v1/chat/completions", (body) => !body.stream)
-        .reply(200, mockOpenAIChatCompletionResponse)
-        .persist();
-
-    // OpenAI chat completions (streaming)
-    nock("https://api.openai.com")
-        .post("/v1/chat/completions", (body) => body.stream === true)
-        .reply(200, createOpenAIStreamBody(), {
-            "Content-Type": "text/event-stream",
-            "Cache-Control": "no-cache",
-            Connection: "keep-alive",
-        })
-        .persist();
-
-    // OpenAI embeddings
-    nock("https://api.openai.com").post("/v1/embeddings").reply(200, mockOpenAIEmbeddingResponse).persist();
-
-    // Anthropic messages (non-streaming)
-    nock("https://api.anthropic.com")
-        .post("/v1/messages", (body) => !body.stream)
-        .reply(200, mockAnthropicMessageResponse)
-        .persist();
-
-    // Anthropic messages (streaming)
-    nock("https://api.anthropic.com")
-        .post("/v1/messages", (body) => body.stream === true)
-        .reply(200, createAnthropicStreamBody(), {
-            "Content-Type": "text/event-stream",
-            "Cache-Control": "no-cache",
-            Connection: "keep-alive",
-        })
-        .persist();
+// Helper to get cassette filename from test name
+function getCassetteName(testName: string): string {
+    return `${testName.replace(/[^a-zA-Z0-9]/g, "_")}.json`;
 }
 
 describe("Auto-Instrumentation Integration", () => {
     beforeAll(async () => {
-        // Disable net connect but allow localhost
-        nock.disableNetConnect();
-        nock.enableNetConnect("127.0.0.1");
-
-        // Setup nock interceptors
-        setupNockInterceptors();
-
         // Set up test infrastructure once
         testExporter = new InMemorySpanExporter();
         testProvider = new NodeTracerProvider({
@@ -249,8 +75,8 @@ describe("Auto-Instrumentation Integration", () => {
     });
 
     afterAll(async () => {
+        nock.restore();
         nock.cleanAll();
-        nock.enableNetConnect();
         await testProvider?.shutdown();
     });
 
@@ -258,282 +84,348 @@ describe("Auto-Instrumentation Integration", () => {
         testExporter.reset();
     });
 
-    it("should create span for OpenAI chat completion with context attributes", async () => {
-        const OpenAI = (await import("openai")).default;
-        const openai = new OpenAI({ apiKey: "test-key" });
+    describe("OpenAI Chat Completions", () => {
+        it("should create span for chat completion with context attributes", async () => {
+            const cassetteName = getCassetteName("openai_chat_completion");
+            const { nockDone } = await nock.back(cassetteName);
 
-        await runWithTracingContext({ externalCustomerId: "cust-openai" }, async () => {
-            const response = await openai.chat.completions.create({
-                model: "gpt-4",
-                messages: [{ role: "user", content: "Hello" }],
-            });
+            try {
+                const OpenAI = (await import("openai")).default;
+                const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || "test-key" });
 
-            expect(response.id).toBe("chatcmpl-test123");
-            expect(response.choices[0].message.content).toBe("Hello! How can I help you today?");
+                await runWithTracingContext({ externalCustomerId: "cust-openai" }, async () => {
+                    const response = await openai.chat.completions.create({
+                        model: "gpt-4o-mini",
+                        messages: [{ role: "user", content: "Say hello in exactly 3 words." }],
+                        max_tokens: 32,
+                    });
+
+                    expect(response.choices.length).toBeGreaterThan(0);
+                    expect(response.choices[0].message.content).toBeTruthy();
+                });
+
+                const spans = testExporter.getFinishedSpans();
+                expect(spans.length).toBeGreaterThan(0);
+
+                const llmSpan = spans.find((s) => s.name.toLowerCase().includes("chat"));
+                expect(llmSpan).toBeDefined();
+                expect(llmSpan?.attributes["external_customer_id"]).toBe("cust-openai");
+            } finally {
+                nockDone();
+            }
         });
 
-        const spans = testExporter.getFinishedSpans();
-        expect(spans.length).toBeGreaterThan(0);
+        it("should create span for streaming chat completion", async () => {
+            const cassetteName = getCassetteName("openai_chat_completion_stream");
+            const { nockDone } = await nock.back(cassetteName);
 
-        // Find the LLM span (case-insensitive)
-        const llmSpan = spans.find((s) => s.name.toLowerCase().includes("chat"));
-        expect(llmSpan).toBeDefined();
-        expect(llmSpan?.attributes["external_customer_id"]).toBe("cust-openai");
-    });
+            try {
+                const OpenAI = (await import("openai")).default;
+                const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || "test-key" });
 
-    it("should create span for OpenAI embeddings", async () => {
-        const OpenAI = (await import("openai")).default;
-        const openai = new OpenAI({ apiKey: "test-key" });
+                await runWithTracingContext({ externalCustomerId: "cust-streaming" }, async () => {
+                    const stream = await openai.chat.completions.create({
+                        model: "gpt-4o-mini",
+                        messages: [{ role: "user", content: "Say hello" }],
+                        max_tokens: 32,
+                        stream: true,
+                    });
 
-        await runWithTracingContext({ externalCustomerId: "cust-embedding" }, async () => {
-            const response = await openai.embeddings.create({
-                model: "text-embedding-ada-002",
-                input: "Hello world",
-            });
+                    let fullContent = "";
+                    for await (const chunk of stream) {
+                        const content = chunk.choices[0]?.delta?.content;
+                        if (content) {
+                            fullContent += content;
+                        }
+                    }
 
-            expect(response.data.length).toBeGreaterThan(0);
+                    expect(fullContent.length).toBeGreaterThan(0);
+                });
+
+                const spans = testExporter.getFinishedSpans();
+                expect(spans.length).toBeGreaterThan(0);
+
+                const llmSpan = spans.find((s) => s.name.toLowerCase().includes("chat"));
+                expect(llmSpan).toBeDefined();
+                expect(llmSpan?.attributes["external_customer_id"]).toBe("cust-streaming");
+            } finally {
+                nockDone();
+            }
         });
 
-        const spans = testExporter.getFinishedSpans();
-        expect(spans.length).toBeGreaterThan(0);
+        it("should capture token usage attributes", async () => {
+            const cassetteName = getCassetteName("openai_token_usage");
+            const { nockDone } = await nock.back(cassetteName);
 
-        const embeddingSpan = spans.find((s) => s.name.toLowerCase().includes("embed"));
-        expect(embeddingSpan).toBeDefined();
-        expect(embeddingSpan?.attributes["external_customer_id"]).toBe("cust-embedding");
+            try {
+                const OpenAI = (await import("openai")).default;
+                const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || "test-key" });
+
+                await runWithTracingContext({ externalCustomerId: "cust-tokens" }, async () => {
+                    await openai.chat.completions.create({
+                        model: "gpt-4o-mini",
+                        messages: [{ role: "user", content: "Hello" }],
+                        max_tokens: 32,
+                    });
+                });
+
+                const spans = testExporter.getFinishedSpans();
+                const llmSpan = spans.find((s) => s.name.toLowerCase().includes("chat"));
+                expect(llmSpan).toBeDefined();
+
+                const attrs = llmSpan?.attributes || {};
+                const hasTokenAttrs = Object.keys(attrs).some((key) => key.includes("token") || key.includes("usage"));
+                expect(hasTokenAttrs).toBe(true);
+            } finally {
+                nockDone();
+            }
+        });
     });
 
-    it("should create span for Anthropic message creation with context attributes", async () => {
-        const Anthropic = (await import("@anthropic-ai/sdk")).default;
-        const anthropic = new Anthropic({ apiKey: "test-key" });
+    describe("OpenAI Embeddings", () => {
+        it("should create span for embeddings", async () => {
+            const cassetteName = getCassetteName("openai_embeddings");
+            const { nockDone } = await nock.back(cassetteName);
 
-        await runWithTracingContext({ externalCustomerId: "cust-anthropic" }, async () => {
-            const response = await anthropic.messages.create({
-                model: "claude-sonnet-4-20250514",
-                max_tokens: 100,
-                messages: [{ role: "user", content: "Hello" }],
-            });
+            try {
+                const OpenAI = (await import("openai")).default;
+                const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || "test-key" });
 
-            expect(response.id).toBe("msg_test123");
-            expect(response.content[0].type).toBe("text");
+                await runWithTracingContext({ externalCustomerId: "cust-embedding" }, async () => {
+                    const response = await openai.embeddings.create({
+                        model: "text-embedding-3-small",
+                        input: "Hello world",
+                    });
+
+                    expect(response.data.length).toBeGreaterThan(0);
+                });
+
+                const spans = testExporter.getFinishedSpans();
+                expect(spans.length).toBeGreaterThan(0);
+
+                const embeddingSpan = spans.find((s) => s.name.toLowerCase().includes("embed"));
+                expect(embeddingSpan).toBeDefined();
+                expect(embeddingSpan?.attributes["external_customer_id"]).toBe("cust-embedding");
+            } finally {
+                nockDone();
+            }
+        });
+    });
+
+    describe("Anthropic Messages", () => {
+        it("should create span for message creation with context attributes", async () => {
+            const cassetteName = getCassetteName("anthropic_message");
+            const { nockDone } = await nock.back(cassetteName);
+
+            try {
+                const Anthropic = (await import("@anthropic-ai/sdk")).default;
+                const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY || "test-key" });
+
+                await runWithTracingContext({ externalCustomerId: "cust-anthropic" }, async () => {
+                    const response = await anthropic.messages.create({
+                        model: "claude-sonnet-4-20250514",
+                        max_tokens: 32,
+                        messages: [{ role: "user", content: "Say hello in exactly 3 words." }],
+                    });
+
+                    expect(response.content.length).toBeGreaterThan(0);
+                    expect(response.content[0].type).toBe("text");
+                });
+
+                const spans = testExporter.getFinishedSpans();
+                expect(spans.length).toBeGreaterThan(0);
+
+                const llmSpan = spans.find((s) => s.name.toLowerCase().includes("message"));
+                expect(llmSpan).toBeDefined();
+                expect(llmSpan?.attributes["external_customer_id"]).toBe("cust-anthropic");
+            } finally {
+                nockDone();
+            }
         });
 
-        const spans = testExporter.getFinishedSpans();
-        expect(spans.length).toBeGreaterThan(0);
+        it("should create span for streaming messages", async () => {
+            const cassetteName = getCassetteName("anthropic_message_stream");
+            const { nockDone } = await nock.back(cassetteName);
 
-        // Find the LLM span (case-insensitive)
-        const llmSpan = spans.find((s) => s.name.toLowerCase().includes("message"));
-        expect(llmSpan).toBeDefined();
-        expect(llmSpan?.attributes["external_customer_id"]).toBe("cust-anthropic");
-    });
+            try {
+                const Anthropic = (await import("@anthropic-ai/sdk")).default;
+                const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY || "test-key" });
 
-    it("should capture spans from multiple providers in single trace context", async () => {
-        const OpenAI = (await import("openai")).default;
-        const Anthropic = (await import("@anthropic-ai/sdk")).default;
-        const openai = new OpenAI({ apiKey: "test-key" });
-        const anthropic = new Anthropic({ apiKey: "test-key" });
+                await runWithTracingContext({ externalCustomerId: "cust-anthropic-stream" }, async () => {
+                    const stream = await anthropic.messages.create({
+                        model: "claude-sonnet-4-20250514",
+                        max_tokens: 32,
+                        messages: [{ role: "user", content: "Say hello" }],
+                        stream: true,
+                    });
 
-        await runWithTracingContext({ externalCustomerId: "multi-provider-cust" }, async () => {
-            // OpenAI call
-            await openai.chat.completions.create({
-                model: "gpt-4",
-                messages: [{ role: "user", content: "Hello from OpenAI" }],
-            });
+                    let fullContent = "";
+                    for await (const event of stream) {
+                        if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
+                            fullContent += event.delta.text;
+                        }
+                    }
 
-            // Anthropic call
-            await anthropic.messages.create({
-                model: "claude-sonnet-4-20250514",
-                max_tokens: 100,
-                messages: [{ role: "user", content: "Hello from Anthropic" }],
-            });
+                    expect(fullContent.length).toBeGreaterThan(0);
+                });
+
+                const spans = testExporter.getFinishedSpans();
+                expect(spans.length).toBeGreaterThan(0);
+
+                const llmSpan = spans.find((s) => s.name.toLowerCase().includes("message"));
+                expect(llmSpan).toBeDefined();
+                expect(llmSpan?.attributes["external_customer_id"]).toBe("cust-anthropic-stream");
+            } finally {
+                nockDone();
+            }
         });
-
-        const spans = testExporter.getFinishedSpans();
-        expect(spans.length).toBeGreaterThanOrEqual(2);
-
-        // All spans should have the same customer ID
-        for (const span of spans) {
-            expect(span.attributes["external_customer_id"]).toBe("multi-provider-cust");
-        }
     });
 
-    it("should filter prompt content when storePrompt is false", async () => {
-        const OpenAI = (await import("openai")).default;
-        const openai = new OpenAI({ apiKey: "test-key" });
+    describe("Multi-Provider Context", () => {
+        it("should capture spans from multiple providers in single trace context", async () => {
+            const cassetteName = getCassetteName("multi_provider");
+            const { nockDone } = await nock.back(cassetteName);
 
-        await runWithTracingContext({ externalCustomerId: "cust-filtered", storePrompt: false }, async () => {
-            await openai.chat.completions.create({
-                model: "gpt-4",
-                messages: [{ role: "user", content: "Secret message" }],
-            });
-        });
+            try {
+                const OpenAI = (await import("openai")).default;
+                const Anthropic = (await import("@anthropic-ai/sdk")).default;
+                const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || "test-key" });
+                const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY || "test-key" });
 
-        const spans = testExporter.getFinishedSpans();
-        expect(spans.length).toBeGreaterThan(0);
+                await runWithTracingContext({ externalCustomerId: "multi-provider-cust" }, async () => {
+                    await openai.chat.completions.create({
+                        model: "gpt-4o-mini",
+                        messages: [{ role: "user", content: "Hello" }],
+                        max_tokens: 16,
+                    });
 
-        const llmSpan = spans.find((s) => s.name.toLowerCase().includes("chat"));
-        expect(llmSpan).toBeDefined();
+                    await anthropic.messages.create({
+                        model: "claude-sonnet-4-20250514",
+                        max_tokens: 16,
+                        messages: [{ role: "user", content: "Hello" }],
+                    });
+                });
 
-        // Verify prompt-related attributes are filtered
-        const attrs = llmSpan?.attributes || {};
-        const hasPromptContent = Object.keys(attrs).some(
-            (key) =>
-                key.includes("input.value") ||
-                key.includes("output.value") ||
-                key.includes("gen_ai.prompt") ||
-                key.includes("gen_ai.completion")
-        );
-        expect(hasPromptContent).toBe(false);
-    });
+                const spans = testExporter.getFinishedSpans();
+                expect(spans.length).toBeGreaterThanOrEqual(2);
 
-    it("should keep prompt content when storePrompt is true", async () => {
-        const OpenAI = (await import("openai")).default;
-        const openai = new OpenAI({ apiKey: "test-key" });
-
-        await runWithTracingContext({ externalCustomerId: "cust-stored", storePrompt: true }, async () => {
-            await openai.chat.completions.create({
-                model: "gpt-4",
-                messages: [{ role: "user", content: "Hello" }],
-            });
-        });
-
-        const spans = testExporter.getFinishedSpans();
-        expect(spans.length).toBeGreaterThan(0);
-
-        const llmSpan = spans.find((s) => s.name.toLowerCase().includes("chat"));
-        expect(llmSpan).toBeDefined();
-
-        // When storePrompt is true, prompt content should be present
-        // Verify that prompt-related attributes are NOT filtered out
-        const attrs = llmSpan?.attributes || {};
-        const promptKeys = Object.keys(attrs).filter(
-            (key) =>
-                key.includes("input.value") ||
-                key.includes("output.value") ||
-                key.includes("gen_ai.prompt") ||
-                key.includes("gen_ai.completion") ||
-                key.includes("llm.input") ||
-                key.includes("llm.output")
-        );
-        // At least some prompt-related content should be present when storePrompt is true
-        expect(promptKeys.length).toBeGreaterThan(0);
-    });
-
-    it("should capture token usage attributes", async () => {
-        const OpenAI = (await import("openai")).default;
-        const openai = new OpenAI({ apiKey: "test-key" });
-
-        await runWithTracingContext({ externalCustomerId: "cust-tokens" }, async () => {
-            await openai.chat.completions.create({
-                model: "gpt-4",
-                messages: [{ role: "user", content: "Hello" }],
-            });
-        });
-
-        const spans = testExporter.getFinishedSpans();
-        const llmSpan = spans.find((s) => s.name.toLowerCase().includes("chat"));
-        expect(llmSpan).toBeDefined();
-
-        // Check that token-related attributes are captured
-        const attrs = llmSpan?.attributes || {};
-        const hasTokenAttrs = Object.keys(attrs).some((key) => key.includes("token") || key.includes("usage"));
-        expect(hasTokenAttrs).toBe(true);
-    });
-
-    it("should create span for OpenAI streaming chat completion", async () => {
-        const OpenAI = (await import("openai")).default;
-        const openai = new OpenAI({ apiKey: "test-key" });
-
-        await runWithTracingContext({ externalCustomerId: "cust-streaming" }, async () => {
-            const stream = await openai.chat.completions.create({
-                model: "gpt-4",
-                messages: [{ role: "user", content: "Hello" }],
-                stream: true,
-            });
-
-            // Consume the stream
-            let fullContent = "";
-            for await (const chunk of stream) {
-                const content = chunk.choices[0]?.delta?.content;
-                if (content) {
-                    fullContent += content;
+                for (const span of spans) {
+                    expect(span.attributes["external_customer_id"]).toBe("multi-provider-cust");
                 }
+            } finally {
+                nockDone();
             }
-
-            expect(fullContent).toBe("Hello world!");
         });
-
-        const spans = testExporter.getFinishedSpans();
-        expect(spans.length).toBeGreaterThan(0);
-
-        // Find the LLM span
-        const llmSpan = spans.find((s) => s.name.toLowerCase().includes("chat"));
-        expect(llmSpan).toBeDefined();
-        expect(llmSpan?.attributes["external_customer_id"]).toBe("cust-streaming");
     });
 
-    it("should create span for Anthropic streaming messages", async () => {
-        const Anthropic = (await import("@anthropic-ai/sdk")).default;
-        const anthropic = new Anthropic({ apiKey: "test-key" });
+    describe("Prompt Filtering", () => {
+        it("should filter prompt content when storePrompt is false", async () => {
+            const cassetteName = getCassetteName("prompt_filtered");
+            const { nockDone } = await nock.back(cassetteName);
 
-        await runWithTracingContext({ externalCustomerId: "cust-anthropic-stream" }, async () => {
-            const stream = await anthropic.messages.create({
-                model: "claude-sonnet-4-20250514",
-                max_tokens: 100,
-                messages: [{ role: "user", content: "Hello" }],
-                stream: true,
-            });
+            try {
+                const OpenAI = (await import("openai")).default;
+                const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || "test-key" });
 
-            // Consume the stream
-            let fullContent = "";
-            for await (const event of stream) {
-                if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
-                    fullContent += event.delta.text;
-                }
-            }
+                await runWithTracingContext({ externalCustomerId: "cust-filtered", storePrompt: false }, async () => {
+                    await openai.chat.completions.create({
+                        model: "gpt-4o-mini",
+                        messages: [{ role: "user", content: "Secret message" }],
+                        max_tokens: 32,
+                    });
+                });
 
-            expect(fullContent).toBe("Hello from Claude!");
-        });
+                const spans = testExporter.getFinishedSpans();
+                const llmSpan = spans.find((s) => s.name.toLowerCase().includes("chat"));
+                expect(llmSpan).toBeDefined();
 
-        const spans = testExporter.getFinishedSpans();
-        expect(spans.length).toBeGreaterThan(0);
-
-        // Find the LLM span
-        const llmSpan = spans.find((s) => s.name.toLowerCase().includes("message"));
-        expect(llmSpan).toBeDefined();
-        expect(llmSpan?.attributes["external_customer_id"]).toBe("cust-anthropic-stream");
-    });
-
-    it("should capture context attributes in streaming with storePrompt false", async () => {
-        const OpenAI = (await import("openai")).default;
-        const openai = new OpenAI({ apiKey: "test-key" });
-
-        await runWithTracingContext({ externalCustomerId: "cust-stream-filtered", storePrompt: false }, async () => {
-            const stream = await openai.chat.completions.create({
-                model: "gpt-4",
-                messages: [{ role: "user", content: "Secret streaming message" }],
-                stream: true,
-            });
-
-            // Consume the stream
-            for await (const chunk of stream) {
-                // Just consume
-                void chunk;
+                const attrs = llmSpan?.attributes || {};
+                const hasPromptContent = Object.keys(attrs).some(
+                    (key) =>
+                        key.includes("input.value") ||
+                        key.includes("output.value") ||
+                        key.includes("gen_ai.prompt") ||
+                        key.includes("gen_ai.completion")
+                );
+                expect(hasPromptContent).toBe(false);
+            } finally {
+                nockDone();
             }
         });
 
-        const spans = testExporter.getFinishedSpans();
-        const llmSpan = spans.find((s) => s.name.toLowerCase().includes("chat"));
-        expect(llmSpan).toBeDefined();
+        it("should keep prompt content when storePrompt is true", async () => {
+            const cassetteName = getCassetteName("prompt_stored");
+            const { nockDone } = await nock.back(cassetteName);
 
-        // Verify prompt content is filtered
-        const attrs = llmSpan?.attributes || {};
-        const hasPromptContent = Object.keys(attrs).some(
-            (key) =>
-                key.includes("input.value") ||
-                key.includes("output.value") ||
-                key.includes("gen_ai.prompt") ||
-                key.includes("gen_ai.completion")
-        );
-        expect(hasPromptContent).toBe(false);
+            try {
+                const OpenAI = (await import("openai")).default;
+                const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || "test-key" });
+
+                await runWithTracingContext({ externalCustomerId: "cust-stored", storePrompt: true }, async () => {
+                    await openai.chat.completions.create({
+                        model: "gpt-4o-mini",
+                        messages: [{ role: "user", content: "Hello" }],
+                        max_tokens: 32,
+                    });
+                });
+
+                const spans = testExporter.getFinishedSpans();
+                const llmSpan = spans.find((s) => s.name.toLowerCase().includes("chat"));
+                expect(llmSpan).toBeDefined();
+
+                const attrs = llmSpan?.attributes || {};
+                const promptKeys = Object.keys(attrs).filter(
+                    (key) =>
+                        key.includes("input.value") ||
+                        key.includes("output.value") ||
+                        key.includes("gen_ai.prompt") ||
+                        key.includes("gen_ai.completion") ||
+                        key.includes("llm.input") ||
+                        key.includes("llm.output")
+                );
+                expect(promptKeys.length).toBeGreaterThan(0);
+            } finally {
+                nockDone();
+            }
+        });
+
+        it("should filter prompt content in streaming with storePrompt false", async () => {
+            const cassetteName = getCassetteName("prompt_filtered_stream");
+            const { nockDone } = await nock.back(cassetteName);
+
+            try {
+                const OpenAI = (await import("openai")).default;
+                const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || "test-key" });
+
+                await runWithTracingContext({ externalCustomerId: "cust-stream-filtered", storePrompt: false }, async () => {
+                    const stream = await openai.chat.completions.create({
+                        model: "gpt-4o-mini",
+                        messages: [{ role: "user", content: "Secret streaming message" }],
+                        max_tokens: 32,
+                        stream: true,
+                    });
+
+                    for await (const chunk of stream) {
+                        void chunk;
+                    }
+                });
+
+                const spans = testExporter.getFinishedSpans();
+                const llmSpan = spans.find((s) => s.name.toLowerCase().includes("chat"));
+                expect(llmSpan).toBeDefined();
+
+                const attrs = llmSpan?.attributes || {};
+                const hasPromptContent = Object.keys(attrs).some(
+                    (key) =>
+                        key.includes("input.value") ||
+                        key.includes("output.value") ||
+                        key.includes("gen_ai.prompt") ||
+                        key.includes("gen_ai.completion")
+                );
+                expect(hasPromptContent).toBe(false);
+            } finally {
+                nockDone();
+            }
+        });
     });
 });
