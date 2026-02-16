@@ -54,7 +54,7 @@ const nockMode = (process.env.NOCK_BACK_MODE as nock.BackMode) || "lockdown";
 nock.back.setMode(nockMode);
 
 // Headers to redact in recorded cassettes (for security)
-const HEADERS_TO_REDACT = ["x-api-key", "authorization", "set-cookie"];
+const HEADERS_TO_REDACT = ["x-api-key", "authorization", "set-cookie", "openai-organization", "openai-project"];
 
 // Redact sensitive headers but preserve request-id
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

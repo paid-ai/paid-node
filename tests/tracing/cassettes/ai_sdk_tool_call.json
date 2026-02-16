@@ -41,19 +41,19 @@
         },
         "status": 200,
         "response": [
-            "1b7f07009c07b60d7b2b49a968deb11f33763f9dbf7719992b1cf8db3b7dd1cd0ec9a5623c42aa0d22d2d5b7155874faa4020897c94f7f9fb18dc449aca197e485b1962a6e4c7569fba76239ec36163c4ea1043a624bfd4c2e10c6bef2cf3ca04dc78a551a0a729056f751f540d6438a9c1befa501925a71e5c0cba475eeb4147df25169c399a8a75154d2556556e51246f90f602d0863b404b9ea807c6e711d918ab3ccf92a4acf213fb99a42f36c929778a33a7348e50c9ec18b2dac7e448871b221f02e47baeb66f1a4206bb7f99c8f293c66d16e2137c326ca4e0ef18a309946bc16270030a7d0ad712a6efc8e155b953653a7598c4fcde8ecd28cdb19388ba36cb4533fc63093b8339fd9e7f1a8929407fd6f0eb2cb113ad25c13b3200403ba0439d1d393947bce978e3bccf61e87d8afbfacc3ecf8bce5aca8650a7bc00efe1b6ccfafb7f606c3f27b7d1dc7f1782f4fa9d5d75c40be586a95dadf5e42c4a7c796fc5cfbc1d6c6d4ddfc1cff653e4f613b877016f5c84de74b3d1d4a434a781deee826cf2b353a9a20a452e2885856fae24d36b1e03681435b39a933de152302d9427a059b6c8e91a42c846a8215981110246600b00469a7cce2c7314224ad9addb4be73a69a4ec3a64d6618d350488a23945191044f9ae8c2f601cde54024ef33b9a1b57bc2d9879f598bb0571d342e274ef7bee589135c8b52625bce25add71e96b1443d311aa8d06b4bdfeb276a13dd39f9fa1d629d12cf67e3b17f7cd0ba9c74d24af71e4dacdb695291a8be9a1b888ae26da79dca27033c2af5940a99e782b682aefd3a1eed33c79ea4520672e248d07bb83952e70b1aa632e76306a8845e4b97b99d83b49091ef8311562fdbe3b6d2464e9869b86e2cf871521d39fe2cb5d8c51655dfda01"
+            "1b7f07009c07b60d7b2b49a968deb11f33b6cdd43dcba8d945d0356cf1945a047c77e5789cda20225d7d5b8145a74f2a8070f9f6cb7647a9caa12cd6b079c90fa535b5b852d5cbee5e553487edc682b48c47476ca99fc905c2d857fe997f686aa1a0747366546d879422fa46446a35a22552562549c9a117d47987c6f7d690ec9d4bb107514f4b514957955995cb1ce5bf08e784b49648cb5507c9e716d711a93807ce57517a0ef9a9612a9a67933cc7dfaecc1c5239c03378b185d58f1a18271b0ade71a4bb6e8e4f0ab276075738a6f09863bb85dc0c9b283b3dc41f86c90ce3b5388100739add1aa770e34f5030e4bad4a7658c4f2fe9ecca12dd52788b4bd9d24ebf19c34ce2ce7c61df8cc7544b56dfa2d462d3374a78416af4a85a1424c120930439e8e949ca3de74bc79dccf6ff0fb1dfdfa1c3ecc4bcedac52cb34f7801dbcddb679e31f3d5dadfeb7f9b93b8e37e960bff5f93297201f965aebeadf5e02e2b3634b7eaefd606b63ea1e7e8eff329fa7b09d6738433d72d3c55c4e875c9912dec6bbee579e97ae76471384544a1c11cb4a5fbcc92616dc2670682b2775e7bb6244205b48af7295cd03496201aa0956604690203103084b9076ca2c7e1c230469d5eca6f5bdafaea4d33cd5c92c300d85241ca18c2a49e449135dd839a3b91c88e47d263769ed9e70f6e167d623ec55078dcb89d3bd6f79e204d7a694d89673a1f5dac33296a8274683157a6df97e7ca236e8cec937ee10eb94783e1b8fffe683f6e5a49356baf76862dd6e171541f5b5a682a828de76eb297f32c0e35c4ea99005147464741d94f3d13ef3f0249518e0c491a0f7783a52e72b462c64cec70c50845e5b9bb913415ac8c80f8515562fdbe3b6d20627cc34dcb00efc72521d39fe7c57631b6b547d7b07"
         ],
         "rawHeaders": {
             "alt-svc": "h3=\":443\"; ma=86400",
             "cf-cache-status": "DYNAMIC",
-            "cf-ray": "9cef1b6c4cc86c94-LHR",
+            "cf-ray": "9cef26bbda17873a-LHR",
             "connection": "keep-alive",
             "content-encoding": "br",
             "content-type": "application/json",
-            "date": "Mon, 16 Feb 2026 18:28:52 GMT",
-            "openai-organization": "agentpaid",
-            "openai-processing-ms": "1091",
-            "openai-project": "proj_g54CtVh9wETqz1duiA1cw9Kw",
+            "date": "Mon, 16 Feb 2026 18:36:36 GMT",
+            "openai-organization": "REDACTED",
+            "openai-processing-ms": "1390",
+            "openai-project": "REDACTED",
             "openai-version": "2020-10-01",
             "server": "cloudflare",
             "set-cookie": "REDACTED",
@@ -62,11 +62,11 @@
             "x-content-type-options": "nosniff",
             "x-ratelimit-limit-requests": "10000",
             "x-ratelimit-limit-tokens": "200000",
-            "x-ratelimit-remaining-requests": "9999",
+            "x-ratelimit-remaining-requests": "9997",
             "x-ratelimit-remaining-tokens": "199732",
-            "x-ratelimit-reset-requests": "8.64s",
+            "x-ratelimit-reset-requests": "23.63s",
             "x-ratelimit-reset-tokens": "80ms",
-            "x-request-id": "req_c79c059505ec4d01a8f507d29813eeb7"
+            "x-request-id": "req_494535ae215b46d89384ead20045fb4c"
         },
         "responseIsBinary": false
     }

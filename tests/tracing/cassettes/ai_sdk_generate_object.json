@@ -47,19 +47,19 @@
         },
         "status": 200,
         "response": [
-            "1b2b08201c09766c8adbf3882eb635577e8dea44b73fd902f937ea204b29f101a508485f4899b46c4fe9ca6134da6c32d9a1174b977f92967cdd3fe8ae499443e2501a27e2dcee92d681fcfe6f3ea2b40e4a0f36de17c2b0e0dc5929d1e415ea18312d8a282962636512e7524745ccb692885257595658045f943a4b4ab9a830598e9ba4cd3fc82c93611a47911c500489c606c7dc957005fa1e96fc13f20bf54a0a9e96978b7ef1b626a22e41d4e1996acbdc67426d9b3413b8eb7decb915f204693cc23f5c3876ac50b385c8a11f82e978d44f42c912c1b5b55d70b944800e2bed45a95673bd1c413c07145f0cd4ac1a6016c81cc221e9b45d3ab5055a847df9c571af67b3d620e7bf1a1b264984ecb4ab10733b68424206591a4e686bdf67b41ba458ae50b698b2b58ba0f115f8611cfae5f0fa74b1af0ff3e6b36d36074daba9f4e0734687bf9fa13cfb1f78d29e1edb8ddf67f0cf743d6e84f92dc7390d6e9fc4ca9f546cecfd208b956f30d745f4971c292d3b20c2225ce937fe431f9b8718f6ff2dd00e6b592e568946efa875fbeab2cde37290147d8f7a7e992f373e78aa630804c18a1c826cfa635a9aa8d8fda414b4b09e3e0212096452b24d876915c459b72a71a111bc120939517ff4240b0745e35d1e41e20a97c9554d94048f4583556111a58946a4c36cfc929256f846a7af8c14320977c7c4e07a4ab0d70cfc87d6f1a1d873f368ee5d1938f309ae72152471a861eb52775412ae3c4f0b2edc7d4a35ab7b8d280c8abc630fcc94c27cc59d3733ef2d6d96c19539cd57c2c1654b08f1ca6b6033e5c03d2f17d29335bc7f60c1e3e9769b6cd3ae823f4592eac71d585fb793ca7f9224be89aec3435ac95ab8b88358db96cee3a5cc6c9d274da67774d4c7106eb69785adf8c66d677675e4433b7db0e4f02706"
+            "1b3308201c07b939e92eb9646f2a054156cde9cfa8cce994d0d7b8efec6300204540fa6cb9a54e76de3318f0299bc42d6bd1d225a1198fd0088936bf3bf7432fae549997b4d9d4cb43774da21c48891bc27c275b0b3ef2dfac5462cb5f4f1ad75638773fdaeba4e6817f05046961ed334e95d27b2b7d890aeef76973537c2a75b694caa2024a396e40c1bf68a6ce08326014c1a2b1c13195122e73df03293f427e3e5c58c18bf955a566d72c6951574c7578a6da43eede36c5c4ccddaf63cf2dc31314c343dc98093b96d16c2172e887009de46a82952cc25c3be366978b30e8b0f05eb46ab5875577b8ff83e20b0735ab0ee4d0927048ba582f3e6d8116615f7e376fc3c934093f7acd4d7467d6e76e84276464b079b21362ddfb8c783229962b942da69cdac5acf10dfb61c4fa6df7f6f9e36b59b9faaa29f5ced36afb7ab20a74f843f057f865a750ff8efac22d82fded860a27eb37bf24a4f3f0d11bf09592e78277ce6af90bcc7d810c58ce94986da6b00897fbacffd0d7c953b4f43b06bad95c291b2ba0d307c4765bad9a32af3a48d2cf90ba19be6a5ce78aaa864010aec825c8a7ee8b791297743da9054dacc74b41229192a46ca1835644a47ded52171a4115c9488afaa3475938281baf524b3297b804973595133e160da89b479428824887d9e89cd296f9a0e82c23854cc2d53131b8a09cf19a09f0d8303e947b766ad4832b03279ae00a974132871a762e754f25e142f99a71e5f26ad552e56ba83028f2b6e96c2627f89ac135ba6c63da2c894b13ed77c2c1755b08f3ceab8c5141ec9ad715746515d78f54f678d6f48569da15f1ab48d2fdb918ebdbb850fb2fd6ba20ba103569276b66e38ea2b61d9dc86b4dacf7a4c9f49ef67e5b4226bb395bf19dbe657635779db2aa63c9c14e03"
         ],
         "rawHeaders": {
             "alt-svc": "h3=\":443\"; ma=86400",
             "cf-cache-status": "DYNAMIC",
-            "cf-ray": "9ceee5b90a24a6f7-LHR",
+            "cf-ray": "9cef26c578cd873a-LHR",
             "connection": "keep-alive",
             "content-encoding": "br",
             "content-type": "application/json",
-            "date": "Mon, 16 Feb 2026 17:52:13 GMT",
-            "openai-organization": "agentpaid",
-            "openai-processing-ms": "1301",
-            "openai-project": "proj_g54CtVh9wETqz1duiA1cw9Kw",
+            "date": "Mon, 16 Feb 2026 18:36:36 GMT",
+            "openai-organization": "REDACTED",
+            "openai-processing-ms": "779",
+            "openai-project": "REDACTED",
             "openai-version": "2020-10-01",
             "server": "cloudflare",
             "set-cookie": "REDACTED",
@@ -68,11 +68,11 @@
             "x-content-type-options": "nosniff",
             "x-ratelimit-limit-requests": "10000",
             "x-ratelimit-limit-tokens": "200000",
-            "x-ratelimit-remaining-requests": "9996",
+            "x-ratelimit-remaining-requests": "9995",
             "x-ratelimit-remaining-tokens": "199926",
-            "x-ratelimit-reset-requests": "29.39s",
+            "x-ratelimit-reset-requests": "39.149s",
             "x-ratelimit-reset-tokens": "22ms",
-            "x-request-id": "req_979ad786b7754b4494e960adb29b6ffb"
+            "x-request-id": "req_d7e36bad9d7045d994989e098740e835"
         },
         "responseIsBinary": false
     }
