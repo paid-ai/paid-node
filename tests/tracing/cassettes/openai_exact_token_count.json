@@ -1,0 +1,49 @@
+[
+    {
+        "scope": "https://api.openai.com:443",
+        "method": "POST",
+        "path": "/v1/chat/completions",
+        "body": {
+            "model": "gpt-4o-mini",
+            "messages": [
+                {
+                    "role": "user",
+                    "content": "Say hello in exactly 3 words."
+                }
+            ],
+            "max_tokens": 32
+        },
+        "status": 200,
+        "response": [
+            "1b3803001c07ceb92e88a4d17588fa8962729ed0edd5236addffba52bd37f9af948e4ed02ce05460d1f1f9bff9278e220c3c96b186580f5bb7b12cef4412967de16f6e0d41928808a29db6cd9bbf30df6e28b061d0957fb3923ca6565a5b6782b933cf63e93dee3bb1527a4f29957b170a293464a35213fe204182c82ffa86718ac2f192a6aaea292a29e4aa97d79498510c36a860252956a1381580f228c017f23370772559cf8b12963c956d49616085ca2c4e2ef4fe0902c8a60bbbb89e57d2cfba89513a9ffe1ca66879717f8c118b6407217493a8a7bd87fb9a3d8a332f2f33b3aa6e158d16528732805c21282c6c736c8caa95975992d74879a1d18893b65d7e07802d67912720bae239d2a08d2440079ad1dcb641436f8b1447a1a4f9b83e73db974cbf19a4de8542252a6c1c24d1e601549ead8893ea66fa65ea77b10e9c12068389089082c3c6696cc4981360bfdd1c05453038d13165173c"
+        ],
+        "rawHeaders": {
+            "access-control-expose-headers": "X-Request-ID",
+            "alt-svc": "h3=\":443\"; ma=86400",
+            "cf-cache-status": "DYNAMIC",
+            "cf-ray": "REDACTED",
+            "connection": "keep-alive",
+            "content-encoding": "br",
+            "content-type": "application/json",
+            "date": "Mon, 16 Feb 2026 16:38:09 GMT",
+            "openai-organization": "REDACTED",
+            "openai-processing-ms": "350",
+            "openai-project": "REDACTED",
+            "openai-version": "2020-10-01",
+            "server": "cloudflare",
+            "set-cookie": "REDACTED",
+            "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+            "transfer-encoding": "chunked",
+            "x-content-type-options": "nosniff",
+            "x-openai-proxy-wasm": "v0.1",
+            "x-ratelimit-limit-requests": "10000",
+            "x-ratelimit-limit-tokens": "200000",
+            "x-ratelimit-remaining-requests": "9999",
+            "x-ratelimit-remaining-tokens": "199990",
+            "x-ratelimit-reset-requests": "8.64s",
+            "x-ratelimit-reset-tokens": "3ms",
+            "x-request-id": "req_46d83bc32353404d8ee7d9dbecdcf5c5"
+        },
+        "responseIsBinary": false
+    }
+]

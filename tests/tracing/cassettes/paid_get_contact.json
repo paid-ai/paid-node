@@ -1,0 +1,32 @@
+[
+    {
+        "scope": "https://api.agentpaid.io:443",
+        "method": "GET",
+        "path": "/api/v2/contacts/con_5hREkMNqVxB",
+        "body": "",
+        "status": 200,
+        "response": {
+            "id": "con_5hREkMNqVxB",
+            "customerId": "2d3c5159-dd0c-43db-b4f0-42bf8a48a975",
+            "firstName": "Test",
+            "lastName": "Contact",
+            "email": "sdk-test@example.com",
+            "phone": null,
+            "billingAddress": {},
+            "externalId": null,
+            "createdAt": "2026-02-16T15:59:35.706Z",
+            "updatedAt": "2026-02-16T15:59:35.706Z"
+        },
+        "rawHeaders": {
+            "access-control-allow-credentials": "true",
+            "connection": "keep-alive",
+            "content-length": "276",
+            "content-type": "application/json; charset=utf-8",
+            "date": "Mon, 16 Feb 2026 15:59:35 GMT",
+            "etag": "W/\"114-XXizbXhXlVERA9ioK/ZaHXFUp40\"",
+            "vary": "Origin",
+            "x-powered-by": "Express"
+        },
+        "responseIsBinary": false
+    }
+]

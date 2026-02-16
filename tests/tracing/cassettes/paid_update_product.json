@@ -1,0 +1,34 @@
+[
+    {
+        "scope": "https://api.agentpaid.io:443",
+        "method": "PUT",
+        "path": "/api/v2/products/prod_5hREkFnq9Gj",
+        "body": {
+            "description": "SDK smoke test product - updated"
+        },
+        "status": 200,
+        "response": {
+            "id": "prod_5hREkFnq9Gj",
+            "name": "SDK-Test-Product",
+            "description": "SDK smoke test product - updated",
+            "createdAt": "2026-02-16T15:59:34.832Z",
+            "updatedAt": "2026-02-16T15:59:35.046Z",
+            "active": false,
+            "productCode": "",
+            "externalId": null,
+            "archivedAt": null,
+            "metadata": null
+        },
+        "rawHeaders": {
+            "access-control-allow-credentials": "true",
+            "connection": "keep-alive",
+            "content-length": "262",
+            "content-type": "application/json; charset=utf-8",
+            "date": "Mon, 16 Feb 2026 15:59:35 GMT",
+            "etag": "W/\"106-ibdwZZtYujEy2miugYh/mLVr3Ng\"",
+            "vary": "Origin",
+            "x-powered-by": "Express"
+        },
+        "responseIsBinary": false
+    }
+]

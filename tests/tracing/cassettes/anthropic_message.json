@@ -1,0 +1,50 @@
+[
+    {
+        "scope": "https://api.anthropic.com:443",
+        "method": "POST",
+        "path": "/v1/messages",
+        "body": {
+            "model": "claude-sonnet-4-20250514",
+            "max_tokens": 32,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": "Say hello in exactly 3 words."
+                }
+            ]
+        },
+        "status": 200,
+        "response": [
+            "1f8b080000000000001375914d4fc3300c86ffcaf49e33d4968d895c39b003e2c20104425168bc362c754ae24ec0d4ff8e3a31f1254e96fc3cb6fcb147171d0568d4c10e8ee6393293cc17f3aaa896c5b25c40c13b6874b9314559bdaf17a717f7cfabeb2bb95c35f6e67c7b6befa0206f3d4d16e56c1b82428a614ad89c7d16cb02853ab2100bf4c3fee80bbd4ee41034d614429c494b89669be489dd09c647852cb137896c8e0c0d626764488c4f90e96520ae099a87101486c3047a0fcffd2046e296384397670ab5ad5b3275222b3eb2f92914479ec8baffd8b176ea4f7d4b1d251bccb2fbeb7fd1b2fd4d478538c8f7d44a2153daf99a8c784ad098aee66c72d3037843695ad13414a1c1518cdd591fec53208ce307e010bab0c6010000"
+        ],
+        "rawHeaders": {
+            "anthropic-organization-id": "871841f9-232e-4b73-8210-909ab1ab034a",
+            "anthropic-ratelimit-input-tokens-limit": "2000000",
+            "anthropic-ratelimit-input-tokens-remaining": "2000000",
+            "anthropic-ratelimit-input-tokens-reset": "2026-02-16T15:16:37Z",
+            "anthropic-ratelimit-output-tokens-limit": "400000",
+            "anthropic-ratelimit-output-tokens-remaining": "400000",
+            "anthropic-ratelimit-output-tokens-reset": "2026-02-16T15:16:37Z",
+            "anthropic-ratelimit-requests-limit": "4000",
+            "anthropic-ratelimit-requests-remaining": "3999",
+            "anthropic-ratelimit-requests-reset": "2026-02-16T15:16:36Z",
+            "anthropic-ratelimit-tokens-limit": "2400000",
+            "anthropic-ratelimit-tokens-remaining": "2400000",
+            "anthropic-ratelimit-tokens-reset": "2026-02-16T15:16:37Z",
+            "cf-cache-status": "DYNAMIC",
+            "cf-ray": "REDACTED",
+            "connection": "keep-alive",
+            "content-encoding": "gzip",
+            "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
+            "content-type": "application/json",
+            "date": "Mon, 16 Feb 2026 15:16:37 GMT",
+            "request-id": "REDACTED",
+            "server": "cloudflare",
+            "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+            "transfer-encoding": "chunked",
+            "x-envoy-upstream-service-time": "1329",
+            "x-robots-tag": "none"
+        },
+        "responseIsBinary": false
+    }
+]
