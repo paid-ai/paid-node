@@ -2,19 +2,18 @@
  * Auto-instrumentation tests for OpenAI and Anthropic.
  *
  * Tests that auto-instrumentation correctly captures spans and attributes
- * when making SDK calls to OpenAI and Anthropic (mocked via MSW).
+ * when making SDK calls to OpenAI and Anthropic (mocked via nock).
  *
- * Uses MSW to mock API responses, allowing tests to run without real API keys.
+ * Uses nock to mock API responses, allowing tests to run without real API keys.
  *
  * Note: Due to how Node.js module caching works with OpenTelemetry instrumentation,
  * these tests run as a single suite to avoid instrumentation state issues between tests.
  */
-import { describe, it, expect, beforeAll, afterAll, vi } from "vitest";
+import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from "vitest";
 import { NodeTracerProvider, SimpleSpanProcessor } from "@opentelemetry/sdk-trace-node";
 import { InMemorySpanExporter } from "@opentelemetry/sdk-trace-base";
 import { resourceFromAttributes } from "@opentelemetry/resources";
-import { http, HttpResponse } from "msw";
-import { setupServer } from "msw/node";
+import nock from "nock";
 import { PaidSpanProcessor } from "../../src/tracing/spanProcessor";
 import { AISDKSpanProcessor } from "../../src/tracing/aiSdkSpanProcessor";
 import { runWithTracingContext } from "../../src/tracing/tracingContext";
@@ -103,8 +102,8 @@ const mockAnthropicMessageResponse = {
     },
 };
 
-// Helper to create SSE stream for OpenAI streaming responses
-function createOpenAIStreamResponse() {
+// Helper to create SSE stream body for OpenAI streaming responses
+function createOpenAIStreamBody(): string {
     const chunks = [
         {
             id: "chatcmpl-stream123",
@@ -144,25 +143,33 @@ function createOpenAIStreamResponse() {
         },
     ];
 
-    const encoder = new TextEncoder();
-    const stream = new ReadableStream({
-        async start(controller) {
-            for (const chunk of chunks) {
-                controller.enqueue(encoder.encode(`data: ${JSON.stringify(chunk)}\n\n`));
-                await new Promise((resolve) => setTimeout(resolve, 5));
-            }
-            controller.enqueue(encoder.encode("data: [DONE]\n\n"));
-            controller.close();
-        },
-    });
-
-    return stream;
+    let body = "";
+    for (const chunk of chunks) {
+        body += `data: ${JSON.stringify(chunk)}\n\n`;
+    }
+    body += "data: [DONE]\n\n";
+    return body;
 }
 
-// Helper to create SSE stream for Anthropic streaming responses
-function createAnthropicStreamResponse() {
+// Helper to create SSE stream body for Anthropic streaming responses
+function createAnthropicStreamBody(): string {
     const events = [
-        { event: "message_start", data: { type: "message_start", message: { id: "msg_stream123", type: "message", role: "assistant", content: [], model: "claude-sonnet-4-20250514", stop_reason: null, stop_sequence: null, usage: { input_tokens: 12, output_tokens: 0 } } } },
+        {
+            event: "message_start",
+            data: {
+                type: "message_start",
+                message: {
+                    id: "msg_stream123",
+                    type: "message",
+                    role: "assistant",
+                    content: [],
+                    model: "claude-sonnet-4-20250514",
+                    stop_reason: null,
+                    stop_sequence: null,
+                    usage: { input_tokens: 12, output_tokens: 0 },
+                },
+            },
+        },
         { event: "content_block_start", data: { type: "content_block_start", index: 0, content_block: { type: "text", text: "" } } },
         { event: "content_block_delta", data: { type: "content_block_delta", index: 0, delta: { type: "text_delta", text: "Hello" } } },
         { event: "content_block_delta", data: { type: "content_block_delta", index: 0, delta: { type: "text_delta", text: " from" } } },
@@ -172,66 +179,65 @@ function createAnthropicStreamResponse() {
         { event: "message_stop", data: { type: "message_stop" } },
     ];
 
-    const encoder = new TextEncoder();
-    const stream = new ReadableStream({
-        async start(controller) {
-            for (const { event, data } of events) {
-                controller.enqueue(encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`));
-                await new Promise((resolve) => setTimeout(resolve, 5));
-            }
-            controller.close();
-        },
-    });
-
-    return stream;
+    let body = "";
+    for (const { event, data } of events) {
+        body += `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
+    }
+    return body;
 }
 
-// Setup MSW server with handlers
-const server = setupServer(
-    http.post("https://api.openai.com/v1/chat/completions", async ({ request }) => {
-        const body = (await request.json()) as { stream?: boolean };
-        if (body.stream) {
-            return new HttpResponse(createOpenAIStreamResponse(), {
-                headers: {
-                    "Content-Type": "text/event-stream",
-                    "Cache-Control": "no-cache",
-                    Connection: "keep-alive",
-                },
-            });
-        }
-        return HttpResponse.json(mockOpenAIChatCompletionResponse);
-    }),
-    http.post("https://api.openai.com/v1/embeddings", () => {
-        return HttpResponse.json(mockOpenAIEmbeddingResponse);
-    }),
-    http.post("https://api.anthropic.com/v1/messages", async ({ request }) => {
-        const body = (await request.json()) as { stream?: boolean };
-        if (body.stream) {
-            return new HttpResponse(createAnthropicStreamResponse(), {
-                headers: {
-                    "Content-Type": "text/event-stream",
-                    "Cache-Control": "no-cache",
-                    Connection: "keep-alive",
-                },
-            });
-        }
-        return HttpResponse.json(mockAnthropicMessageResponse);
-    })
-);
+// Setup nock interceptors
+function setupNockInterceptors() {
+    // OpenAI chat completions (non-streaming)
+    nock("https://api.openai.com")
+        .post("/v1/chat/completions", (body) => !body.stream)
+        .reply(200, mockOpenAIChatCompletionResponse)
+        .persist();
+
+    // OpenAI chat completions (streaming)
+    nock("https://api.openai.com")
+        .post("/v1/chat/completions", (body) => body.stream === true)
+        .reply(200, createOpenAIStreamBody(), {
+            "Content-Type": "text/event-stream",
+            "Cache-Control": "no-cache",
+            Connection: "keep-alive",
+        })
+        .persist();
+
+    // OpenAI embeddings
+    nock("https://api.openai.com").post("/v1/embeddings").reply(200, mockOpenAIEmbeddingResponse).persist();
+
+    // Anthropic messages (non-streaming)
+    nock("https://api.anthropic.com")
+        .post("/v1/messages", (body) => !body.stream)
+        .reply(200, mockAnthropicMessageResponse)
+        .persist();
+
+    // Anthropic messages (streaming)
+    nock("https://api.anthropic.com")
+        .post("/v1/messages", (body) => body.stream === true)
+        .reply(200, createAnthropicStreamBody(), {
+            "Content-Type": "text/event-stream",
+            "Cache-Control": "no-cache",
+            Connection: "keep-alive",
+        })
+        .persist();
+}
 
 describe("Auto-Instrumentation Integration", () => {
     beforeAll(async () => {
-        server.listen({ onUnhandledRequest: "bypass" });
+        // Disable net connect but allow localhost
+        nock.disableNetConnect();
+        nock.enableNetConnect("127.0.0.1");
+
+        // Setup nock interceptors
+        setupNockInterceptors();
 
         // Set up test infrastructure once
         testExporter = new InMemorySpanExporter();
         testProvider = new NodeTracerProvider({
             resource: resourceFromAttributes({ "api.key": "test-key" }),
-            spanProcessors: [
-                new PaidSpanProcessor(),
-                new AISDKSpanProcessor(),
-                new SimpleSpanProcessor(testExporter),
-            ],
+            spanProcessors: [new PaidSpanProcessor(), new AISDKSpanProcessor(), new SimpleSpanProcessor(testExporter)],
         });
         testProvider.register();
 
@@ -243,13 +249,16 @@ describe("Auto-Instrumentation Integration", () => {
     });
 
     afterAll(async () => {
-        server.close();
+        nock.cleanAll();
+        nock.enableNetConnect();
         await testProvider?.shutdown();
     });
 
-    it("should create span for OpenAI chat completion with context attributes", async () => {
+    beforeEach(() => {
         testExporter.reset();
+    });
 
+    it("should create span for OpenAI chat completion with context attributes", async () => {
         const OpenAI = (await import("openai")).default;
         const openai = new OpenAI({ apiKey: "test-key" });
 
@@ -273,8 +282,6 @@ describe("Auto-Instrumentation Integration", () => {
     });
 
     it("should create span for OpenAI embeddings", async () => {
-        testExporter.reset();
-
         const OpenAI = (await import("openai")).default;
         const openai = new OpenAI({ apiKey: "test-key" });
 
@@ -296,8 +303,6 @@ describe("Auto-Instrumentation Integration", () => {
     });
 
     it("should create span for Anthropic message creation with context attributes", async () => {
-        testExporter.reset();
-
         const Anthropic = (await import("@anthropic-ai/sdk")).default;
         const anthropic = new Anthropic({ apiKey: "test-key" });
 
@@ -322,8 +327,6 @@ describe("Auto-Instrumentation Integration", () => {
     });
 
     it("should capture spans from multiple providers in single trace context", async () => {
-        testExporter.reset();
-
         const OpenAI = (await import("openai")).default;
         const Anthropic = (await import("@anthropic-ai/sdk")).default;
         const openai = new OpenAI({ apiKey: "test-key" });
@@ -354,20 +357,15 @@ describe("Auto-Instrumentation Integration", () => {
     });
 
     it("should filter prompt content when storePrompt is false", async () => {
-        testExporter.reset();
-
         const OpenAI = (await import("openai")).default;
         const openai = new OpenAI({ apiKey: "test-key" });
 
-        await runWithTracingContext(
-            { externalCustomerId: "cust-filtered", storePrompt: false },
-            async () => {
-                await openai.chat.completions.create({
-                    model: "gpt-4",
-                    messages: [{ role: "user", content: "Secret message" }],
-                });
-            }
-        );
+        await runWithTracingContext({ externalCustomerId: "cust-filtered", storePrompt: false }, async () => {
+            await openai.chat.completions.create({
+                model: "gpt-4",
+                messages: [{ role: "user", content: "Secret message" }],
+            });
+        });
 
         const spans = testExporter.getFinishedSpans();
         expect(spans.length).toBeGreaterThan(0);
@@ -388,20 +386,15 @@ describe("Auto-Instrumentation Integration", () => {
     });
 
     it("should keep prompt content when storePrompt is true", async () => {
-        testExporter.reset();
-
         const OpenAI = (await import("openai")).default;
         const openai = new OpenAI({ apiKey: "test-key" });
 
-        await runWithTracingContext(
-            { externalCustomerId: "cust-stored", storePrompt: true },
-            async () => {
-                await openai.chat.completions.create({
-                    model: "gpt-4",
-                    messages: [{ role: "user", content: "Hello" }],
-                });
-            }
-        );
+        await runWithTracingContext({ externalCustomerId: "cust-stored", storePrompt: true }, async () => {
+            await openai.chat.completions.create({
+                model: "gpt-4",
+                messages: [{ role: "user", content: "Hello" }],
+            });
+        });
 
         const spans = testExporter.getFinishedSpans();
         expect(spans.length).toBeGreaterThan(0);
@@ -426,8 +419,6 @@ describe("Auto-Instrumentation Integration", () => {
     });
 
     it("should capture token usage attributes", async () => {
-        testExporter.reset();
-
         const OpenAI = (await import("openai")).default;
         const openai = new OpenAI({ apiKey: "test-key" });
 
@@ -444,15 +435,11 @@ describe("Auto-Instrumentation Integration", () => {
 
         // Check that token-related attributes are captured
         const attrs = llmSpan?.attributes || {};
-        const hasTokenAttrs = Object.keys(attrs).some(
-            (key) => key.includes("token") || key.includes("usage")
-        );
+        const hasTokenAttrs = Object.keys(attrs).some((key) => key.includes("token") || key.includes("usage"));
         expect(hasTokenAttrs).toBe(true);
     });
 
     it("should create span for OpenAI streaming chat completion", async () => {
-        testExporter.reset();
-
         const OpenAI = (await import("openai")).default;
         const openai = new OpenAI({ apiKey: "test-key" });
 
@@ -485,8 +472,6 @@ describe("Auto-Instrumentation Integration", () => {
     });
 
     it("should create span for Anthropic streaming messages", async () => {
-        testExporter.reset();
-
         const Anthropic = (await import("@anthropic-ai/sdk")).default;
         const anthropic = new Anthropic({ apiKey: "test-key" });
 
@@ -519,27 +504,22 @@ describe("Auto-Instrumentation Integration", () => {
     });
 
     it("should capture context attributes in streaming with storePrompt false", async () => {
-        testExporter.reset();
-
         const OpenAI = (await import("openai")).default;
         const openai = new OpenAI({ apiKey: "test-key" });
 
-        await runWithTracingContext(
-            { externalCustomerId: "cust-stream-filtered", storePrompt: false },
-            async () => {
-                const stream = await openai.chat.completions.create({
-                    model: "gpt-4",
-                    messages: [{ role: "user", content: "Secret streaming message" }],
-                    stream: true,
-                });
+        await runWithTracingContext({ externalCustomerId: "cust-stream-filtered", storePrompt: false }, async () => {
+            const stream = await openai.chat.completions.create({
+                model: "gpt-4",
+                messages: [{ role: "user", content: "Secret streaming message" }],
+                stream: true,
+            });
 
-                // Consume the stream
-                for await (const chunk of stream) {
-                    // Just consume
-                    void chunk;
-                }
+            // Consume the stream
+            for await (const chunk of stream) {
+                // Just consume
+                void chunk;
             }
-        );
+        });
 
         const spans = testExporter.getFinishedSpans();
         const llmSpan = spans.find((s) => s.name.toLowerCase().includes("chat"));
