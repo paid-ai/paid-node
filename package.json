@@ -1,283 +1,226 @@
 {
-    "name": "@paid-ai/paid-node",
-    "version": "1.0.1-alpha6",
-    "private": false,
-    "repository": "github:paid-ai/paid-node",
-    "type": "commonjs",
-    "main": "./dist/cjs/index.js",
-    "module": "./dist/esm/index.mjs",
-    "types": "./dist/cjs/index.d.ts",
-    "exports": {
-        ".": {
-            "types": "./dist/cjs/index.d.ts",
-            "import": {
-                "types": "./dist/esm/index.d.mts",
-                "default": "./dist/esm/index.mjs"
-            },
-            "require": {
-                "types": "./dist/cjs/index.d.ts",
-                "default": "./dist/cjs/index.js"
-            },
-            "default": "./dist/cjs/index.js"
-        },
-        "./package.json": "./package.json",
-        "./openai": {
-            "types": "./dist/cjs/openai-wrapper/index.d.ts",
-            "import": {
-                "types": "./dist/esm/openai-wrapper/index.d.mts",
-                "default": "./dist/esm/openai-wrapper/index.mjs"
-            },
-            "require": {
-                "types": "./dist/cjs/openai-wrapper/index.d.ts",
-                "default": "./dist/cjs/openai-wrapper/index.js"
-            },
-            "default": "./dist/cjs/openai-wrapper/index.js"
-        },
-        "./anthropic": {
-            "types": "./dist/cjs/anthropic-wrapper/index.d.ts",
-            "import": {
-                "types": "./dist/esm/anthropic-wrapper/index.d.mts",
-                "default": "./dist/esm/anthropic-wrapper/index.mjs"
-            },
-            "require": {
-                "types": "./dist/cjs/anthropic-wrapper/index.d.ts",
-                "default": "./dist/cjs/anthropic-wrapper/index.js"
-            },
-            "default": "./dist/cjs/anthropic-wrapper/index.js"
-        },
-        "./mistral": {
-            "types": "./dist/cjs/mistral-wrapper/index.d.ts",
-            "import": {
-                "types": "./dist/esm/mistral-wrapper/index.d.mts",
-                "default": "./dist/esm/mistral-wrapper/index.mjs"
-            },
-            "require": {
-                "types": "./dist/cjs/mistral-wrapper/index.d.ts",
-                "default": "./dist/cjs/mistral-wrapper/index.js"
-            },
-            "default": "./dist/cjs/mistral-wrapper/index.js"
-        },
-        "./langchain": {
-            "types": "./dist/cjs/langchain-wrapper/index.d.ts",
-            "import": {
-                "types": "./dist/esm/langchain-wrapper/index.d.mts",
-                "default": "./dist/esm/langchain-wrapper/index.mjs"
-            },
-            "require": {
-                "types": "./dist/cjs/langchain-wrapper/index.d.ts",
-                "default": "./dist/cjs/langchain-wrapper/index.js"
-            },
-            "default": "./dist/cjs/langchain-wrapper/index.js"
-        },
-        "./vercel": {
-            "types": "./dist/cjs/vercel-wrapper/index.d.ts",
-            "import": {
-                "types": "./dist/esm/vercel-wrapper/index.d.mts",
-                "default": "./dist/esm/vercel-wrapper/index.mjs"
-            },
-            "require": {
-                "types": "./dist/cjs/vercel-wrapper/index.d.ts",
-                "default": "./dist/cjs/vercel-wrapper/index.js"
-            },
-            "default": "./dist/cjs/vercel-wrapper/index.js"
-        },
-        "./tracing": {
-            "types": "./dist/cjs/tracing/index.d.ts",
-            "import": {
-                "types": "./dist/esm/tracing/index.d.mts",
-                "default": "./dist/esm/tracing/index.mjs"
-            },
-            "require": {
-                "types": "./dist/cjs/tracing/index.d.ts",
-                "default": "./dist/cjs/tracing/index.js"
-            },
-            "default": "./dist/cjs/tracing/index.js"
-        },
-        "./integrations": {
-            "types": "./dist/cjs/integrations/index.d.ts",
-            "import": {
-                "types": "./dist/esm/integrations/index.d.mts",
-                "default": "./dist/esm/integrations/index.mjs"
-            },
-            "require": {
-                "types": "./dist/cjs/integrations/index.d.ts",
-                "default": "./dist/cjs/integrations/index.js"
-            },
-            "default": "./dist/cjs/integrations/index.js"
-        },
-        "./integrations/nextjs": {
-            "types": "./dist/cjs/integrations/adapters/nextjs/index.d.ts",
-            "import": {
-                "types": "./dist/esm/integrations/adapters/nextjs/index.d.mts",
-                "default": "./dist/esm/integrations/adapters/nextjs/index.mjs"
-            },
-            "require": {
-                "types": "./dist/cjs/integrations/adapters/nextjs/index.d.ts",
-                "default": "./dist/cjs/integrations/adapters/nextjs/index.js"
-            },
-            "default": "./dist/cjs/integrations/adapters/nextjs/index.js"
-        },
-        "./integrations/express": {
-            "types": "./dist/cjs/integrations/adapters/expressjs/index.d.ts",
-            "import": {
-                "types": "./dist/esm/integrations/adapters/expressjs/index.d.mts",
-                "default": "./dist/esm/integrations/adapters/expressjs/index.mjs"
-            },
-            "require": {
-                "types": "./dist/cjs/integrations/adapters/expressjs/index.d.ts",
-                "default": "./dist/cjs/integrations/adapters/expressjs/index.js"
-            },
-            "default": "./dist/cjs/integrations/adapters/expressjs/index.js"
-        },
-        "./integrations/nestjs": {
-            "types": "./dist/cjs/integrations/adapters/nestjs/index.d.ts",
-            "import": {
-                "types": "./dist/esm/integrations/adapters/nestjs/index.d.mts",
-                "default": "./dist/esm/integrations/adapters/nestjs/index.mjs"
-            },
-            "require": {
-                "types": "./dist/cjs/integrations/adapters/nestjs/index.d.ts",
-                "default": "./dist/cjs/integrations/adapters/nestjs/index.js"
-            },
-            "default": "./dist/cjs/integrations/adapters/nestjs/index.js"
-        }
+  "name": "@paid-ai/paid-node",
+  "version": "1.0.1-alpha7",
+  "private": false,
+  "repository": "github:paid-ai/paid-node",
+  "type": "commonjs",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.mjs",
+  "types": "./dist/cjs/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/cjs/index.d.ts",
+      "import": {
+        "types": "./dist/esm/index.d.mts",
+        "default": "./dist/esm/index.mjs"
+      },
+      "require": {
+        "types": "./dist/cjs/index.d.ts",
+        "default": "./dist/cjs/index.js"
+      },
+      "default": "./dist/cjs/index.js"
     },
-    "files": [
-        "dist",
-        "reference.md",
-        "README.md",
-        "LICENSE"
-    ],
-    "scripts": {
-        "format": "biome format --write --skip-parse-errors --no-errors-on-unmatched --max-diagnostics=none",
-        "format:check": "biome format --skip-parse-errors --no-errors-on-unmatched --max-diagnostics=none",
-        "lint": "biome lint --skip-parse-errors --no-errors-on-unmatched --max-diagnostics=none",
-        "lint:fix": "biome lint --fix --unsafe --skip-parse-errors --no-errors-on-unmatched --max-diagnostics=none",
-        "check": "biome check --skip-parse-errors --no-errors-on-unmatched --max-diagnostics=none",
-        "check:fix": "biome check --fix --unsafe --skip-parse-errors --no-errors-on-unmatched --max-diagnostics=none",
-        "build": "pnpm build:cjs && pnpm build:esm",
-        "build:cjs": "tsc --project ./tsconfig.cjs.json",
-        "build:esm": "tsc --project ./tsconfig.esm.json && node scripts/rename-to-esm-files.js dist/esm",
-        "test": "vitest",
-        "test:unit": "vitest --project unit",
-        "test:wire": "vitest --project wire"
+    "./package.json": "./package.json",
+    "./openai": {
+      "types": "./dist/cjs/openai-wrapper/index.d.ts",
+      "import": {
+        "types": "./dist/esm/openai-wrapper/index.d.mts",
+        "default": "./dist/esm/openai-wrapper/index.mjs"
+      },
+      "require": {
+        "types": "./dist/cjs/openai-wrapper/index.d.ts",
+        "default": "./dist/cjs/openai-wrapper/index.js"
+      },
+      "default": "./dist/cjs/openai-wrapper/index.js"
     },
-    "dependencies": {
-        "@arizeai/openinference-instrumentation-anthropic": ">=0.1.2",
-        "@arizeai/openinference-instrumentation-openai": ">=4.0.0",
-        "@arizeai/openinference-semantic-conventions": ">=2.1.2",
-        "@arizeai/openinference-vercel": "^2.7.0",
-        "@opentelemetry/api": ">=1.9.0",
-        "@opentelemetry/exporter-trace-otlp-http": ">=0.208.0",
-        "@opentelemetry/exporter-trace-otlp-proto": ">=0.208.0",
-        "@opentelemetry/instrumentation": ">=0.208.0",
-        "@opentelemetry/resources": ">=1.38.0",
-        "@opentelemetry/sdk-node": ">=0.208.0",
-        "@opentelemetry/sdk-trace-base": ">=1.38.0",
-        "@opentelemetry/sdk-trace-node": "^2.2.0",
-        "@opentelemetry/semantic-conventions": ">=1.38.0",
-        "@traceloop/instrumentation-bedrock": ">=0.22.0",
-        "winston": ">=3.0.0"
+    "./anthropic": {
+      "types": "./dist/cjs/anthropic-wrapper/index.d.ts",
+      "import": {
+        "types": "./dist/esm/anthropic-wrapper/index.d.mts",
+        "default": "./dist/esm/anthropic-wrapper/index.mjs"
+      },
+      "require": {
+        "types": "./dist/cjs/anthropic-wrapper/index.d.ts",
+        "default": "./dist/cjs/anthropic-wrapper/index.js"
+      },
+      "default": "./dist/cjs/anthropic-wrapper/index.js"
     },
-    "peerDependencies": {
-        "@ai-sdk/openai": ">=1.0.0",
-        "@anthropic-ai/sdk": ">=0.36.3",
-        "@langchain/core": ">=0.3.0",
-        "@mistralai/mistralai": ">=1.0.0",
-        "@types/express": ">=4.17.0",
-        "ai": ">=5.0.0",
-        "next": ">=13.0.0",
-        "openai": ">=4.85.4"
+    "./mistral": {
+      "types": "./dist/cjs/mistral-wrapper/index.d.ts",
+      "import": {
+        "types": "./dist/esm/mistral-wrapper/index.d.mts",
+        "default": "./dist/esm/mistral-wrapper/index.mjs"
+      },
+      "require": {
+        "types": "./dist/cjs/mistral-wrapper/index.d.ts",
+        "default": "./dist/cjs/mistral-wrapper/index.js"
+      },
+      "default": "./dist/cjs/mistral-wrapper/index.js"
     },
-    "peerDependenciesMeta": {
-        "@ai-sdk/openai": {
-            "optional": true
-        },
-        "@anthropic-ai/sdk": {
-            "optional": true
-        },
-        "@langchain/core": {
-            "optional": true
-        },
-        "@mistralai/mistralai": {
-            "optional": true
-        },
-        "ai": {
-            "optional": true
-        },
-        "openai": {
-            "optional": true
-        },
-        "@types/express": {
-            "optional": true
-        },
-        "next": {
-            "optional": true
-        }
+    "./langchain": {
+      "types": "./dist/cjs/langchain-wrapper/index.d.ts",
+      "import": {
+        "types": "./dist/esm/langchain-wrapper/index.d.mts",
+        "default": "./dist/esm/langchain-wrapper/index.mjs"
+      },
+      "require": {
+        "types": "./dist/cjs/langchain-wrapper/index.d.ts",
+        "default": "./dist/cjs/langchain-wrapper/index.js"
+      },
+      "default": "./dist/cjs/langchain-wrapper/index.js"
     },
-    "devDependencies": {
-        "@ai-sdk/openai": ">=1.0.0",
-        "@anthropic-ai/sdk": ">=0.36.3",
-        "@aws-sdk/client-bedrock-runtime": "^3.941.0",
-        "@biomejs/biome": "2.3.1",
-        "@langchain/core": ">=0.3.0",
-        "@mistralai/mistralai": ">=1.0.0",
-        "@types/express": "^4.17.21",
-        "@types/node": "^18.19.70",
-        "ai": ">=5.0.0",
-        "msw": "^2.12.10",
-        "next": ">=13.0.0",
-        "nock": "^14.0.11",
-        "openai": ">=4.85.4",
-        "ts-loader": "^9.5.1",
-        "typescript": "~5.7.2",
-        "vitest": "^3.2.4",
-        "webpack": "^5.97.1",
-        "zod": "3.25.76"
+    "./vercel": {
+      "types": "./dist/cjs/vercel-wrapper/index.d.ts",
+      "import": {
+        "types": "./dist/esm/vercel-wrapper/index.d.mts",
+        "default": "./dist/esm/vercel-wrapper/index.mjs"
+      },
+      "require": {
+        "types": "./dist/cjs/vercel-wrapper/index.d.ts",
+        "default": "./dist/cjs/vercel-wrapper/index.js"
+      },
+      "default": "./dist/cjs/vercel-wrapper/index.js"
     },
-    "browser": {
-        "fs": false,
-        "os": false,
-        "path": false,
-        "stream": false
+    "./tracing": {
+      "types": "./dist/cjs/tracing/index.d.ts",
+      "import": {
+        "types": "./dist/esm/tracing/index.d.mts",
+        "default": "./dist/esm/tracing/index.mjs"
+      },
+      "require": {
+        "types": "./dist/cjs/tracing/index.d.ts",
+        "default": "./dist/cjs/tracing/index.js"
+      },
+      "default": "./dist/cjs/tracing/index.js"
     },
-    "packageManager": "pnpm@10.14.0",
-    "engines": {
-        "node": ">=18.0.0"
-    },
-    "sideEffects": false,
-    "typesVersions": {
-        "*": {
-            "openai": [
-                "./dist/cjs/openai-wrapper/index.d.ts"
-            ],
-            "anthropic": [
-                "./dist/cjs/anthropic-wrapper/index.d.ts"
-            ],
-            "mistral": [
-                "./dist/cjs/mistral-wrapper/index.d.ts"
-            ],
-            "langchain": [
-                "./dist/cjs/langchain-wrapper/index.d.ts"
-            ],
-            "vercel": [
-                "./dist/cjs/vercel-wrapper/index.d.ts"
-            ],
-            "tracing": [
-                "./dist/cjs/tracing/index.d.ts"
-            ],
-            "integrations": [
-                "./dist/cjs/integrations/index.d.ts"
-            ],
-            "integrations/nextjs": [
-                "./dist/cjs/integrations/adapters/nextjs/index.d.ts"
-            ],
-            "integrations/express": [
-                "./dist/cjs/integrations/adapters/expressjs/index.d.ts"
-            ],
-            "integrations/nestjs": [
-                "./dist/cjs/integrations/adapters/nestjs/index.d.ts"
-            ]
-        }
+    "./tracing/auto": {
+      "types": "./dist/cjs/tracing/autoInstrumentation.d.ts",
+      "import": {
+        "types": "./dist/esm/tracing/autoInstrumentation.d.mts",
+        "default": "./dist/esm/tracing/autoInstrumentation.mjs"
+      },
+      "require": {
+        "types": "./dist/cjs/tracing/autoInstrumentation.d.ts",
+        "default": "./dist/cjs/tracing/autoInstrumentation.js"
+      },
+      "default": "./dist/cjs/tracing/autoInstrumentation.js"
     }
+  },
+  "files": [
+    "dist",
+    "reference.md",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "format": "biome format --write --skip-parse-errors --no-errors-on-unmatched --max-diagnostics=none",
+    "format:check": "biome format --skip-parse-errors --no-errors-on-unmatched --max-diagnostics=none",
+    "lint": "biome lint --skip-parse-errors --no-errors-on-unmatched --max-diagnostics=none",
+    "lint:fix": "biome lint --fix --unsafe --skip-parse-errors --no-errors-on-unmatched --max-diagnostics=none",
+    "check": "biome check --skip-parse-errors --no-errors-on-unmatched --max-diagnostics=none",
+    "check:fix": "biome check --fix --unsafe --skip-parse-errors --no-errors-on-unmatched --max-diagnostics=none",
+    "build": "pnpm build:cjs && pnpm build:esm",
+    "build:cjs": "tsc --project ./tsconfig.cjs.json",
+    "build:esm": "tsc --project ./tsconfig.esm.json && node scripts/rename-to-esm-files.js dist/esm",
+    "test": "vitest",
+    "test:unit": "vitest --project unit",
+    "test:wire": "vitest --project wire"
+  },
+  "dependencies": {
+    "@opentelemetry/api": ">=1.9.0",
+    "@opentelemetry/exporter-trace-otlp-http": ">=0.208.0",
+    "@opentelemetry/exporter-trace-otlp-proto": ">=0.208.0",
+    "@opentelemetry/instrumentation": ">=0.208.0",
+    "@opentelemetry/resources": ">=1.38.0",
+    "@opentelemetry/sdk-node": ">=0.208.0",
+    "@opentelemetry/sdk-trace-base": ">=1.38.0",
+    "@opentelemetry/sdk-trace-node": "^2.2.0",
+    "@opentelemetry/semantic-conventions": ">=1.38.0",
+    "@arizeai/openinference-instrumentation-anthropic": ">=0.1.2",
+    "@arizeai/openinference-instrumentation-openai": ">=4.0.0",
+    "@arizeai/openinference-semantic-conventions": ">=2.1.2",
+    "@traceloop/instrumentation-bedrock": ">=0.22.0",
+    "winston": ">=3.0.0"
+  },
+  "peerDependencies": {
+    "@ai-sdk/openai": ">=1.0.0",
+    "@anthropic-ai/sdk": ">=0.36.3",
+    "@langchain/core": ">=0.3.0",
+    "@mistralai/mistralai": ">=1.0.0",
+    "ai": ">=5.0.0",
+    "openai": ">=4.85.4"
+  },
+  "peerDependenciesMeta": {
+    "@ai-sdk/openai": {
+      "optional": true
+    },
+    "@anthropic-ai/sdk": {
+      "optional": true
+    },
+    "@langchain/core": {
+      "optional": true
+    },
+    "@mistralai/mistralai": {
+      "optional": true
+    },
+    "ai": {
+      "optional": true
+    },
+    "openai": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "webpack": "^5.97.1",
+    "ts-loader": "^9.5.1",
+    "vitest": "^3.2.4",
+    "msw": ">=2.0.0",
+    "@types/node": "^18.19.70",
+    "typescript": "~5.7.2",
+    "@biomejs/biome": "2.3.1",
+    "@ai-sdk/openai": ">=1.0.0",
+    "@anthropic-ai/sdk": ">=0.36.3",
+    "@langchain/core": ">=0.3.0",
+    "@mistralai/mistralai": ">=1.0.0",
+    "ai": ">=5.0.0",
+    "openai": ">=4.85.4",
+    "nock": ">=14.0.0",
+    "zod": ">=3.0.0"
+  },
+  "browser": {
+    "fs": false,
+    "os": false,
+    "path": false,
+    "stream": false
+  },
+  "packageManager": "pnpm@10.14.0",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "sideEffects": false,
+  "typesVersions": {
+    "*": {
+      "openai": [
+        "./dist/cjs/openai-wrapper/index.d.ts"
+      ],
+      "anthropic": [
+        "./dist/cjs/anthropic-wrapper/index.d.ts"
+      ],
+      "mistral": [
+        "./dist/cjs/mistral-wrapper/index.d.ts"
+      ],
+      "langchain": [
+        "./dist/cjs/langchain-wrapper/index.d.ts"
+      ],
+      "vercel": [
+        "./dist/cjs/vercel-wrapper/index.d.ts"
+      ],
+      "tracing": [
+        "./dist/cjs/tracing/index.d.ts"
+      ],
+      "tracing/auto": [
+        "./dist/cjs/tracing/autoInstrumentation.d.ts"
+      ]
+    }
+  }
 }

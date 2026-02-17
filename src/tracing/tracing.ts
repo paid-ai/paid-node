@@ -1,10 +1,9 @@
-import { SpanStatusCode } from "@opentelemetry/api";
+import { SpanStatusCode, context } from "@opentelemetry/api";
 import type { Tracer } from "@opentelemetry/api";
+import { AsyncLocalStorageContextManager } from "@opentelemetry/context-async-hooks";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
-import { NodeSDK } from "@opentelemetry/sdk-node";
 import { resourceFromAttributes } from "@opentelemetry/resources";
 import { NodeTracerProvider, SimpleSpanProcessor } from "@opentelemetry/sdk-trace-node";
-import type { SpanProcessor } from "@opentelemetry/sdk-trace-node";
 import winston from "winston";
 import { runWithTracingContext } from "./tracingContext.js";
 import { PaidSpanProcessor } from "./spanProcessor.js";
@@ -39,7 +38,7 @@ export function getPaidTracer(): Tracer | undefined {
 }
 
 let _isShuttingDown = false;
-const setupGracefulShutdown = (shuttable: NodeSDK | SpanProcessor) => {
+const setupGracefulShutdown = (shuttable: { shutdown(): Promise<void> }) => {
     ["SIGINT", "SIGTERM", "beforeExit", "uncaughtException", "unhandledRejection"].forEach((signal) => {
         process.on(signal, () => {
             if (_isShuttingDown) {
@@ -88,8 +87,15 @@ export function initializeTracing(apiKey?: string, collectorEndpoint?: string): 
         resource: resourceFromAttributes({ "api.key": paidApiToken }),
         spanProcessors: [new PaidSpanProcessor(), new AISDKSpanProcessor(), spanProcessor],
     });
-    // Don't call .register() - we pass the tracerProvider explicitly to instrumentations
-    // This avoids polluting the global trace provider
+    // Set up context propagation without registering the provider globally.
+    // This gives us async parent-child linking via AsyncLocalStorage
+    // without polluting the global trace provider.
+    const contextManager = new AsyncLocalStorageContextManager();
+    contextManager.enable();
+    if (!context.setGlobalContextManager(contextManager)) {
+        contextManager.disable();
+    }
+
     paidTracer = paidTracerProvider.getTracer("paid.node");
     setupGracefulShutdown(spanProcessor);
     logger.info(`Paid tracing SDK initialized with collector endpoint: ${url}`);
@@ -115,28 +121,30 @@ export async function trace<F extends (...args: any[]) => any>(
     }
     const { externalCustomerId, externalProductId: externalAgentId, storePrompt, metadata } = options;
 
-    return await tracer.startActiveSpan("parent_span", async (span) => {
-        try {
-            const res = await runWithTracingContext(
-                {
-                    externalCustomerId,
-                    externalProductId: externalAgentId,
-                    storePrompt,
-                    metadata,
-                },
-                async () => await fn(...args),
-            );
-            span.setStatus({ code: SpanStatusCode.OK });
-            return res;
-        } catch (error: any) {
-            span.setStatus({
-                code: SpanStatusCode.ERROR,
-                message: error.message,
+    return await runWithTracingContext(
+        {
+            externalCustomerId,
+            externalProductId: externalAgentId,
+            storePrompt,
+            metadata,
+        },
+        async () => {
+            return await tracer.startActiveSpan("parent_span", async (span) => {
+                try {
+                    const res = await fn(...args);
+                    span.setStatus({ code: SpanStatusCode.OK });
+                    return res;
+                } catch (error: any) {
+                    span.setStatus({
+                        code: SpanStatusCode.ERROR,
+                        message: error.message,
+                    });
+                    span.recordException(error);
+                    throw error;
+                } finally {
+                    span.end();
+                }
             });
-            span.recordException(error);
-            throw error;
-        } finally {
-            span.end();
-        }
-    });
+        },
+    );
 }
