@@ -88,7 +88,8 @@ export function initializeTracing(apiKey?: string, collectorEndpoint?: string): 
         resource: resourceFromAttributes({ "api.key": paidApiToken }),
         spanProcessors: [new PaidSpanProcessor(), new AISDKSpanProcessor(), spanProcessor],
     });
-    paidTracerProvider.register();
+    // Don't call .register() - we pass the tracerProvider explicitly to instrumentations
+    // This avoids polluting the global trace provider
     paidTracer = paidTracerProvider.getTracer("paid.node");
     setupGracefulShutdown(spanProcessor);
     logger.info(`Paid tracing SDK initialized with collector endpoint: ${url}`);
