@@ -1,0 +1,49 @@
+[
+    {
+        "scope": "https://api.openai.com:443",
+        "method": "POST",
+        "path": "/v1/chat/completions",
+        "body": {
+            "model": "gpt-4o-mini",
+            "messages": [
+                {
+                    "role": "user",
+                    "content": "Secret message"
+                }
+            ],
+            "max_tokens": 32
+        },
+        "status": 200,
+        "response": [
+            "1bb203001c07ceb93cc8e314f4d398d4919d55ed6412ff9fd43e5c897b101b44a1ab6feb9029b0346bb979fdaa807468b549be168570adb89a836e04ca60dfa134fed6cb7e3658440c623aeff4f9e43e22eb5f53008310b47ca3b6923ca6aeb4c6e62e9edf24df8efaabf1c3eca4dbb7d27e78e6b9a7081f401ffd3bd52f48601519a81fe11485e325896585174d12dba697d7949851191c5364dda15885e2540b5205aced9f00c0f46e0c80de2f10f6fcaaf8d220451100218c13a04fa645415cc7039f01eb5bc1bd0b43d6ec031a058b86495682ed344a64bc32e89c98c417b06203045436f0f50c68dcde5c650259902e9aca01634dba6105b9ef94e330aac62ce54f053a460c366aa14a0f8a4fb667b144e4ab38f3f23233abdb53ac022949592bc51c49f0889633f98bfd7b13ce3dcccb2cc96b4236984db5e3050157f24ee077ca50251b8a9c693023e9a7a14b906099ad64e24ce4d2429ef9e509dd6a9f9dff3048bd530b7d3e66a43c6ba70d55e993345210667b11d24d481d3825187e192305a665461ae810dba1f6dbcd89a00806273aa6ece21e"
+        ],
+        "rawHeaders": {
+            "access-control-expose-headers": "X-Request-ID",
+            "alt-svc": "h3=\":443\"; ma=86400",
+            "cf-cache-status": "DYNAMIC",
+            "cf-ray": "9cee01f6ece0ef27-LHR",
+            "connection": "keep-alive",
+            "content-encoding": "br",
+            "content-type": "application/json",
+            "date": "Mon, 16 Feb 2026 15:16:44 GMT",
+            "openai-organization": "agentpaid",
+            "openai-processing-ms": "982",
+            "openai-project": "proj_g54CtVh9wETqz1duiA1cw9Kw",
+            "openai-version": "2020-10-01",
+            "server": "cloudflare",
+            "set-cookie": "__cf_bm=w_NLx9chlAcyXynDMT10g_Y_IYzpSZ2YCgYqqSA5BJc-1771255002.705055-1.0.1.1-NBPe7EdNvZYFQpgTKgGWj0TTatWpPoaWdyePPg4ts9hZdmEFYH9MDceZKDBSicRTlD2XXjVPpzBkUTFSM2fdOZPqOvPQyCjQCjUq1HORRbfzpziYBqaq2EHC.1VP3pJW; HttpOnly; Secure; Path=/; Domain=api.openai.com; Expires=Mon, 16 Feb 2026 15:46:44 GMT",
+            "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+            "transfer-encoding": "chunked",
+            "x-content-type-options": "nosniff",
+            "x-openai-proxy-wasm": "v0.1",
+            "x-ratelimit-limit-requests": "10000",
+            "x-ratelimit-limit-tokens": "200000",
+            "x-ratelimit-remaining-requests": "9996",
+            "x-ratelimit-remaining-tokens": "199994",
+            "x-ratelimit-reset-requests": "29.678s",
+            "x-ratelimit-reset-tokens": "1ms",
+            "x-request-id": "req_1b9518fb27324b5b8c94263d4f56705e"
+        },
+        "responseIsBinary": false
+    }
+]

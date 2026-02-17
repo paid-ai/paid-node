@@ -1,0 +1,50 @@
+[
+    {
+        "scope": "https://api.anthropic.com:443",
+        "method": "POST",
+        "path": "/v1/messages",
+        "body": {
+            "model": "claude-sonnet-4-20250514",
+            "max_tokens": 32,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": "Say hello in exactly 3 words."
+                }
+            ]
+        },
+        "status": 200,
+        "response": [
+            "1f8b080000000000001375914d4b03311086ff4a7dcf29ec966ed55cbd087af25411097133ed8666276b326995b2ff5db658fcc2d3c03ccf0cf371441f1d0568b4c11647f31c9949e6cbf9a25a3455532fa1e01d34fabc35557db359d3e67ed574d7cd6efd7028077edc5dde4141de079a2ccad96e090a2986296173f6592c0b14dac8422cd04fc7b32ff4369153d0b8a510e24c3a4aa4669be489dd05c667852c7130896c8e0c0d6267a424c627c8f45a885b82e6128242398da08ff03c14311277c419ba5e29b4b6edc8b489acf8c8e6a7509d7922ebfe63e7daa93f0d1df5946c304dffd7ffa275f79b8e0ab1c8f7d49542a6b4f72d19f194a0319dcdd9e4a60ff086d2b4a2d95284064731766f7db02f81308e1ff5e6d6a2c7010000"
+        ],
+        "rawHeaders": {
+            "anthropic-organization-id": "871841f9-232e-4b73-8210-909ab1ab034a",
+            "anthropic-ratelimit-input-tokens-limit": "2000000",
+            "anthropic-ratelimit-input-tokens-remaining": "2000000",
+            "anthropic-ratelimit-input-tokens-reset": "2026-02-16T17:24:48Z",
+            "anthropic-ratelimit-output-tokens-limit": "400000",
+            "anthropic-ratelimit-output-tokens-remaining": "400000",
+            "anthropic-ratelimit-output-tokens-reset": "2026-02-16T17:24:48Z",
+            "anthropic-ratelimit-requests-limit": "4000",
+            "anthropic-ratelimit-requests-remaining": "3999",
+            "anthropic-ratelimit-requests-reset": "2026-02-16T17:24:47Z",
+            "anthropic-ratelimit-tokens-limit": "2400000",
+            "anthropic-ratelimit-tokens-remaining": "2400000",
+            "anthropic-ratelimit-tokens-reset": "2026-02-16T17:24:48Z",
+            "cf-cache-status": "DYNAMIC",
+            "cf-ray": "9ceebd9618cef45c-LHR",
+            "connection": "keep-alive",
+            "content-encoding": "gzip",
+            "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
+            "content-type": "application/json",
+            "date": "Mon, 16 Feb 2026 17:24:48 GMT",
+            "request-id": "req_011CYC8wFUqWZXk2rEBTWiej",
+            "server": "cloudflare",
+            "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+            "transfer-encoding": "chunked",
+            "x-envoy-upstream-service-time": "1180",
+            "x-robots-tag": "none"
+        },
+        "responseIsBinary": false
+    }
+]

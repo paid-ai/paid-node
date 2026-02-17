@@ -1,0 +1,79 @@
+[
+    {
+        "scope": "https://api.openai.com:443",
+        "method": "POST",
+        "path": "/v1/responses",
+        "body": {
+            "model": "gpt-4o-mini",
+            "input": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "input_text",
+                            "text": "Generate a fictional person with name, age, and occupation."
+                        }
+                    ]
+                }
+            ],
+            "text": {
+                "format": {
+                    "type": "json_schema",
+                    "strict": true,
+                    "name": "response",
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "age": {
+                                "type": "number"
+                            },
+                            "occupation": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "name",
+                            "age",
+                            "occupation"
+                        ],
+                        "additionalProperties": false,
+                        "$schema": "http://json-schema.org/draft-07/schema#"
+                    }
+                }
+            }
+        },
+        "status": 200,
+        "response": [
+            "1b3308201c07b939e92eb9646f2a054156cde9cfa8cce994d0d7b8efec6300204540fa6cb9a54e76de3318f0299bc42d6bd1d225a1198fd0088936bf3bf7432fae549997b4d9d4cb43774da21c48891bc27c275b0b3ef2dfac5462cb5f4f1ad75638773fdaeba4e6817f05046961ed334e95d27b2b7d890aeef76973537c2a75b694caa2024a396e40c1bf68a6ce08326014c1a2b1c13195122e73df03293f427e3e5c58c18bf955a566d72c6951574c7578a6da43eede36c5c4ccddaf63cf2dc31314c343dc98093b96d16c2172e887009de46a82952cc25c3be366978b30e8b0f05eb46ab5875577b8ff83e20b0735ab0ee4d0927048ba582f3e6d8116615f7e376fc3c934093f7acd4d7467d6e76e84276464b079b21362ddfb8c783229962b942da69cdac5acf10dfb61c4fa6df7f6f9e36b59b9faaa29f5ced36afb7ab20a74f843f057f865a750ff8efac22d82fded860a27eb37bf24a4f3f0d11bf09592e78277ce6af90bcc7d810c58ce94986da6b00897fbacffd0d7c953b4f43b06bad95c291b2ba0d307c4765bad9a32af3a48d2cf90ba19be6a5ce78aaa864010aec825c8a7ee8b791297743da9054dacc74b41229192a46ca1835644a47ded52171a4115c9488afaa3475938281baf524b3297b804973595133e160da89b479428824887d9e89cd296f9a0e82c23854cc2d53131b8a09cf19a09f0d8303e947b766ad4832b03279ae00a974132871a762e754f25e142f99a71e5f26ad552e56ba83028f2b6e96c2627f89ac135ba6c63da2c894b13ed77c2c1755b08f3ceab8c5141ec9ad715746515d78f54f678d6f48569da15f1ab48d2fdb918ebdbb850fb2fd6ba20ba103569276b66e38ea2b61d9dc86b4dacf7a4c9f49ef67e5b4226bb395bf19dbe657635779db2aa63c9c14e03"
+        ],
+        "rawHeaders": {
+            "alt-svc": "h3=\":443\"; ma=86400",
+            "cf-cache-status": "DYNAMIC",
+            "cf-ray": "9cef26c578cd873a-LHR",
+            "connection": "keep-alive",
+            "content-encoding": "br",
+            "content-type": "application/json",
+            "date": "Mon, 16 Feb 2026 18:36:36 GMT",
+            "openai-organization": "REDACTED",
+            "openai-processing-ms": "779",
+            "openai-project": "REDACTED",
+            "openai-version": "2020-10-01",
+            "server": "cloudflare",
+            "set-cookie": "REDACTED",
+            "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+            "transfer-encoding": "chunked",
+            "x-content-type-options": "nosniff",
+            "x-ratelimit-limit-requests": "10000",
+            "x-ratelimit-limit-tokens": "200000",
+            "x-ratelimit-remaining-requests": "9995",
+            "x-ratelimit-remaining-tokens": "199926",
+            "x-ratelimit-reset-requests": "39.149s",
+            "x-ratelimit-reset-tokens": "22ms",
+            "x-request-id": "req_d7e36bad9d7045d994989e098740e835"
+        },
+        "responseIsBinary": false
+    }
+]

@@ -8,6 +8,7 @@ import type { SpanProcessor } from "@opentelemetry/sdk-trace-node";
 import winston from "winston";
 import { runWithTracingContext } from "./tracingContext.js";
 import { PaidSpanProcessor } from "./spanProcessor.js";
+import { AISDKSpanProcessor } from "./aiSdkSpanProcessor.js";
 
 export const logger: winston.Logger = winston.createLogger({
     level: "silent", // Default to 'silent' to avoid logging unless set via environment variable
@@ -121,11 +122,12 @@ export function initializeTracing(
     const url = endpoint || DEFAULT_COLLECTOR_ENDPOINT;
     const exporter = new OTLPTraceExporter({ url });
     const spanProcessor = new SimpleSpanProcessor(exporter);
-    const nodeTracerProvider = new NodeTracerProvider({
+    // Order matters: processors run in order, and SimpleSpanProcessor exports on onEnd.
+    // So we need to run our attribute-modifying processors BEFORE the exporter.
+    paidTracerProvider = new NodeTracerProvider({
         resource: resourceFromAttributes({ "api.key": paidApiToken }),
-        spanProcessors: [spanProcessor, new PaidSpanProcessor()],
+        spanProcessors: [new PaidSpanProcessor(), new AISDKSpanProcessor(), spanProcessor],
     });
-    paidTracerProvider = nodeTracerProvider;
     paidTracer = paidTracerProvider.getTracer("paid.node");
     setupGracefulShutdown(spanProcessor);
     logger.info(`Paid tracing SDK initialized with collector endpoint: ${url}`);

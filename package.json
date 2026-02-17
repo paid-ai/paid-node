@@ -163,6 +163,10 @@
         "test:wire": "vitest --project wire"
     },
     "dependencies": {
+        "@arizeai/openinference-instrumentation-anthropic": ">=0.1.2",
+        "@arizeai/openinference-instrumentation-openai": ">=4.0.0",
+        "@arizeai/openinference-semantic-conventions": ">=2.1.2",
+        "@arizeai/openinference-vercel": "^2.7.0",
         "@opentelemetry/api": ">=1.9.0",
         "@opentelemetry/exporter-trace-otlp-http": ">=0.208.0",
         "@opentelemetry/exporter-trace-otlp-proto": ">=0.208.0",
@@ -172,9 +176,6 @@
         "@opentelemetry/sdk-trace-base": ">=1.38.0",
         "@opentelemetry/sdk-trace-node": "^2.2.0",
         "@opentelemetry/semantic-conventions": ">=1.38.0",
-        "@arizeai/openinference-instrumentation-anthropic": ">=0.1.2",
-        "@arizeai/openinference-instrumentation-openai": ">=4.0.0",
-        "@arizeai/openinference-semantic-conventions": ">=2.1.2",
         "@traceloop/instrumentation-bedrock": ">=0.22.0",
         "winston": ">=3.0.0"
     },
@@ -183,10 +184,10 @@
         "@anthropic-ai/sdk": ">=0.36.3",
         "@langchain/core": ">=0.3.0",
         "@mistralai/mistralai": ">=1.0.0",
-        "ai": ">=5.0.0",
-        "openai": ">=4.85.4",
         "@types/express": ">=4.17.0",
-        "next": ">=13.0.0"
+        "ai": ">=5.0.0",
+        "next": ">=13.0.0",
+        "openai": ">=4.85.4"
     },
     "peerDependenciesMeta": {
         "@ai-sdk/openai": {
@@ -215,22 +216,24 @@
         }
     },
     "devDependencies": {
-        "webpack": "^5.97.1",
-        "ts-loader": "^9.5.1",
-        "vitest": "^3.2.4",
-        "msw": "2.11.2",
-        "@types/node": "^18.19.70",
-        "typescript": "~5.7.2",
-        "@biomejs/biome": "2.3.1",
         "@ai-sdk/openai": ">=1.0.0",
         "@anthropic-ai/sdk": ">=0.36.3",
+        "@aws-sdk/client-bedrock-runtime": "^3.941.0",
+        "@biomejs/biome": "2.3.1",
         "@langchain/core": ">=0.3.0",
         "@mistralai/mistralai": ">=1.0.0",
-        "ai": ">=5.0.0",
-        "openai": ">=4.85.4",
-        "@aws-sdk/client-bedrock-runtime": "^3.941.0",
         "@types/express": "^4.17.21",
-        "next": ">=13.0.0"
+        "@types/node": "^18.19.70",
+        "ai": ">=5.0.0",
+        "msw": "^2.12.10",
+        "next": ">=13.0.0",
+        "nock": "^14.0.11",
+        "openai": ">=4.85.4",
+        "ts-loader": "^9.5.1",
+        "typescript": "~5.7.2",
+        "vitest": "^3.2.4",
+        "webpack": "^5.97.1",
+        "zod": "3.25.76"
     },
     "browser": {
         "fs": false,
