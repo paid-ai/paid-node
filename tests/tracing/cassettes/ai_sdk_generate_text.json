@@ -1,0 +1,51 @@
+[
+    {
+        "scope": "https://api.openai.com:443",
+        "method": "POST",
+        "path": "/v1/responses",
+        "body": {
+            "model": "gpt-4o-mini",
+            "input": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "input_text",
+                            "text": "Say hello in exactly 3 words."
+                        }
+                    ]
+                }
+            ]
+        },
+        "status": 200,
+        "response": [
+            "1b0906209c07762c03aad618dd5db297fefc69ed315742fc4d9d862f1c3ca85852f10411e94b05169d5600e9eabbb1a67715aebac2a9d0a70cb68a146152205749128ddee49c9d0e613a5728d20013fbffcd176d150e2e76ede45491c54c54ab6715e7f230841cc4a514c68a038a47f131ae7058ad742511423ea3a4c0542689c63c31f9172c057dcec3e0076c0236d30ee7a9b13005d83325f80af9d87a8186c3bcd5f96d97a546540b30bf4add423bf50d4c30dce93a452e45b704306cb8b99b99ec4851b7b9c60e07476a1ef9455192a0705d4fc7b88c13aa7e4128fe0407eb7e9bc5364bf1f8ac9a0dcc5c9961ed70120dc3ee0ff48862f9e8f1ba9e4424e29f5c7088a339cc2aab28c380046132e05ce24469db6146740929b5cbd9e6254bbf60345e403c26fa7177f9337af6d056f72e4d76280b45d37f672b7f12fc2a5f6cf26ef725b0a6bea0ade3a531b6d4125106bcc477dc77f53baca4d287ec6f046c8a9920edd3940e57b4d56d6fbfb463bf5149798ef6f626b72e76b3539f38262e3c3e17b8fcd93dcca538c8f59a1a5cd3ced35b397c22484928d28d9486224b6b2a55ae136c45c12423ff0511358e2b135de5238158835e17a3a71e769176dddee629b8dfaea6130e5c9191038b6e06682630bebbb54ee19271d79f7433bb97fb69e4be4d43b9649154a6654b19ee93f80ea629c95606f594303cd2b6a7cedbb5b5e1b890b697acf86fb5a75b0833097b9fdab735784f1dedc6ca3736bc7e03"
+        ],
+        "rawHeaders": {
+            "alt-svc": "h3=\":443\"; ma=86400",
+            "cf-cache-status": "DYNAMIC",
+            "cf-ray": "9cef26adaed3873a-LHR",
+            "connection": "keep-alive",
+            "content-encoding": "br",
+            "content-type": "application/json",
+            "date": "Mon, 16 Feb 2026 18:36:32 GMT",
+            "openai-organization": "REDACTED",
+            "openai-processing-ms": "583",
+            "openai-project": "REDACTED",
+            "openai-version": "2020-10-01",
+            "server": "cloudflare",
+            "set-cookie": "REDACTED",
+            "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+            "transfer-encoding": "chunked",
+            "x-content-type-options": "nosniff",
+            "x-ratelimit-limit-requests": "10000",
+            "x-ratelimit-limit-tokens": "200000",
+            "x-ratelimit-remaining-requests": "9999",
+            "x-ratelimit-remaining-tokens": "199966",
+            "x-ratelimit-reset-requests": "8.64s",
+            "x-ratelimit-reset-tokens": "10ms",
+            "x-request-id": "req_54b9313a4c724cceabd1ba7d68488bf0"
+        },
+        "responseIsBinary": false
+    }
+]

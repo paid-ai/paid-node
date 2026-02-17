@@ -1,0 +1,49 @@
+[
+    {
+        "scope": "https://api.openai.com:443",
+        "method": "POST",
+        "path": "/v1/chat/completions",
+        "body": {
+            "model": "gpt-4o-mini",
+            "messages": [
+                {
+                    "role": "user",
+                    "content": "Hello"
+                }
+            ],
+            "max_tokens": 32
+        },
+        "status": 200,
+        "response": [
+            "1b4603401c056ebbf1399270a8f5a41968e7b4a637bf38555ec1bc9c544a1085be56d061e96ac4dc6e799e57d2425f2e225aaa28f688353a472a448e44c9e8d465971a0ff5b13001ca2e93e9a72f04798420917f0b6b5e8903f7195e969c5d56c1603c0d06cb65553a59c0fc67e22b58083c34f4e0fb113401fd315344b56d55b3aed45121d54445b199f29b683091bf8e58aa1d51b145d5d1d7c700a2de730a5f5cf82eb74211eee99e9448ac41082eac6a2172ff80c1bae3caa6becdf7b54526ec4942bf21532aea08a0c6ecaeadaaffe91fef572af301829ca946fbdfc3bf996f552ce517165c953d94a647794438605a0a8b08725cf7770f57c02face637ca7fa54bcf596f9003406957e50c00cf545be8cda784c060baa07c18e962e455ba23a4997dd89a537bd7fc7e316fd20321a3427c3a60a2c77b82facc4592cc18937fbd0cb6e92d8f2f08061615d60ac5a753daa8f5a708fd4e38d56ddd578d38b01218"
+        ],
+        "rawHeaders": {
+            "access-control-expose-headers": "X-Request-ID",
+            "alt-svc": "h3=\":443\"; ma=86400",
+            "cf-cache-status": "DYNAMIC",
+            "cf-ray": "9ceebd6d1db625e8-LHR",
+            "connection": "keep-alive",
+            "content-encoding": "br",
+            "content-type": "application/json",
+            "date": "Mon, 16 Feb 2026 17:24:42 GMT",
+            "openai-organization": "agentpaid",
+            "openai-processing-ms": "367",
+            "openai-project": "proj_g54CtVh9wETqz1duiA1cw9Kw",
+            "openai-version": "2020-10-01",
+            "server": "cloudflare",
+            "set-cookie": "REDACTED",
+            "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+            "transfer-encoding": "chunked",
+            "x-content-type-options": "nosniff",
+            "x-openai-proxy-wasm": "v0.1",
+            "x-ratelimit-limit-requests": "10000",
+            "x-ratelimit-limit-tokens": "200000",
+            "x-ratelimit-remaining-requests": "9997",
+            "x-ratelimit-remaining-tokens": "199996",
+            "x-ratelimit-reset-requests": "23.879s",
+            "x-ratelimit-reset-tokens": "1ms",
+            "x-request-id": "req_04e14a57b2774835b5af99d2d17e605e"
+        },
+        "responseIsBinary": false
+    }
+]

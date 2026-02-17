@@ -1,0 +1,86 @@
+[
+    {
+        "scope": "https://api.openai.com:443",
+        "method": "POST",
+        "path": "/v1/responses",
+        "body": {
+            "model": "gpt-4o-mini",
+            "input": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "input_text",
+                            "text": "What is 25 * 4? Then add 10 to the result. Use the calculator tool for each operation."
+                        }
+                    ]
+                }
+            ],
+            "tools": [
+                {
+                    "type": "function",
+                    "name": "calculator",
+                    "description": "Perform arithmetic operations",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "operation": {
+                                "type": "string",
+                                "enum": [
+                                    "add",
+                                    "subtract",
+                                    "multiply",
+                                    "divide"
+                                ]
+                            },
+                            "a": {
+                                "type": "number"
+                            },
+                            "b": {
+                                "type": "number"
+                            }
+                        },
+                        "required": [
+                            "operation",
+                            "a",
+                            "b"
+                        ],
+                        "additionalProperties": false,
+                        "$schema": "http://json-schema.org/draft-07/schema#"
+                    }
+                }
+            ],
+            "tool_choice": "auto"
+        },
+        "status": 200,
+        "response": [
+            "1b9709008cd44e75a9f2d8a9cef62c537573529d81ba3e10186217d0256a1190aebe7edf7ebf03cd4a23923ab18fec0e669af4cebe877b25a54fa54552f0123b3aa4d975f6a669294790cd3fccbe28bd08ad06ccd23c5be468980a3260e481448a288d6192054595a93531dcd09888880a099381b33694455969161575552c4cd96a3dfe06518a50298d318beac0e3cce2ba07151b807c85e27dc8d7749e59737a9acd7e9b662fe652b350d40798583f7d854244310eedc48df99f465d832d05d4dab13900c2a3c1dacd8d7644386c7ce437d64deaacbfa63bb063d65a5afdb3d058085a0de8e445c527558cd756e96c4385aa22dae22c9b5bdd8f31d42446e62ddbf5a1528ba4f53b01b96e13c56932b5d68b08e260e04d7439d1d3ba643367efe677fc32b4ffe57b8bbfd0fa755b9995db5f287ff97fb750f14749b8c48f7278ca3abb36fae7a7f1edf661737fd97f55f4f4418ffd1d7b7fccdbed781487013fe34318d44d7c419ef6d944e5e63faf749bb1c4a8204c2061cb908fd13a0304717f5b82fb3ff733ca6b2ddf1fa683ab6d7afeb868dfc5b7debb3859a8d5cda1f041099c538692568c0f8690151c31bf35dab857f5cc9fd7e6d96494173677bece0ed2169f9da5451adbc2f5d20ceb835ef33c7ed153c88201b01ca0c9fb787b9d151ff121f7b5db05d608d544de24273b2b60eae46c120cc0e914b4d3146cff335fd1bede253759a55998cc7be6ac87940cb94b88d0d2c35db8ba340178741ef6d92e09ec6315e016aede07c7f8a148e4f719c3a1f6d9cae293158243250a55094749b3f93de8456ad52ef23d26d278393285c79efa18bb070799088b99d7cba3311f65343d127014a0c6fdc7a8b4a973ae83d6dbd3c1f0aa0b2715821ad5776f146fe194c22925ecf9f004c3312eb852712cc6c7157a08511df5226452d9a5d06292ed70d2c9b34910d284c0911c4b93b3e5b8f68646b8ef52c1e5381304dad5deb8a2bea04c895999c670944473280e3e8a21992cd4972501f3cbb62c95eb4b8eafc16e88708c753e0ae76bff9ab4f0d12f5caaf7581c"
+        ],
+        "rawHeaders": {
+            "alt-svc": "h3=\":443\"; ma=86400",
+            "cf-cache-status": "DYNAMIC",
+            "cf-ray": "9cef26d83c73873a-LHR",
+            "connection": "keep-alive",
+            "content-encoding": "br",
+            "content-type": "application/json",
+            "date": "Mon, 16 Feb 2026 18:36:40 GMT",
+            "openai-organization": "REDACTED",
+            "openai-processing-ms": "1394",
+            "openai-project": "REDACTED",
+            "openai-version": "2020-10-01",
+            "server": "cloudflare",
+            "set-cookie": "REDACTED",
+            "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+            "transfer-encoding": "chunked",
+            "x-content-type-options": "nosniff",
+            "x-ratelimit-limit-requests": "10000",
+            "x-ratelimit-limit-tokens": "200000",
+            "x-ratelimit-remaining-requests": "9993",
+            "x-ratelimit-remaining-tokens": "199704",
+            "x-ratelimit-reset-requests": "53.632s",
+            "x-ratelimit-reset-tokens": "88ms",
+            "x-request-id": "req_ff4679cc7d3c464882919449d3e0c3ea"
+        },
+        "responseIsBinary": false
+    }
+]

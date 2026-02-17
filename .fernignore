@@ -2,6 +2,7 @@ README.md
 LICENSE
 
 assets/
+tests/tracing/
 src/tracing/
 src/anthropic-wrapper/
 src/langchain-wrapper/
