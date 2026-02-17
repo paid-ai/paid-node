@@ -1,6 +1,6 @@
 {
     "name": "@paid-ai/paid-node",
-    "version": "1.0.1-alpha6",
+    "version": "1.0.1-alpha7",
     "private": false,
     "repository": "github:paid-ai/paid-node",
     "type": "commonjs",
@@ -92,54 +92,6 @@
                 "default": "./dist/cjs/tracing/index.js"
             },
             "default": "./dist/cjs/tracing/index.js"
-        },
-        "./integrations": {
-            "types": "./dist/cjs/integrations/index.d.ts",
-            "import": {
-                "types": "./dist/esm/integrations/index.d.mts",
-                "default": "./dist/esm/integrations/index.mjs"
-            },
-            "require": {
-                "types": "./dist/cjs/integrations/index.d.ts",
-                "default": "./dist/cjs/integrations/index.js"
-            },
-            "default": "./dist/cjs/integrations/index.js"
-        },
-        "./integrations/nextjs": {
-            "types": "./dist/cjs/integrations/adapters/nextjs/index.d.ts",
-            "import": {
-                "types": "./dist/esm/integrations/adapters/nextjs/index.d.mts",
-                "default": "./dist/esm/integrations/adapters/nextjs/index.mjs"
-            },
-            "require": {
-                "types": "./dist/cjs/integrations/adapters/nextjs/index.d.ts",
-                "default": "./dist/cjs/integrations/adapters/nextjs/index.js"
-            },
-            "default": "./dist/cjs/integrations/adapters/nextjs/index.js"
-        },
-        "./integrations/express": {
-            "types": "./dist/cjs/integrations/adapters/expressjs/index.d.ts",
-            "import": {
-                "types": "./dist/esm/integrations/adapters/expressjs/index.d.mts",
-                "default": "./dist/esm/integrations/adapters/expressjs/index.mjs"
-            },
-            "require": {
-                "types": "./dist/cjs/integrations/adapters/expressjs/index.d.ts",
-                "default": "./dist/cjs/integrations/adapters/expressjs/index.js"
-            },
-            "default": "./dist/cjs/integrations/adapters/expressjs/index.js"
-        },
-        "./integrations/nestjs": {
-            "types": "./dist/cjs/integrations/adapters/nestjs/index.d.ts",
-            "import": {
-                "types": "./dist/esm/integrations/adapters/nestjs/index.d.mts",
-                "default": "./dist/esm/integrations/adapters/nestjs/index.mjs"
-            },
-            "require": {
-                "types": "./dist/cjs/integrations/adapters/nestjs/index.d.ts",
-                "default": "./dist/cjs/integrations/adapters/nestjs/index.js"
-            },
-            "default": "./dist/cjs/integrations/adapters/nestjs/index.js"
         }
     },
     "files": [
@@ -163,10 +115,6 @@
         "test:wire": "vitest --project wire"
     },
     "dependencies": {
-        "@arizeai/openinference-instrumentation-anthropic": ">=0.1.2",
-        "@arizeai/openinference-instrumentation-openai": ">=4.0.0",
-        "@arizeai/openinference-semantic-conventions": ">=2.1.2",
-        "@arizeai/openinference-vercel": "^2.7.0",
         "@opentelemetry/api": ">=1.9.0",
         "@opentelemetry/exporter-trace-otlp-http": ">=0.208.0",
         "@opentelemetry/exporter-trace-otlp-proto": ">=0.208.0",
@@ -176,6 +124,9 @@
         "@opentelemetry/sdk-trace-base": ">=1.38.0",
         "@opentelemetry/sdk-trace-node": "^2.2.0",
         "@opentelemetry/semantic-conventions": ">=1.38.0",
+        "@arizeai/openinference-instrumentation-anthropic": ">=0.1.2",
+        "@arizeai/openinference-instrumentation-openai": ">=4.0.0",
+        "@arizeai/openinference-semantic-conventions": ">=2.1.2",
         "@traceloop/instrumentation-bedrock": ">=0.22.0",
         "winston": ">=3.0.0"
     },
@@ -184,9 +135,7 @@
         "@anthropic-ai/sdk": ">=0.36.3",
         "@langchain/core": ">=0.3.0",
         "@mistralai/mistralai": ">=1.0.0",
-        "@types/express": ">=4.17.0",
         "ai": ">=5.0.0",
-        "next": ">=13.0.0",
         "openai": ">=4.85.4"
     },
     "peerDependenciesMeta": {
@@ -207,33 +156,24 @@
         },
         "openai": {
             "optional": true
-        },
-        "@types/express": {
-            "optional": true
-        },
-        "next": {
-            "optional": true
         }
     },
     "devDependencies": {
+        "webpack": "^5.97.1",
+        "ts-loader": "^9.5.1",
+        "vitest": "^3.2.4",
+        "msw": ">=2.0.0",
+        "@types/node": "^18.19.70",
+        "typescript": "~5.7.2",
+        "@biomejs/biome": "2.3.1",
         "@ai-sdk/openai": ">=1.0.0",
         "@anthropic-ai/sdk": ">=0.36.3",
-        "@aws-sdk/client-bedrock-runtime": "^3.941.0",
-        "@biomejs/biome": "2.3.1",
         "@langchain/core": ">=0.3.0",
         "@mistralai/mistralai": ">=1.0.0",
-        "@types/express": "^4.17.21",
-        "@types/node": "^18.19.70",
         "ai": ">=5.0.0",
-        "msw": "^2.12.10",
-        "next": ">=13.0.0",
-        "nock": "^14.0.11",
         "openai": ">=4.85.4",
-        "ts-loader": "^9.5.1",
-        "typescript": "~5.7.2",
-        "vitest": "^3.2.4",
-        "webpack": "^5.97.1",
-        "zod": "3.25.76"
+        "nock": ">=14.0.0",
+        "zod": ">=3.0.0"
     },
     "browser": {
         "fs": false,
@@ -265,18 +205,6 @@
             ],
             "tracing": [
                 "./dist/cjs/tracing/index.d.ts"
-            ],
-            "integrations": [
-                "./dist/cjs/integrations/index.d.ts"
-            ],
-            "integrations/nextjs": [
-                "./dist/cjs/integrations/adapters/nextjs/index.d.ts"
-            ],
-            "integrations/express": [
-                "./dist/cjs/integrations/adapters/expressjs/index.d.ts"
-            ],
-            "integrations/nestjs": [
-                "./dist/cjs/integrations/adapters/nestjs/index.d.ts"
             ]
         }
     }

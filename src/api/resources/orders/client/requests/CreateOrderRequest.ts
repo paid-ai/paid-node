@@ -17,6 +17,7 @@ export interface CreateOrderRequest {
     endDate?: string | null;
     subscriptionTerms?: number | null;
     creationState?: Paid.OrderCreationState;
+    /** Day of month for billing anchor (1-31). Defaults to start date day if not provided. */
     billingAnchor?: number | null;
     paymentTerms?: string | null;
     externalId?: string | null;

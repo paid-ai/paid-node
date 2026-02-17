@@ -19,4 +19,5 @@ export interface CreateCustomerRequest {
     creationState?: Paid.CustomerCreationState;
     vatNumber?: string | null;
     metadata?: Record<string, unknown> | null;
+    defaultCurrency?: string;
 }

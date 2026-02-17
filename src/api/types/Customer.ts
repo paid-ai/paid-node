@@ -15,6 +15,7 @@ export interface Customer {
     churnDate: string | null;
     vatNumber: string | null;
     metadata: Record<string, unknown> | null;
+    defaultCurrency: string;
     createdAt: string;
     updatedAt: string;
 }

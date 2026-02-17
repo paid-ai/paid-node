@@ -23,6 +23,7 @@ describe("Customers", () => {
                     churnDate: "2024-01-15T09:30:00Z",
                     vatNumber: "vatNumber",
                     metadata: { key: "value" },
+                    defaultCurrency: "defaultCurrency",
                     createdAt: "2024-01-15T09:30:00Z",
                     updatedAt: "2024-01-15T09:30:00Z",
                 },
@@ -48,6 +49,7 @@ describe("Customers", () => {
                     metadata: {
                         key: "value",
                     },
+                    defaultCurrency: "defaultCurrency",
                     createdAt: "2024-01-15T09:30:00Z",
                     updatedAt: "2024-01-15T09:30:00Z",
                 },
@@ -121,6 +123,7 @@ describe("Customers", () => {
             churnDate: "2024-01-15T09:30:00Z",
             vatNumber: "vatNumber",
             metadata: { key: "value" },
+            defaultCurrency: "defaultCurrency",
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
         };
@@ -158,6 +161,7 @@ describe("Customers", () => {
             metadata: {
                 key: "value",
             },
+            defaultCurrency: "defaultCurrency",
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
         });
@@ -250,6 +254,7 @@ describe("Customers", () => {
             churnDate: "2024-01-15T09:30:00Z",
             vatNumber: "vatNumber",
             metadata: { key: "value" },
+            defaultCurrency: "defaultCurrency",
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
         };
@@ -280,6 +285,7 @@ describe("Customers", () => {
             metadata: {
                 key: "value",
             },
+            defaultCurrency: "defaultCurrency",
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
         });
@@ -351,6 +357,7 @@ describe("Customers", () => {
             churnDate: "2024-01-15T09:30:00Z",
             vatNumber: "vatNumber",
             metadata: { key: "value" },
+            defaultCurrency: "defaultCurrency",
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
         };
@@ -389,6 +396,7 @@ describe("Customers", () => {
             metadata: {
                 key: "value",
             },
+            defaultCurrency: "defaultCurrency",
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
         });
@@ -561,6 +569,7 @@ describe("Customers", () => {
             churnDate: "2024-01-15T09:30:00Z",
             vatNumber: "vatNumber",
             metadata: { key: "value" },
+            defaultCurrency: "defaultCurrency",
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
         };
@@ -597,6 +606,7 @@ describe("Customers", () => {
             metadata: {
                 key: "value",
             },
+            defaultCurrency: "defaultCurrency",
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
         });
@@ -686,6 +696,7 @@ describe("Customers", () => {
             churnDate: "2024-01-15T09:30:00Z",
             vatNumber: "vatNumber",
             metadata: { key: "value" },
+            defaultCurrency: "defaultCurrency",
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
         };
@@ -724,6 +735,7 @@ describe("Customers", () => {
             metadata: {
                 key: "value",
             },
+            defaultCurrency: "defaultCurrency",
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
         });
