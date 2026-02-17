@@ -1,6 +1,3 @@
-export * from "./checkout/client/requests/index.js";
-export * as checkout from "./checkout/index.js";
-export * from "./checkout/types/index.js";
 export * from "./contacts/client/requests/index.js";
 export * as contacts from "./contacts/index.js";
 export * from "./customers/client/requests/index.js";

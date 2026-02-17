@@ -10,3 +10,4 @@ src/mistral-wrapper/
 src/openai-wrapper/
 src/vercel-wrapper/
 src/integrations
+.github/workflows/ci.yml
