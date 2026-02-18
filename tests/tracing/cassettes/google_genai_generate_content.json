@@ -1,0 +1,37 @@
+[
+    {
+        "scope": "https://generativelanguage.googleapis.com:443",
+        "method": "POST",
+        "path": "/v1beta/models/gemini-2.0-flash:generateContent",
+        "body": {
+            "contents": [
+                {
+                    "parts": [
+                        {
+                            "text": "Say hello in exactly 3 words."
+                        }
+                    ],
+                    "role": "user"
+                }
+            ]
+        },
+        "status": 200,
+        "response": [
+            "1f8b0800000000000013ad51cb6ec23010bcfb2b2c9f0922a1d0c2adea0ba43e509b56551f87a55e8255c78e6cd38210ff5e3921c169aff5c15aedcceeecce6e09a5ec0314171c1c5a36a6af84524ab7e5ef31ad1c2ac7c64d8a52568071076ef5b6414c2973b8f6456c82526aea9668902e8c40c5bb6f8a05dc5d13bf770e0a464bf4e5b9e6286bfaae26b08550c22eef11ac569ef690decd5883c25776adb3c2e8b91f32ea7547719c24fd7e3c8c47c9303926b56ea9c8561632bc41071c1c348bb2c2e8bc70a9fe4475a657a50527954460580b1eec61a71dc81612f73b7f9ada73742064e8636071ae3948e1367ebbf4e239658139ae35536d0e093cfc3de13f690dda5a647f92ea4a4f68aca8ce91612e9488926e2f5a48b0cbb22133680bad2c4eb9e74ce7578f00d1f0f22599ae6f4f66f668926e4ebf19d9911fc2a970aa95020000"
+        ],
+        "rawHeaders": {
+            "alt-svc": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000",
+            "content-encoding": "gzip",
+            "content-type": "application/json; charset=UTF-8",
+            "date": "Tue, 17 Feb 2026 18:19:13 GMT",
+            "server": "scaffolding on HTTPServer2",
+            "server-timing": "gfet4t7; dur=409",
+            "transfer-encoding": "chunked",
+            "vary": "Origin, X-Origin, Referer",
+            "x-content-type-options": "nosniff",
+            "x-frame-options": "SAMEORIGIN",
+            "x-xss-protection": "0"
+        },
+        "responseIsBinary": false
+    }
+]
