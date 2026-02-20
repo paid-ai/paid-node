@@ -2,7 +2,6 @@ import { SpanStatusCode } from "@opentelemetry/api";
 import type { Tracer } from "@opentelemetry/api";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { NodeSDK } from "@opentelemetry/sdk-node";
-import { resourceFromAttributes } from "@opentelemetry/resources";
 import { NodeTracerProvider, SimpleSpanProcessor } from "@opentelemetry/sdk-trace-node";
 import type { SpanProcessor } from "@opentelemetry/sdk-trace-node";
 import winston from "winston";
@@ -80,12 +79,11 @@ export function initializeTracing(apiKey?: string, collectorEndpoint?: string): 
     }
 
     const url = collectorEndpoint || DEFAULT_COLLECTOR_ENDPOINT;
-    const exporter = new OTLPTraceExporter({ url });
+    const exporter = new OTLPTraceExporter({ url, headers: { Authorization: `Bearer ${paidApiToken}` } });
     const spanProcessor = new SimpleSpanProcessor(exporter);
     // Order matters: processors run in order, and SimpleSpanProcessor exports on onEnd.
     // So we need to run our attribute-modifying processors BEFORE the exporter.
     paidTracerProvider = new NodeTracerProvider({
-        resource: resourceFromAttributes({ "api.key": paidApiToken }),
         spanProcessors: [new PaidSpanProcessor(), new AISDKSpanProcessor(), spanProcessor],
     });
     // Don't call .register() - we pass the tracerProvider explicitly to instrumentations
