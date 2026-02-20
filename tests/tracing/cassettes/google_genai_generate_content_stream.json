@@ -1,0 +1,35 @@
+[
+    {
+        "scope": "https://generativelanguage.googleapis.com:443",
+        "method": "POST",
+        "path": "/v1beta/models/gemini-2.0-flash:streamGenerateContent?alt=sse",
+        "body": {
+            "contents": [
+                {
+                    "parts": [
+                        {
+                            "text": "Say hello"
+                        }
+                    ],
+                    "role": "user"
+                }
+            ]
+        },
+        "status": 200,
+        "response": "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"Hello\"}],\"role\": \"model\"}}],\"usageMetadata\": {\"promptTokenCount\": 3,\"totalTokenCount\": 3,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\": 3}]},\"modelVersion\": \"gemini-2.0-flash\",\"responseId\": \"IbGUadP0MPSKxfcP4NqxAQ\"}\r\n\r\ndata: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \" there\"}],\"role\": \"model\"}}],\"usageMetadata\": {\"promptTokenCount\": 3,\"totalTokenCount\": 3,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\": 3}]},\"modelVersion\": \"gemini-2.0-flash\",\"responseId\": \"IbGUadP0MPSKxfcP4NqxAQ\"}\r\n\r\ndata: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"! How can I help you today?\\n\"}],\"role\": \"model\"},\"finishReason\": \"STOP\"}],\"usageMetadata\": {\"promptTokenCount\": 2,\"candidatesTokenCount\": 11,\"totalTokenCount\": 13,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\": 2}],\"candidatesTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\": 11}]},\"modelVersion\": \"gemini-2.0-flash\",\"responseId\": \"IbGUadP0MPSKxfcP4NqxAQ\"}\r\n\r\n",
+        "rawHeaders": {
+            "alt-svc": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000",
+            "content-disposition": "attachment",
+            "content-type": "text/event-stream",
+            "date": "Tue, 17 Feb 2026 18:19:14 GMT",
+            "server": "scaffolding on HTTPServer2",
+            "server-timing": "gfet4t7; dur=306",
+            "transfer-encoding": "chunked",
+            "vary": "Origin, X-Origin, Referer",
+            "x-content-type-options": "nosniff",
+            "x-frame-options": "SAMEORIGIN",
+            "x-xss-protection": "0"
+        },
+        "responseIsBinary": false
+    }
+]

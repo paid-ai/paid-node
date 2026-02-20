@@ -1,0 +1,37 @@
+[
+    {
+        "scope": "https://generativelanguage.googleapis.com:443",
+        "method": "POST",
+        "path": "/v1beta/models/gemini-2.0-flash:generateContent",
+        "body": {
+            "contents": [
+                {
+                    "parts": [
+                        {
+                            "text": "Hello"
+                        }
+                    ],
+                    "role": "user"
+                }
+            ]
+        },
+        "status": 200,
+        "response": [
+            "1f8b0800000000000013ad514d4fc24010bdf7578c7b16523e84868b316a8028916831266acc4887d2b0dd69ba5b9010febb694bcbd6b37bd86cf6bd796fe6cdc101104b544114a0212d46f0ee00001c8a3bc7581952468cea2f0091606acedcf21cac378030f49317890949c91730e11d2c51c114d62413d873068603dc5f7f2861151eebf7e7e5d92e6549b956cc01c98a7eac086215a948af9f0935ab9cf6e23fcd458de2367ce43049f93befb8e5b65dafdfed78c3bedb1ff4ba5703af37702aebc254641a439a91c1000dd6838b24e538313e6f48dd725644d2295dac009bb07bc20d1b944da82ab554f51d198ca41dac9579cc01cac8ecf309fdfb375f5801998674159063e5f8b7c5fff2729b66ce692fe5aa5e29d551b99390e24845ad6edb6dad24ea75a12852d2092b4dd320e74c87e305e2f6616c56d970e6cd375f83dde666219ca3f30b7cb8fad4a7020000"
+        ],
+        "rawHeaders": {
+            "alt-svc": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000",
+            "content-encoding": "gzip",
+            "content-type": "application/json; charset=UTF-8",
+            "date": "Tue, 17 Feb 2026 18:19:15 GMT",
+            "server": "scaffolding on HTTPServer2",
+            "server-timing": "gfet4t7; dur=355",
+            "transfer-encoding": "chunked",
+            "vary": "Origin, X-Origin, Referer",
+            "x-content-type-options": "nosniff",
+            "x-frame-options": "SAMEORIGIN",
+            "x-xss-protection": "0"
+        },
+        "responseIsBinary": false
+    }
+]

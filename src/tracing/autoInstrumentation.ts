@@ -4,6 +4,7 @@ import type { TracerProvider } from "@opentelemetry/api";
 
 import type * as openai from "openai";
 import type * as anthropic from "@anthropic-ai/sdk";
+import type * as googleGenAI from "@google/genai";
 import { getPaidTracerProvider, initializeTracing, logger } from "./tracing.js";
 
 let IS_INITIALIZED = false;
@@ -11,6 +12,7 @@ let IS_INITIALIZED = false;
 interface SupportedLibraries {
     openai?: typeof openai.OpenAI;
     anthropic?: typeof anthropic.Anthropic;
+    googleGenAI?: typeof googleGenAI;
 }
 
 const getInstrumentations = async (tracerProvider: TracerProvider): Promise<Instrumentation[]> => {
@@ -28,6 +30,13 @@ const getInstrumentations = async (tracerProvider: TracerProvider): Promise<Inst
         instrumentations.push(new AnthropicInstrumentation({ tracerProvider }));
     } catch {
         logger.debug("Anthropic instrumentation not available - @anthropic-ai/sdk package not installed");
+    }
+
+    try {
+        const { GoogleGenAIInstrumentation } = await import("openinference-instrumentation-google-genai");
+        instrumentations.push(new GoogleGenAIInstrumentation({ tracerProvider }));
+    } catch {
+        logger.debug("Google GenAI instrumentation not available - @google/genai package not installed");
     }
 
     return instrumentations;
@@ -58,6 +67,17 @@ const getManualInstrumentations = async (
             anthropicInstrumentation.manuallyInstrument(libraries.anthropic);
         } catch {
             logger.warn("Failed to load Anthropic instrumentation");
+        }
+    }
+
+    if (libraries.googleGenAI) {
+        try {
+            const { GoogleGenAIInstrumentation } = await import("openinference-instrumentation-google-genai");
+            const googleGenAIInstrumentation = new GoogleGenAIInstrumentation({ tracerProvider });
+            instrumentations.push(googleGenAIInstrumentation);
+            googleGenAIInstrumentation.manuallyInstrument(libraries.googleGenAI);
+        } catch {
+            logger.warn("Failed to load Google GenAI instrumentation");
         }
     }
 

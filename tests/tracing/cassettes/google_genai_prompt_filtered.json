@@ -1,0 +1,37 @@
+[
+    {
+        "scope": "https://generativelanguage.googleapis.com:443",
+        "method": "POST",
+        "path": "/v1beta/models/gemini-2.0-flash:generateContent",
+        "body": {
+            "contents": [
+                {
+                    "parts": [
+                        {
+                            "text": "Secret message that should not be stored"
+                        }
+                    ],
+                    "role": "user"
+                }
+            ]
+        },
+        "status": 200,
+        "response": [
+            "1f8b0800000000000013ad52c16edb300cbdfb2b089d1bc349baa5ed6de88a21c082765b3a1468776022c61126899ac8740b82fcfb60a7719ded5a1d044a8fe223dfd3ae00304b8cd659541273058f0500c0aedd1b8ca3525473d55d019884595f730f6bd78b018cd29fe6919902064899eb8c21900565581020ac31074f22f0610a28e244316a095358628cac80d1c26fe73d340751ce0418b720b4cca41048046b9212665b489b9c58089c34d553e6676709d6e4d36ae3db421d998b2bce01d5712c9fa2e9b5bcefe21f67af8366f6d44c11d8923fa6ef8f0966e5a293f55742e1d8a47d9bdfde990ec5e7fa33d729f3a2d16a5095a36a72599dbfafaaf1e8a21a9e4fde1547e696d36c9a9966a46851b153dca4cc21e99c7f52bce64debc5e440d273ee041e0f5f7065457f0a5d9cfd57553e92a2f37d477b6607b6e89d6e9b01e7370f73d3d3474f9a3aea53f464fcb7c537e21a0f4fc98a175b0e4e7da72cee60494dc145371895d560e551d66d4593491247a1a96dff68fe748f4b5adccee857949bbb6d425b7fb937c5bef80b5c0ba3c620030000"
+        ],
+        "rawHeaders": {
+            "alt-svc": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000",
+            "content-encoding": "gzip",
+            "content-type": "application/json; charset=UTF-8",
+            "date": "Tue, 17 Feb 2026 18:19:15 GMT",
+            "server": "scaffolding on HTTPServer2",
+            "server-timing": "gfet4t7; dur=505",
+            "transfer-encoding": "chunked",
+            "vary": "Origin, X-Origin, Referer",
+            "x-content-type-options": "nosniff",
+            "x-frame-options": "SAMEORIGIN",
+            "x-xss-protection": "0"
+        },
+        "responseIsBinary": false
+    }
+]
