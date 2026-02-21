@@ -8,7 +8,7 @@ let IS_INITIALIZED = false;
 export type SupportedLibrary = "openai" | "anthropic";
 
 export interface InstrumentModules {
-    openAI?: any;
+    openai?: any;
     anthropic?: any;
 }
 
@@ -103,11 +103,11 @@ export async function paidAutoInstrumentModules(modules: InstrumentModules): Pro
         return;
     }
 
-    if (modules.openAI) {
+    if (modules.openai) {
         try {
             const { OpenAIInstrumentation } = await import("@arizeai/openinference-instrumentation-openai");
             const inst = new OpenAIInstrumentation({ tracerProvider });
-            inst.manuallyInstrument(modules.openAI);
+            inst.manuallyInstrument(modules.openai);
         } catch {
             console.debug("OpenAI instrumentation not available");
         }
