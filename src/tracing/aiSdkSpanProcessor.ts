@@ -88,12 +88,9 @@ export class AISDKSpanProcessor implements SpanProcessor {
         if (!finalName.startsWith("paid.trace.")) {
             finalName = `paid.trace.${finalName}`;
         }
-        if (!finalName.endsWith(".signal")) {
-            finalName = `${finalName}.signal`;
-        }
         (span as { name: string }).name = finalName;
     }
 
-    async shutdown(): Promise<void> {}
-    async forceFlush(): Promise<void> {}
+    async shutdown(): Promise<void> { }
+    async forceFlush(): Promise<void> { }
 }

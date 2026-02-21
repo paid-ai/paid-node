@@ -1,95 +1,127 @@
 import type { Instrumentation } from "@opentelemetry/instrumentation";
-import { registerInstrumentations } from "@opentelemetry/instrumentation";
 import type { TracerProvider } from "@opentelemetry/api";
 
-import type * as openai from "openai";
-import type * as anthropic from "@anthropic-ai/sdk";
-import { getPaidTracerProvider, initializeTracing, logger } from "./tracing.js";
+import { getPaidTracerProvider, initializeTracing } from "./tracing.js";
 
 let IS_INITIALIZED = false;
 
-interface SupportedLibraries {
-    openai?: typeof openai.OpenAI;
-    anthropic?: typeof anthropic.Anthropic;
+export type SupportedLibrary = "openai" | "anthropic";
+
+export interface InstrumentModules {
+    openai?: any;
+    anthropic?: any;
 }
 
-const getInstrumentations = async (tracerProvider: TracerProvider): Promise<Instrumentation[]> => {
-    const instrumentations: Instrumentation[] = [];
-
-    try {
-        const { OpenAIInstrumentation } = await import("@arizeai/openinference-instrumentation-openai");
-        instrumentations.push(new OpenAIInstrumentation({ tracerProvider }));
-    } catch {
-        logger.debug("OpenAI instrumentation not available - openai package not installed");
-    }
-
-    try {
-        const { AnthropicInstrumentation } = await import("@arizeai/openinference-instrumentation-anthropic");
-        instrumentations.push(new AnthropicInstrumentation({ tracerProvider }));
-    } catch {
-        logger.debug("Anthropic instrumentation not available - @anthropic-ai/sdk package not installed");
-    }
-
-    return instrumentations;
-};
-
-const getManualInstrumentations = async (
+const getInstrumentations = async (
     tracerProvider: TracerProvider,
-    libraries: SupportedLibraries,
+    libraries?: SupportedLibrary[],
 ): Promise<Instrumentation[]> => {
     const instrumentations: Instrumentation[] = [];
+    const shouldInstrument = (lib: SupportedLibrary) => !libraries || libraries.includes(lib);
 
-    if (libraries.openai) {
+    if (shouldInstrument("openai")) {
         try {
             const { OpenAIInstrumentation } = await import("@arizeai/openinference-instrumentation-openai");
-            const openaiInstrumentation = new OpenAIInstrumentation({ tracerProvider });
-            instrumentations.push(openaiInstrumentation);
-            openaiInstrumentation.manuallyInstrument(libraries.openai);
+            instrumentations.push(new OpenAIInstrumentation({ tracerProvider }));
         } catch {
-            logger.warn("Failed to load OpenAI instrumentation");
+            console.debug("OpenAI instrumentation not available - openai package not installed");
         }
     }
 
-    if (libraries.anthropic) {
+    if (shouldInstrument("anthropic")) {
         try {
             const { AnthropicInstrumentation } = await import("@arizeai/openinference-instrumentation-anthropic");
-            const anthropicInstrumentation = new AnthropicInstrumentation({ tracerProvider });
-            instrumentations.push(anthropicInstrumentation);
-            anthropicInstrumentation.manuallyInstrument(libraries.anthropic);
+            instrumentations.push(new AnthropicInstrumentation({ tracerProvider }));
         } catch {
-            logger.warn("Failed to load Anthropic instrumentation");
+            console.debug("Anthropic instrumentation not available - @anthropic-ai/sdk package not installed");
         }
     }
 
     return instrumentations;
 };
 
-export async function paidAutoInstrument(libraries?: SupportedLibraries): Promise<void> {
+/**
+ * Auto-instrument supported libraries using require-in-the-middle hooks.
+ * Works in plain Node.js (CJS). Does NOT work in bundled environments (Next.js/webpack).
+ * For bundled environments, use {@link paidAutoInstrumentModules} instead.
+ *
+ * @param libraries - Optional list of libraries to instrument. If omitted, all available libraries are instrumented.
+ */
+export async function paidAutoInstrument(libraries?: SupportedLibrary[]): Promise<void> {
     if (IS_INITIALIZED) {
-        logger.info("Auto instrumentation is already initialized");
+        console.info("Auto instrumentation is already initialized");
         return;
     }
 
-    initializeTracing(); // try initializing tracing
+    initializeTracing();
 
     const tracerProvider = getPaidTracerProvider();
 
     if (!tracerProvider) {
-        logger.error(
+        console.error(
             "Could not get tracer provider, make sure you ran 'initializeTracing()' or check your environment variables",
         );
         return;
     }
 
-    const isManualInstrumentation = libraries && Object.keys(libraries).length > 0;
-    const instrumentations = isManualInstrumentation
-        ? await getManualInstrumentations(tracerProvider, libraries)
-        : await getInstrumentations(tracerProvider);
+    const instrumentations = await getInstrumentations(tracerProvider, libraries);
 
+    const { registerInstrumentations } = await import("@opentelemetry/instrumentation");
     registerInstrumentations({
         instrumentations,
         tracerProvider,
     });
+
+    IS_INITIALIZED = true;
+}
+
+/**
+ * Instrument supported libraries by directly patching the provided module references.
+ * Required for bundled environments (Next.js/webpack) where require-in-the-middle hooks don't work.
+ *
+ * @example
+ * ```typescript
+ * import OpenAI from "openai";
+ * import Anthropic from "@anthropic-ai/sdk";
+ * await paidAutoInstrumentModules({ openAI: OpenAI, anthropic: Anthropic });
+ * ```
+ */
+export async function paidAutoInstrumentModules(modules: InstrumentModules): Promise<void> {
+    if (IS_INITIALIZED) {
+        console.info("Auto instrumentation is already initialized");
+        return;
+    }
+
+    initializeTracing();
+
+    const tracerProvider = getPaidTracerProvider();
+
+    if (!tracerProvider) {
+        console.error(
+            "Could not get tracer provider, make sure you ran 'initializeTracing()' or check your environment variables",
+        );
+        return;
+    }
+
+    if (modules.openai) {
+        try {
+            const { OpenAIInstrumentation } = await import("@arizeai/openinference-instrumentation-openai");
+            const inst = new OpenAIInstrumentation({ tracerProvider });
+            inst.manuallyInstrument(modules.openai);
+        } catch {
+            console.debug("OpenAI instrumentation not available");
+        }
+    }
+
+    if (modules.anthropic) {
+        try {
+            const { AnthropicInstrumentation } = await import("@arizeai/openinference-instrumentation-anthropic");
+            const inst = new AnthropicInstrumentation({ tracerProvider });
+            inst.manuallyInstrument(modules.anthropic);
+        } catch {
+            console.debug("Anthropic instrumentation not available");
+        }
+    }
 
     IS_INITIALIZED = true;
 }
