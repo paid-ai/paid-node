@@ -90,10 +90,10 @@ describe("Auto-Instrumentation Integration", () => {
         testProvider.register();
 
         // Initialize auto-instrumentation once for all tests
-        const { paidAutoInstrument } = await import("../../src/tracing/autoInstrumentation");
+        const { paidAutoInstrumentModules } = await import("../../src/tracing/autoInstrumentation");
         const OpenAI = (await import("openai")).default;
         const Anthropic = (await import("@anthropic-ai/sdk")).default;
-        await paidAutoInstrument({ openai: OpenAI, anthropic: Anthropic });
+        await paidAutoInstrumentModules({ openai: OpenAI, anthropic: Anthropic });
     });
 
     afterAll(async () => {
