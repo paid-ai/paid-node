@@ -4,20 +4,9 @@ import { AsyncLocalStorageContextManager } from "@opentelemetry/context-async-ho
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { resourceFromAttributes } from "@opentelemetry/resources";
 import { NodeTracerProvider, SimpleSpanProcessor } from "@opentelemetry/sdk-trace-node";
-import winston from "winston";
 import { runWithTracingContext } from "./tracingContext.js";
 import { PaidSpanProcessor } from "./spanProcessor.js";
 import { AISDKSpanProcessor } from "./aiSdkSpanProcessor.js";
-
-export const logger: winston.Logger = winston.createLogger({
-    level: "silent", // Default to 'silent' to avoid logging unless set via environment variable
-    format: winston.format.simple(),
-    transports: [new winston.transports.Console()],
-});
-const logLevel = process.env.PAID_LOG_LEVEL;
-if (logLevel) {
-    logger.level = logLevel;
-}
 
 const DEFAULT_COLLECTOR_ENDPOINT =
     process.env["PAID_OTEL_COLLECTOR_ENDPOINT"] || "https://collector.agentpaid.io:4318/v1/traces";
@@ -47,8 +36,8 @@ const setupGracefulShutdown = (shuttable: { shutdown(): Promise<void> }) => {
             _isShuttingDown = true;
             shuttable
                 .shutdown()
-                .then(() => logger.info(`Paid tracing SDK shut down from signal: ${signal}`))
-                .catch((error) => logger.error(`Error shutting down Paid tracing SDK ${error}`));
+                .then(() => console.info(`Paid tracing SDK shut down from signal: ${signal}`))
+                .catch((error) => console.error(`Error shutting down Paid tracing SDK ${error}`));
         });
     });
 };
@@ -56,20 +45,20 @@ const setupGracefulShutdown = (shuttable: { shutdown(): Promise<void> }) => {
 export function initializeTracing(apiKey?: string, collectorEndpoint?: string): void {
     const paidEnabled = (process.env.PAID_ENABLED || "true") !== "false";
     if (!paidEnabled) {
-        logger.info("Paid tracing is disabled via PAID_ENABLED environment variable");
+        console.info("Paid tracing is disabled via PAID_ENABLED environment variable");
         return;
     }
     const token = getToken();
 
     if (!!token) {
-        logger.info("Tracing is already initialized - skipping re-intialization");
+        console.info("Tracing is already initialized - skipping re-intialization");
         return;
     }
 
     if (!apiKey) {
         const envKey = process.env.PAID_API_KEY;
         if (!envKey) {
-            logger.error("API key must be provided via PAID_API_KEY environment variable");
+            console.error("API key must be provided via PAID_API_KEY environment variable");
             return;
         }
 
@@ -98,7 +87,7 @@ export function initializeTracing(apiKey?: string, collectorEndpoint?: string): 
 
     paidTracer = paidTracerProvider.getTracer("paid.node");
     setupGracefulShutdown(spanProcessor);
-    logger.info(`Paid tracing SDK initialized with collector endpoint: ${url}`);
+    console.info(`Paid tracing SDK initialized with collector endpoint: ${url}`);
 }
 
 export async function trace<F extends (...args: any[]) => any>(
@@ -116,7 +105,7 @@ export async function trace<F extends (...args: any[]) => any>(
 
     if (!token || !tracer) {
         // don't throw, tracing should not crash user app.
-        logger.error("Paid tracing is not initialized. Make sure to call initializeTracing() first.");
+        console.error("Paid tracing is not initialized. Make sure to call initializeTracing() first.");
         return await fn(...args);
     }
     const { externalCustomerId, externalProductId: externalAgentId, storePrompt, metadata } = options;

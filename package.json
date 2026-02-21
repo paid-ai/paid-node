@@ -128,6 +128,7 @@
   },
   "dependencies": {
     "@opentelemetry/api": ">=1.9.0",
+    "@opentelemetry/context-async-hooks": ">=0.208.0",
     "@opentelemetry/exporter-trace-otlp-http": ">=0.208.0",
     "@opentelemetry/exporter-trace-otlp-proto": ">=0.208.0",
     "@opentelemetry/instrumentation": ">=0.208.0",
@@ -139,8 +140,7 @@
     "@arizeai/openinference-instrumentation-anthropic": ">=0.1.2",
     "@arizeai/openinference-instrumentation-openai": ">=4.0.0",
     "@arizeai/openinference-semantic-conventions": ">=2.1.2",
-    "@traceloop/instrumentation-bedrock": ">=0.22.0",
-    "winston": ">=3.0.0"
+    "@traceloop/instrumentation-bedrock": ">=0.22.0"
   },
   "peerDependencies": {
     "@ai-sdk/openai": ">=1.0.0",

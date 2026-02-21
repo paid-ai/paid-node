@@ -1,7 +1,7 @@
 import type { Instrumentation } from "@opentelemetry/instrumentation";
 import type { TracerProvider } from "@opentelemetry/api";
 
-import { getPaidTracerProvider, initializeTracing, logger } from "./tracing.js";
+import { getPaidTracerProvider, initializeTracing } from "./tracing.js";
 
 let IS_INITIALIZED = false;
 
@@ -24,7 +24,7 @@ const getInstrumentations = async (
             const { OpenAIInstrumentation } = await import("@arizeai/openinference-instrumentation-openai");
             instrumentations.push(new OpenAIInstrumentation({ tracerProvider }));
         } catch {
-            logger.debug("OpenAI instrumentation not available - openai package not installed");
+            console.debug("OpenAI instrumentation not available - openai package not installed");
         }
     }
 
@@ -33,7 +33,7 @@ const getInstrumentations = async (
             const { AnthropicInstrumentation } = await import("@arizeai/openinference-instrumentation-anthropic");
             instrumentations.push(new AnthropicInstrumentation({ tracerProvider }));
         } catch {
-            logger.debug("Anthropic instrumentation not available - @anthropic-ai/sdk package not installed");
+            console.debug("Anthropic instrumentation not available - @anthropic-ai/sdk package not installed");
         }
     }
 
@@ -49,7 +49,7 @@ const getInstrumentations = async (
  */
 export async function paidAutoInstrument(libraries?: SupportedLibrary[]): Promise<void> {
     if (IS_INITIALIZED) {
-        logger.info("Auto instrumentation is already initialized");
+        console.info("Auto instrumentation is already initialized");
         return;
     }
 
@@ -58,7 +58,7 @@ export async function paidAutoInstrument(libraries?: SupportedLibrary[]): Promis
     const tracerProvider = getPaidTracerProvider();
 
     if (!tracerProvider) {
-        logger.error(
+        console.error(
             "Could not get tracer provider, make sure you ran 'initializeTracing()' or check your environment variables",
         );
         return;
@@ -88,7 +88,7 @@ export async function paidAutoInstrument(libraries?: SupportedLibrary[]): Promis
  */
 export async function paidAutoInstrumentModules(modules: InstrumentModules): Promise<void> {
     if (IS_INITIALIZED) {
-        logger.info("Auto instrumentation is already initialized");
+        console.info("Auto instrumentation is already initialized");
         return;
     }
 
@@ -97,7 +97,7 @@ export async function paidAutoInstrumentModules(modules: InstrumentModules): Pro
     const tracerProvider = getPaidTracerProvider();
 
     if (!tracerProvider) {
-        logger.error(
+        console.error(
             "Could not get tracer provider, make sure you ran 'initializeTracing()' or check your environment variables",
         );
         return;
@@ -109,7 +109,7 @@ export async function paidAutoInstrumentModules(modules: InstrumentModules): Pro
             const inst = new OpenAIInstrumentation({ tracerProvider });
             inst.manuallyInstrument(modules.openAI);
         } catch {
-            logger.debug("OpenAI instrumentation not available");
+            console.debug("OpenAI instrumentation not available");
         }
     }
 
@@ -119,7 +119,7 @@ export async function paidAutoInstrumentModules(modules: InstrumentModules): Pro
             const inst = new AnthropicInstrumentation({ tracerProvider });
             inst.manuallyInstrument(modules.anthropic);
         } catch {
-            logger.debug("Anthropic instrumentation not available");
+            console.debug("Anthropic instrumentation not available");
         }
     }
 
