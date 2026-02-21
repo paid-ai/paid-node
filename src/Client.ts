@@ -11,9 +11,9 @@ import { mergeHeaders } from "./core/headers.js";
 import * as core from "./core/index.js";
 
 export declare namespace PaidClient {
-    export interface Options extends BaseClientOptions {}
+    export interface Options extends BaseClientOptions { }
 
-    export interface RequestOptions extends BaseRequestOptions {}
+    export interface RequestOptions extends BaseRequestOptions { }
 }
 
 export class PaidClient {
@@ -32,8 +32,8 @@ export class PaidClient {
                 {
                     "X-Fern-Language": "JavaScript",
                     "X-Fern-SDK-Name": "@paid-ai/paid-node",
-                    "X-Fern-SDK-Version": "1.0.1-alpha8",
-                    "User-Agent": "@paid-ai/paid-node/1.0.1-alpha8",
+                    "X-Fern-SDK-Version": "1.0.1-alpha9",
+                    "User-Agent": "@paid-ai/paid-node/1.0.1-alpha9",
                     "X-Fern-Runtime": core.RUNTIME.type,
                     "X-Fern-Runtime-Version": core.RUNTIME.version,
                 },
