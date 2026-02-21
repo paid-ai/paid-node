@@ -2,7 +2,6 @@ import { SpanStatusCode, context } from "@opentelemetry/api";
 import type { Tracer } from "@opentelemetry/api";
 import { AsyncLocalStorageContextManager } from "@opentelemetry/context-async-hooks";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
-import { resourceFromAttributes } from "@opentelemetry/resources";
 import { NodeTracerProvider, SimpleSpanProcessor } from "@opentelemetry/sdk-trace-node";
 import { runWithTracingContext } from "./tracingContext.js";
 import { PaidSpanProcessor } from "./spanProcessor.js";
@@ -68,12 +67,11 @@ export function initializeTracing(apiKey?: string, collectorEndpoint?: string): 
     }
 
     const url = collectorEndpoint || DEFAULT_COLLECTOR_ENDPOINT;
-    const exporter = new OTLPTraceExporter({ url });
+    const exporter = new OTLPTraceExporter({ url, headers: { Authorization: `Bearer ${paidApiToken}` } });
     const spanProcessor = new SimpleSpanProcessor(exporter);
     // Order matters: processors run in order, and SimpleSpanProcessor exports on onEnd.
     // So we need to run our attribute-modifying processors BEFORE the exporter.
     paidTracerProvider = new NodeTracerProvider({
-        resource: resourceFromAttributes({ "api.key": paidApiToken }),
         spanProcessors: [new PaidSpanProcessor(), new AISDKSpanProcessor(), spanProcessor],
     });
     // Set up context propagation without registering the provider globally.

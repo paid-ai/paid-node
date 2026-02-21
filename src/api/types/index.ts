@@ -1,7 +1,5 @@
 export * from "./Attribution.js";
 export * from "./BulkSignalsResponse.js";
-export * from "./CheckoutSession.js";
-export * from "./CheckoutSessionDetails.js";
 export * from "./Contact.js";
 export * from "./ContactBillingAddress.js";
 export * from "./ContactListResponse.js";
