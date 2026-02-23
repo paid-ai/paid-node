@@ -1,11 +1,17 @@
 import { SpanStatusCode, context } from "@opentelemetry/api";
 import type { Tracer } from "@opentelemetry/api";
+import type { SpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { AsyncLocalStorageContextManager } from "@opentelemetry/context-async-hooks";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { NodeTracerProvider, SimpleSpanProcessor } from "@opentelemetry/sdk-trace-node";
 import { runWithTracingContext } from "./tracingContext.js";
 import { PaidSpanProcessor } from "./spanProcessor.js";
 import { AISDKSpanProcessor } from "./aiSdkSpanProcessor.js";
+
+export interface InitializeTracingOptions {
+    collectorEndpoint?: string;
+    registerGlobal?: boolean;
+}
 
 const DEFAULT_COLLECTOR_ENDPOINT =
     process.env["PAID_OTEL_COLLECTOR_ENDPOINT"] || "https://collector.agentpaid.io:4318/v1/traces";
@@ -41,7 +47,13 @@ const setupGracefulShutdown = (shuttable: { shutdown(): Promise<void> }) => {
     });
 };
 
-export function initializeTracing(apiKey?: string, collectorEndpoint?: string): void {
+export function createPaidSpanProcessors(apiKey: string, collectorEndpoint?: string): SpanProcessor[] {
+    const url = collectorEndpoint || DEFAULT_COLLECTOR_ENDPOINT;
+    const exporter = new OTLPTraceExporter({ url, headers: { Authorization: `Bearer ${apiKey}` } });
+    return [new PaidSpanProcessor(), new AISDKSpanProcessor(), new SimpleSpanProcessor(exporter)];
+}
+
+export function initializeTracing(apiKey?: string, options?: InitializeTracingOptions): void {
     const paidEnabled = (process.env.PAID_ENABLED || "true") !== "false";
     if (!paidEnabled) {
         console.info("Paid tracing is disabled via PAID_ENABLED environment variable");
@@ -66,6 +78,8 @@ export function initializeTracing(apiKey?: string, collectorEndpoint?: string): 
         paidApiToken = apiKey;
     }
 
+    const { collectorEndpoint, registerGlobal = false } = options || {};
+
     const url = collectorEndpoint || DEFAULT_COLLECTOR_ENDPOINT;
     const exporter = new OTLPTraceExporter({ url, headers: { Authorization: `Bearer ${paidApiToken}` } });
     const spanProcessor = new SimpleSpanProcessor(exporter);
@@ -74,13 +88,21 @@ export function initializeTracing(apiKey?: string, collectorEndpoint?: string): 
     paidTracerProvider = new NodeTracerProvider({
         spanProcessors: [new PaidSpanProcessor(), new AISDKSpanProcessor(), spanProcessor],
     });
-    // Set up context propagation without registering the provider globally.
-    // This gives us async parent-child linking via AsyncLocalStorage
-    // without polluting the global trace provider.
-    const contextManager = new AsyncLocalStorageContextManager();
-    contextManager.enable();
-    if (!context.setGlobalContextManager(contextManager)) {
-        contextManager.disable();
+
+    if (registerGlobal) {
+        // Register the provider globally so that any tracer (including the AI SDK's
+        // `trace.getTracer("ai")`) routes spans through our span processors.
+        // This also sets up an AsyncLocalStorageContextManager for context propagation.
+        paidTracerProvider.register();
+    } else {
+        // Set up context propagation without registering the provider globally.
+        // This gives us async parent-child linking via AsyncLocalStorage
+        // without polluting the global trace provider.
+        const contextManager = new AsyncLocalStorageContextManager();
+        contextManager.enable();
+        if (!context.setGlobalContextManager(contextManager)) {
+            contextManager.disable();
+        }
     }
 
     paidTracer = paidTracerProvider.getTracer("paid.node");

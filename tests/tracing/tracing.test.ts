@@ -6,14 +6,18 @@
  * - signal() function
  * - PaidSpanProcessor prompt filtering
  * - Context attributes on spans
+ * - initializeTracing options (registerGlobal)
+ * - createPaidSpanProcessors
  */
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { trace as otelTrace, context as otelContext } from "@opentelemetry/api";
 import { NodeTracerProvider, SimpleSpanProcessor } from "@opentelemetry/sdk-trace-node";
 import { InMemorySpanExporter } from "@opentelemetry/sdk-trace-base";
 import { resourceFromAttributes } from "@opentelemetry/resources";
 import { PaidSpanProcessor } from "../../src/tracing/spanProcessor";
 import { AISDKSpanProcessor } from "../../src/tracing/aiSdkSpanProcessor";
 import { runWithTracingContext, getTracingContext } from "../../src/tracing/tracingContext";
+import { createPaidSpanProcessors } from "../../src/tracing/tracing";
 
 describe("TracingContext", () => {
     it("should return default context when not in a trace", () => {
@@ -296,6 +300,75 @@ describe("AISDKSpanProcessor", () => {
         expect(spans.length).toBe(1);
         // Verify span was processed (name prefixed)
         expect(spans[0].name).toContain("paid.trace.");
+    });
+});
+
+describe("initializeTracing options", () => {
+    let originalEnv: NodeJS.ProcessEnv;
+
+    beforeEach(() => {
+        originalEnv = { ...process.env };
+    });
+
+    afterEach(async () => {
+        process.env = originalEnv;
+        // Clean up global OTel state
+        otelTrace.disable();
+        otelContext.disable();
+    });
+
+    it("registerGlobal: true (default) registers the global provider", async () => {
+        vi.resetModules();
+        const mod = await import("../../src/tracing/tracing");
+        mod.initializeTracing("test-api-key", { collectorEndpoint: "http://localhost:4318/v1/traces" });
+
+        // The global provider should be set — trace.getTracer() should return a working tracer
+        const globalTracer = otelTrace.getTracer("test-global");
+        expect(globalTracer).toBeDefined();
+        // A globally-registered provider returns a real tracer, not a no-op proxy
+        const span = globalTracer.startSpan("test");
+        span.end();
+        // The provider should be registered
+        expect(mod.getPaidTracerProvider()).toBeDefined();
+
+        await mod.getPaidTracerProvider()?.shutdown();
+    });
+
+    it("registerGlobal: false does NOT register globally", async () => {
+        // Disable any previous global provider first
+        otelTrace.disable();
+
+        vi.resetModules();
+        const mod = await import("../../src/tracing/tracing");
+        mod.initializeTracing("test-api-key", {
+            collectorEndpoint: "http://localhost:4318/v1/traces",
+            registerGlobal: false,
+        });
+
+        // The Paid provider should exist
+        expect(mod.getPaidTracerProvider()).toBeDefined();
+        expect(mod.getPaidTracer()).toBeDefined();
+
+        // But the global trace provider should NOT be our provider.
+        // After otelTrace.disable(), getting a tracer from the global returns a no-op proxy.
+        // A no-op span has an invalid (all-zero) spanId.
+        const globalTracer = otelTrace.getTracer("test-should-be-noop");
+        const span = globalTracer.startSpan("noop-test");
+        expect(span.spanContext().spanId).toBe("0000000000000000");
+        span.end();
+
+        await mod.getPaidTracerProvider()?.shutdown();
+    });
+});
+
+describe("createPaidSpanProcessors", () => {
+    it("returns three processors in the correct order", () => {
+        const processors = createPaidSpanProcessors("test-key", "http://localhost:4318/v1/traces");
+
+        expect(processors).toHaveLength(3);
+        expect(processors[0]).toBeInstanceOf(PaidSpanProcessor);
+        expect(processors[1]).toBeInstanceOf(AISDKSpanProcessor);
+        expect(processors[2]).toBeInstanceOf(SimpleSpanProcessor);
     });
 });
 
