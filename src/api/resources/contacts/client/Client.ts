@@ -127,8 +127,6 @@ export class Contacts {
      * @example
      *     await client.contacts.createContact({
      *         customerId: "customerId",
-     *         firstName: "firstName",
-     *         lastName: "lastName",
      *         email: "email"
      *     })
      */

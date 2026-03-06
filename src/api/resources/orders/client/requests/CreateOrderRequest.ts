@@ -22,4 +22,5 @@ export interface CreateOrderRequest {
     paymentTerms?: string | null;
     externalId?: string | null;
     metadata?: Record<string, unknown> | null;
+    lines?: Paid.CreateOrderLineRequest[];
 }

@@ -19,6 +19,7 @@ describe("Contacts", () => {
                     email: "email",
                     phone: "phone",
                     externalId: "externalId",
+                    roles: ["BILLING"],
                     createdAt: "2024-01-15T09:30:00Z",
                     updatedAt: "2024-01-15T09:30:00Z",
                 },
@@ -38,6 +39,7 @@ describe("Contacts", () => {
                     email: "email",
                     phone: "phone",
                     externalId: "externalId",
+                    roles: ["BILLING"],
                     createdAt: "2024-01-15T09:30:00Z",
                     updatedAt: "2024-01-15T09:30:00Z",
                 },
@@ -90,12 +92,7 @@ describe("Contacts", () => {
     test("createContact (1)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = {
-            customerId: "customerId",
-            firstName: "firstName",
-            lastName: "lastName",
-            email: "email",
-        };
+        const rawRequestBody = { customerId: "customerId", email: "email" };
         const rawResponseBody = {
             id: "id",
             customerId: "customerId",
@@ -105,6 +102,7 @@ describe("Contacts", () => {
             phone: "phone",
             billingAddress: { street: "street", city: "city", state: "state", country: "country", zipCode: "zipCode" },
             externalId: "externalId",
+            roles: ["BILLING"],
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
         };
@@ -119,8 +117,6 @@ describe("Contacts", () => {
 
         const response = await client.contacts.createContact({
             customerId: "customerId",
-            firstName: "firstName",
-            lastName: "lastName",
             email: "email",
         });
         expect(response).toEqual({
@@ -138,6 +134,7 @@ describe("Contacts", () => {
                 zipCode: "zipCode",
             },
             externalId: "externalId",
+            roles: ["BILLING"],
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
         });
@@ -146,7 +143,7 @@ describe("Contacts", () => {
     test("createContact (2)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = { customerId: "customerId", firstName: "x", lastName: "x", email: "email" };
+        const rawRequestBody = { customerId: "customerId", email: "email" };
         const rawResponseBody = { error: "error" };
         server
             .mockEndpoint()
@@ -160,8 +157,6 @@ describe("Contacts", () => {
         await expect(async () => {
             return await client.contacts.createContact({
                 customerId: "customerId",
-                firstName: "x",
-                lastName: "x",
                 email: "email",
             });
         }).rejects.toThrow(Paid.BadRequestError);
@@ -170,7 +165,7 @@ describe("Contacts", () => {
     test("createContact (3)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = { customerId: "customerId", firstName: "x", lastName: "x", email: "email" };
+        const rawRequestBody = { customerId: "customerId", email: "email" };
         const rawResponseBody = { error: "error" };
         server
             .mockEndpoint()
@@ -184,8 +179,6 @@ describe("Contacts", () => {
         await expect(async () => {
             return await client.contacts.createContact({
                 customerId: "customerId",
-                firstName: "x",
-                lastName: "x",
                 email: "email",
             });
         }).rejects.toThrow(Paid.ForbiddenError);
@@ -194,7 +187,7 @@ describe("Contacts", () => {
     test("createContact (4)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = { customerId: "customerId", firstName: "x", lastName: "x", email: "email" };
+        const rawRequestBody = { customerId: "customerId", email: "email" };
         const rawResponseBody = { error: "error" };
         server
             .mockEndpoint()
@@ -208,8 +201,6 @@ describe("Contacts", () => {
         await expect(async () => {
             return await client.contacts.createContact({
                 customerId: "customerId",
-                firstName: "x",
-                lastName: "x",
                 email: "email",
             });
         }).rejects.toThrow(Paid.InternalServerError);
@@ -228,6 +219,7 @@ describe("Contacts", () => {
             phone: "phone",
             billingAddress: { street: "street", city: "city", state: "state", country: "country", zipCode: "zipCode" },
             externalId: "externalId",
+            roles: ["BILLING"],
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
         };
@@ -251,6 +243,7 @@ describe("Contacts", () => {
                 zipCode: "zipCode",
             },
             externalId: "externalId",
+            roles: ["BILLING"],
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
         });
@@ -311,6 +304,7 @@ describe("Contacts", () => {
             phone: "phone",
             billingAddress: { street: "street", city: "city", state: "state", country: "country", zipCode: "zipCode" },
             externalId: "externalId",
+            roles: ["BILLING"],
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
         };
@@ -342,6 +336,7 @@ describe("Contacts", () => {
                 zipCode: "zipCode",
             },
             externalId: "externalId",
+            roles: ["BILLING"],
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
         });
@@ -503,6 +498,7 @@ describe("Contacts", () => {
             phone: "phone",
             billingAddress: { street: "street", city: "city", state: "state", country: "country", zipCode: "zipCode" },
             externalId: "externalId",
+            roles: ["BILLING"],
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
         };
@@ -532,6 +528,7 @@ describe("Contacts", () => {
                 zipCode: "zipCode",
             },
             externalId: "externalId",
+            roles: ["BILLING"],
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
         });
@@ -610,6 +607,7 @@ describe("Contacts", () => {
             phone: "phone",
             billingAddress: { street: "street", city: "city", state: "state", country: "country", zipCode: "zipCode" },
             externalId: "externalId",
+            roles: ["BILLING"],
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
         };
@@ -641,6 +639,7 @@ describe("Contacts", () => {
                 zipCode: "zipCode",
             },
             externalId: "externalId",
+            roles: ["BILLING"],
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
         });

@@ -10,4 +10,17 @@ export interface UpdateContactRequest {
     phone?: string | null;
     billingAddress?: Paid.ContactBillingAddress | null;
     externalId?: string | null;
+    roles?: UpdateContactRequest.Roles.Item[];
+}
+
+export namespace UpdateContactRequest {
+    export type Roles = Roles.Item[];
+
+    export namespace Roles {
+        export const Item = {
+            Billing: "BILLING",
+            AccountsPayable: "ACCOUNTS_PAYABLE",
+        } as const;
+        export type Item = (typeof Item)[keyof typeof Item];
+    }
 }
