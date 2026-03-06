@@ -3,6 +3,8 @@ export * from "./BulkSignalsResponse.js";
 export * from "./Contact.js";
 export * from "./ContactBillingAddress.js";
 export * from "./ContactListResponse.js";
+export * from "./CreateOrderLineAttributeRequest.js";
+export * from "./CreateOrderLineRequest.js";
 export * from "./Customer.js";
 export * from "./CustomerAttribution.js";
 export * from "./CustomerBillingAddress.js";
