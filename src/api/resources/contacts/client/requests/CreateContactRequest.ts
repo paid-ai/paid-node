@@ -6,17 +6,28 @@ import type * as Paid from "../../../../index.js";
  * @example
  *     {
  *         customerId: "customerId",
- *         firstName: "firstName",
- *         lastName: "lastName",
  *         email: "email"
  *     }
  */
 export interface CreateContactRequest {
     customerId: string;
-    firstName: string;
-    lastName: string;
+    firstName?: string;
+    lastName?: string;
     email: string;
     phone?: string | null;
     billingAddress?: Paid.ContactBillingAddress | null;
     externalId?: string | null;
+    roles?: CreateContactRequest.Roles.Item[];
+}
+
+export namespace CreateContactRequest {
+    export type Roles = Roles.Item[];
+
+    export namespace Roles {
+        export const Item = {
+            Billing: "BILLING",
+            AccountsPayable: "ACCOUNTS_PAYABLE",
+        } as const;
+        export type Item = (typeof Item)[keyof typeof Item];
+    }
 }

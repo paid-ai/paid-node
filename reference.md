@@ -1004,8 +1004,6 @@ Creates a new contact for the organization
 ```typescript
 await client.contacts.createContact({
     customerId: "customerId",
-    firstName: "firstName",
-    lastName: "lastName",
     email: "email"
 });
 
