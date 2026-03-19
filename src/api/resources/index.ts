@@ -1,3 +1,6 @@
+export * from "./checkouts/client/requests/index.js";
+export * as checkouts from "./checkouts/index.js";
+export * from "./checkouts/types/index.js";
 export * from "./contacts/client/requests/index.js";
 export * as contacts from "./contacts/index.js";
 export * from "./customers/client/requests/index.js";
