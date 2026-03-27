@@ -907,4 +907,222 @@ describe("Customers", () => {
             });
         }).rejects.toThrow(Paid.InternalServerError);
     });
+
+    test("getCustomerCreditBalances (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = {
+            data: [
+                {
+                    creditsCurrencyId: "creditsCurrencyId",
+                    currencyName: "currencyName",
+                    currencyKey: "currencyKey",
+                    available: 1.1,
+                    used: 1.1,
+                    total: 1.1,
+                    periodStart: "2024-01-15T09:30:00Z",
+                    periodEnd: "2024-01-15T09:30:00Z",
+                    rolloverEndDate: "2024-01-15T09:30:00Z",
+                    recipient: "organization",
+                },
+            ],
+        };
+        server
+            .mockEndpoint()
+            .get("/customers/id/credits/balances")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.customers.getCustomerCreditBalances({
+            id: "id",
+        });
+        expect(response).toEqual({
+            data: [
+                {
+                    creditsCurrencyId: "creditsCurrencyId",
+                    currencyName: "currencyName",
+                    currencyKey: "currencyKey",
+                    available: 1.1,
+                    used: 1.1,
+                    total: 1.1,
+                    periodStart: "2024-01-15T09:30:00Z",
+                    periodEnd: "2024-01-15T09:30:00Z",
+                    rolloverEndDate: "2024-01-15T09:30:00Z",
+                    recipient: "organization",
+                },
+            ],
+        });
+    });
+
+    test("getCustomerCreditBalances (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .get("/customers/id/credits/balances")
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.getCustomerCreditBalances({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("getCustomerCreditBalances (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .get("/customers/id/credits/balances")
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.getCustomerCreditBalances({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("getCustomerCreditBalances (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .get("/customers/id/credits/balances")
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.getCustomerCreditBalances({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("getCustomerCreditBalancesByExternalId (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = {
+            data: [
+                {
+                    creditsCurrencyId: "creditsCurrencyId",
+                    currencyName: "currencyName",
+                    currencyKey: "currencyKey",
+                    available: 1.1,
+                    used: 1.1,
+                    total: 1.1,
+                    periodStart: "2024-01-15T09:30:00Z",
+                    periodEnd: "2024-01-15T09:30:00Z",
+                    rolloverEndDate: "2024-01-15T09:30:00Z",
+                    recipient: "organization",
+                },
+            ],
+        };
+        server
+            .mockEndpoint()
+            .get("/customers/external/externalId/credits/balances")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.customers.getCustomerCreditBalancesByExternalId({
+            externalId: "externalId",
+        });
+        expect(response).toEqual({
+            data: [
+                {
+                    creditsCurrencyId: "creditsCurrencyId",
+                    currencyName: "currencyName",
+                    currencyKey: "currencyKey",
+                    available: 1.1,
+                    used: 1.1,
+                    total: 1.1,
+                    periodStart: "2024-01-15T09:30:00Z",
+                    periodEnd: "2024-01-15T09:30:00Z",
+                    rolloverEndDate: "2024-01-15T09:30:00Z",
+                    recipient: "organization",
+                },
+            ],
+        });
+    });
+
+    test("getCustomerCreditBalancesByExternalId (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .get("/customers/external/externalId/credits/balances")
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.getCustomerCreditBalancesByExternalId({
+                externalId: "externalId",
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("getCustomerCreditBalancesByExternalId (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .get("/customers/external/externalId/credits/balances")
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.getCustomerCreditBalancesByExternalId({
+                externalId: "externalId",
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("getCustomerCreditBalancesByExternalId (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .get("/customers/external/externalId/credits/balances")
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.getCustomerCreditBalancesByExternalId({
+                externalId: "externalId",
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
 });

@@ -1,6 +1,6 @@
 {
     "name": "@paid-ai/paid-node",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "private": false,
     "repository": "github:paid-ai/paid-node",
     "type": "commonjs",
@@ -146,7 +146,7 @@
         "@ai-sdk/openai": ">=1.0.0",
         "@anthropic-ai/sdk": ">=0.36.3",
         "@langchain/core": ">=0.3.0",
-        "@mistralai/mistralai": ">=1.0.0",
+        "@mistralai/mistralai": ">=1.0.0 <2.0.0",
         "ai": ">=5.0.0",
         "openai": ">=4.85.4"
     },
@@ -181,7 +181,7 @@
         "@ai-sdk/openai": ">=1.0.0",
         "@anthropic-ai/sdk": ">=0.36.3",
         "@langchain/core": ">=0.3.0",
-        "@mistralai/mistralai": ">=1.0.0",
+        "@mistralai/mistralai": ">=1.0.0 <2.0.0",
         "ai": ">=5.0.0",
         "openai": ">=4.85.4",
         "nock": ">=14.0.0",
