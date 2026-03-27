@@ -1,5 +1,11 @@
+export * from "./checkouts/client/requests/index.js";
+export * as checkouts from "./checkouts/index.js";
+export * from "./checkouts/types/index.js";
 export * from "./contacts/client/requests/index.js";
 export * as contacts from "./contacts/index.js";
+export * as credits from "./credits/index.js";
+export * from "./customerPortals/client/requests/index.js";
+export * as customerPortals from "./customerPortals/index.js";
 export * from "./customers/client/requests/index.js";
 export * as customers from "./customers/index.js";
 export * from "./invoices/client/requests/index.js";

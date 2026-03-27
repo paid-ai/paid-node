@@ -12,14 +12,14 @@ export interface UpdateOrderRequest {
     id: string;
     name?: string;
     startDate?: string;
-    endDate?: string | null;
-    subscriptionTerms?: number | null;
+    endDate?: string;
+    subscriptionTerms?: number;
     creationState?: Paid.OrderCreationState;
     /** Day of month for billing anchor (1-31). Defaults to start date day if not provided. */
-    billingAnchor?: number | null;
-    paymentTerms?: string | null;
-    externalId?: string | null;
-    metadata?: Record<string, unknown> | null;
-    billingCustomerId?: string | null;
+    billingAnchor?: number;
+    paymentTerms?: string;
+    externalId?: string;
+    metadata?: Record<string, unknown>;
+    billingCustomerId?: string;
     billingContactIds?: string[];
 }

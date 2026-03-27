@@ -5,8 +5,8 @@ import type * as Paid from "../index.js";
 export interface CreateOrderLineRequest {
     productId: string;
     name?: string;
-    description?: string | null;
-    startDate?: string | null;
-    endDate?: string | null;
+    description?: string;
+    startDate?: string;
+    endDate?: string;
     attributes?: Paid.CreateOrderLineAttributeRequest[];
 }

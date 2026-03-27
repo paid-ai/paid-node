@@ -3,5 +3,129 @@
 export interface CreateOrderLineAttributeRequest {
     name: string;
     quantity?: number;
-    pricing: Record<string, unknown>;
+    pricing: CreateOrderLineAttributeRequest.Pricing;
+}
+
+export namespace CreateOrderLineAttributeRequest {
+    export interface Pricing {
+        eventName?: string;
+        chargeType: Pricing.ChargeType;
+        pricePoints: Pricing.PricePoints;
+        pricingModel?: Pricing.PricingModel;
+        billingFrequency?: Pricing.BillingFrequency;
+        billingFrequencyCustomMonths?: number;
+        billingType?: Pricing.BillingType;
+        signalType?: Pricing.SignalType;
+        creditsCurrencyId?: string;
+        creditCost?: number;
+        overageUnitPrice?: number;
+        creditBenefits?: Pricing.CreditBenefits.Item[];
+    }
+
+    export namespace Pricing {
+        export const ChargeType = {
+            Usage: "usage",
+            Recurring: "recurring",
+            OneTime: "oneTime",
+            SeatBased: "seatBased",
+        } as const;
+        export type ChargeType = (typeof ChargeType)[keyof typeof ChargeType];
+
+        export interface PricePoints {
+            currency?: string;
+            unitPrice: number;
+            minQuantity?: number;
+            includedQuantity?: number;
+            tiers?: PricePoints.Tiers.Item[];
+        }
+
+        export namespace PricePoints {
+            export type Tiers = Tiers.Item[];
+
+            export namespace Tiers {
+                export interface Item {
+                    flatAmount?: number;
+                    index?: number;
+                    lowerBound?: number;
+                    number?: number;
+                    tierBillingType?: Item.TierBillingType;
+                    unitAmount?: number;
+                    upperBound?: number;
+                }
+
+                export namespace Item {
+                    export const TierBillingType = {
+                        Flat: "flat",
+                        PerUnit: "perUnit",
+                    } as const;
+                    export type TierBillingType = (typeof TierBillingType)[keyof typeof TierBillingType];
+                }
+            }
+        }
+
+        export const PricingModel = {
+            PerUnit: "perUnit",
+            VolumePricing: "volumePricing",
+            GraduatedPricing: "graduatedPricing",
+            PrepaidCredits: "prepaidCredits",
+            Flat: "flat",
+        } as const;
+        export type PricingModel = (typeof PricingModel)[keyof typeof PricingModel];
+        export const BillingFrequency = {
+            Monthly: "monthly",
+            Quarterly: "quarterly",
+            SemiAnnually: "semiAnnually",
+            Annual: "annual",
+            Custom: "custom",
+        } as const;
+        export type BillingFrequency = (typeof BillingFrequency)[keyof typeof BillingFrequency];
+        export const BillingType = {
+            Advance: "advance",
+            Arrears: "arrears",
+        } as const;
+        export type BillingType = (typeof BillingType)[keyof typeof BillingType];
+        export const SignalType = {
+            Activity: "activity",
+            Outcome: "outcome",
+        } as const;
+        export type SignalType = (typeof SignalType)[keyof typeof SignalType];
+        export type CreditBenefits = CreditBenefits.Item[];
+
+        export namespace CreditBenefits {
+            export interface Item {
+                id: string;
+                creditsCurrencyId?: string;
+                recipient?: Item.Recipient;
+                amount: number;
+                rolloverAmount?: number;
+                rolloverDuration?: number;
+                rolloverDurationUnit?: Item.RolloverDurationUnit;
+                allocationCadence?: Item.AllocationCadence;
+                creditGrantTiming?: Item.CreditGrantTiming;
+            }
+
+            export namespace Item {
+                export const Recipient = {
+                    Organization: "organization",
+                    Seat: "seat",
+                } as const;
+                export type Recipient = (typeof Recipient)[keyof typeof Recipient];
+                export const RolloverDurationUnit = {
+                    Days: "days",
+                    Months: "months",
+                } as const;
+                export type RolloverDurationUnit = (typeof RolloverDurationUnit)[keyof typeof RolloverDurationUnit];
+                export const AllocationCadence = {
+                    Upfront: "upfront",
+                    Monthly: "monthly",
+                } as const;
+                export type AllocationCadence = (typeof AllocationCadence)[keyof typeof AllocationCadence];
+                export const CreditGrantTiming = {
+                    OnPayment: "on_payment",
+                    OnOrderActivation: "on_order_activation",
+                } as const;
+                export type CreditGrantTiming = (typeof CreditGrantTiming)[keyof typeof CreditGrantTiming];
+            }
+        }
+    }
 }

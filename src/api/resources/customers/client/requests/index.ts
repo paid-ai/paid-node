@@ -3,6 +3,8 @@ export type { DeleteCustomerByExternalIdRequest } from "./DeleteCustomerByExtern
 export type { DeleteCustomerByIdRequest } from "./DeleteCustomerByIdRequest.js";
 export type { GetCustomerByExternalIdRequest } from "./GetCustomerByExternalIdRequest.js";
 export type { GetCustomerByIdRequest } from "./GetCustomerByIdRequest.js";
+export type { GetCustomerCreditBalancesByExternalIdRequest } from "./GetCustomerCreditBalancesByExternalIdRequest.js";
+export type { GetCustomerCreditBalancesRequest } from "./GetCustomerCreditBalancesRequest.js";
 export type { ListCustomersRequest } from "./ListCustomersRequest.js";
 export type { UpdateCustomerByExternalIdRequest } from "./UpdateCustomerByExternalIdRequest.js";
 export type { UpdateCustomerByIdRequest } from "./UpdateCustomerByIdRequest.js";
