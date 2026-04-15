@@ -23,5 +23,8 @@ export interface CreateOrderRequest {
     externalId?: string;
     metadata?: Record<string, unknown>;
     currency?: string;
+    autoPostInvoices?: boolean;
+    autoSendBillingEmails?: boolean;
+    autoSendPaymentEmails?: boolean;
     lines?: Paid.CreateOrderLineRequest[];
 }

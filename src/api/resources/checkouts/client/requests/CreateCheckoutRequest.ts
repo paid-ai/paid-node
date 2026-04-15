@@ -14,8 +14,13 @@ import type * as Paid from "../../../../index.js";
 export interface CreateCheckoutRequest {
     products: Paid.CheckoutProductInput[];
     customerId?: string;
+    /** External customer identifier. Creates the customer on first use, resolves to the existing customer on subsequent uses. */
+    externalCustomerId?: string;
     successUrl: string;
     cancelUrl?: string;
     expiresAt?: string;
     metadata?: Record<string, unknown>;
+    collectAddress?: boolean;
+    collectPhone?: boolean;
+    singleUse?: boolean;
 }

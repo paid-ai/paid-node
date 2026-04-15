@@ -26,5 +26,8 @@ export interface Order {
     metadata: Record<string, unknown> | null;
     showPaymentLink: boolean | null;
     showBankDetails: boolean | null;
+    autoPostInvoices: boolean | null;
+    autoSendBillingEmails: boolean | null;
+    autoSendPaymentEmails: boolean | null;
     version: number;
 }

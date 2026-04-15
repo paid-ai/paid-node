@@ -8,10 +8,14 @@ export interface Checkout {
     status: Paid.CheckoutStatus;
     products: Paid.CheckoutProduct[];
     customerId: string | null;
+    externalCustomerId: string | null;
     successUrl: string;
     cancelUrl: string | null;
     expiresAt: string | null;
     metadata: Record<string, unknown> | null;
+    collectAddress: boolean;
+    collectPhone: boolean;
+    singleUse: boolean;
     createdAt: string;
     updatedAt: string;
 }
