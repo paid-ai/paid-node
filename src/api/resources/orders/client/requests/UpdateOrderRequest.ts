@@ -22,4 +22,7 @@ export interface UpdateOrderRequest {
     metadata?: Record<string, unknown>;
     billingCustomerId?: string;
     billingContactIds?: string[];
+    autoPostInvoices?: boolean;
+    autoSendBillingEmails?: boolean;
+    autoSendPaymentEmails?: boolean;
 }

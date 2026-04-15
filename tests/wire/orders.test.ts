@@ -35,6 +35,9 @@ describe("Orders", () => {
                     metadata: { key: "value" },
                     showPaymentLink: true,
                     showBankDetails: true,
+                    autoPostInvoices: true,
+                    autoSendBillingEmails: true,
+                    autoSendPaymentEmails: true,
                     version: 1,
                 },
             ],
@@ -71,6 +74,9 @@ describe("Orders", () => {
                     },
                     showPaymentLink: true,
                     showBankDetails: true,
+                    autoPostInvoices: true,
+                    autoSendBillingEmails: true,
+                    autoSendPaymentEmails: true,
                     version: 1,
                 },
             ],
@@ -147,6 +153,9 @@ describe("Orders", () => {
             metadata: { key: "value" },
             showPaymentLink: true,
             showBankDetails: true,
+            autoPostInvoices: true,
+            autoSendBillingEmails: true,
+            autoSendPaymentEmails: true,
             version: 1,
         };
         server
@@ -187,6 +196,9 @@ describe("Orders", () => {
             },
             showPaymentLink: true,
             showBankDetails: true,
+            autoPostInvoices: true,
+            autoSendBillingEmails: true,
+            autoSendPaymentEmails: true,
             version: 1,
         });
     });
@@ -282,6 +294,9 @@ describe("Orders", () => {
             metadata: { key: "value" },
             showPaymentLink: true,
             showBankDetails: true,
+            autoPostInvoices: true,
+            autoSendBillingEmails: true,
+            autoSendPaymentEmails: true,
             version: 1,
         };
         server.mockEndpoint().get("/orders/id").respondWith().statusCode(200).jsonBody(rawResponseBody).build();
@@ -315,6 +330,9 @@ describe("Orders", () => {
             },
             showPaymentLink: true,
             showBankDetails: true,
+            autoPostInvoices: true,
+            autoSendBillingEmails: true,
+            autoSendPaymentEmails: true,
             version: 1,
         });
     });
@@ -389,6 +407,9 @@ describe("Orders", () => {
             metadata: { key: "value" },
             showPaymentLink: true,
             showBankDetails: true,
+            autoPostInvoices: true,
+            autoSendBillingEmails: true,
+            autoSendPaymentEmails: true,
             version: 1,
         };
         server
@@ -429,6 +450,9 @@ describe("Orders", () => {
             },
             showPaymentLink: true,
             showBankDetails: true,
+            autoPostInvoices: true,
+            autoSendBillingEmails: true,
+            autoSendPaymentEmails: true,
             version: 1,
         });
     });
