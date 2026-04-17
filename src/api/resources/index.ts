@@ -16,3 +16,5 @@ export * from "./products/client/requests/index.js";
 export * as products from "./products/index.js";
 export * from "./signals/client/requests/index.js";
 export * as signals from "./signals/index.js";
+export * from "./valueReceipts/client/requests/index.js";
+export * as valueReceipts from "./valueReceipts/index.js";

@@ -16,6 +16,7 @@ export interface Checkout {
     collectAddress: boolean;
     collectPhone: boolean;
     singleUse: boolean;
+    allowedCurrencies: string[];
     createdAt: string;
     updatedAt: string;
 }

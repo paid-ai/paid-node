@@ -23,4 +23,6 @@ export interface CreateCheckoutRequest {
     collectAddress?: boolean;
     collectPhone?: boolean;
     singleUse?: boolean;
+    /** Lock checkout to a specific currency. Omit to allow all currencies supported by the selected plans. */
+    currency?: string;
 }

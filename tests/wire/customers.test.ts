@@ -508,6 +508,20 @@ describe("Customers", () => {
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         const rawResponseBody = { error: "error" };
+        server.mockEndpoint().delete("/customers/id").respondWith().statusCode(400).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.customers.deleteCustomerById({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("deleteCustomerById (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: "error" };
         server.mockEndpoint().delete("/customers/id").respondWith().statusCode(403).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -517,7 +531,7 @@ describe("Customers", () => {
         }).rejects.toThrow(Paid.ForbiddenError);
     });
 
-    test("deleteCustomerById (3)", async () => {
+    test("deleteCustomerById (4)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
@@ -531,7 +545,7 @@ describe("Customers", () => {
         }).rejects.toThrow(Paid.NotFoundError);
     });
 
-    test("deleteCustomerById (4)", async () => {
+    test("deleteCustomerById (5)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
@@ -857,6 +871,26 @@ describe("Customers", () => {
             .mockEndpoint()
             .delete("/customers/external/externalId")
             .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.deleteCustomerByExternalId({
+                externalId: "externalId",
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("deleteCustomerByExternalId (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .delete("/customers/external/externalId")
+            .respondWith()
             .statusCode(403)
             .jsonBody(rawResponseBody)
             .build();
@@ -868,7 +902,7 @@ describe("Customers", () => {
         }).rejects.toThrow(Paid.ForbiddenError);
     });
 
-    test("deleteCustomerByExternalId (3)", async () => {
+    test("deleteCustomerByExternalId (4)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
@@ -888,7 +922,7 @@ describe("Customers", () => {
         }).rejects.toThrow(Paid.NotFoundError);
     });
 
-    test("deleteCustomerByExternalId (4)", async () => {
+    test("deleteCustomerByExternalId (5)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
