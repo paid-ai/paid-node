@@ -43,3 +43,6 @@ export * from "./Signal.js";
 export * from "./UpdateContactRequest.js";
 export * from "./UpdateCustomerRequest.js";
 export * from "./UpdateProductRequest.js";
+export * from "./ValueReceiptDetail.js";
+export * from "./ValueReceiptListResponse.js";
+export * from "./ValueReceiptSummary.js";

@@ -25,6 +25,7 @@ describe("Checkouts", () => {
                     collectAddress: true,
                     collectPhone: true,
                     singleUse: true,
+                    allowedCurrencies: ["allowedCurrencies"],
                     createdAt: "2024-01-15T09:30:00Z",
                     updatedAt: "2024-01-15T09:30:00Z",
                 },
@@ -56,6 +57,7 @@ describe("Checkouts", () => {
                     collectAddress: true,
                     collectPhone: true,
                     singleUse: true,
+                    allowedCurrencies: ["allowedCurrencies"],
                     createdAt: "2024-01-15T09:30:00Z",
                     updatedAt: "2024-01-15T09:30:00Z",
                 },
@@ -123,6 +125,7 @@ describe("Checkouts", () => {
             collectAddress: true,
             collectPhone: true,
             singleUse: true,
+            allowedCurrencies: ["allowedCurrencies"],
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
         };
@@ -163,6 +166,7 @@ describe("Checkouts", () => {
             collectAddress: true,
             collectPhone: true,
             singleUse: true,
+            allowedCurrencies: ["allowedCurrencies"],
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
         });
@@ -302,6 +306,7 @@ describe("Checkouts", () => {
             collectAddress: true,
             collectPhone: true,
             singleUse: true,
+            allowedCurrencies: ["allowedCurrencies"],
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
         };
@@ -330,6 +335,7 @@ describe("Checkouts", () => {
             collectAddress: true,
             collectPhone: true,
             singleUse: true,
+            allowedCurrencies: ["allowedCurrencies"],
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
         });

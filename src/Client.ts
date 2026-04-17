@@ -9,6 +9,7 @@ import { Invoices } from "./api/resources/invoices/client/Client.js";
 import { Orders } from "./api/resources/orders/client/Client.js";
 import { Products } from "./api/resources/products/client/Client.js";
 import { Signals } from "./api/resources/signals/client/Client.js";
+import { ValueReceipts } from "./api/resources/valueReceipts/client/Client.js";
 import type { BaseClientOptions, BaseRequestOptions } from "./BaseClient.js";
 import { mergeHeaders } from "./core/headers.js";
 import * as core from "./core/index.js";
@@ -30,6 +31,7 @@ export class PaidClient {
     protected _credits: Credits | undefined;
     protected _checkouts: Checkouts | undefined;
     protected _customerPortals: CustomerPortals | undefined;
+    protected _valueReceipts: ValueReceipts | undefined;
 
     constructor(_options: PaidClient.Options) {
         this._options = {
@@ -38,8 +40,8 @@ export class PaidClient {
                 {
                     "X-Fern-Language": "JavaScript",
                     "X-Fern-SDK-Name": "@paid-ai/paid-node",
-                    "X-Fern-SDK-Version": "1.2.0",
-                    "User-Agent": "@paid-ai/paid-node/1.2.0",
+                    "X-Fern-SDK-Version": "1.2.1",
+                    "User-Agent": "@paid-ai/paid-node/1.2.1",
                     "X-Fern-Runtime": core.RUNTIME.type,
                     "X-Fern-Runtime-Version": core.RUNTIME.version,
                 },
@@ -82,5 +84,9 @@ export class PaidClient {
 
     public get customerPortals(): CustomerPortals {
         return (this._customerPortals ??= new CustomerPortals(this._options));
+    }
+
+    public get valueReceipts(): ValueReceipts {
+        return (this._valueReceipts ??= new ValueReceipts(this._options));
     }
 }

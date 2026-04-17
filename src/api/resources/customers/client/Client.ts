@@ -390,6 +390,7 @@ export class Customers {
      * @param {Paid.DeleteCustomerByIdRequest} request
      * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
      *
+     * @throws {@link Paid.BadRequestError}
      * @throws {@link Paid.ForbiddenError}
      * @throws {@link Paid.NotFoundError}
      * @throws {@link Paid.InternalServerError}
@@ -436,6 +437,8 @@ export class Customers {
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
                 case 403:
                     throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
                 case 404:
@@ -662,6 +665,7 @@ export class Customers {
      * @param {Paid.DeleteCustomerByExternalIdRequest} request
      * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
      *
+     * @throws {@link Paid.BadRequestError}
      * @throws {@link Paid.ForbiddenError}
      * @throws {@link Paid.NotFoundError}
      * @throws {@link Paid.InternalServerError}
@@ -708,6 +712,8 @@ export class Customers {
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
                 case 403:
                     throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
                 case 404:
