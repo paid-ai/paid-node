@@ -566,6 +566,309 @@ export class Orders {
         }
     }
 
+    /**
+     * List seats for an order
+     *
+     * @param {Paid.ListOrderSeatsRequest} request
+     * @param {Orders.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.orders.listOrderSeats({
+     *         id: "id"
+     *     })
+     */
+    public listOrderSeats(
+        request: Paid.ListOrderSeatsRequest,
+        requestOptions?: Orders.RequestOptions,
+    ): core.HttpResponsePromise<Paid.OrderSeatListResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__listOrderSeats(request, requestOptions));
+    }
+
+    private async __listOrderSeats(
+        request: Paid.ListOrderSeatsRequest,
+        requestOptions?: Orders.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.OrderSeatListResponse>> {
+        const { id, limit, offset, productExternalId, status } = request;
+        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
+        if (limit != null) {
+            _queryParams.limit = limit.toString();
+        }
+
+        if (offset != null) {
+            _queryParams.offset = offset.toString();
+        }
+
+        if (productExternalId != null) {
+            _queryParams.productExternalId = productExternalId;
+        }
+
+        if (status != null) {
+            _queryParams.status = status;
+        }
+
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `orders/${core.url.encodePathParam(id)}/seats`,
+            ),
+            method: "GET",
+            headers: _headers,
+            queryParameters: { ..._queryParams, ...requestOptions?.queryParams },
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.OrderSeatListResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /orders/{id}/seats.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Assign or unassign a single seat on an order
+     *
+     * @param {Paid.UpdateSeatAssignmentRequest} request
+     * @param {Orders.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.ConflictError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.orders.updateOrderSeatAssignment({
+     *         id: "id",
+     *         seatId: "seatId"
+     *     })
+     */
+    public updateOrderSeatAssignment(
+        request: Paid.UpdateSeatAssignmentRequest,
+        requestOptions?: Orders.RequestOptions,
+    ): core.HttpResponsePromise<Paid.OrderSeat> {
+        return core.HttpResponsePromise.fromPromise(this.__updateOrderSeatAssignment(request, requestOptions));
+    }
+
+    private async __updateOrderSeatAssignment(
+        request: Paid.UpdateSeatAssignmentRequest,
+        requestOptions?: Orders.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.OrderSeat>> {
+        const { id, seatId, ..._body } = request;
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `orders/${core.url.encodePathParam(id)}/seats/${core.url.encodePathParam(seatId)}`,
+            ),
+            method: "PUT",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: _body,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.OrderSeat, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 409:
+                    throw new Paid.ConflictError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling PUT /orders/{id}/seats/{seatId}.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Assign or unassign seats in batch for an order
+     *
+     * @param {Paid.BatchSeatAssignmentsRequest} request
+     * @param {Orders.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.ConflictError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.orders.batchOrderSeatAssignments({
+     *         id: "id",
+     *         assignments: [{
+     *                 seatId: "seatId"
+     *             }]
+     *     })
+     */
+    public batchOrderSeatAssignments(
+        request: Paid.BatchSeatAssignmentsRequest,
+        requestOptions?: Orders.RequestOptions,
+    ): core.HttpResponsePromise<Paid.BatchSeatAssignmentsResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__batchOrderSeatAssignments(request, requestOptions));
+    }
+
+    private async __batchOrderSeatAssignments(
+        request: Paid.BatchSeatAssignmentsRequest,
+        requestOptions?: Orders.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.BatchSeatAssignmentsResponse>> {
+        const { id, ..._body } = request;
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `orders/${core.url.encodePathParam(id)}/seat-assignments`,
+            ),
+            method: "POST",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: _body,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.BatchSeatAssignmentsResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 409:
+                    throw new Paid.ConflictError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /orders/{id}/seat-assignments.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
     protected async _getAuthorizationHeader(): Promise<string> {
         return `Bearer ${await core.Supplier.get(this._options.token)}`;
     }

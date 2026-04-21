@@ -1159,4 +1159,137 @@ describe("Customers", () => {
             });
         }).rejects.toThrow(Paid.InternalServerError);
     });
+
+    test("upsertCustomerUserByExternalId (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = {
+            id: "id",
+            externalId: "externalId",
+            customerExternalId: "customerExternalId",
+            name: "name",
+            email: "email",
+            metadata: { key: "value" },
+            status: "active",
+            created: true,
+            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
+        };
+        server
+            .mockEndpoint()
+            .put("/customers/customerExternalId/users/userExternalId")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.customers.upsertCustomerUserByExternalId({
+            customerExternalId: "customerExternalId",
+            userExternalId: "userExternalId",
+        });
+        expect(response).toEqual({
+            id: "id",
+            externalId: "externalId",
+            customerExternalId: "customerExternalId",
+            name: "name",
+            email: "email",
+            metadata: {
+                key: "value",
+            },
+            status: "active",
+            created: true,
+            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
+        });
+    });
+
+    test("upsertCustomerUserByExternalId (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .put("/customers/customerExternalId/users/userExternalId")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.upsertCustomerUserByExternalId({
+                customerExternalId: "customerExternalId",
+                userExternalId: "userExternalId",
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("upsertCustomerUserByExternalId (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .put("/customers/customerExternalId/users/userExternalId")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.upsertCustomerUserByExternalId({
+                customerExternalId: "customerExternalId",
+                userExternalId: "userExternalId",
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("upsertCustomerUserByExternalId (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .put("/customers/customerExternalId/users/userExternalId")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.upsertCustomerUserByExternalId({
+                customerExternalId: "customerExternalId",
+                userExternalId: "userExternalId",
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("upsertCustomerUserByExternalId (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .put("/customers/customerExternalId/users/userExternalId")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.upsertCustomerUserByExternalId({
+                customerExternalId: "customerExternalId",
+                userExternalId: "userExternalId",
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
 });

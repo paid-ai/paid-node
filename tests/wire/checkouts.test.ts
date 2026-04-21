@@ -309,6 +309,7 @@ describe("Checkouts", () => {
             allowedCurrencies: ["allowedCurrencies"],
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
+            orderId: "orderId",
         };
         server.mockEndpoint().get("/checkouts/id").respondWith().statusCode(200).jsonBody(rawResponseBody).build();
 
@@ -338,6 +339,7 @@ describe("Checkouts", () => {
             allowedCurrencies: ["allowedCurrencies"],
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
+            orderId: "orderId",
         });
     });
 

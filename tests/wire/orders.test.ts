@@ -679,4 +679,497 @@ describe("Orders", () => {
             });
         }).rejects.toThrow(Paid.InternalServerError);
     });
+
+    test("listOrderSeats (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = {
+            data: [
+                {
+                    id: "id",
+                    orderId: "orderId",
+                    productExternalId: "productExternalId",
+                    status: "assigned",
+                    assignee: { id: "id", externalId: "externalId", email: null },
+                    createdAt: "2024-01-15T09:30:00Z",
+                    updatedAt: "2024-01-15T09:30:00Z",
+                },
+            ],
+            pagination: { limit: 1, offset: 1, total: 1, hasMore: true },
+        };
+        server.mockEndpoint().get("/orders/id/seats").respondWith().statusCode(200).jsonBody(rawResponseBody).build();
+
+        const response = await client.orders.listOrderSeats({
+            id: "id",
+        });
+        expect(response).toEqual({
+            data: [
+                {
+                    id: "id",
+                    orderId: "orderId",
+                    productExternalId: "productExternalId",
+                    status: "assigned",
+                    assignee: {
+                        id: "id",
+                        externalId: "externalId",
+                        email: null,
+                    },
+                    createdAt: "2024-01-15T09:30:00Z",
+                    updatedAt: "2024-01-15T09:30:00Z",
+                },
+            ],
+            pagination: {
+                limit: 1,
+                offset: 1,
+                total: 1,
+                hasMore: true,
+            },
+        });
+    });
+
+    test("listOrderSeats (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: "error" };
+        server.mockEndpoint().get("/orders/id/seats").respondWith().statusCode(400).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.orders.listOrderSeats({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("listOrderSeats (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: "error" };
+        server.mockEndpoint().get("/orders/id/seats").respondWith().statusCode(403).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.orders.listOrderSeats({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("listOrderSeats (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: "error" };
+        server.mockEndpoint().get("/orders/id/seats").respondWith().statusCode(404).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.orders.listOrderSeats({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("listOrderSeats (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: "error" };
+        server.mockEndpoint().get("/orders/id/seats").respondWith().statusCode(500).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.orders.listOrderSeats({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("updateOrderSeatAssignment (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = {
+            id: "id",
+            orderId: "orderId",
+            productExternalId: "productExternalId",
+            status: "assigned",
+            assignee: { id: "id", externalId: "externalId", email: "email" },
+            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
+        };
+        server
+            .mockEndpoint()
+            .put("/orders/id/seats/seatId")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.orders.updateOrderSeatAssignment({
+            id: "id",
+            seatId: "seatId",
+        });
+        expect(response).toEqual({
+            id: "id",
+            orderId: "orderId",
+            productExternalId: "productExternalId",
+            status: "assigned",
+            assignee: {
+                id: "id",
+                externalId: "externalId",
+                email: "email",
+            },
+            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
+        });
+    });
+
+    test("updateOrderSeatAssignment (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { userExternalId: null };
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .put("/orders/id/seats/seatId")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.orders.updateOrderSeatAssignment({
+                id: "id",
+                seatId: "seatId",
+                userExternalId: null,
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("updateOrderSeatAssignment (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { userExternalId: null };
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .put("/orders/id/seats/seatId")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.orders.updateOrderSeatAssignment({
+                id: "id",
+                seatId: "seatId",
+                userExternalId: null,
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("updateOrderSeatAssignment (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { userExternalId: null };
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .put("/orders/id/seats/seatId")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.orders.updateOrderSeatAssignment({
+                id: "id",
+                seatId: "seatId",
+                userExternalId: null,
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("updateOrderSeatAssignment (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { userExternalId: null };
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .put("/orders/id/seats/seatId")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(409)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.orders.updateOrderSeatAssignment({
+                id: "id",
+                seatId: "seatId",
+                userExternalId: null,
+            });
+        }).rejects.toThrow(Paid.ConflictError);
+    });
+
+    test("updateOrderSeatAssignment (6)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { userExternalId: null };
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .put("/orders/id/seats/seatId")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.orders.updateOrderSeatAssignment({
+                id: "id",
+                seatId: "seatId",
+                userExternalId: null,
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("batchOrderSeatAssignments (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { assignments: [{ seatId: "seatId" }] };
+        const rawResponseBody = {
+            data: [
+                {
+                    id: "id",
+                    orderId: "orderId",
+                    productExternalId: "productExternalId",
+                    status: "assigned",
+                    assignee: { id: "id", externalId: "externalId", email: null },
+                    createdAt: "2024-01-15T09:30:00Z",
+                    updatedAt: "2024-01-15T09:30:00Z",
+                },
+            ],
+        };
+        server
+            .mockEndpoint()
+            .post("/orders/id/seat-assignments")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.orders.batchOrderSeatAssignments({
+            id: "id",
+            assignments: [
+                {
+                    seatId: "seatId",
+                },
+            ],
+        });
+        expect(response).toEqual({
+            data: [
+                {
+                    id: "id",
+                    orderId: "orderId",
+                    productExternalId: "productExternalId",
+                    status: "assigned",
+                    assignee: {
+                        id: "id",
+                        externalId: "externalId",
+                        email: null,
+                    },
+                    createdAt: "2024-01-15T09:30:00Z",
+                    updatedAt: "2024-01-15T09:30:00Z",
+                },
+            ],
+        });
+    });
+
+    test("batchOrderSeatAssignments (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {
+            assignments: [
+                { seatId: "x", userExternalId: null },
+                { seatId: "x", userExternalId: null },
+            ],
+        };
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .post("/orders/id/seat-assignments")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.orders.batchOrderSeatAssignments({
+                id: "id",
+                assignments: [
+                    {
+                        seatId: "x",
+                        userExternalId: null,
+                    },
+                    {
+                        seatId: "x",
+                        userExternalId: null,
+                    },
+                ],
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("batchOrderSeatAssignments (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {
+            assignments: [
+                { seatId: "x", userExternalId: null },
+                { seatId: "x", userExternalId: null },
+            ],
+        };
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .post("/orders/id/seat-assignments")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.orders.batchOrderSeatAssignments({
+                id: "id",
+                assignments: [
+                    {
+                        seatId: "x",
+                        userExternalId: null,
+                    },
+                    {
+                        seatId: "x",
+                        userExternalId: null,
+                    },
+                ],
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("batchOrderSeatAssignments (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {
+            assignments: [
+                { seatId: "x", userExternalId: null },
+                { seatId: "x", userExternalId: null },
+            ],
+        };
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .post("/orders/id/seat-assignments")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.orders.batchOrderSeatAssignments({
+                id: "id",
+                assignments: [
+                    {
+                        seatId: "x",
+                        userExternalId: null,
+                    },
+                    {
+                        seatId: "x",
+                        userExternalId: null,
+                    },
+                ],
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("batchOrderSeatAssignments (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {
+            assignments: [
+                { seatId: "x", userExternalId: null },
+                { seatId: "x", userExternalId: null },
+            ],
+        };
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .post("/orders/id/seat-assignments")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(409)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.orders.batchOrderSeatAssignments({
+                id: "id",
+                assignments: [
+                    {
+                        seatId: "x",
+                        userExternalId: null,
+                    },
+                    {
+                        seatId: "x",
+                        userExternalId: null,
+                    },
+                ],
+            });
+        }).rejects.toThrow(Paid.ConflictError);
+    });
+
+    test("batchOrderSeatAssignments (6)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {
+            assignments: [
+                { seatId: "x", userExternalId: null },
+                { seatId: "x", userExternalId: null },
+            ],
+        };
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .post("/orders/id/seat-assignments")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.orders.batchOrderSeatAssignments({
+                id: "id",
+                assignments: [
+                    {
+                        seatId: "x",
+                        userExternalId: null,
+                    },
+                    {
+                        seatId: "x",
+                        userExternalId: null,
+                    },
+                ],
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
 });
