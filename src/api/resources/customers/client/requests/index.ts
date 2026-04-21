@@ -8,3 +8,4 @@ export type { GetCustomerCreditBalancesRequest } from "./GetCustomerCreditBalanc
 export type { ListCustomersRequest } from "./ListCustomersRequest.js";
 export type { UpdateCustomerByExternalIdRequest } from "./UpdateCustomerByExternalIdRequest.js";
 export type { UpdateCustomerByIdRequest } from "./UpdateCustomerByIdRequest.js";
+export type { UpsertCustomerUserRequest } from "./UpsertCustomerUserRequest.js";
