@@ -7,57 +7,37 @@ import * as environments from "../../../../environments.js";
 import * as errors from "../../../../errors/index.js";
 import * as Paid from "../../../index.js";
 
-export declare namespace Checkouts {
+export declare namespace Webhooks {
     export interface Options extends BaseClientOptions {}
 
     export interface RequestOptions extends BaseRequestOptions {}
 }
 
-export class Checkouts {
-    protected readonly _options: Checkouts.Options;
+export class Webhooks {
+    protected readonly _options: Webhooks.Options;
 
-    constructor(_options: Checkouts.Options) {
+    constructor(_options: Webhooks.Options) {
         this._options = _options;
     }
 
     /**
-     * Get a list of checkouts for the organization
+     * List customer-facing billing webhooks for the authenticated organization.
      *
-     * @param {Paid.ListCheckoutsRequest} request
-     * @param {Checkouts.RequestOptions} requestOptions - Request-specific configuration.
+     * @param {Webhooks.RequestOptions} requestOptions - Request-specific configuration.
      *
-     * @throws {@link Paid.BadRequestError}
      * @throws {@link Paid.ForbiddenError}
      * @throws {@link Paid.InternalServerError}
      *
      * @example
-     *     await client.checkouts.listCheckouts()
+     *     await client.webhooks.listWebhooks()
      */
-    public listCheckouts(
-        request: Paid.ListCheckoutsRequest = {},
-        requestOptions?: Checkouts.RequestOptions,
-    ): core.HttpResponsePromise<Paid.CheckoutListResponse> {
-        return core.HttpResponsePromise.fromPromise(this.__listCheckouts(request, requestOptions));
+    public listWebhooks(requestOptions?: Webhooks.RequestOptions): core.HttpResponsePromise<Paid.WebhookListResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__listWebhooks(requestOptions));
     }
 
-    private async __listCheckouts(
-        request: Paid.ListCheckoutsRequest = {},
-        requestOptions?: Checkouts.RequestOptions,
-    ): Promise<core.WithRawResponse<Paid.CheckoutListResponse>> {
-        const { limit, offset, status } = request;
-        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
-        if (limit != null) {
-            _queryParams.limit = limit.toString();
-        }
-
-        if (offset != null) {
-            _queryParams.offset = offset.toString();
-        }
-
-        if (status != null) {
-            _queryParams.status = status;
-        }
-
+    private async __listWebhooks(
+        requestOptions?: Webhooks.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.WebhookListResponse>> {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             this._options?.headers,
             mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
@@ -68,23 +48,21 @@ export class Checkouts {
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
                     environments.PaidEnvironment.Default,
-                "checkouts/",
+                "webhooks/",
             ),
             method: "GET",
             headers: _headers,
-            queryParameters: { ..._queryParams, ...requestOptions?.queryParams },
+            queryParameters: requestOptions?.queryParams,
             timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
             maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return { data: _response.body as Paid.CheckoutListResponse, rawResponse: _response.rawResponse };
+            return { data: _response.body as Paid.WebhookListResponse, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
-                case 400:
-                    throw new Paid.BadRequestError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
                 case 403:
                     throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
                 case 500:
@@ -109,7 +87,7 @@ export class Checkouts {
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /checkouts/.");
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /webhooks/.");
             case "unknown":
                 throw new errors.PaidError({
                     message: _response.error.errorMessage,
@@ -119,10 +97,10 @@ export class Checkouts {
     }
 
     /**
-     * Creates a checkout link that generates a URL for a customer to complete a purchase
+     * Enable or disable a webhook and configure the destination URL for the authenticated organization.
      *
-     * @param {Paid.CreateCheckoutRequest} request
-     * @param {Checkouts.RequestOptions} requestOptions - Request-specific configuration.
+     * @param {Paid.UpdateWebhookRequest} request
+     * @param {Webhooks.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @throws {@link Paid.BadRequestError}
      * @throws {@link Paid.ForbiddenError}
@@ -130,24 +108,22 @@ export class Checkouts {
      * @throws {@link Paid.InternalServerError}
      *
      * @example
-     *     await client.checkouts.createCheckout({
-     *         products: [{
-     *                 id: "id"
-     *             }],
-     *         successUrl: "successUrl"
+     *     await client.webhooks.updateWebhook({
+     *         webhookName: "billing-invoice-created"
      *     })
      */
-    public createCheckout(
-        request: Paid.CreateCheckoutRequest,
-        requestOptions?: Checkouts.RequestOptions,
-    ): core.HttpResponsePromise<Paid.Checkout> {
-        return core.HttpResponsePromise.fromPromise(this.__createCheckout(request, requestOptions));
+    public updateWebhook(
+        request: Paid.UpdateWebhookRequest,
+        requestOptions?: Webhooks.RequestOptions,
+    ): core.HttpResponsePromise<Paid.Webhook> {
+        return core.HttpResponsePromise.fromPromise(this.__updateWebhook(request, requestOptions));
     }
 
-    private async __createCheckout(
-        request: Paid.CreateCheckoutRequest,
-        requestOptions?: Checkouts.RequestOptions,
-    ): Promise<core.WithRawResponse<Paid.Checkout>> {
+    private async __updateWebhook(
+        request: Paid.UpdateWebhookRequest,
+        requestOptions?: Webhooks.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.Webhook>> {
+        const { webhookName, ..._body } = request;
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             this._options?.headers,
             mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
@@ -158,20 +134,113 @@ export class Checkouts {
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
                     environments.PaidEnvironment.Default,
-                "checkouts/",
+                `webhooks/${core.url.encodePathParam(webhookName)}`,
+            ),
+            method: "PATCH",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: _body,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.Webhook, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling PATCH /webhooks/{webhookName}.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Send a synthetic webhook delivery to the configured destination for this webhook.
+     *
+     * @param {Paid.TestWebhookRequest} request
+     * @param {Webhooks.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.webhooks.testWebhook({
+     *         webhookName: "billing-invoice-created"
+     *     })
+     */
+    public testWebhook(
+        request: Paid.TestWebhookRequest,
+        requestOptions?: Webhooks.RequestOptions,
+    ): core.HttpResponsePromise<Paid.WebhookTestResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__testWebhook(request, requestOptions));
+    }
+
+    private async __testWebhook(
+        request: Paid.TestWebhookRequest,
+        requestOptions?: Webhooks.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.WebhookTestResponse>> {
+        const { webhookName, ..._body } = request;
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `webhooks/${core.url.encodePathParam(webhookName)}/test`,
             ),
             method: "POST",
             headers: _headers,
             contentType: "application/json",
             queryParameters: requestOptions?.queryParams,
             requestType: "json",
-            body: request,
+            body: _body,
             timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
             maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return { data: _response.body as Paid.Checkout, rawResponse: _response.rawResponse };
+            return { data: _response.body as Paid.WebhookTestResponse, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
@@ -204,181 +273,7 @@ export class Checkouts {
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /checkouts/.");
-            case "unknown":
-                throw new errors.PaidError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
-    }
-
-    /**
-     * Get a checkout by ID
-     *
-     * @param {Paid.GetCheckoutRequest} request
-     * @param {Checkouts.RequestOptions} requestOptions - Request-specific configuration.
-     *
-     * @throws {@link Paid.ForbiddenError}
-     * @throws {@link Paid.NotFoundError}
-     * @throws {@link Paid.InternalServerError}
-     *
-     * @example
-     *     await client.checkouts.getCheckout({
-     *         id: "id"
-     *     })
-     */
-    public getCheckout(
-        request: Paid.GetCheckoutRequest,
-        requestOptions?: Checkouts.RequestOptions,
-    ): core.HttpResponsePromise<Paid.CheckoutDetails> {
-        return core.HttpResponsePromise.fromPromise(this.__getCheckout(request, requestOptions));
-    }
-
-    private async __getCheckout(
-        request: Paid.GetCheckoutRequest,
-        requestOptions?: Checkouts.RequestOptions,
-    ): Promise<core.WithRawResponse<Paid.CheckoutDetails>> {
-        const { id } = request;
-        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
-            this._options?.headers,
-            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
-            requestOptions?.headers,
-        );
-        const _response = await core.fetcher({
-            url: core.url.join(
-                (await core.Supplier.get(this._options.baseUrl)) ??
-                    (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidEnvironment.Default,
-                `checkouts/${core.url.encodePathParam(id)}`,
-            ),
-            method: "GET",
-            headers: _headers,
-            queryParameters: requestOptions?.queryParams,
-            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
-            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
-            abortSignal: requestOptions?.abortSignal,
-        });
-        if (_response.ok) {
-            return { data: _response.body as Paid.CheckoutDetails, rawResponse: _response.rawResponse };
-        }
-
-        if (_response.error.reason === "status-code") {
-            switch (_response.error.statusCode) {
-                case 403:
-                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
-                case 404:
-                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
-                case 500:
-                    throw new Paid.InternalServerError(
-                        _response.error.body as Paid.ErrorResponse,
-                        _response.rawResponse,
-                    );
-                default:
-                    throw new errors.PaidError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
-                        rawResponse: _response.rawResponse,
-                    });
-            }
-        }
-
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.PaidError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /checkouts/{id}.");
-            case "unknown":
-                throw new errors.PaidError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
-    }
-
-    /**
-     * Archive a checkout by ID
-     *
-     * @param {Paid.ArchiveCheckoutRequest} request
-     * @param {Checkouts.RequestOptions} requestOptions - Request-specific configuration.
-     *
-     * @throws {@link Paid.ForbiddenError}
-     * @throws {@link Paid.NotFoundError}
-     * @throws {@link Paid.InternalServerError}
-     *
-     * @example
-     *     await client.checkouts.archiveCheckout({
-     *         id: "id"
-     *     })
-     */
-    public archiveCheckout(
-        request: Paid.ArchiveCheckoutRequest,
-        requestOptions?: Checkouts.RequestOptions,
-    ): core.HttpResponsePromise<Paid.EmptyResponse> {
-        return core.HttpResponsePromise.fromPromise(this.__archiveCheckout(request, requestOptions));
-    }
-
-    private async __archiveCheckout(
-        request: Paid.ArchiveCheckoutRequest,
-        requestOptions?: Checkouts.RequestOptions,
-    ): Promise<core.WithRawResponse<Paid.EmptyResponse>> {
-        const { id } = request;
-        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
-            this._options?.headers,
-            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
-            requestOptions?.headers,
-        );
-        const _response = await core.fetcher({
-            url: core.url.join(
-                (await core.Supplier.get(this._options.baseUrl)) ??
-                    (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidEnvironment.Default,
-                `checkouts/${core.url.encodePathParam(id)}`,
-            ),
-            method: "DELETE",
-            headers: _headers,
-            queryParameters: requestOptions?.queryParams,
-            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
-            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
-            abortSignal: requestOptions?.abortSignal,
-        });
-        if (_response.ok) {
-            return { data: _response.body as Paid.EmptyResponse, rawResponse: _response.rawResponse };
-        }
-
-        if (_response.error.reason === "status-code") {
-            switch (_response.error.statusCode) {
-                case 403:
-                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
-                case 404:
-                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
-                case 500:
-                    throw new Paid.InternalServerError(
-                        _response.error.body as Paid.ErrorResponse,
-                        _response.rawResponse,
-                    );
-                default:
-                    throw new errors.PaidError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
-                        rawResponse: _response.rawResponse,
-                    });
-            }
-        }
-
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.PaidError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.PaidTimeoutError("Timeout exceeded when calling DELETE /checkouts/{id}.");
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /webhooks/{webhookName}/test.");
             case "unknown":
                 throw new errors.PaidError({
                     message: _response.error.errorMessage,
