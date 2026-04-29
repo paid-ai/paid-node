@@ -10,10 +10,12 @@ export interface ValueReceiptDetail {
     customerName: string | null;
     customerExternalId: string | null;
     orderId: string | null;
+    productId: string | null;
     currency: string;
     startDate: string | null;
     endDate: string | null;
     totalDeliveredValue: number | null;
+    archivedAt: string | null;
     createdAt: string;
     publishedAt: string | null;
     publishExpiresAt: string | null;

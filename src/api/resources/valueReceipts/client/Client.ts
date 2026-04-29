@@ -21,6 +21,96 @@ export class ValueReceipts {
     }
 
     /**
+     * Find or create a value receipt by natural key (customer + product/order + dates), then populate it with current data inline. Returns the ID, status, and public URL. Posted (sealed) VRs are returned as-is without re-populating.
+     *
+     * @param {Paid.SyncValueReceiptRequest} request
+     * @param {ValueReceipts.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.valueReceipts.syncValueReceipt({
+     *         startDate: "2024-01-15T09:30:00Z",
+     *         endDate: "2024-01-15T09:30:00Z"
+     *     })
+     */
+    public syncValueReceipt(
+        request: Paid.SyncValueReceiptRequest,
+        requestOptions?: ValueReceipts.RequestOptions,
+    ): core.HttpResponsePromise<Paid.ValueReceiptSyncResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__syncValueReceipt(request, requestOptions));
+    }
+
+    private async __syncValueReceipt(
+        request: Paid.SyncValueReceiptRequest,
+        requestOptions?: ValueReceipts.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.ValueReceiptSyncResponse>> {
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                "value-receipts/sync",
+            ),
+            method: "POST",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: request,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.ValueReceiptSyncResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /value-receipts/sync.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
      * List value receipts for the organization
      *
      * @param {Paid.ListValueReceiptsRequest} request
@@ -42,7 +132,7 @@ export class ValueReceipts {
         request: Paid.ListValueReceiptsRequest = {},
         requestOptions?: ValueReceipts.RequestOptions,
     ): Promise<core.WithRawResponse<Paid.ValueReceiptListResponse>> {
-        const { limit, offset, customerId, orderId } = request;
+        const { limit, offset, customerId, externalCustomerId, orderId, productId, archived } = request;
         const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
         if (limit != null) {
             _queryParams.limit = limit.toString();
@@ -56,8 +146,20 @@ export class ValueReceipts {
             _queryParams.customerId = customerId;
         }
 
+        if (externalCustomerId != null) {
+            _queryParams.externalCustomerId = externalCustomerId;
+        }
+
         if (orderId != null) {
             _queryParams.orderId = orderId;
+        }
+
+        if (productId != null) {
+            _queryParams.productId = productId;
+        }
+
+        if (archived != null) {
+            _queryParams.archived = archived;
         }
 
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
@@ -192,6 +294,363 @@ export class ValueReceipts {
                 });
             case "timeout":
                 throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /value-receipts/{id}.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Re-populate an existing draft value receipt with current data inline. Returns the slim sync response. Sealed VRs cannot be refreshed.
+     *
+     * @param {Paid.RefreshValueReceiptRequest} request
+     * @param {ValueReceipts.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.ConflictError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.valueReceipts.refreshValueReceipt({
+     *         id: "id"
+     *     })
+     */
+    public refreshValueReceipt(
+        request: Paid.RefreshValueReceiptRequest,
+        requestOptions?: ValueReceipts.RequestOptions,
+    ): core.HttpResponsePromise<Paid.ValueReceiptSyncResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__refreshValueReceipt(request, requestOptions));
+    }
+
+    private async __refreshValueReceipt(
+        request: Paid.RefreshValueReceiptRequest,
+        requestOptions?: ValueReceipts.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.ValueReceiptSyncResponse>> {
+        const { id, ..._body } = request;
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `value-receipts/${core.url.encodePathParam(id)}/refresh`,
+            ),
+            method: "POST",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: _body,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.ValueReceiptSyncResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 409:
+                    throw new Paid.ConflictError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /value-receipts/{id}/refresh.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Transition a draft value receipt to sealed (posted) status. Sealed VRs are immutable — they cannot be updated or re-populated.
+     *
+     * @param {Paid.SealValueReceiptRequest} request
+     * @param {ValueReceipts.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.ConflictError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.valueReceipts.sealValueReceipt({
+     *         id: "id"
+     *     })
+     */
+    public sealValueReceipt(
+        request: Paid.SealValueReceiptRequest,
+        requestOptions?: ValueReceipts.RequestOptions,
+    ): core.HttpResponsePromise<Paid.SuccessResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__sealValueReceipt(request, requestOptions));
+    }
+
+    private async __sealValueReceipt(
+        request: Paid.SealValueReceiptRequest,
+        requestOptions?: ValueReceipts.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.SuccessResponse>> {
+        const { id, ..._body } = request;
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `value-receipts/${core.url.encodePathParam(id)}/seal`,
+            ),
+            method: "POST",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: _body,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.SuccessResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 409:
+                    throw new Paid.ConflictError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /value-receipts/{id}/seal.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Soft-archive a value receipt. Archived VRs are hidden from list by default.
+     *
+     * @param {Paid.ArchiveValueReceiptRequest} request
+     * @param {ValueReceipts.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.valueReceipts.archiveValueReceipt({
+     *         id: "id"
+     *     })
+     */
+    public archiveValueReceipt(
+        request: Paid.ArchiveValueReceiptRequest,
+        requestOptions?: ValueReceipts.RequestOptions,
+    ): core.HttpResponsePromise<Paid.SuccessResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__archiveValueReceipt(request, requestOptions));
+    }
+
+    private async __archiveValueReceipt(
+        request: Paid.ArchiveValueReceiptRequest,
+        requestOptions?: ValueReceipts.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.SuccessResponse>> {
+        const { id, ..._body } = request;
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `value-receipts/${core.url.encodePathParam(id)}/archive`,
+            ),
+            method: "POST",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: _body,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.SuccessResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /value-receipts/{id}/archive.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Restore an archived value receipt.
+     *
+     * @param {Paid.UnarchiveValueReceiptRequest} request
+     * @param {ValueReceipts.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.valueReceipts.unarchiveValueReceipt({
+     *         id: "id"
+     *     })
+     */
+    public unarchiveValueReceipt(
+        request: Paid.UnarchiveValueReceiptRequest,
+        requestOptions?: ValueReceipts.RequestOptions,
+    ): core.HttpResponsePromise<Paid.SuccessResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__unarchiveValueReceipt(request, requestOptions));
+    }
+
+    private async __unarchiveValueReceipt(
+        request: Paid.UnarchiveValueReceiptRequest,
+        requestOptions?: ValueReceipts.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.SuccessResponse>> {
+        const { id, ..._body } = request;
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `value-receipts/${core.url.encodePathParam(id)}/unarchive`,
+            ),
+            method: "POST",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: _body,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.SuccessResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /value-receipts/{id}/unarchive.");
             case "unknown":
                 throw new errors.PaidError({
                     message: _response.error.errorMessage,
