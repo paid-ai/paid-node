@@ -5,6 +5,103 @@ import { PaidClient } from "../../src/Client";
 import { mockServerPool } from "../mock-server/MockServerPool";
 
 describe("ValueReceipts", () => {
+    test("syncValueReceipt (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { startDate: "2024-01-15T09:30:00Z", endDate: "2024-01-15T09:30:00Z" };
+        const rawResponseBody = {
+            id: "id",
+            status: "status",
+            publicUrlToken: "publicUrlToken",
+            publicUrl: "publicUrl",
+        };
+        server
+            .mockEndpoint()
+            .post("/value-receipts/sync")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.valueReceipts.syncValueReceipt({
+            startDate: "2024-01-15T09:30:00Z",
+            endDate: "2024-01-15T09:30:00Z",
+        });
+        expect(response).toEqual({
+            id: "id",
+            status: "status",
+            publicUrlToken: "publicUrlToken",
+            publicUrl: "publicUrl",
+        });
+    });
+
+    test("syncValueReceipt (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { startDate: "2024-01-15T09:30:00Z", endDate: "2024-01-15T09:30:00Z" };
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .post("/value-receipts/sync")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.valueReceipts.syncValueReceipt({
+                startDate: "2024-01-15T09:30:00Z",
+                endDate: "2024-01-15T09:30:00Z",
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("syncValueReceipt (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { startDate: "2024-01-15T09:30:00Z", endDate: "2024-01-15T09:30:00Z" };
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .post("/value-receipts/sync")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.valueReceipts.syncValueReceipt({
+                startDate: "2024-01-15T09:30:00Z",
+                endDate: "2024-01-15T09:30:00Z",
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("syncValueReceipt (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { startDate: "2024-01-15T09:30:00Z", endDate: "2024-01-15T09:30:00Z" };
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .post("/value-receipts/sync")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.valueReceipts.syncValueReceipt({
+                startDate: "2024-01-15T09:30:00Z",
+                endDate: "2024-01-15T09:30:00Z",
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
     test("listValueReceipts (1)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
@@ -21,10 +118,12 @@ describe("ValueReceipts", () => {
                     customerName: "customerName",
                     customerExternalId: "customerExternalId",
                     orderId: "orderId",
+                    productId: "productId",
                     currency: "currency",
                     startDate: "2024-01-15T09:30:00Z",
                     endDate: "2024-01-15T09:30:00Z",
                     totalDeliveredValue: 1.1,
+                    archivedAt: "2024-01-15T09:30:00Z",
                     createdAt: "2024-01-15T09:30:00Z",
                 },
             ],
@@ -45,10 +144,12 @@ describe("ValueReceipts", () => {
                     customerName: "customerName",
                     customerExternalId: "customerExternalId",
                     orderId: "orderId",
+                    productId: "productId",
                     currency: "currency",
                     startDate: "2024-01-15T09:30:00Z",
                     endDate: "2024-01-15T09:30:00Z",
                     totalDeliveredValue: 1.1,
+                    archivedAt: "2024-01-15T09:30:00Z",
                     createdAt: "2024-01-15T09:30:00Z",
                 },
             ],
@@ -82,10 +183,12 @@ describe("ValueReceipts", () => {
             customerName: "customerName",
             customerExternalId: "customerExternalId",
             orderId: "orderId",
+            productId: "productId",
             currency: "currency",
             startDate: "2024-01-15T09:30:00Z",
             endDate: "2024-01-15T09:30:00Z",
             totalDeliveredValue: 1.1,
+            archivedAt: "2024-01-15T09:30:00Z",
             createdAt: "2024-01-15T09:30:00Z",
             publishedAt: "2024-01-15T09:30:00Z",
             publishExpiresAt: "2024-01-15T09:30:00Z",
@@ -106,10 +209,12 @@ describe("ValueReceipts", () => {
             customerName: "customerName",
             customerExternalId: "customerExternalId",
             orderId: "orderId",
+            productId: "productId",
             currency: "currency",
             startDate: "2024-01-15T09:30:00Z",
             endDate: "2024-01-15T09:30:00Z",
             totalDeliveredValue: 1.1,
+            archivedAt: "2024-01-15T09:30:00Z",
             createdAt: "2024-01-15T09:30:00Z",
             publishedAt: "2024-01-15T09:30:00Z",
             publishExpiresAt: "2024-01-15T09:30:00Z",
@@ -145,6 +250,333 @@ describe("ValueReceipts", () => {
         }).rejects.toThrow(Paid.InternalServerError);
     });
 
+    test("refreshValueReceipt (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = {
+            id: "id",
+            status: "status",
+            publicUrlToken: "publicUrlToken",
+            publicUrl: "publicUrl",
+        };
+        server
+            .mockEndpoint()
+            .post("/value-receipts/id/refresh")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.valueReceipts.refreshValueReceipt({
+            id: "id",
+        });
+        expect(response).toEqual({
+            id: "id",
+            status: "status",
+            publicUrlToken: "publicUrlToken",
+            publicUrl: "publicUrl",
+        });
+    });
+
+    test("refreshValueReceipt (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .post("/value-receipts/id/refresh")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.valueReceipts.refreshValueReceipt({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("refreshValueReceipt (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .post("/value-receipts/id/refresh")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.valueReceipts.refreshValueReceipt({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("refreshValueReceipt (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .post("/value-receipts/id/refresh")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(409)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.valueReceipts.refreshValueReceipt({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.ConflictError);
+    });
+
+    test("refreshValueReceipt (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .post("/value-receipts/id/refresh")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.valueReceipts.refreshValueReceipt({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("sealValueReceipt (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { success: true };
+        server
+            .mockEndpoint()
+            .post("/value-receipts/id/seal")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.valueReceipts.sealValueReceipt({
+            id: "id",
+        });
+        expect(response).toEqual({
+            success: true,
+        });
+    });
+
+    test("sealValueReceipt (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .post("/value-receipts/id/seal")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.valueReceipts.sealValueReceipt({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("sealValueReceipt (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .post("/value-receipts/id/seal")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(409)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.valueReceipts.sealValueReceipt({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.ConflictError);
+    });
+
+    test("sealValueReceipt (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .post("/value-receipts/id/seal")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.valueReceipts.sealValueReceipt({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("archiveValueReceipt (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { success: true };
+        server
+            .mockEndpoint()
+            .post("/value-receipts/id/archive")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.valueReceipts.archiveValueReceipt({
+            id: "id",
+        });
+        expect(response).toEqual({
+            success: true,
+        });
+    });
+
+    test("archiveValueReceipt (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .post("/value-receipts/id/archive")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.valueReceipts.archiveValueReceipt({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("archiveValueReceipt (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .post("/value-receipts/id/archive")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.valueReceipts.archiveValueReceipt({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("unarchiveValueReceipt (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { success: true };
+        server
+            .mockEndpoint()
+            .post("/value-receipts/id/unarchive")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.valueReceipts.unarchiveValueReceipt({
+            id: "id",
+        });
+        expect(response).toEqual({
+            success: true,
+        });
+    });
+
+    test("unarchiveValueReceipt (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .post("/value-receipts/id/unarchive")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.valueReceipts.unarchiveValueReceipt({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("unarchiveValueReceipt (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .post("/value-receipts/id/unarchive")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.valueReceipts.unarchiveValueReceipt({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
     test("publishValueReceipt (1)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
@@ -159,10 +591,12 @@ describe("ValueReceipts", () => {
             customerName: "customerName",
             customerExternalId: "customerExternalId",
             orderId: "orderId",
+            productId: "productId",
             currency: "currency",
             startDate: "2024-01-15T09:30:00Z",
             endDate: "2024-01-15T09:30:00Z",
             totalDeliveredValue: 1.1,
+            archivedAt: "2024-01-15T09:30:00Z",
             createdAt: "2024-01-15T09:30:00Z",
             publishedAt: "2024-01-15T09:30:00Z",
             publishExpiresAt: "2024-01-15T09:30:00Z",
@@ -190,10 +624,12 @@ describe("ValueReceipts", () => {
             customerName: "customerName",
             customerExternalId: "customerExternalId",
             orderId: "orderId",
+            productId: "productId",
             currency: "currency",
             startDate: "2024-01-15T09:30:00Z",
             endDate: "2024-01-15T09:30:00Z",
             totalDeliveredValue: 1.1,
+            archivedAt: "2024-01-15T09:30:00Z",
             createdAt: "2024-01-15T09:30:00Z",
             publishedAt: "2024-01-15T09:30:00Z",
             publishExpiresAt: "2024-01-15T09:30:00Z",
@@ -257,10 +693,12 @@ describe("ValueReceipts", () => {
             customerName: "customerName",
             customerExternalId: "customerExternalId",
             orderId: "orderId",
+            productId: "productId",
             currency: "currency",
             startDate: "2024-01-15T09:30:00Z",
             endDate: "2024-01-15T09:30:00Z",
             totalDeliveredValue: 1.1,
+            archivedAt: "2024-01-15T09:30:00Z",
             createdAt: "2024-01-15T09:30:00Z",
             publishedAt: "2024-01-15T09:30:00Z",
             publishExpiresAt: "2024-01-15T09:30:00Z",
@@ -288,10 +726,12 @@ describe("ValueReceipts", () => {
             customerName: "customerName",
             customerExternalId: "customerExternalId",
             orderId: "orderId",
+            productId: "productId",
             currency: "currency",
             startDate: "2024-01-15T09:30:00Z",
             endDate: "2024-01-15T09:30:00Z",
             totalDeliveredValue: 1.1,
+            archivedAt: "2024-01-15T09:30:00Z",
             createdAt: "2024-01-15T09:30:00Z",
             publishedAt: "2024-01-15T09:30:00Z",
             publishExpiresAt: "2024-01-15T09:30:00Z",

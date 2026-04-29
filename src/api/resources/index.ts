@@ -19,6 +19,7 @@ export * from "./signals/client/requests/index.js";
 export * as signals from "./signals/index.js";
 export * from "./valueReceipts/client/requests/index.js";
 export * as valueReceipts from "./valueReceipts/index.js";
+export * from "./valueReceipts/types/index.js";
 export * from "./webhooks/client/requests/index.js";
 export * as webhooks from "./webhooks/index.js";
 export * from "./webhooks/types/index.js";
