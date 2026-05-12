@@ -959,6 +959,19 @@ describe("Customers", () => {
                     periodEnd: "2024-01-15T09:30:00Z",
                     rolloverEndDate: "2024-01-15T09:30:00Z",
                     recipient: "organization",
+                    grants: [
+                        {
+                            available: 1.1,
+                            used: 1.1,
+                            total: 1.1,
+                            rolloverAmount: null,
+                            periodStart: "2024-01-15T09:30:00Z",
+                            periodEnd: null,
+                            rolloverEndDate: null,
+                            expiresAt: null,
+                            isInRolloverWindow: true,
+                        },
+                    ],
                 },
             ],
         };
@@ -986,6 +999,19 @@ describe("Customers", () => {
                     periodEnd: "2024-01-15T09:30:00Z",
                     rolloverEndDate: "2024-01-15T09:30:00Z",
                     recipient: "organization",
+                    grants: [
+                        {
+                            available: 1.1,
+                            used: 1.1,
+                            total: 1.1,
+                            rolloverAmount: null,
+                            periodStart: "2024-01-15T09:30:00Z",
+                            periodEnd: null,
+                            rolloverEndDate: null,
+                            expiresAt: null,
+                            isInRolloverWindow: true,
+                        },
+                    ],
                 },
             ],
         });
@@ -1068,6 +1094,19 @@ describe("Customers", () => {
                     periodEnd: "2024-01-15T09:30:00Z",
                     rolloverEndDate: "2024-01-15T09:30:00Z",
                     recipient: "organization",
+                    grants: [
+                        {
+                            available: 1.1,
+                            used: 1.1,
+                            total: 1.1,
+                            rolloverAmount: null,
+                            periodStart: "2024-01-15T09:30:00Z",
+                            periodEnd: null,
+                            rolloverEndDate: null,
+                            expiresAt: null,
+                            isInRolloverWindow: true,
+                        },
+                    ],
                 },
             ],
         };
@@ -1095,6 +1134,19 @@ describe("Customers", () => {
                     periodEnd: "2024-01-15T09:30:00Z",
                     rolloverEndDate: "2024-01-15T09:30:00Z",
                     recipient: "organization",
+                    grants: [
+                        {
+                            available: 1.1,
+                            used: 1.1,
+                            total: 1.1,
+                            rolloverAmount: null,
+                            periodStart: "2024-01-15T09:30:00Z",
+                            periodEnd: null,
+                            rolloverEndDate: null,
+                            expiresAt: null,
+                            isInRolloverWindow: true,
+                        },
+                    ],
                 },
             ],
         });

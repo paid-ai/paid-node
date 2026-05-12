@@ -30,4 +30,6 @@ export interface Order {
     autoSendBillingEmails: boolean | null;
     autoSendPaymentEmails: boolean | null;
     version: number;
+    billingFrequencyOverridden: boolean;
+    billingFrequencyOverride?: Paid.OrderBillingFrequencyOverride;
 }
