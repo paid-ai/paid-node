@@ -4,8 +4,8 @@ import * as Paid from "../../src/api/index";
 import { PaidClient } from "../../src/Client";
 import { mockServerPool } from "../mock-server/MockServerPool";
 
-describe("Cost", () => {
-    test("ingestCost (1)", async () => {
+describe("Costs", () => {
+    test("createCosts (1)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {
@@ -14,14 +14,14 @@ describe("Cost", () => {
         const rawResponseBody = { ingested: 1, duplicates: 1 };
         server
             .mockEndpoint()
-            .post("/cost/")
+            .post("/cost/bulk")
             .jsonBody(rawRequestBody)
             .respondWith()
             .statusCode(200)
             .jsonBody(rawResponseBody)
             .build();
 
-        const response = await client.cost.ingestCost({
+        const response = await client.costs.createCosts({
             costs: [
                 {
                     type: "cost",
@@ -39,7 +39,7 @@ describe("Cost", () => {
         });
     });
 
-    test("ingestCost (2)", async () => {
+    test("createCosts (2)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {
@@ -51,7 +51,7 @@ describe("Cost", () => {
         const rawResponseBody = { error: "error" };
         server
             .mockEndpoint()
-            .post("/cost/")
+            .post("/cost/bulk")
             .jsonBody(rawRequestBody)
             .respondWith()
             .statusCode(400)
@@ -59,7 +59,7 @@ describe("Cost", () => {
             .build();
 
         await expect(async () => {
-            return await client.cost.ingestCost({
+            return await client.costs.createCosts({
                 costs: [
                     {
                         type: "cost",
@@ -82,7 +82,7 @@ describe("Cost", () => {
         }).rejects.toThrow(Paid.BadRequestError);
     });
 
-    test("ingestCost (3)", async () => {
+    test("createCosts (3)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {
@@ -94,7 +94,7 @@ describe("Cost", () => {
         const rawResponseBody = { error: "error" };
         server
             .mockEndpoint()
-            .post("/cost/")
+            .post("/cost/bulk")
             .jsonBody(rawRequestBody)
             .respondWith()
             .statusCode(403)
@@ -102,7 +102,7 @@ describe("Cost", () => {
             .build();
 
         await expect(async () => {
-            return await client.cost.ingestCost({
+            return await client.costs.createCosts({
                 costs: [
                     {
                         type: "cost",
@@ -125,7 +125,7 @@ describe("Cost", () => {
         }).rejects.toThrow(Paid.ForbiddenError);
     });
 
-    test("ingestCost (4)", async () => {
+    test("createCosts (4)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {
@@ -137,7 +137,7 @@ describe("Cost", () => {
         const rawResponseBody = { error: "error" };
         server
             .mockEndpoint()
-            .post("/cost/")
+            .post("/cost/bulk")
             .jsonBody(rawRequestBody)
             .respondWith()
             .statusCode(500)
@@ -145,7 +145,7 @@ describe("Cost", () => {
             .build();
 
         await expect(async () => {
-            return await client.cost.ingestCost({
+            return await client.costs.createCosts({
                 costs: [
                     {
                         type: "cost",

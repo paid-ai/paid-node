@@ -2,7 +2,7 @@
 
 import { Checkouts } from "./api/resources/checkouts/client/Client.js";
 import { Contacts } from "./api/resources/contacts/client/Client.js";
-import { Cost } from "./api/resources/cost/client/Client.js";
+import { Costs } from "./api/resources/costs/client/Client.js";
 import { Credits } from "./api/resources/credits/client/Client.js";
 import { CustomerPortals } from "./api/resources/customerPortals/client/Client.js";
 import { Customers } from "./api/resources/customers/client/Client.js";
@@ -37,7 +37,7 @@ export class PaidClient {
     protected _valueReceipts: ValueReceipts | undefined;
     protected _webhooks: Webhooks | undefined;
     protected _pricing: Pricing | undefined;
-    protected _cost: Cost | undefined;
+    protected _costs: Costs | undefined;
 
     constructor(_options: PaidClient.Options) {
         this._options = {
@@ -46,8 +46,8 @@ export class PaidClient {
                 {
                     "X-Fern-Language": "JavaScript",
                     "X-Fern-SDK-Name": "@paid-ai/paid-node",
-                    "X-Fern-SDK-Version": "1.5.0",
-                    "User-Agent": "@paid-ai/paid-node/1.5.0",
+                    "X-Fern-SDK-Version": "1.3.1",
+                    "User-Agent": "@paid-ai/paid-node/1.3.1",
                     "X-Fern-Runtime": core.RUNTIME.type,
                     "X-Fern-Runtime-Version": core.RUNTIME.version,
                 },
@@ -104,7 +104,7 @@ export class PaidClient {
         return (this._pricing ??= new Pricing(this._options));
     }
 
-    public get cost(): Cost {
-        return (this._cost ??= new Cost(this._options));
+    public get costs(): Costs {
+        return (this._costs ??= new Costs(this._options));
     }
 }
