@@ -27,4 +27,5 @@ export interface CreateOrderRequest {
     autoSendBillingEmails?: boolean;
     autoSendPaymentEmails?: boolean;
     lines?: Paid.CreateOrderLineRequest[];
+    billingFrequencyOverride?: Paid.OrderBillingFrequencyOverride;
 }

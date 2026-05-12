@@ -2,11 +2,13 @@
 
 import { Checkouts } from "./api/resources/checkouts/client/Client.js";
 import { Contacts } from "./api/resources/contacts/client/Client.js";
+import { Cost } from "./api/resources/cost/client/Client.js";
 import { Credits } from "./api/resources/credits/client/Client.js";
 import { CustomerPortals } from "./api/resources/customerPortals/client/Client.js";
 import { Customers } from "./api/resources/customers/client/Client.js";
 import { Invoices } from "./api/resources/invoices/client/Client.js";
 import { Orders } from "./api/resources/orders/client/Client.js";
+import { Pricing } from "./api/resources/pricing/client/Client.js";
 import { Products } from "./api/resources/products/client/Client.js";
 import { Signals } from "./api/resources/signals/client/Client.js";
 import { ValueReceipts } from "./api/resources/valueReceipts/client/Client.js";
@@ -34,6 +36,8 @@ export class PaidClient {
     protected _customerPortals: CustomerPortals | undefined;
     protected _valueReceipts: ValueReceipts | undefined;
     protected _webhooks: Webhooks | undefined;
+    protected _pricing: Pricing | undefined;
+    protected _cost: Cost | undefined;
 
     constructor(_options: PaidClient.Options) {
         this._options = {
@@ -42,8 +46,8 @@ export class PaidClient {
                 {
                     "X-Fern-Language": "JavaScript",
                     "X-Fern-SDK-Name": "@paid-ai/paid-node",
-                    "X-Fern-SDK-Version": "1.3.0",
-                    "User-Agent": "@paid-ai/paid-node/1.3.0",
+                    "X-Fern-SDK-Version": "1.5.0",
+                    "User-Agent": "@paid-ai/paid-node/1.5.0",
                     "X-Fern-Runtime": core.RUNTIME.type,
                     "X-Fern-Runtime-Version": core.RUNTIME.version,
                 },
@@ -94,5 +98,13 @@ export class PaidClient {
 
     public get webhooks(): Webhooks {
         return (this._webhooks ??= new Webhooks(this._options));
+    }
+
+    public get pricing(): Pricing {
+        return (this._pricing ??= new Pricing(this._options));
+    }
+
+    public get cost(): Cost {
+        return (this._cost ??= new Cost(this._options));
     }
 }

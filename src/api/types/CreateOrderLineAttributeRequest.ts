@@ -19,6 +19,7 @@ export namespace CreateOrderLineAttributeRequest {
         creditsCurrencyId?: string;
         creditCost?: number;
         overageUnitPrice?: number;
+        creditRolloverAmount?: number;
         creditBenefits?: Pricing.CreditBenefits.Item[];
     }
 

@@ -39,6 +39,8 @@ describe("Orders", () => {
                     autoSendBillingEmails: true,
                     autoSendPaymentEmails: true,
                     version: 1,
+                    billingFrequencyOverridden: true,
+                    billingFrequencyOverride: { frequency: "monthly" },
                 },
             ],
             pagination: { limit: 1, offset: 1, total: 1, hasMore: true },
@@ -78,6 +80,10 @@ describe("Orders", () => {
                     autoSendBillingEmails: true,
                     autoSendPaymentEmails: true,
                     version: 1,
+                    billingFrequencyOverridden: true,
+                    billingFrequencyOverride: {
+                        frequency: "monthly",
+                    },
                 },
             ],
             pagination: {
@@ -157,6 +163,8 @@ describe("Orders", () => {
             autoSendBillingEmails: true,
             autoSendPaymentEmails: true,
             version: 1,
+            billingFrequencyOverridden: true,
+            billingFrequencyOverride: { frequency: "monthly", customMonths: 1 },
         };
         server
             .mockEndpoint()
@@ -200,6 +208,11 @@ describe("Orders", () => {
             autoSendBillingEmails: true,
             autoSendPaymentEmails: true,
             version: 1,
+            billingFrequencyOverridden: true,
+            billingFrequencyOverride: {
+                frequency: "monthly",
+                customMonths: 1,
+            },
         });
     });
 
@@ -298,6 +311,8 @@ describe("Orders", () => {
             autoSendBillingEmails: true,
             autoSendPaymentEmails: true,
             version: 1,
+            billingFrequencyOverridden: true,
+            billingFrequencyOverride: { frequency: "monthly", customMonths: 1 },
         };
         server.mockEndpoint().get("/orders/id").respondWith().statusCode(200).jsonBody(rawResponseBody).build();
 
@@ -334,6 +349,11 @@ describe("Orders", () => {
             autoSendBillingEmails: true,
             autoSendPaymentEmails: true,
             version: 1,
+            billingFrequencyOverridden: true,
+            billingFrequencyOverride: {
+                frequency: "monthly",
+                customMonths: 1,
+            },
         });
     });
 
@@ -411,6 +431,8 @@ describe("Orders", () => {
             autoSendBillingEmails: true,
             autoSendPaymentEmails: true,
             version: 1,
+            billingFrequencyOverridden: true,
+            billingFrequencyOverride: { frequency: "monthly", customMonths: 1 },
         };
         server
             .mockEndpoint()
@@ -454,6 +476,11 @@ describe("Orders", () => {
             autoSendBillingEmails: true,
             autoSendPaymentEmails: true,
             version: 1,
+            billingFrequencyOverridden: true,
+            billingFrequencyOverride: {
+                frequency: "monthly",
+                customMonths: 1,
+            },
         });
     });
 
