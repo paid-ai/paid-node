@@ -63,7 +63,7 @@ export class Costs {
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
                     environments.PaidEnvironment.Default,
-                "cost/bulk",
+                "costs/bulk",
             ),
             method: "POST",
             headers: _headers,
@@ -107,7 +107,7 @@ export class Costs {
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /cost/bulk.");
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /costs/bulk.");
             case "unknown":
                 throw new errors.PaidError({
                     message: _response.error.errorMessage,
