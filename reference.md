@@ -3904,8 +3904,8 @@ await client.pricing.updatePricing({
 </dl>
 </details>
 
-## Cost
-<details><summary><code>client.cost.<a href="/src/api/resources/cost/client/Client.ts">ingestCost</a>({ ...params }) -> Paid.CostIngestResponse</code></summary>
+## Costs
+<details><summary><code>client.costs.<a href="/src/api/resources/costs/client/Client.ts">createCosts</a>({ ...params }) -> Paid.CostIngestResponse</code></summary>
 <dl>
 <dd>
 
@@ -3917,7 +3917,7 @@ await client.pricing.updatePricing({
 <dl>
 <dd>
 
-Ingests a batch of cost records. Each record is either a pre-computed `cost` (caller supplies amount + currency) or a `usage` record (caller supplies vendor/model/token counts and Paid prices it server-side). The batch is all-or-nothing: if any record fails validation, the entire request is rejected with a 400 and nothing is persisted. Records may carry an optional `idempotencyKey`; matches against previously ingested records are skipped and reported in the `duplicates` count.
+Ingests a batch of cost records. Each record is either a pre-computed `cost` (caller supplies amount + currency) or a `usage` record (caller supplies vendor/model/token counts and Paid prices it server-side). The batch is all-or-nothing: if any record fails validation, the entire request is rejected with a 400 and nothing is persisted.
 </dd>
 </dl>
 </dd>
@@ -3932,7 +3932,7 @@ Ingests a batch of cost records. Each record is either a pre-computed `cost` (ca
 <dd>
 
 ```typescript
-await client.cost.ingestCost({
+await client.costs.createCosts({
     costs: [{
             type: "cost",
             customer: {
@@ -3965,7 +3965,7 @@ await client.cost.ingestCost({
 <dl>
 <dd>
 
-**requestOptions:** `Cost.RequestOptions` 
+**requestOptions:** `Costs.RequestOptions` 
     
 </dd>
 </dl>

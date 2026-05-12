@@ -7,31 +7,31 @@ import * as environments from "../../../../environments.js";
 import * as errors from "../../../../errors/index.js";
 import * as Paid from "../../../index.js";
 
-export declare namespace Cost {
+export declare namespace Costs {
     export interface Options extends BaseClientOptions {}
 
     export interface RequestOptions extends BaseRequestOptions {}
 }
 
-export class Cost {
-    protected readonly _options: Cost.Options;
+export class Costs {
+    protected readonly _options: Costs.Options;
 
-    constructor(_options: Cost.Options) {
+    constructor(_options: Costs.Options) {
         this._options = _options;
     }
 
     /**
-     * Ingests a batch of cost records. Each record is either a pre-computed `cost` (caller supplies amount + currency) or a `usage` record (caller supplies vendor/model/token counts and Paid prices it server-side). The batch is all-or-nothing: if any record fails validation, the entire request is rejected with a 400 and nothing is persisted. Records may carry an optional `idempotencyKey`; matches against previously ingested records are skipped and reported in the `duplicates` count.
+     * Ingests a batch of cost records. Each record is either a pre-computed `cost` (caller supplies amount + currency) or a `usage` record (caller supplies vendor/model/token counts and Paid prices it server-side). The batch is all-or-nothing: if any record fails validation, the entire request is rejected with a 400 and nothing is persisted.
      *
      * @param {Paid.CostIngestRequest} request
-     * @param {Cost.RequestOptions} requestOptions - Request-specific configuration.
+     * @param {Costs.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @throws {@link Paid.BadRequestError}
      * @throws {@link Paid.ForbiddenError}
      * @throws {@link Paid.InternalServerError}
      *
      * @example
-     *     await client.cost.ingestCost({
+     *     await client.costs.createCosts({
      *         costs: [{
      *                 type: "cost",
      *                 customer: {
@@ -42,16 +42,16 @@ export class Cost {
      *             }]
      *     })
      */
-    public ingestCost(
+    public createCosts(
         request: Paid.CostIngestRequest,
-        requestOptions?: Cost.RequestOptions,
+        requestOptions?: Costs.RequestOptions,
     ): core.HttpResponsePromise<Paid.CostIngestResponse> {
-        return core.HttpResponsePromise.fromPromise(this.__ingestCost(request, requestOptions));
+        return core.HttpResponsePromise.fromPromise(this.__createCosts(request, requestOptions));
     }
 
-    private async __ingestCost(
+    private async __createCosts(
         request: Paid.CostIngestRequest,
-        requestOptions?: Cost.RequestOptions,
+        requestOptions?: Costs.RequestOptions,
     ): Promise<core.WithRawResponse<Paid.CostIngestResponse>> {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             this._options?.headers,
@@ -63,7 +63,7 @@ export class Cost {
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
                     environments.PaidEnvironment.Default,
-                "cost/",
+                "cost/bulk",
             ),
             method: "POST",
             headers: _headers,
@@ -107,7 +107,7 @@ export class Cost {
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /cost/.");
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /cost/bulk.");
             case "unknown":
                 throw new errors.PaidError({
                     message: _response.error.errorMessage,
