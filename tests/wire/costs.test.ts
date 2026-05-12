@@ -14,7 +14,7 @@ describe("Costs", () => {
         const rawResponseBody = { ingested: 1, duplicates: 1 };
         server
             .mockEndpoint()
-            .post("/cost/bulk")
+            .post("/costs/bulk")
             .jsonBody(rawRequestBody)
             .respondWith()
             .statusCode(200)
@@ -51,7 +51,7 @@ describe("Costs", () => {
         const rawResponseBody = { error: "error" };
         server
             .mockEndpoint()
-            .post("/cost/bulk")
+            .post("/costs/bulk")
             .jsonBody(rawRequestBody)
             .respondWith()
             .statusCode(400)
@@ -94,7 +94,7 @@ describe("Costs", () => {
         const rawResponseBody = { error: "error" };
         server
             .mockEndpoint()
-            .post("/cost/bulk")
+            .post("/costs/bulk")
             .jsonBody(rawRequestBody)
             .respondWith()
             .statusCode(403)
@@ -137,7 +137,7 @@ describe("Costs", () => {
         const rawResponseBody = { error: "error" };
         server
             .mockEndpoint()
-            .post("/cost/bulk")
+            .post("/costs/bulk")
             .jsonBody(rawRequestBody)
             .respondWith()
             .statusCode(500)
