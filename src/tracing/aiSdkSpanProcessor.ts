@@ -32,10 +32,12 @@ function isAISDKSpan(span: ReadableSpan): boolean {
     // The AI SDK emits two spans per call: an outer wrapper (e.g. ai.generateObject)
     // and an inner span that actually hits the LLM (e.g. ai.generateObject.doGenerate).
     // Both carry identical token usage attributes, so processing both double-counts costs.
-    // Inner spans are the only ones where the AI SDK sets gen_ai.response.model,
+    // Inner spans are the only ones where the AI SDK sets a response model attribute,
     // so reject any span that has ai.operationId (confirming it's from the AI SDK)
-    // but lacks gen_ai.response.model (confirming it's the outer wrapper, not the LLM call).
-    if (attrs["ai.operationId"] && !attrs["gen_ai.response.model"]) {
+    // but lacks a response model (confirming it's the outer wrapper, not the LLM call).
+    // Check both gen_ai.response.model (modern GenAI semconv format) and
+    // ai.response.model (legacy LegacyOpenTelemetry format).
+    if (attrs["ai.operationId"] && !attrs["gen_ai.response.model"] && !attrs["ai.response.model"]) {
         return false;
     }
 
