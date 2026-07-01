@@ -28,6 +28,25 @@ const ATTRIBUTE_MAP: Record<string, string> = {
 function isAISDKSpan(span: ReadableSpan): boolean {
     const attrs = span.attributes;
     const name = span.name.toLowerCase();
+
+    // The AI SDK emits two spans per call: an outer wrapper (e.g. ai.generateObject)
+    // and an inner span that actually hits the provider (e.g. ai.generateObject.doGenerate).
+    // Both carry identical token usage attributes, so processing both double-counts costs.
+    //
+    // We can't use attribute presence to distinguish them — outer and inner spans share
+    // the same base attributes (ai.model.id, ai.model.provider), and response-model
+    // attributes are only set on LLM inner spans, not embedding inner spans (doEmbed).
+    //
+    // The AI SDK's naming convention for inner (provider-call) spans is to include a
+    // ".do" segment in the operationId (doGenerate, doStream, doEmbed). This is the
+    // SDK's structural contract for separating orchestration from provider calls, and
+    // is the only reliable discriminator that works across all operation types (LLM,
+    // embedding) and telemetry formats (modern GenAI semconv, legacy LegacyOpenTelemetry).
+    const operationId = attrs["ai.operationId"];
+    if (typeof operationId === "string" && !operationId.includes(".do")) {
+        return false;
+    }
+
     // Check for AI SDK specific attributes (most reliable)
     // Also check span name - account for PaidSpanProcessor prefix (paid.trace.ai.xxx)
     return !!(
