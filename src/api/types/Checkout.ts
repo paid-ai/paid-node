@@ -17,6 +17,8 @@ export interface Checkout {
     collectPhone: boolean;
     singleUse: boolean;
     allowedCurrencies: string[];
+    /** Additional informational pricing cards rendered alongside the plans. */
+    customCards?: Paid.CheckoutCustomCard[];
     createdAt: string;
     updatedAt: string;
 }

@@ -11,7 +11,7 @@ import type * as Paid from "../../../../index.js";
  *             billingFrequency: "Monthly",
  *             pricePoints: [{
  *                     currency: "currency",
- *                     unitPrice: 1.1
+ *                     unitPrice: 1
  *                 }]
  *         }
  *     }

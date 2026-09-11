@@ -59,7 +59,7 @@ describe("Products", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/products/").respondWith().statusCode(400).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -71,7 +71,7 @@ describe("Products", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/products/").respondWith().statusCode(403).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -83,7 +83,7 @@ describe("Products", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/products/").respondWith().statusCode(500).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -139,7 +139,7 @@ describe("Products", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = { name: "x" };
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .post("/products/")
@@ -160,7 +160,7 @@ describe("Products", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = { name: "x" };
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .post("/products/")
@@ -181,7 +181,7 @@ describe("Products", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = { name: "x" };
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .post("/products/")
@@ -203,16 +203,47 @@ describe("Products", () => {
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         const rawResponseBody = {
-            id: "id",
-            name: "name",
-            description: "description",
-            createdAt: "2024-01-15T09:30:00Z",
-            updatedAt: "2024-01-15T09:30:00Z",
+            id: "prod_001",
+            name: "API Pro",
+            description: "Professional API plan",
+            createdAt: "2025-01-01T00:00:00Z",
+            updatedAt: "2025-01-15T00:00:00Z",
             active: true,
-            productCode: "productCode",
-            externalId: "externalId",
-            archivedAt: "2024-01-15T09:30:00Z",
-            metadata: { key: "value" },
+            productCode: "api-pro",
+            externalId: "my-product-123",
+            archivedAt: null,
+            metadata: null,
+            productAttributes: [
+                {
+                    productAttributeId: "pa_001",
+                    name: "Monthly subscription",
+                    active: true,
+                    pricing: {
+                        pricingType: "RecurringPerUnit",
+                        chargeType: "recurring",
+                        pricingModel: "PerUnit",
+                        billingFrequency: "Monthly",
+                        billingType: "Advance",
+                        pricePoints: [
+                            {
+                                currency: "USD",
+                                unitPrice: 99,
+                                tiers: [{ lowerBound: 0, tierBillingType: "perUnit", unitAmount: 10, upperBound: 100 }],
+                            },
+                        ],
+                    },
+                    creditBenefits: [
+                        {
+                            id: "cb_001",
+                            creditsCurrencyId: "cc_123",
+                            amount: 1000,
+                            recipient: "organization",
+                            isInfiniteTotal: false,
+                            allocationCadence: "upfront",
+                        },
+                    ],
+                },
+            ],
         };
         server.mockEndpoint().get("/products/id").respondWith().statusCode(200).jsonBody(rawResponseBody).build();
 
@@ -220,18 +251,54 @@ describe("Products", () => {
             id: "id",
         });
         expect(response).toEqual({
-            id: "id",
-            name: "name",
-            description: "description",
-            createdAt: "2024-01-15T09:30:00Z",
-            updatedAt: "2024-01-15T09:30:00Z",
+            id: "prod_001",
+            name: "API Pro",
+            description: "Professional API plan",
+            createdAt: "2025-01-01T00:00:00Z",
+            updatedAt: "2025-01-15T00:00:00Z",
             active: true,
-            productCode: "productCode",
-            externalId: "externalId",
-            archivedAt: "2024-01-15T09:30:00Z",
-            metadata: {
-                key: "value",
-            },
+            productCode: "api-pro",
+            externalId: "my-product-123",
+            archivedAt: null,
+            metadata: null,
+            productAttributes: [
+                {
+                    productAttributeId: "pa_001",
+                    name: "Monthly subscription",
+                    active: true,
+                    pricing: {
+                        pricingType: "RecurringPerUnit",
+                        chargeType: "recurring",
+                        pricingModel: "PerUnit",
+                        billingFrequency: "Monthly",
+                        billingType: "Advance",
+                        pricePoints: [
+                            {
+                                currency: "USD",
+                                unitPrice: 99,
+                                tiers: [
+                                    {
+                                        lowerBound: 0,
+                                        tierBillingType: "perUnit",
+                                        unitAmount: 10,
+                                        upperBound: 100,
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                    creditBenefits: [
+                        {
+                            id: "cb_001",
+                            creditsCurrencyId: "cc_123",
+                            amount: 1000,
+                            recipient: "organization",
+                            isInfiniteTotal: false,
+                            allocationCadence: "upfront",
+                        },
+                    ],
+                },
+            ],
         });
     });
 
@@ -239,7 +306,7 @@ describe("Products", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/products/id").respondWith().statusCode(403).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -253,7 +320,7 @@ describe("Products", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/products/id").respondWith().statusCode(404).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -267,7 +334,7 @@ describe("Products", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/products/id").respondWith().statusCode(500).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -282,16 +349,47 @@ describe("Products", () => {
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
         const rawResponseBody = {
-            id: "id",
-            name: "name",
-            description: "description",
-            createdAt: "2024-01-15T09:30:00Z",
-            updatedAt: "2024-01-15T09:30:00Z",
+            id: "prod_001",
+            name: "API Pro",
+            description: "Professional API plan",
+            createdAt: "2025-01-01T00:00:00Z",
+            updatedAt: "2025-01-15T00:00:00Z",
             active: true,
-            productCode: "productCode",
-            externalId: "externalId",
-            archivedAt: "2024-01-15T09:30:00Z",
-            metadata: { key: "value" },
+            productCode: "api-pro",
+            externalId: "my-product-123",
+            archivedAt: null,
+            metadata: null,
+            productAttributes: [
+                {
+                    productAttributeId: "pa_001",
+                    name: "Monthly subscription",
+                    active: true,
+                    pricing: {
+                        pricingType: "RecurringPerUnit",
+                        chargeType: "recurring",
+                        pricingModel: "PerUnit",
+                        billingFrequency: "Monthly",
+                        billingType: "Advance",
+                        pricePoints: [
+                            {
+                                currency: "USD",
+                                unitPrice: 99,
+                                tiers: [{ lowerBound: 0, tierBillingType: "perUnit", unitAmount: 10, upperBound: 100 }],
+                            },
+                        ],
+                    },
+                    creditBenefits: [
+                        {
+                            id: "cb_001",
+                            creditsCurrencyId: "cc_123",
+                            amount: 1000,
+                            recipient: "organization",
+                            isInfiniteTotal: false,
+                            allocationCadence: "upfront",
+                        },
+                    ],
+                },
+            ],
         };
         server
             .mockEndpoint()
@@ -307,18 +405,54 @@ describe("Products", () => {
             body: {},
         });
         expect(response).toEqual({
-            id: "id",
-            name: "name",
-            description: "description",
-            createdAt: "2024-01-15T09:30:00Z",
-            updatedAt: "2024-01-15T09:30:00Z",
+            id: "prod_001",
+            name: "API Pro",
+            description: "Professional API plan",
+            createdAt: "2025-01-01T00:00:00Z",
+            updatedAt: "2025-01-15T00:00:00Z",
             active: true,
-            productCode: "productCode",
-            externalId: "externalId",
-            archivedAt: "2024-01-15T09:30:00Z",
-            metadata: {
-                key: "value",
-            },
+            productCode: "api-pro",
+            externalId: "my-product-123",
+            archivedAt: null,
+            metadata: null,
+            productAttributes: [
+                {
+                    productAttributeId: "pa_001",
+                    name: "Monthly subscription",
+                    active: true,
+                    pricing: {
+                        pricingType: "RecurringPerUnit",
+                        chargeType: "recurring",
+                        pricingModel: "PerUnit",
+                        billingFrequency: "Monthly",
+                        billingType: "Advance",
+                        pricePoints: [
+                            {
+                                currency: "USD",
+                                unitPrice: 99,
+                                tiers: [
+                                    {
+                                        lowerBound: 0,
+                                        tierBillingType: "perUnit",
+                                        unitAmount: 10,
+                                        upperBound: 100,
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                    creditBenefits: [
+                        {
+                            id: "cb_001",
+                            creditsCurrencyId: "cc_123",
+                            amount: 1000,
+                            recipient: "organization",
+                            isInfiniteTotal: false,
+                            allocationCadence: "upfront",
+                        },
+                    ],
+                },
+            ],
         });
     });
 
@@ -326,7 +460,7 @@ describe("Products", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .put("/products/id")
@@ -348,7 +482,7 @@ describe("Products", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .put("/products/id")
@@ -370,7 +504,7 @@ describe("Products", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .put("/products/id")
@@ -392,7 +526,7 @@ describe("Products", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .put("/products/id")
@@ -415,16 +549,47 @@ describe("Products", () => {
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         const rawResponseBody = {
-            id: "id",
-            name: "name",
-            description: "description",
-            createdAt: "2024-01-15T09:30:00Z",
-            updatedAt: "2024-01-15T09:30:00Z",
+            id: "prod_001",
+            name: "API Pro",
+            description: "Professional API plan",
+            createdAt: "2025-01-01T00:00:00Z",
+            updatedAt: "2025-01-15T00:00:00Z",
             active: true,
-            productCode: "productCode",
-            externalId: "externalId",
-            archivedAt: "2024-01-15T09:30:00Z",
-            metadata: { key: "value" },
+            productCode: "api-pro",
+            externalId: "my-product-123",
+            archivedAt: null,
+            metadata: null,
+            productAttributes: [
+                {
+                    productAttributeId: "pa_001",
+                    name: "Monthly subscription",
+                    active: true,
+                    pricing: {
+                        pricingType: "RecurringPerUnit",
+                        chargeType: "recurring",
+                        pricingModel: "PerUnit",
+                        billingFrequency: "Monthly",
+                        billingType: "Advance",
+                        pricePoints: [
+                            {
+                                currency: "USD",
+                                unitPrice: 99,
+                                tiers: [{ lowerBound: 0, tierBillingType: "perUnit", unitAmount: 10, upperBound: 100 }],
+                            },
+                        ],
+                    },
+                    creditBenefits: [
+                        {
+                            id: "cb_001",
+                            creditsCurrencyId: "cc_123",
+                            amount: 1000,
+                            recipient: "organization",
+                            isInfiniteTotal: false,
+                            allocationCadence: "upfront",
+                        },
+                    ],
+                },
+            ],
         };
         server
             .mockEndpoint()
@@ -438,18 +603,54 @@ describe("Products", () => {
             externalId: "externalId",
         });
         expect(response).toEqual({
-            id: "id",
-            name: "name",
-            description: "description",
-            createdAt: "2024-01-15T09:30:00Z",
-            updatedAt: "2024-01-15T09:30:00Z",
+            id: "prod_001",
+            name: "API Pro",
+            description: "Professional API plan",
+            createdAt: "2025-01-01T00:00:00Z",
+            updatedAt: "2025-01-15T00:00:00Z",
             active: true,
-            productCode: "productCode",
-            externalId: "externalId",
-            archivedAt: "2024-01-15T09:30:00Z",
-            metadata: {
-                key: "value",
-            },
+            productCode: "api-pro",
+            externalId: "my-product-123",
+            archivedAt: null,
+            metadata: null,
+            productAttributes: [
+                {
+                    productAttributeId: "pa_001",
+                    name: "Monthly subscription",
+                    active: true,
+                    pricing: {
+                        pricingType: "RecurringPerUnit",
+                        chargeType: "recurring",
+                        pricingModel: "PerUnit",
+                        billingFrequency: "Monthly",
+                        billingType: "Advance",
+                        pricePoints: [
+                            {
+                                currency: "USD",
+                                unitPrice: 99,
+                                tiers: [
+                                    {
+                                        lowerBound: 0,
+                                        tierBillingType: "perUnit",
+                                        unitAmount: 10,
+                                        upperBound: 100,
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                    creditBenefits: [
+                        {
+                            id: "cb_001",
+                            creditsCurrencyId: "cc_123",
+                            amount: 1000,
+                            recipient: "organization",
+                            isInfiniteTotal: false,
+                            allocationCadence: "upfront",
+                        },
+                    ],
+                },
+            ],
         });
     });
 
@@ -457,7 +658,7 @@ describe("Products", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .get("/products/external/externalId")
@@ -477,7 +678,7 @@ describe("Products", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .get("/products/external/externalId")
@@ -497,7 +698,7 @@ describe("Products", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .get("/products/external/externalId")
@@ -518,16 +719,47 @@ describe("Products", () => {
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
         const rawResponseBody = {
-            id: "id",
-            name: "name",
-            description: "description",
-            createdAt: "2024-01-15T09:30:00Z",
-            updatedAt: "2024-01-15T09:30:00Z",
+            id: "prod_001",
+            name: "API Pro",
+            description: "Professional API plan",
+            createdAt: "2025-01-01T00:00:00Z",
+            updatedAt: "2025-01-15T00:00:00Z",
             active: true,
-            productCode: "productCode",
-            externalId: "externalId",
-            archivedAt: "2024-01-15T09:30:00Z",
-            metadata: { key: "value" },
+            productCode: "api-pro",
+            externalId: "my-product-123",
+            archivedAt: null,
+            metadata: null,
+            productAttributes: [
+                {
+                    productAttributeId: "pa_001",
+                    name: "Monthly subscription",
+                    active: true,
+                    pricing: {
+                        pricingType: "RecurringPerUnit",
+                        chargeType: "recurring",
+                        pricingModel: "PerUnit",
+                        billingFrequency: "Monthly",
+                        billingType: "Advance",
+                        pricePoints: [
+                            {
+                                currency: "USD",
+                                unitPrice: 99,
+                                tiers: [{ lowerBound: 0, tierBillingType: "perUnit", unitAmount: 10, upperBound: 100 }],
+                            },
+                        ],
+                    },
+                    creditBenefits: [
+                        {
+                            id: "cb_001",
+                            creditsCurrencyId: "cc_123",
+                            amount: 1000,
+                            recipient: "organization",
+                            isInfiniteTotal: false,
+                            allocationCadence: "upfront",
+                        },
+                    ],
+                },
+            ],
         };
         server
             .mockEndpoint()
@@ -543,18 +775,54 @@ describe("Products", () => {
             body: {},
         });
         expect(response).toEqual({
-            id: "id",
-            name: "name",
-            description: "description",
-            createdAt: "2024-01-15T09:30:00Z",
-            updatedAt: "2024-01-15T09:30:00Z",
+            id: "prod_001",
+            name: "API Pro",
+            description: "Professional API plan",
+            createdAt: "2025-01-01T00:00:00Z",
+            updatedAt: "2025-01-15T00:00:00Z",
             active: true,
-            productCode: "productCode",
-            externalId: "externalId",
-            archivedAt: "2024-01-15T09:30:00Z",
-            metadata: {
-                key: "value",
-            },
+            productCode: "api-pro",
+            externalId: "my-product-123",
+            archivedAt: null,
+            metadata: null,
+            productAttributes: [
+                {
+                    productAttributeId: "pa_001",
+                    name: "Monthly subscription",
+                    active: true,
+                    pricing: {
+                        pricingType: "RecurringPerUnit",
+                        chargeType: "recurring",
+                        pricingModel: "PerUnit",
+                        billingFrequency: "Monthly",
+                        billingType: "Advance",
+                        pricePoints: [
+                            {
+                                currency: "USD",
+                                unitPrice: 99,
+                                tiers: [
+                                    {
+                                        lowerBound: 0,
+                                        tierBillingType: "perUnit",
+                                        unitAmount: 10,
+                                        upperBound: 100,
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                    creditBenefits: [
+                        {
+                            id: "cb_001",
+                            creditsCurrencyId: "cc_123",
+                            amount: 1000,
+                            recipient: "organization",
+                            isInfiniteTotal: false,
+                            allocationCadence: "upfront",
+                        },
+                    ],
+                },
+            ],
         });
     });
 
@@ -562,7 +830,7 @@ describe("Products", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .put("/products/external/externalId")
@@ -584,7 +852,7 @@ describe("Products", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .put("/products/external/externalId")
@@ -606,7 +874,7 @@ describe("Products", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .put("/products/external/externalId")
@@ -628,7 +896,7 @@ describe("Products", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .put("/products/external/externalId")

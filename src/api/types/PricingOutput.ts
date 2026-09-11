@@ -7,6 +7,7 @@ export interface PricingOutput {
     chargeType: string;
     pricingModel?: string;
     eventName?: string;
+    signalType?: PricingOutput.SignalType;
     billingFrequency?: string;
     billingType?: string;
     creditsCurrencyId?: string;
@@ -29,6 +30,7 @@ export namespace PricingOutput {
         UsageGraduated: "UsageGraduated",
         UsageVolume: "UsageVolume",
         UsagePrepaidCredits: "UsagePrepaidCredits",
+        UsageBracketedPrepaidCredits: "UsageBracketedPrepaidCredits",
         UsageCostPlus: "UsageCostPlus",
         OneTimePerUnit: "OneTimePerUnit",
         SeatBasedPerUnit: "SeatBasedPerUnit",
@@ -37,4 +39,9 @@ export namespace PricingOutput {
         SeatBasedPrepaidCredits: "SeatBasedPrepaidCredits",
     } as const;
     export type PricingType = (typeof PricingType)[keyof typeof PricingType];
+    export const SignalType = {
+        Activity: "activity",
+        Outcome: "outcome",
+    } as const;
+    export type SignalType = (typeof SignalType)[keyof typeof SignalType];
 }

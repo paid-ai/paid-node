@@ -7,4 +7,10 @@
 export interface ListProductsRequest {
     limit?: number;
     offset?: number;
+    /** Search by product name (case-insensitive, matches anywhere in the name). */
+    name?: string;
+    /** Filter by the product's active flag: true or false. */
+    active?: boolean;
+    /** Filter by archived state: true returns only archived products, false only non-archived. Omit to include both. */
+    archived?: boolean;
 }

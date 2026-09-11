@@ -10,17 +10,22 @@ export namespace CreateOrderLineAttributeRequest {
     export interface Pricing {
         eventName?: string;
         chargeType: Pricing.ChargeType;
+        /** Single flat price point for this order attribute override. Do not send a currency-keyed map here. */
         pricePoints: Pricing.PricePoints;
-        pricingModel?: Pricing.PricingModel;
+        pricingModel: Pricing.PricingModel;
         billingFrequency?: Pricing.BillingFrequency;
         billingFrequencyCustomMonths?: number;
         billingType?: Pricing.BillingType;
         signalType?: Pricing.SignalType;
         creditsCurrencyId?: string;
+        /** Credit amount, exact to at most 6 decimal places. */
         creditCost?: number;
         overageUnitPrice?: number;
+        /** Credit amount, exact to at most 6 decimal places. */
         creditRolloverAmount?: number;
         creditBenefits?: Pricing.CreditBenefits.Item[];
+        pricingInput?: Pricing.PricingInput;
+        creditUnitBrackets?: Pricing.CreditUnitBrackets.Item[];
     }
 
     export namespace Pricing {
@@ -32,6 +37,9 @@ export namespace CreateOrderLineAttributeRequest {
         } as const;
         export type ChargeType = (typeof ChargeType)[keyof typeof ChargeType];
 
+        /**
+         * Single flat price point for this order attribute override. Do not send a currency-keyed map here.
+         */
         export interface PricePoints {
             currency?: string;
             unitPrice: number;
@@ -69,6 +77,7 @@ export namespace CreateOrderLineAttributeRequest {
             VolumePricing: "volumePricing",
             GraduatedPricing: "graduatedPricing",
             PrepaidCredits: "prepaidCredits",
+            BracketedPrepaidCredits: "bracketedPrepaidCredits",
             Flat: "flat",
         } as const;
         export type PricingModel = (typeof PricingModel)[keyof typeof PricingModel];
@@ -97,12 +106,14 @@ export namespace CreateOrderLineAttributeRequest {
                 id: string;
                 creditsCurrencyId?: string;
                 recipient?: Item.Recipient;
+                /** Credit amount, exact to at most 6 decimal places. */
                 amount: number;
-                rolloverAmount?: number;
-                rolloverDuration?: number;
-                rolloverDurationUnit?: Item.RolloverDurationUnit;
+                /** Credit amount, exact to at most 6 decimal places. */
+                rolloverAmount?: number | null;
+                rolloverDuration?: number | null;
+                rolloverDurationUnit?: Item.RolloverDurationUnit | null;
                 allocationCadence?: Item.AllocationCadence;
-                creditGrantTiming?: Item.CreditGrantTiming;
+                creditGrantTiming?: Item.CreditGrantTiming | null;
             }
 
             export namespace Item {
@@ -123,9 +134,35 @@ export namespace CreateOrderLineAttributeRequest {
                 export type AllocationCadence = (typeof AllocationCadence)[keyof typeof AllocationCadence];
                 export const CreditGrantTiming = {
                     OnPayment: "on_payment",
+                    OnInvoicePosted: "on_invoice_posted",
                     OnOrderActivation: "on_order_activation",
                 } as const;
                 export type CreditGrantTiming = (typeof CreditGrantTiming)[keyof typeof CreditGrantTiming];
+            }
+        }
+
+        export interface PricingInput {
+            kind: PricingInput.Kind;
+            /** Key in the signal's data payload that supplies the bracket-matching quantity — for a signal with data {"rooms": 3}, use rooms. Dots address nested fields, for example dimensions.pages. Defaults to the top-level quantity field. Cannot be changed after the order is created. */
+            path?: string;
+        }
+
+        export namespace PricingInput {
+            export const Kind = {
+                SignalQuantity: "signalQuantity",
+            } as const;
+            export type Kind = (typeof Kind)[keyof typeof Kind];
+        }
+
+        export type CreditUnitBrackets = CreditUnitBrackets.Item[];
+
+        export namespace CreditUnitBrackets {
+            export interface Item {
+                upTo: number | null;
+                /** Credit amount, exact to at most 6 decimal places. */
+                creditUnits: number;
+                /** Credits burned per unit in this band (graduated), instead of the flat creditUnits per signal. Brackets must be all flat or all graduated. Requires the graduated-credit-brackets flag. */
+                creditUnitsPerUnit?: number;
             }
         }
     }

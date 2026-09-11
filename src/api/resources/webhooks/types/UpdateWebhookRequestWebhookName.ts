@@ -3,6 +3,7 @@
 export const UpdateWebhookRequestWebhookName = {
     BillingInvoiceCreated: "billing-invoice-created",
     BillingInvoicePaid: "billing-invoice-paid",
+    BillingInvoicePosted: "billing-invoice-posted",
     BillingCheckoutCreated: "billing-checkout-created",
     BillingCheckoutCompleted: "billing-checkout-completed",
     BillingCheckoutExpired: "billing-checkout-expired",
@@ -10,6 +11,7 @@ export const UpdateWebhookRequestWebhookName = {
     BillingPaymentFailed: "billing-payment-failed",
     BillingCreditsDepleted: "billing-credits-depleted",
     BillingOverageIncurred: "billing-overage-incurred",
+    BillingCreditCapReached: "billing-credit-cap-reached",
 } as const;
 export type UpdateWebhookRequestWebhookName =
     (typeof UpdateWebhookRequestWebhookName)[keyof typeof UpdateWebhookRequestWebhookName];

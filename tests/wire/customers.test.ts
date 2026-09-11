@@ -12,18 +12,21 @@ describe("Customers", () => {
         const rawResponseBody = {
             data: [
                 {
-                    id: "id",
+                    id: "cus_abc123",
                     name: "name",
                     legalName: "legalName",
                     email: "email",
                     phone: "phone",
                     website: "website",
                     externalId: "externalId",
+                    billingAddress: {},
                     creationState: "draft",
+                    status: "active",
                     churnDate: "2024-01-15T09:30:00Z",
                     vatNumber: "vatNumber",
                     metadata: { key: "value" },
                     defaultCurrency: "defaultCurrency",
+                    connections: { stripe: { customerId: "cus_stripe_xyz" } },
                     createdAt: "2024-01-15T09:30:00Z",
                     updatedAt: "2024-01-15T09:30:00Z",
                 },
@@ -36,20 +39,27 @@ describe("Customers", () => {
         expect(response).toEqual({
             data: [
                 {
-                    id: "id",
+                    id: "cus_abc123",
                     name: "name",
                     legalName: "legalName",
                     email: "email",
                     phone: "phone",
                     website: "website",
                     externalId: "externalId",
+                    billingAddress: {},
                     creationState: "draft",
+                    status: "active",
                     churnDate: "2024-01-15T09:30:00Z",
                     vatNumber: "vatNumber",
                     metadata: {
                         key: "value",
                     },
                     defaultCurrency: "defaultCurrency",
+                    connections: {
+                        stripe: {
+                            customerId: "cus_stripe_xyz",
+                        },
+                    },
                     createdAt: "2024-01-15T09:30:00Z",
                     updatedAt: "2024-01-15T09:30:00Z",
                 },
@@ -67,7 +77,7 @@ describe("Customers", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/customers/").respondWith().statusCode(400).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -79,7 +89,7 @@ describe("Customers", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/customers/").respondWith().statusCode(403).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -91,7 +101,7 @@ describe("Customers", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/customers/").respondWith().statusCode(500).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -104,7 +114,7 @@ describe("Customers", () => {
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = { name: "name" };
         const rawResponseBody = {
-            id: "id",
+            id: "cus_abc123",
             name: "name",
             legalName: "legalName",
             email: "email",
@@ -120,10 +130,12 @@ describe("Customers", () => {
                 country: "country",
             },
             creationState: "draft",
+            status: "active",
             churnDate: "2024-01-15T09:30:00Z",
             vatNumber: "vatNumber",
             metadata: { key: "value" },
             defaultCurrency: "defaultCurrency",
+            connections: { stripe: { customerId: "cus_stripe_xyz" } },
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
         };
@@ -140,7 +152,7 @@ describe("Customers", () => {
             name: "name",
         });
         expect(response).toEqual({
-            id: "id",
+            id: "cus_abc123",
             name: "name",
             legalName: "legalName",
             email: "email",
@@ -156,12 +168,18 @@ describe("Customers", () => {
                 country: "country",
             },
             creationState: "draft",
+            status: "active",
             churnDate: "2024-01-15T09:30:00Z",
             vatNumber: "vatNumber",
             metadata: {
                 key: "value",
             },
             defaultCurrency: "defaultCurrency",
+            connections: {
+                stripe: {
+                    customerId: "cus_stripe_xyz",
+                },
+            },
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
         });
@@ -171,7 +189,7 @@ describe("Customers", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = { name: "x" };
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .post("/customers/")
@@ -192,7 +210,7 @@ describe("Customers", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = { name: "x" };
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .post("/customers/")
@@ -213,7 +231,7 @@ describe("Customers", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = { name: "x" };
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .post("/customers/")
@@ -230,12 +248,380 @@ describe("Customers", () => {
         }).rejects.toThrow(Paid.InternalServerError);
     });
 
+    test("listCustomerAliases (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = {
+            data: [
+                {
+                    alias: "child-customer-1",
+                    customerId: "cus_abc123",
+                    name: "name",
+                    description: "description",
+                    createdAt: "2024-01-15T09:30:00Z",
+                    updatedAt: "2024-01-15T09:30:00Z",
+                },
+            ],
+            pagination: { limit: 1, offset: 1, total: 1, hasMore: true },
+        };
+        server
+            .mockEndpoint()
+            .get("/customers/cus_abc123/aliases")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.customers.listCustomerAliases({
+            id: "cus_abc123",
+        });
+        expect(response).toEqual({
+            data: [
+                {
+                    alias: "child-customer-1",
+                    customerId: "cus_abc123",
+                    name: "name",
+                    description: "description",
+                    createdAt: "2024-01-15T09:30:00Z",
+                    updatedAt: "2024-01-15T09:30:00Z",
+                },
+            ],
+            pagination: {
+                limit: 1,
+                offset: 1,
+                total: 1,
+                hasMore: true,
+            },
+        });
+    });
+
+    test("listCustomerAliases (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/id/aliases")
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.listCustomerAliases({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("listCustomerAliases (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/id/aliases")
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.listCustomerAliases({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("listCustomerAliases (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/id/aliases")
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.listCustomerAliases({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("listCustomerAliases (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/id/aliases")
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.listCustomerAliases({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("createCustomerAlias (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { alias: "child-customer-1" };
+        const rawResponseBody = {
+            alias: "child-customer-1",
+            customerId: "cus_abc123",
+            name: "name",
+            description: "description",
+            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
+        };
+        server
+            .mockEndpoint()
+            .post("/customers/cus_abc123/aliases")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.customers.createCustomerAlias({
+            id: "cus_abc123",
+            body: {
+                alias: "child-customer-1",
+            },
+        });
+        expect(response).toEqual({
+            alias: "child-customer-1",
+            customerId: "cus_abc123",
+            name: "name",
+            description: "description",
+            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
+        });
+    });
+
+    test("createCustomerAlias (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { alias: "x" };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/customers/id/aliases")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.createCustomerAlias({
+                id: "id",
+                body: {
+                    alias: "x",
+                },
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("createCustomerAlias (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { alias: "x" };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/customers/id/aliases")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.createCustomerAlias({
+                id: "id",
+                body: {
+                    alias: "x",
+                },
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("createCustomerAlias (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { alias: "x" };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/customers/id/aliases")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.createCustomerAlias({
+                id: "id",
+                body: {
+                    alias: "x",
+                },
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("createCustomerAlias (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { alias: "x" };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/customers/id/aliases")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(409)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.createCustomerAlias({
+                id: "id",
+                body: {
+                    alias: "x",
+                },
+            });
+        }).rejects.toThrow(Paid.ConflictError);
+    });
+
+    test("createCustomerAlias (6)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { alias: "x" };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/customers/id/aliases")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.createCustomerAlias({
+                id: "id",
+                body: {
+                    alias: "x",
+                },
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("deleteCustomerAlias (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = {};
+        server
+            .mockEndpoint()
+            .delete("/customers/cus_abc123/aliases/child-customer-1")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.customers.deleteCustomerAlias({
+            id: "cus_abc123",
+            alias: "child-customer-1",
+        });
+        expect(response).toEqual({});
+    });
+
+    test("deleteCustomerAlias (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .delete("/customers/id/aliases/alias")
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.deleteCustomerAlias({
+                id: "id",
+                alias: "alias",
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("deleteCustomerAlias (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .delete("/customers/id/aliases/alias")
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.deleteCustomerAlias({
+                id: "id",
+                alias: "alias",
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("deleteCustomerAlias (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .delete("/customers/id/aliases/alias")
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.deleteCustomerAlias({
+                id: "id",
+                alias: "alias",
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
     test("getCustomerById (1)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         const rawResponseBody = {
-            id: "id",
+            id: "cus_abc123",
             name: "name",
             legalName: "legalName",
             email: "email",
@@ -251,20 +637,28 @@ describe("Customers", () => {
                 country: "country",
             },
             creationState: "draft",
+            status: "active",
             churnDate: "2024-01-15T09:30:00Z",
             vatNumber: "vatNumber",
             metadata: { key: "value" },
             defaultCurrency: "defaultCurrency",
+            connections: { stripe: { customerId: "cus_stripe_xyz" } },
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
         };
-        server.mockEndpoint().get("/customers/id").respondWith().statusCode(200).jsonBody(rawResponseBody).build();
+        server
+            .mockEndpoint()
+            .get("/customers/cus_abc123")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
 
         const response = await client.customers.getCustomerById({
-            id: "id",
+            id: "cus_abc123",
         });
         expect(response).toEqual({
-            id: "id",
+            id: "cus_abc123",
             name: "name",
             legalName: "legalName",
             email: "email",
@@ -280,12 +674,18 @@ describe("Customers", () => {
                 country: "country",
             },
             creationState: "draft",
+            status: "active",
             churnDate: "2024-01-15T09:30:00Z",
             vatNumber: "vatNumber",
             metadata: {
                 key: "value",
             },
             defaultCurrency: "defaultCurrency",
+            connections: {
+                stripe: {
+                    customerId: "cus_stripe_xyz",
+                },
+            },
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
         });
@@ -295,7 +695,7 @@ describe("Customers", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/customers/id").respondWith().statusCode(403).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -309,7 +709,7 @@ describe("Customers", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/customers/id").respondWith().statusCode(404).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -323,7 +723,7 @@ describe("Customers", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/customers/id").respondWith().statusCode(500).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -338,7 +738,7 @@ describe("Customers", () => {
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
         const rawResponseBody = {
-            id: "id",
+            id: "cus_abc123",
             name: "name",
             legalName: "legalName",
             email: "email",
@@ -354,16 +754,18 @@ describe("Customers", () => {
                 country: "country",
             },
             creationState: "draft",
+            status: "active",
             churnDate: "2024-01-15T09:30:00Z",
             vatNumber: "vatNumber",
             metadata: { key: "value" },
             defaultCurrency: "defaultCurrency",
+            connections: { stripe: { customerId: "cus_stripe_xyz" } },
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
         };
         server
             .mockEndpoint()
-            .put("/customers/id")
+            .put("/customers/cus_abc123")
             .jsonBody(rawRequestBody)
             .respondWith()
             .statusCode(200)
@@ -371,11 +773,11 @@ describe("Customers", () => {
             .build();
 
         const response = await client.customers.updateCustomerById({
-            id: "id",
+            id: "cus_abc123",
             body: {},
         });
         expect(response).toEqual({
-            id: "id",
+            id: "cus_abc123",
             name: "name",
             legalName: "legalName",
             email: "email",
@@ -391,12 +793,18 @@ describe("Customers", () => {
                 country: "country",
             },
             creationState: "draft",
+            status: "active",
             churnDate: "2024-01-15T09:30:00Z",
             vatNumber: "vatNumber",
             metadata: {
                 key: "value",
             },
             defaultCurrency: "defaultCurrency",
+            connections: {
+                stripe: {
+                    customerId: "cus_stripe_xyz",
+                },
+            },
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
         });
@@ -406,7 +814,7 @@ describe("Customers", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .put("/customers/id")
@@ -428,7 +836,7 @@ describe("Customers", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .put("/customers/id")
@@ -450,7 +858,7 @@ describe("Customers", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .put("/customers/id")
@@ -472,7 +880,7 @@ describe("Customers", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .put("/customers/id")
@@ -495,10 +903,16 @@ describe("Customers", () => {
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         const rawResponseBody = {};
-        server.mockEndpoint().delete("/customers/id").respondWith().statusCode(200).jsonBody(rawResponseBody).build();
+        server
+            .mockEndpoint()
+            .delete("/customers/cus_abc123")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
 
         const response = await client.customers.deleteCustomerById({
-            id: "id",
+            id: "cus_abc123",
         });
         expect(response).toEqual({});
     });
@@ -507,7 +921,7 @@ describe("Customers", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().delete("/customers/id").respondWith().statusCode(400).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -521,7 +935,7 @@ describe("Customers", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().delete("/customers/id").respondWith().statusCode(403).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -535,7 +949,7 @@ describe("Customers", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().delete("/customers/id").respondWith().statusCode(404).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -549,7 +963,7 @@ describe("Customers", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().delete("/customers/id").respondWith().statusCode(500).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -559,12 +973,609 @@ describe("Customers", () => {
         }).rejects.toThrow(Paid.InternalServerError);
     });
 
+    test("getCustomerStateById (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = {
+            customer: {
+                id: "cus_abc123",
+                name: "name",
+                externalId: "externalId",
+                billingAddress: {
+                    line1: "line1",
+                    line2: "line2",
+                    city: "city",
+                    state: "state",
+                    zipCode: "zipCode",
+                    country: "country",
+                },
+            },
+            defaultCurrency: "defaultCurrency",
+            orders: [
+                {
+                    id: "id",
+                    externalId: "externalId",
+                    name: "name",
+                    state: "draft",
+                    currency: "currency",
+                    startDate: "2024-01-15T09:30:00Z",
+                    endDate: "2024-01-15T09:30:00Z",
+                    effectiveUntil: "2024-01-15T09:30:00Z",
+                },
+            ],
+            seats: {
+                total: 1,
+                assigned: 1,
+                unassigned: 1,
+                data: [
+                    {
+                        id: "id",
+                        orderId: "orderId",
+                        product: { id: "id", externalId: null, name: "name" },
+                        status: "assigned",
+                        assignee: null,
+                        credits: {
+                            balances: [
+                                {
+                                    creditsCurrencyId: "creditsCurrencyId",
+                                    currencyName: "currencyName",
+                                    currencyKey: "currencyKey",
+                                    balance: 1.1,
+                                },
+                            ],
+                        },
+                    },
+                ],
+            },
+            checkoutLinks: [
+                {
+                    id: "id",
+                    url: "url",
+                    status: "active",
+                    productIds: ["productIds"],
+                    singleUse: true,
+                    allowedCurrencies: ["allowedCurrencies"],
+                    expiresAt: "2024-01-15T09:30:00Z",
+                },
+            ],
+            credits: {
+                balances: [
+                    {
+                        creditsCurrencyId: "creditsCurrencyId",
+                        currencyName: "currencyName",
+                        currencyKey: "currencyKey",
+                        balance: 1.1,
+                    },
+                ],
+            },
+            timestamp: "2024-01-15T09:30:00Z",
+        };
+        server
+            .mockEndpoint()
+            .get("/customers/cus_abc123/state")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.customers.getCustomerStateById({
+            id: "cus_abc123",
+        });
+        expect(response).toEqual({
+            customer: {
+                id: "cus_abc123",
+                name: "name",
+                externalId: "externalId",
+                billingAddress: {
+                    line1: "line1",
+                    line2: "line2",
+                    city: "city",
+                    state: "state",
+                    zipCode: "zipCode",
+                    country: "country",
+                },
+            },
+            defaultCurrency: "defaultCurrency",
+            orders: [
+                {
+                    id: "id",
+                    externalId: "externalId",
+                    name: "name",
+                    state: "draft",
+                    currency: "currency",
+                    startDate: "2024-01-15T09:30:00Z",
+                    endDate: "2024-01-15T09:30:00Z",
+                    effectiveUntil: "2024-01-15T09:30:00Z",
+                },
+            ],
+            seats: {
+                total: 1,
+                assigned: 1,
+                unassigned: 1,
+                data: [
+                    {
+                        id: "id",
+                        orderId: "orderId",
+                        product: {
+                            id: "id",
+                            externalId: null,
+                            name: "name",
+                        },
+                        status: "assigned",
+                        assignee: null,
+                        credits: {
+                            balances: [
+                                {
+                                    creditsCurrencyId: "creditsCurrencyId",
+                                    currencyName: "currencyName",
+                                    currencyKey: "currencyKey",
+                                    balance: 1.1,
+                                },
+                            ],
+                        },
+                    },
+                ],
+            },
+            checkoutLinks: [
+                {
+                    id: "id",
+                    url: "url",
+                    status: "active",
+                    productIds: ["productIds"],
+                    singleUse: true,
+                    allowedCurrencies: ["allowedCurrencies"],
+                    expiresAt: "2024-01-15T09:30:00Z",
+                },
+            ],
+            credits: {
+                balances: [
+                    {
+                        creditsCurrencyId: "creditsCurrencyId",
+                        currencyName: "currencyName",
+                        currencyKey: "currencyKey",
+                        balance: 1.1,
+                    },
+                ],
+            },
+            timestamp: "2024-01-15T09:30:00Z",
+        });
+    });
+
+    test("getCustomerStateById (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/id/state")
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.getCustomerStateById({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("getCustomerStateById (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/id/state")
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.getCustomerStateById({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("getCustomerStateById (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/id/state")
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.getCustomerStateById({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("listCustomerAliasesByExternalId (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = {
+            data: [
+                {
+                    alias: "child-customer-1",
+                    customerId: "cus_abc123",
+                    name: "name",
+                    description: "description",
+                    createdAt: "2024-01-15T09:30:00Z",
+                    updatedAt: "2024-01-15T09:30:00Z",
+                },
+            ],
+            pagination: { limit: 1, offset: 1, total: 1, hasMore: true },
+        };
+        server
+            .mockEndpoint()
+            .get("/customers/external/customer_123/aliases")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.customers.listCustomerAliasesByExternalId({
+            externalId: "customer_123",
+        });
+        expect(response).toEqual({
+            data: [
+                {
+                    alias: "child-customer-1",
+                    customerId: "cus_abc123",
+                    name: "name",
+                    description: "description",
+                    createdAt: "2024-01-15T09:30:00Z",
+                    updatedAt: "2024-01-15T09:30:00Z",
+                },
+            ],
+            pagination: {
+                limit: 1,
+                offset: 1,
+                total: 1,
+                hasMore: true,
+            },
+        });
+    });
+
+    test("listCustomerAliasesByExternalId (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/external/externalId/aliases")
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.listCustomerAliasesByExternalId({
+                externalId: "externalId",
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("listCustomerAliasesByExternalId (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/external/externalId/aliases")
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.listCustomerAliasesByExternalId({
+                externalId: "externalId",
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("listCustomerAliasesByExternalId (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/external/externalId/aliases")
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.listCustomerAliasesByExternalId({
+                externalId: "externalId",
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("listCustomerAliasesByExternalId (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/external/externalId/aliases")
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.listCustomerAliasesByExternalId({
+                externalId: "externalId",
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("createCustomerAliasByExternalId (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { alias: "child-customer-1" };
+        const rawResponseBody = {
+            alias: "child-customer-1",
+            customerId: "cus_abc123",
+            name: "name",
+            description: "description",
+            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
+        };
+        server
+            .mockEndpoint()
+            .post("/customers/external/customer_123/aliases")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.customers.createCustomerAliasByExternalId({
+            externalId: "customer_123",
+            body: {
+                alias: "child-customer-1",
+            },
+        });
+        expect(response).toEqual({
+            alias: "child-customer-1",
+            customerId: "cus_abc123",
+            name: "name",
+            description: "description",
+            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
+        });
+    });
+
+    test("createCustomerAliasByExternalId (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { alias: "x" };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/customers/external/externalId/aliases")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.createCustomerAliasByExternalId({
+                externalId: "externalId",
+                body: {
+                    alias: "x",
+                },
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("createCustomerAliasByExternalId (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { alias: "x" };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/customers/external/externalId/aliases")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.createCustomerAliasByExternalId({
+                externalId: "externalId",
+                body: {
+                    alias: "x",
+                },
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("createCustomerAliasByExternalId (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { alias: "x" };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/customers/external/externalId/aliases")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.createCustomerAliasByExternalId({
+                externalId: "externalId",
+                body: {
+                    alias: "x",
+                },
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("createCustomerAliasByExternalId (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { alias: "x" };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/customers/external/externalId/aliases")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(409)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.createCustomerAliasByExternalId({
+                externalId: "externalId",
+                body: {
+                    alias: "x",
+                },
+            });
+        }).rejects.toThrow(Paid.ConflictError);
+    });
+
+    test("createCustomerAliasByExternalId (6)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { alias: "x" };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/customers/external/externalId/aliases")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.createCustomerAliasByExternalId({
+                externalId: "externalId",
+                body: {
+                    alias: "x",
+                },
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("deleteCustomerAliasByExternalId (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = {};
+        server
+            .mockEndpoint()
+            .delete("/customers/external/customer_123/aliases/child-customer-1")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.customers.deleteCustomerAliasByExternalId({
+            externalId: "customer_123",
+            alias: "child-customer-1",
+        });
+        expect(response).toEqual({});
+    });
+
+    test("deleteCustomerAliasByExternalId (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .delete("/customers/external/externalId/aliases/alias")
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.deleteCustomerAliasByExternalId({
+                externalId: "externalId",
+                alias: "alias",
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("deleteCustomerAliasByExternalId (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .delete("/customers/external/externalId/aliases/alias")
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.deleteCustomerAliasByExternalId({
+                externalId: "externalId",
+                alias: "alias",
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("deleteCustomerAliasByExternalId (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .delete("/customers/external/externalId/aliases/alias")
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.deleteCustomerAliasByExternalId({
+                externalId: "externalId",
+                alias: "alias",
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
     test("getCustomerByExternalId (1)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         const rawResponseBody = {
-            id: "id",
+            id: "cus_abc123",
             name: "name",
             legalName: "legalName",
             email: "email",
@@ -580,26 +1591,28 @@ describe("Customers", () => {
                 country: "country",
             },
             creationState: "draft",
+            status: "active",
             churnDate: "2024-01-15T09:30:00Z",
             vatNumber: "vatNumber",
             metadata: { key: "value" },
             defaultCurrency: "defaultCurrency",
+            connections: { stripe: { customerId: "cus_stripe_xyz" } },
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
         };
         server
             .mockEndpoint()
-            .get("/customers/external/externalId")
+            .get("/customers/external/customer_123")
             .respondWith()
             .statusCode(200)
             .jsonBody(rawResponseBody)
             .build();
 
         const response = await client.customers.getCustomerByExternalId({
-            externalId: "externalId",
+            externalId: "customer_123",
         });
         expect(response).toEqual({
-            id: "id",
+            id: "cus_abc123",
             name: "name",
             legalName: "legalName",
             email: "email",
@@ -615,12 +1628,18 @@ describe("Customers", () => {
                 country: "country",
             },
             creationState: "draft",
+            status: "active",
             churnDate: "2024-01-15T09:30:00Z",
             vatNumber: "vatNumber",
             metadata: {
                 key: "value",
             },
             defaultCurrency: "defaultCurrency",
+            connections: {
+                stripe: {
+                    customerId: "cus_stripe_xyz",
+                },
+            },
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
         });
@@ -630,7 +1649,7 @@ describe("Customers", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .get("/customers/external/externalId")
@@ -650,7 +1669,7 @@ describe("Customers", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .get("/customers/external/externalId")
@@ -670,7 +1689,7 @@ describe("Customers", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .get("/customers/external/externalId")
@@ -691,7 +1710,7 @@ describe("Customers", () => {
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
         const rawResponseBody = {
-            id: "id",
+            id: "cus_abc123",
             name: "name",
             legalName: "legalName",
             email: "email",
@@ -707,16 +1726,18 @@ describe("Customers", () => {
                 country: "country",
             },
             creationState: "draft",
+            status: "active",
             churnDate: "2024-01-15T09:30:00Z",
             vatNumber: "vatNumber",
             metadata: { key: "value" },
             defaultCurrency: "defaultCurrency",
+            connections: { stripe: { customerId: "cus_stripe_xyz" } },
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
         };
         server
             .mockEndpoint()
-            .put("/customers/external/externalId")
+            .put("/customers/external/customer_123")
             .jsonBody(rawRequestBody)
             .respondWith()
             .statusCode(200)
@@ -724,11 +1745,11 @@ describe("Customers", () => {
             .build();
 
         const response = await client.customers.updateCustomerByExternalId({
-            externalId: "externalId",
+            externalId: "customer_123",
             body: {},
         });
         expect(response).toEqual({
-            id: "id",
+            id: "cus_abc123",
             name: "name",
             legalName: "legalName",
             email: "email",
@@ -744,12 +1765,18 @@ describe("Customers", () => {
                 country: "country",
             },
             creationState: "draft",
+            status: "active",
             churnDate: "2024-01-15T09:30:00Z",
             vatNumber: "vatNumber",
             metadata: {
                 key: "value",
             },
             defaultCurrency: "defaultCurrency",
+            connections: {
+                stripe: {
+                    customerId: "cus_stripe_xyz",
+                },
+            },
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
         });
@@ -759,7 +1786,7 @@ describe("Customers", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .put("/customers/external/externalId")
@@ -781,7 +1808,7 @@ describe("Customers", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .put("/customers/external/externalId")
@@ -803,7 +1830,7 @@ describe("Customers", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .put("/customers/external/externalId")
@@ -825,7 +1852,7 @@ describe("Customers", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .put("/customers/external/externalId")
@@ -850,14 +1877,14 @@ describe("Customers", () => {
         const rawResponseBody = {};
         server
             .mockEndpoint()
-            .delete("/customers/external/externalId")
+            .delete("/customers/external/customer_123")
             .respondWith()
             .statusCode(200)
             .jsonBody(rawResponseBody)
             .build();
 
         const response = await client.customers.deleteCustomerByExternalId({
-            externalId: "externalId",
+            externalId: "customer_123",
         });
         expect(response).toEqual({});
     });
@@ -866,7 +1893,7 @@ describe("Customers", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .delete("/customers/external/externalId")
@@ -886,7 +1913,7 @@ describe("Customers", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .delete("/customers/external/externalId")
@@ -906,7 +1933,7 @@ describe("Customers", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .delete("/customers/external/externalId")
@@ -926,7 +1953,7 @@ describe("Customers", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .delete("/customers/external/externalId")
@@ -937,6 +1964,235 @@ describe("Customers", () => {
 
         await expect(async () => {
             return await client.customers.deleteCustomerByExternalId({
+                externalId: "externalId",
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("getCustomerStateByExternalId (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = {
+            customer: {
+                id: "cus_abc123",
+                name: "name",
+                externalId: "externalId",
+                billingAddress: {
+                    line1: "line1",
+                    line2: "line2",
+                    city: "city",
+                    state: "state",
+                    zipCode: "zipCode",
+                    country: "country",
+                },
+            },
+            defaultCurrency: "defaultCurrency",
+            orders: [
+                {
+                    id: "id",
+                    externalId: "externalId",
+                    name: "name",
+                    state: "draft",
+                    currency: "currency",
+                    startDate: "2024-01-15T09:30:00Z",
+                    endDate: "2024-01-15T09:30:00Z",
+                    effectiveUntil: "2024-01-15T09:30:00Z",
+                },
+            ],
+            seats: {
+                total: 1,
+                assigned: 1,
+                unassigned: 1,
+                data: [
+                    {
+                        id: "id",
+                        orderId: "orderId",
+                        product: { id: "id", externalId: null, name: "name" },
+                        status: "assigned",
+                        assignee: null,
+                        credits: {
+                            balances: [
+                                {
+                                    creditsCurrencyId: "creditsCurrencyId",
+                                    currencyName: "currencyName",
+                                    currencyKey: "currencyKey",
+                                    balance: 1.1,
+                                },
+                            ],
+                        },
+                    },
+                ],
+            },
+            checkoutLinks: [
+                {
+                    id: "id",
+                    url: "url",
+                    status: "active",
+                    productIds: ["productIds"],
+                    singleUse: true,
+                    allowedCurrencies: ["allowedCurrencies"],
+                    expiresAt: "2024-01-15T09:30:00Z",
+                },
+            ],
+            credits: {
+                balances: [
+                    {
+                        creditsCurrencyId: "creditsCurrencyId",
+                        currencyName: "currencyName",
+                        currencyKey: "currencyKey",
+                        balance: 1.1,
+                    },
+                ],
+            },
+            timestamp: "2024-01-15T09:30:00Z",
+        };
+        server
+            .mockEndpoint()
+            .get("/customers/external/customer_123/state")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.customers.getCustomerStateByExternalId({
+            externalId: "customer_123",
+        });
+        expect(response).toEqual({
+            customer: {
+                id: "cus_abc123",
+                name: "name",
+                externalId: "externalId",
+                billingAddress: {
+                    line1: "line1",
+                    line2: "line2",
+                    city: "city",
+                    state: "state",
+                    zipCode: "zipCode",
+                    country: "country",
+                },
+            },
+            defaultCurrency: "defaultCurrency",
+            orders: [
+                {
+                    id: "id",
+                    externalId: "externalId",
+                    name: "name",
+                    state: "draft",
+                    currency: "currency",
+                    startDate: "2024-01-15T09:30:00Z",
+                    endDate: "2024-01-15T09:30:00Z",
+                    effectiveUntil: "2024-01-15T09:30:00Z",
+                },
+            ],
+            seats: {
+                total: 1,
+                assigned: 1,
+                unassigned: 1,
+                data: [
+                    {
+                        id: "id",
+                        orderId: "orderId",
+                        product: {
+                            id: "id",
+                            externalId: null,
+                            name: "name",
+                        },
+                        status: "assigned",
+                        assignee: null,
+                        credits: {
+                            balances: [
+                                {
+                                    creditsCurrencyId: "creditsCurrencyId",
+                                    currencyName: "currencyName",
+                                    currencyKey: "currencyKey",
+                                    balance: 1.1,
+                                },
+                            ],
+                        },
+                    },
+                ],
+            },
+            checkoutLinks: [
+                {
+                    id: "id",
+                    url: "url",
+                    status: "active",
+                    productIds: ["productIds"],
+                    singleUse: true,
+                    allowedCurrencies: ["allowedCurrencies"],
+                    expiresAt: "2024-01-15T09:30:00Z",
+                },
+            ],
+            credits: {
+                balances: [
+                    {
+                        creditsCurrencyId: "creditsCurrencyId",
+                        currencyName: "currencyName",
+                        currencyKey: "currencyKey",
+                        balance: 1.1,
+                    },
+                ],
+            },
+            timestamp: "2024-01-15T09:30:00Z",
+        });
+    });
+
+    test("getCustomerStateByExternalId (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/external/externalId/state")
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.getCustomerStateByExternalId({
+                externalId: "externalId",
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("getCustomerStateByExternalId (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/external/externalId/state")
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.getCustomerStateByExternalId({
+                externalId: "externalId",
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("getCustomerStateByExternalId (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/external/externalId/state")
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.getCustomerStateByExternalId({
                 externalId: "externalId",
             });
         }).rejects.toThrow(Paid.InternalServerError);
@@ -977,14 +2233,14 @@ describe("Customers", () => {
         };
         server
             .mockEndpoint()
-            .get("/customers/id/credits/balances")
+            .get("/customers/cus_abc123/credits/balances")
             .respondWith()
             .statusCode(200)
             .jsonBody(rawResponseBody)
             .build();
 
         const response = await client.customers.getCustomerCreditBalances({
-            id: "id",
+            id: "cus_abc123",
         });
         expect(response).toEqual({
             data: [
@@ -1021,7 +2277,7 @@ describe("Customers", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .get("/customers/id/credits/balances")
@@ -1041,7 +2297,7 @@ describe("Customers", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .get("/customers/id/credits/balances")
@@ -1061,7 +2317,7 @@ describe("Customers", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .get("/customers/id/credits/balances")
@@ -1073,6 +2329,167 @@ describe("Customers", () => {
         await expect(async () => {
             return await client.customers.getCustomerCreditBalances({
                 id: "id",
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("grantCustomerCredits (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {
+            creditCurrencyKey: "api_credits",
+            amount: 10000,
+            startsAt: "2026-06-05T12:00:00Z",
+            expiresAt: "2026-12-31T23:59:59Z",
+        };
+        const rawResponseBody = {
+            created: true,
+            customer: { id: "cus_abc123", externalId: "customer-123" },
+            creditCurrency: { key: "api_credits", name: "API Credits" },
+            grant: {
+                amount: 10000,
+                amountDecimal: "10000",
+                startsAt: "2026-06-05T12:00:00Z",
+                expiresAt: "2026-12-31T23:59:59Z",
+                status: "active",
+            },
+            createdAt: "2026-06-05T12:34:56Z",
+        };
+        server
+            .mockEndpoint()
+            .post("/customers/cus_abc123/credits/grants")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.customers.grantCustomerCredits({
+            id: "cus_abc123",
+            body: {
+                creditCurrencyKey: "api_credits",
+                amount: 10000,
+                startsAt: "2026-06-05T12:00:00Z",
+                expiresAt: "2026-12-31T23:59:59Z",
+            },
+        });
+        expect(response).toEqual({
+            created: true,
+            customer: {
+                id: "cus_abc123",
+                externalId: "customer-123",
+            },
+            creditCurrency: {
+                key: "api_credits",
+                name: "API Credits",
+            },
+            grant: {
+                amount: 10000,
+                amountDecimal: "10000",
+                startsAt: "2026-06-05T12:00:00Z",
+                expiresAt: "2026-12-31T23:59:59Z",
+                status: "active",
+            },
+            createdAt: "2026-06-05T12:34:56Z",
+        });
+    });
+
+    test("grantCustomerCredits (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { creditCurrencyKey: "x", amount: 1.1 };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/customers/id/credits/grants")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.grantCustomerCredits({
+                id: "id",
+                body: {
+                    creditCurrencyKey: "x",
+                    amount: 1.1,
+                },
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("grantCustomerCredits (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { creditCurrencyKey: "x", amount: 1.1 };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/customers/id/credits/grants")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.grantCustomerCredits({
+                id: "id",
+                body: {
+                    creditCurrencyKey: "x",
+                    amount: 1.1,
+                },
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("grantCustomerCredits (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { creditCurrencyKey: "x", amount: 1.1 };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/customers/id/credits/grants")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.grantCustomerCredits({
+                id: "id",
+                body: {
+                    creditCurrencyKey: "x",
+                    amount: 1.1,
+                },
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("grantCustomerCredits (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { creditCurrencyKey: "x", amount: 1.1 };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/customers/id/credits/grants")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.grantCustomerCredits({
+                id: "id",
+                body: {
+                    creditCurrencyKey: "x",
+                    amount: 1.1,
+                },
             });
         }).rejects.toThrow(Paid.InternalServerError);
     });
@@ -1112,14 +2529,14 @@ describe("Customers", () => {
         };
         server
             .mockEndpoint()
-            .get("/customers/external/externalId/credits/balances")
+            .get("/customers/external/customer_123/credits/balances")
             .respondWith()
             .statusCode(200)
             .jsonBody(rawResponseBody)
             .build();
 
         const response = await client.customers.getCustomerCreditBalancesByExternalId({
-            externalId: "externalId",
+            externalId: "customer_123",
         });
         expect(response).toEqual({
             data: [
@@ -1156,7 +2573,7 @@ describe("Customers", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .get("/customers/external/externalId/credits/balances")
@@ -1176,7 +2593,7 @@ describe("Customers", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .get("/customers/external/externalId/credits/balances")
@@ -1196,7 +2613,7 @@ describe("Customers", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .get("/customers/external/externalId/credits/balances")
@@ -1208,6 +2625,433 @@ describe("Customers", () => {
         await expect(async () => {
             return await client.customers.getCustomerCreditBalancesByExternalId({
                 externalId: "externalId",
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("listCustomerPendingCreditConsumption (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = {
+            data: [
+                {
+                    credits: 40,
+                    creditsDecimal: "40",
+                    creditCurrency: { key: "api_credits", name: "API Credits" },
+                    orderId: "ord_abc123",
+                    eventName: "agent.api_call",
+                    occurredAt: "2024-01-15T09:30:00Z",
+                    recordedAt: "2024-01-15T09:30:00Z",
+                },
+            ],
+            pagination: { limit: 1, offset: 1, total: 1, hasMore: true },
+        };
+        server
+            .mockEndpoint()
+            .get("/customers/cus_abc123/credits/pending-consumption")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.customers.listCustomerPendingCreditConsumption({
+            id: "cus_abc123",
+        });
+        expect(response).toEqual({
+            data: [
+                {
+                    credits: 40,
+                    creditsDecimal: "40",
+                    creditCurrency: {
+                        key: "api_credits",
+                        name: "API Credits",
+                    },
+                    orderId: "ord_abc123",
+                    eventName: "agent.api_call",
+                    occurredAt: "2024-01-15T09:30:00Z",
+                    recordedAt: "2024-01-15T09:30:00Z",
+                },
+            ],
+            pagination: {
+                limit: 1,
+                offset: 1,
+                total: 1,
+                hasMore: true,
+            },
+        });
+    });
+
+    test("listCustomerPendingCreditConsumption (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/id/credits/pending-consumption")
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.listCustomerPendingCreditConsumption({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("listCustomerPendingCreditConsumption (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/id/credits/pending-consumption")
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.listCustomerPendingCreditConsumption({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("listCustomerPendingCreditConsumption (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/id/credits/pending-consumption")
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.listCustomerPendingCreditConsumption({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("listCustomerPendingCreditConsumption (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/id/credits/pending-consumption")
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.listCustomerPendingCreditConsumption({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("listCustomerPendingCreditConsumptionByExternalId (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = {
+            data: [
+                {
+                    credits: 40,
+                    creditsDecimal: "40",
+                    creditCurrency: { key: "api_credits", name: "API Credits" },
+                    orderId: "ord_abc123",
+                    eventName: "agent.api_call",
+                    occurredAt: "2024-01-15T09:30:00Z",
+                    recordedAt: "2024-01-15T09:30:00Z",
+                },
+            ],
+            pagination: { limit: 1, offset: 1, total: 1, hasMore: true },
+        };
+        server
+            .mockEndpoint()
+            .get("/customers/external/customer_123/credits/pending-consumption")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.customers.listCustomerPendingCreditConsumptionByExternalId({
+            externalId: "customer_123",
+        });
+        expect(response).toEqual({
+            data: [
+                {
+                    credits: 40,
+                    creditsDecimal: "40",
+                    creditCurrency: {
+                        key: "api_credits",
+                        name: "API Credits",
+                    },
+                    orderId: "ord_abc123",
+                    eventName: "agent.api_call",
+                    occurredAt: "2024-01-15T09:30:00Z",
+                    recordedAt: "2024-01-15T09:30:00Z",
+                },
+            ],
+            pagination: {
+                limit: 1,
+                offset: 1,
+                total: 1,
+                hasMore: true,
+            },
+        });
+    });
+
+    test("listCustomerPendingCreditConsumptionByExternalId (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/external/externalId/credits/pending-consumption")
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.listCustomerPendingCreditConsumptionByExternalId({
+                externalId: "externalId",
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("listCustomerPendingCreditConsumptionByExternalId (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/external/externalId/credits/pending-consumption")
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.listCustomerPendingCreditConsumptionByExternalId({
+                externalId: "externalId",
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("listCustomerPendingCreditConsumptionByExternalId (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/external/externalId/credits/pending-consumption")
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.listCustomerPendingCreditConsumptionByExternalId({
+                externalId: "externalId",
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("listCustomerPendingCreditConsumptionByExternalId (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/external/externalId/credits/pending-consumption")
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.listCustomerPendingCreditConsumptionByExternalId({
+                externalId: "externalId",
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("grantCustomerCreditsByExternalId (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {
+            creditCurrencyKey: "api_credits",
+            amount: 10000,
+            startsAt: "2026-06-05T12:00:00Z",
+            expiresAt: "2026-12-31T23:59:59Z",
+        };
+        const rawResponseBody = {
+            created: true,
+            customer: { id: "cus_abc123", externalId: "customer-123" },
+            creditCurrency: { key: "api_credits", name: "API Credits" },
+            grant: {
+                amount: 10000,
+                amountDecimal: "10000",
+                startsAt: "2026-06-05T12:00:00Z",
+                expiresAt: "2026-12-31T23:59:59Z",
+                status: "active",
+            },
+            createdAt: "2026-06-05T12:34:56Z",
+        };
+        server
+            .mockEndpoint()
+            .post("/customers/external/customer_123/credits/grants")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.customers.grantCustomerCreditsByExternalId({
+            externalId: "customer_123",
+            body: {
+                creditCurrencyKey: "api_credits",
+                amount: 10000,
+                startsAt: "2026-06-05T12:00:00Z",
+                expiresAt: "2026-12-31T23:59:59Z",
+            },
+        });
+        expect(response).toEqual({
+            created: true,
+            customer: {
+                id: "cus_abc123",
+                externalId: "customer-123",
+            },
+            creditCurrency: {
+                key: "api_credits",
+                name: "API Credits",
+            },
+            grant: {
+                amount: 10000,
+                amountDecimal: "10000",
+                startsAt: "2026-06-05T12:00:00Z",
+                expiresAt: "2026-12-31T23:59:59Z",
+                status: "active",
+            },
+            createdAt: "2026-06-05T12:34:56Z",
+        });
+    });
+
+    test("grantCustomerCreditsByExternalId (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { creditCurrencyKey: "x", amount: 1.1 };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/customers/external/externalId/credits/grants")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.grantCustomerCreditsByExternalId({
+                externalId: "externalId",
+                body: {
+                    creditCurrencyKey: "x",
+                    amount: 1.1,
+                },
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("grantCustomerCreditsByExternalId (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { creditCurrencyKey: "x", amount: 1.1 };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/customers/external/externalId/credits/grants")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.grantCustomerCreditsByExternalId({
+                externalId: "externalId",
+                body: {
+                    creditCurrencyKey: "x",
+                    amount: 1.1,
+                },
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("grantCustomerCreditsByExternalId (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { creditCurrencyKey: "x", amount: 1.1 };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/customers/external/externalId/credits/grants")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.grantCustomerCreditsByExternalId({
+                externalId: "externalId",
+                body: {
+                    creditCurrencyKey: "x",
+                    amount: 1.1,
+                },
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("grantCustomerCreditsByExternalId (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { creditCurrencyKey: "x", amount: 1.1 };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/customers/external/externalId/credits/grants")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.grantCustomerCreditsByExternalId({
+                externalId: "externalId",
+                body: {
+                    creditCurrencyKey: "x",
+                    amount: 1.1,
+                },
             });
         }).rejects.toThrow(Paid.InternalServerError);
     });
@@ -1261,7 +3105,7 @@ describe("Customers", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .put("/customers/customerExternalId/users/userExternalId")
@@ -1283,7 +3127,7 @@ describe("Customers", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .put("/customers/customerExternalId/users/userExternalId")
@@ -1305,7 +3149,7 @@ describe("Customers", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .put("/customers/customerExternalId/users/userExternalId")
@@ -1327,7 +3171,7 @@ describe("Customers", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .put("/customers/customerExternalId/users/userExternalId")
@@ -1341,6 +3185,2434 @@ describe("Customers", () => {
             return await client.customers.upsertCustomerUserByExternalId({
                 customerExternalId: "customerExternalId",
                 userExternalId: "userExternalId",
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("listCustomerUnitsByExternalId (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = {
+            data: [
+                {
+                    externalId: "team-research",
+                    name: "Research team",
+                    externalType: "externalType",
+                    status: "ACTIVE",
+                    parentExternalId: "dept-rnd",
+                    isRoot: true,
+                    metadata: { key: "value" },
+                    createdAt: "2024-01-15T09:30:00Z",
+                    updatedAt: "2024-01-15T09:30:00Z",
+                },
+            ],
+            pagination: { limit: 1, offset: 1, total: 1, hasMore: true },
+        };
+        server
+            .mockEndpoint()
+            .get("/customers/external/customer_123/customer-units")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.customers.listCustomerUnitsByExternalId({
+            externalId: "customer_123",
+            parentExternalId: "dept-rnd",
+        });
+        expect(response).toEqual({
+            data: [
+                {
+                    externalId: "team-research",
+                    name: "Research team",
+                    externalType: "externalType",
+                    status: "ACTIVE",
+                    parentExternalId: "dept-rnd",
+                    isRoot: true,
+                    metadata: {
+                        key: "value",
+                    },
+                    createdAt: "2024-01-15T09:30:00Z",
+                    updatedAt: "2024-01-15T09:30:00Z",
+                },
+            ],
+            pagination: {
+                limit: 1,
+                offset: 1,
+                total: 1,
+                hasMore: true,
+            },
+        });
+    });
+
+    test("listCustomerUnitsByExternalId (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/external/externalId/customer-units")
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.listCustomerUnitsByExternalId({
+                externalId: "externalId",
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("listCustomerUnitsByExternalId (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/external/externalId/customer-units")
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.listCustomerUnitsByExternalId({
+                externalId: "externalId",
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("listCustomerUnitsByExternalId (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/external/externalId/customer-units")
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.listCustomerUnitsByExternalId({
+                externalId: "externalId",
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("listCustomerUnitsByExternalId (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/external/externalId/customer-units")
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.listCustomerUnitsByExternalId({
+                externalId: "externalId",
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("createCustomerUnitByExternalId (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { externalId: "team-research" };
+        const rawResponseBody = {
+            externalId: "team-research",
+            name: "Research team",
+            externalType: "externalType",
+            status: "ACTIVE",
+            parentExternalId: "dept-rnd",
+            isRoot: true,
+            metadata: { key: "value" },
+            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
+        };
+        server
+            .mockEndpoint()
+            .post("/customers/external/customer_123/customer-units")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.customers.createCustomerUnitByExternalId({
+            externalId: "customer_123",
+            body: {
+                externalId: "team-research",
+            },
+        });
+        expect(response).toEqual({
+            externalId: "team-research",
+            name: "Research team",
+            externalType: "externalType",
+            status: "ACTIVE",
+            parentExternalId: "dept-rnd",
+            isRoot: true,
+            metadata: {
+                key: "value",
+            },
+            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
+        });
+    });
+
+    test("createCustomerUnitByExternalId (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { externalId: "x" };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/customers/external/externalId/customer-units")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.createCustomerUnitByExternalId({
+                externalId: "externalId",
+                body: {
+                    externalId: "x",
+                },
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("createCustomerUnitByExternalId (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { externalId: "x" };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/customers/external/externalId/customer-units")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.createCustomerUnitByExternalId({
+                externalId: "externalId",
+                body: {
+                    externalId: "x",
+                },
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("createCustomerUnitByExternalId (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { externalId: "x" };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/customers/external/externalId/customer-units")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.createCustomerUnitByExternalId({
+                externalId: "externalId",
+                body: {
+                    externalId: "x",
+                },
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("createCustomerUnitByExternalId (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { externalId: "x" };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/customers/external/externalId/customer-units")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(409)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.createCustomerUnitByExternalId({
+                externalId: "externalId",
+                body: {
+                    externalId: "x",
+                },
+            });
+        }).rejects.toThrow(Paid.ConflictError);
+    });
+
+    test("createCustomerUnitByExternalId (6)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { externalId: "x" };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/customers/external/externalId/customer-units")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.createCustomerUnitByExternalId({
+                externalId: "externalId",
+                body: {
+                    externalId: "x",
+                },
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("getCustomerUnitByExternalId (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = {
+            externalId: "team-research",
+            name: "Research team",
+            externalType: "externalType",
+            status: "ACTIVE",
+            parentExternalId: "dept-rnd",
+            isRoot: true,
+            metadata: { key: "value" },
+            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
+        };
+        server
+            .mockEndpoint()
+            .get("/customers/external/customer_123/customer-units/team-research")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.customers.getCustomerUnitByExternalId({
+            externalId: "customer_123",
+            externalCustomerUnitId: "team-research",
+        });
+        expect(response).toEqual({
+            externalId: "team-research",
+            name: "Research team",
+            externalType: "externalType",
+            status: "ACTIVE",
+            parentExternalId: "dept-rnd",
+            isRoot: true,
+            metadata: {
+                key: "value",
+            },
+            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
+        });
+    });
+
+    test("getCustomerUnitByExternalId (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/external/externalId/customer-units/externalCustomerUnitId")
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.getCustomerUnitByExternalId({
+                externalId: "externalId",
+                externalCustomerUnitId: "externalCustomerUnitId",
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("getCustomerUnitByExternalId (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/external/externalId/customer-units/externalCustomerUnitId")
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.getCustomerUnitByExternalId({
+                externalId: "externalId",
+                externalCustomerUnitId: "externalCustomerUnitId",
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("getCustomerUnitByExternalId (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/external/externalId/customer-units/externalCustomerUnitId")
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.getCustomerUnitByExternalId({
+                externalId: "externalId",
+                externalCustomerUnitId: "externalCustomerUnitId",
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("getCustomerUnitByExternalId (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/external/externalId/customer-units/externalCustomerUnitId")
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.getCustomerUnitByExternalId({
+                externalId: "externalId",
+                externalCustomerUnitId: "externalCustomerUnitId",
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("deleteCustomerUnitByExternalId (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = {
+            externalId: "team-research",
+            name: "Research team",
+            externalType: "externalType",
+            status: "ACTIVE",
+            parentExternalId: "dept-rnd",
+            isRoot: true,
+            metadata: { key: "value" },
+            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
+        };
+        server
+            .mockEndpoint()
+            .delete("/customers/external/customer_123/customer-units/team-research")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.customers.deleteCustomerUnitByExternalId({
+            externalId: "customer_123",
+            externalCustomerUnitId: "team-research",
+        });
+        expect(response).toEqual({
+            externalId: "team-research",
+            name: "Research team",
+            externalType: "externalType",
+            status: "ACTIVE",
+            parentExternalId: "dept-rnd",
+            isRoot: true,
+            metadata: {
+                key: "value",
+            },
+            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
+        });
+    });
+
+    test("deleteCustomerUnitByExternalId (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .delete("/customers/external/externalId/customer-units/externalCustomerUnitId")
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.deleteCustomerUnitByExternalId({
+                externalId: "externalId",
+                externalCustomerUnitId: "externalCustomerUnitId",
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("deleteCustomerUnitByExternalId (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .delete("/customers/external/externalId/customer-units/externalCustomerUnitId")
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.deleteCustomerUnitByExternalId({
+                externalId: "externalId",
+                externalCustomerUnitId: "externalCustomerUnitId",
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("deleteCustomerUnitByExternalId (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .delete("/customers/external/externalId/customer-units/externalCustomerUnitId")
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.deleteCustomerUnitByExternalId({
+                externalId: "externalId",
+                externalCustomerUnitId: "externalCustomerUnitId",
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("deleteCustomerUnitByExternalId (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .delete("/customers/external/externalId/customer-units/externalCustomerUnitId")
+            .respondWith()
+            .statusCode(409)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.deleteCustomerUnitByExternalId({
+                externalId: "externalId",
+                externalCustomerUnitId: "externalCustomerUnitId",
+            });
+        }).rejects.toThrow(Paid.ConflictError);
+    });
+
+    test("deleteCustomerUnitByExternalId (6)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .delete("/customers/external/externalId/customer-units/externalCustomerUnitId")
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.deleteCustomerUnitByExternalId({
+                externalId: "externalId",
+                externalCustomerUnitId: "externalCustomerUnitId",
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("updateCustomerUnitByExternalId (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = {
+            externalId: "team-research",
+            name: "Research team",
+            externalType: "externalType",
+            status: "ACTIVE",
+            parentExternalId: "dept-rnd",
+            isRoot: true,
+            metadata: { key: "value" },
+            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
+        };
+        server
+            .mockEndpoint()
+            .patch("/customers/external/customer_123/customer-units/team-research")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.customers.updateCustomerUnitByExternalId({
+            externalId: "customer_123",
+            externalCustomerUnitId: "team-research",
+            body: {},
+        });
+        expect(response).toEqual({
+            externalId: "team-research",
+            name: "Research team",
+            externalType: "externalType",
+            status: "ACTIVE",
+            parentExternalId: "dept-rnd",
+            isRoot: true,
+            metadata: {
+                key: "value",
+            },
+            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
+        });
+    });
+
+    test("updateCustomerUnitByExternalId (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .patch("/customers/external/externalId/customer-units/externalCustomerUnitId")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.updateCustomerUnitByExternalId({
+                externalId: "externalId",
+                externalCustomerUnitId: "externalCustomerUnitId",
+                body: {},
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("updateCustomerUnitByExternalId (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .patch("/customers/external/externalId/customer-units/externalCustomerUnitId")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.updateCustomerUnitByExternalId({
+                externalId: "externalId",
+                externalCustomerUnitId: "externalCustomerUnitId",
+                body: {},
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("updateCustomerUnitByExternalId (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .patch("/customers/external/externalId/customer-units/externalCustomerUnitId")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.updateCustomerUnitByExternalId({
+                externalId: "externalId",
+                externalCustomerUnitId: "externalCustomerUnitId",
+                body: {},
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("updateCustomerUnitByExternalId (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .patch("/customers/external/externalId/customer-units/externalCustomerUnitId")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(409)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.updateCustomerUnitByExternalId({
+                externalId: "externalId",
+                externalCustomerUnitId: "externalCustomerUnitId",
+                body: {},
+            });
+        }).rejects.toThrow(Paid.ConflictError);
+    });
+
+    test("updateCustomerUnitByExternalId (6)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .patch("/customers/external/externalId/customer-units/externalCustomerUnitId")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.updateCustomerUnitByExternalId({
+                externalId: "externalId",
+                externalCustomerUnitId: "externalCustomerUnitId",
+                body: {},
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("listCustomerUnits (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = {
+            data: [
+                {
+                    externalId: "team-research",
+                    name: "Research team",
+                    externalType: "externalType",
+                    status: "ACTIVE",
+                    parentExternalId: "dept-rnd",
+                    isRoot: true,
+                    metadata: { key: "value" },
+                    createdAt: "2024-01-15T09:30:00Z",
+                    updatedAt: "2024-01-15T09:30:00Z",
+                },
+            ],
+            pagination: { limit: 1, offset: 1, total: 1, hasMore: true },
+        };
+        server
+            .mockEndpoint()
+            .get("/customers/cus_abc123/customer-units")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.customers.listCustomerUnits({
+            id: "cus_abc123",
+            parentExternalId: "dept-rnd",
+        });
+        expect(response).toEqual({
+            data: [
+                {
+                    externalId: "team-research",
+                    name: "Research team",
+                    externalType: "externalType",
+                    status: "ACTIVE",
+                    parentExternalId: "dept-rnd",
+                    isRoot: true,
+                    metadata: {
+                        key: "value",
+                    },
+                    createdAt: "2024-01-15T09:30:00Z",
+                    updatedAt: "2024-01-15T09:30:00Z",
+                },
+            ],
+            pagination: {
+                limit: 1,
+                offset: 1,
+                total: 1,
+                hasMore: true,
+            },
+        });
+    });
+
+    test("listCustomerUnits (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/id/customer-units")
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.listCustomerUnits({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("listCustomerUnits (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/id/customer-units")
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.listCustomerUnits({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("listCustomerUnits (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/id/customer-units")
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.listCustomerUnits({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("listCustomerUnits (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/id/customer-units")
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.listCustomerUnits({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("createCustomerUnit (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { externalId: "team-research" };
+        const rawResponseBody = {
+            externalId: "team-research",
+            name: "Research team",
+            externalType: "externalType",
+            status: "ACTIVE",
+            parentExternalId: "dept-rnd",
+            isRoot: true,
+            metadata: { key: "value" },
+            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
+        };
+        server
+            .mockEndpoint()
+            .post("/customers/cus_abc123/customer-units")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.customers.createCustomerUnit({
+            id: "cus_abc123",
+            body: {
+                externalId: "team-research",
+            },
+        });
+        expect(response).toEqual({
+            externalId: "team-research",
+            name: "Research team",
+            externalType: "externalType",
+            status: "ACTIVE",
+            parentExternalId: "dept-rnd",
+            isRoot: true,
+            metadata: {
+                key: "value",
+            },
+            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
+        });
+    });
+
+    test("createCustomerUnit (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { externalId: "x" };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/customers/id/customer-units")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.createCustomerUnit({
+                id: "id",
+                body: {
+                    externalId: "x",
+                },
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("createCustomerUnit (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { externalId: "x" };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/customers/id/customer-units")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.createCustomerUnit({
+                id: "id",
+                body: {
+                    externalId: "x",
+                },
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("createCustomerUnit (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { externalId: "x" };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/customers/id/customer-units")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.createCustomerUnit({
+                id: "id",
+                body: {
+                    externalId: "x",
+                },
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("createCustomerUnit (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { externalId: "x" };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/customers/id/customer-units")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(409)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.createCustomerUnit({
+                id: "id",
+                body: {
+                    externalId: "x",
+                },
+            });
+        }).rejects.toThrow(Paid.ConflictError);
+    });
+
+    test("createCustomerUnit (6)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { externalId: "x" };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/customers/id/customer-units")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.createCustomerUnit({
+                id: "id",
+                body: {
+                    externalId: "x",
+                },
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("getCustomerUnit (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = {
+            externalId: "team-research",
+            name: "Research team",
+            externalType: "externalType",
+            status: "ACTIVE",
+            parentExternalId: "dept-rnd",
+            isRoot: true,
+            metadata: { key: "value" },
+            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
+        };
+        server
+            .mockEndpoint()
+            .get("/customers/cus_abc123/customer-units/team-research")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.customers.getCustomerUnit({
+            id: "cus_abc123",
+            externalCustomerUnitId: "team-research",
+        });
+        expect(response).toEqual({
+            externalId: "team-research",
+            name: "Research team",
+            externalType: "externalType",
+            status: "ACTIVE",
+            parentExternalId: "dept-rnd",
+            isRoot: true,
+            metadata: {
+                key: "value",
+            },
+            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
+        });
+    });
+
+    test("getCustomerUnit (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/id/customer-units/externalCustomerUnitId")
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.getCustomerUnit({
+                id: "id",
+                externalCustomerUnitId: "externalCustomerUnitId",
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("getCustomerUnit (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/id/customer-units/externalCustomerUnitId")
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.getCustomerUnit({
+                id: "id",
+                externalCustomerUnitId: "externalCustomerUnitId",
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("getCustomerUnit (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/id/customer-units/externalCustomerUnitId")
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.getCustomerUnit({
+                id: "id",
+                externalCustomerUnitId: "externalCustomerUnitId",
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("getCustomerUnit (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/id/customer-units/externalCustomerUnitId")
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.getCustomerUnit({
+                id: "id",
+                externalCustomerUnitId: "externalCustomerUnitId",
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("deleteCustomerUnit (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = {
+            externalId: "team-research",
+            name: "Research team",
+            externalType: "externalType",
+            status: "ACTIVE",
+            parentExternalId: "dept-rnd",
+            isRoot: true,
+            metadata: { key: "value" },
+            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
+        };
+        server
+            .mockEndpoint()
+            .delete("/customers/cus_abc123/customer-units/team-research")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.customers.deleteCustomerUnit({
+            id: "cus_abc123",
+            externalCustomerUnitId: "team-research",
+        });
+        expect(response).toEqual({
+            externalId: "team-research",
+            name: "Research team",
+            externalType: "externalType",
+            status: "ACTIVE",
+            parentExternalId: "dept-rnd",
+            isRoot: true,
+            metadata: {
+                key: "value",
+            },
+            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
+        });
+    });
+
+    test("deleteCustomerUnit (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .delete("/customers/id/customer-units/externalCustomerUnitId")
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.deleteCustomerUnit({
+                id: "id",
+                externalCustomerUnitId: "externalCustomerUnitId",
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("deleteCustomerUnit (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .delete("/customers/id/customer-units/externalCustomerUnitId")
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.deleteCustomerUnit({
+                id: "id",
+                externalCustomerUnitId: "externalCustomerUnitId",
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("deleteCustomerUnit (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .delete("/customers/id/customer-units/externalCustomerUnitId")
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.deleteCustomerUnit({
+                id: "id",
+                externalCustomerUnitId: "externalCustomerUnitId",
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("deleteCustomerUnit (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .delete("/customers/id/customer-units/externalCustomerUnitId")
+            .respondWith()
+            .statusCode(409)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.deleteCustomerUnit({
+                id: "id",
+                externalCustomerUnitId: "externalCustomerUnitId",
+            });
+        }).rejects.toThrow(Paid.ConflictError);
+    });
+
+    test("deleteCustomerUnit (6)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .delete("/customers/id/customer-units/externalCustomerUnitId")
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.deleteCustomerUnit({
+                id: "id",
+                externalCustomerUnitId: "externalCustomerUnitId",
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("updateCustomerUnit (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = {
+            externalId: "team-research",
+            name: "Research team",
+            externalType: "externalType",
+            status: "ACTIVE",
+            parentExternalId: "dept-rnd",
+            isRoot: true,
+            metadata: { key: "value" },
+            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
+        };
+        server
+            .mockEndpoint()
+            .patch("/customers/cus_abc123/customer-units/team-research")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.customers.updateCustomerUnit({
+            id: "cus_abc123",
+            externalCustomerUnitId: "team-research",
+            body: {},
+        });
+        expect(response).toEqual({
+            externalId: "team-research",
+            name: "Research team",
+            externalType: "externalType",
+            status: "ACTIVE",
+            parentExternalId: "dept-rnd",
+            isRoot: true,
+            metadata: {
+                key: "value",
+            },
+            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
+        });
+    });
+
+    test("updateCustomerUnit (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .patch("/customers/id/customer-units/externalCustomerUnitId")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.updateCustomerUnit({
+                id: "id",
+                externalCustomerUnitId: "externalCustomerUnitId",
+                body: {},
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("updateCustomerUnit (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .patch("/customers/id/customer-units/externalCustomerUnitId")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.updateCustomerUnit({
+                id: "id",
+                externalCustomerUnitId: "externalCustomerUnitId",
+                body: {},
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("updateCustomerUnit (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .patch("/customers/id/customer-units/externalCustomerUnitId")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.updateCustomerUnit({
+                id: "id",
+                externalCustomerUnitId: "externalCustomerUnitId",
+                body: {},
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("updateCustomerUnit (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .patch("/customers/id/customer-units/externalCustomerUnitId")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(409)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.updateCustomerUnit({
+                id: "id",
+                externalCustomerUnitId: "externalCustomerUnitId",
+                body: {},
+            });
+        }).rejects.toThrow(Paid.ConflictError);
+    });
+
+    test("updateCustomerUnit (6)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .patch("/customers/id/customer-units/externalCustomerUnitId")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.updateCustomerUnit({
+                id: "id",
+                externalCustomerUnitId: "externalCustomerUnitId",
+                body: {},
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("getCustomerUnitCapByExternalId (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = {
+            externalCustomerUnitId: "tenant-a",
+            customerId: "cus_abc123",
+            creditsCurrencyId: "7f4f5d4c-55e9-4d5b-a3e7-c9eb3d2d01bf",
+            policy: {
+                amount: 10000,
+                frequency: "MONTHLY",
+                effectiveFrom: "2024-01-15T09:30:00Z",
+                effectiveUntil: "2024-01-15T09:30:00Z",
+                createdAt: "2024-01-15T09:30:00Z",
+                source: "api",
+            },
+            currentPeriod: {
+                window: { start: "2024-01-15T09:30:00Z", end: "2024-01-15T09:30:00Z" },
+                used: 1.1,
+                remaining: 1.1,
+            },
+        };
+        server
+            .mockEndpoint()
+            .get("/customers/external/customer_123/customer-units/tenant-a/cap")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.customers.getCustomerUnitCapByExternalId({
+            externalId: "customer_123",
+            externalCustomerUnitId: "tenant-a",
+            creditsCurrencyId: "7f4f5d4c-55e9-4d5b-a3e7-c9eb3d2d01bf",
+        });
+        expect(response).toEqual({
+            externalCustomerUnitId: "tenant-a",
+            customerId: "cus_abc123",
+            creditsCurrencyId: "7f4f5d4c-55e9-4d5b-a3e7-c9eb3d2d01bf",
+            policy: {
+                amount: 10000,
+                frequency: "MONTHLY",
+                effectiveFrom: "2024-01-15T09:30:00Z",
+                effectiveUntil: "2024-01-15T09:30:00Z",
+                createdAt: "2024-01-15T09:30:00Z",
+                source: "api",
+            },
+            currentPeriod: {
+                window: {
+                    start: "2024-01-15T09:30:00Z",
+                    end: "2024-01-15T09:30:00Z",
+                },
+                used: 1.1,
+                remaining: 1.1,
+            },
+        });
+    });
+
+    test("getCustomerUnitCapByExternalId (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/external/externalId/customer-units/externalCustomerUnitId/cap")
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.getCustomerUnitCapByExternalId({
+                externalId: "externalId",
+                externalCustomerUnitId: "externalCustomerUnitId",
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("getCustomerUnitCapByExternalId (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/external/externalId/customer-units/externalCustomerUnitId/cap")
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.getCustomerUnitCapByExternalId({
+                externalId: "externalId",
+                externalCustomerUnitId: "externalCustomerUnitId",
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("getCustomerUnitCapByExternalId (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/external/externalId/customer-units/externalCustomerUnitId/cap")
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.getCustomerUnitCapByExternalId({
+                externalId: "externalId",
+                externalCustomerUnitId: "externalCustomerUnitId",
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("getCustomerUnitCapByExternalId (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/external/externalId/customer-units/externalCustomerUnitId/cap")
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.getCustomerUnitCapByExternalId({
+                externalId: "externalId",
+                externalCustomerUnitId: "externalCustomerUnitId",
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("setCustomerUnitCapByExternalId (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { amount: 10000 };
+        const rawResponseBody = {
+            externalCustomerUnitId: "tenant-a",
+            customerId: "cus_abc123",
+            creditsCurrencyId: "7f4f5d4c-55e9-4d5b-a3e7-c9eb3d2d01bf",
+            policy: {
+                amount: 10000,
+                frequency: "MONTHLY",
+                effectiveFrom: "2024-01-15T09:30:00Z",
+                effectiveUntil: "null",
+                createdAt: "2024-01-15T09:30:00Z",
+                source: "api",
+            },
+            currentPeriod: {
+                window: { start: "2024-01-15T09:30:00Z", end: "2024-01-15T09:30:00Z" },
+                used: 1.1,
+                remaining: 1.1,
+            },
+        };
+        server
+            .mockEndpoint()
+            .put("/customers/external/customer_123/customer-units/tenant-a/cap")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.customers.setCustomerUnitCapByExternalId({
+            externalId: "customer_123",
+            externalCustomerUnitId: "tenant-a",
+            body: {
+                amount: 10000,
+            },
+        });
+        expect(response).toEqual({
+            externalCustomerUnitId: "tenant-a",
+            customerId: "cus_abc123",
+            creditsCurrencyId: "7f4f5d4c-55e9-4d5b-a3e7-c9eb3d2d01bf",
+            policy: {
+                amount: 10000,
+                frequency: "MONTHLY",
+                effectiveFrom: "2024-01-15T09:30:00Z",
+                effectiveUntil: "null",
+                createdAt: "2024-01-15T09:30:00Z",
+                source: "api",
+            },
+            currentPeriod: {
+                window: {
+                    start: "2024-01-15T09:30:00Z",
+                    end: "2024-01-15T09:30:00Z",
+                },
+                used: 1.1,
+                remaining: 1.1,
+            },
+        });
+    });
+
+    test("setCustomerUnitCapByExternalId (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { amount: 1.1 };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .put("/customers/external/externalId/customer-units/externalCustomerUnitId/cap")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.setCustomerUnitCapByExternalId({
+                externalId: "externalId",
+                externalCustomerUnitId: "externalCustomerUnitId",
+                body: {
+                    amount: 1.1,
+                },
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("setCustomerUnitCapByExternalId (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { amount: 1.1 };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .put("/customers/external/externalId/customer-units/externalCustomerUnitId/cap")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.setCustomerUnitCapByExternalId({
+                externalId: "externalId",
+                externalCustomerUnitId: "externalCustomerUnitId",
+                body: {
+                    amount: 1.1,
+                },
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("setCustomerUnitCapByExternalId (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { amount: 1.1 };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .put("/customers/external/externalId/customer-units/externalCustomerUnitId/cap")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.setCustomerUnitCapByExternalId({
+                externalId: "externalId",
+                externalCustomerUnitId: "externalCustomerUnitId",
+                body: {
+                    amount: 1.1,
+                },
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("setCustomerUnitCapByExternalId (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { amount: 1.1 };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .put("/customers/external/externalId/customer-units/externalCustomerUnitId/cap")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(409)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.setCustomerUnitCapByExternalId({
+                externalId: "externalId",
+                externalCustomerUnitId: "externalCustomerUnitId",
+                body: {
+                    amount: 1.1,
+                },
+            });
+        }).rejects.toThrow(Paid.ConflictError);
+    });
+
+    test("setCustomerUnitCapByExternalId (6)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { amount: 1.1 };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .put("/customers/external/externalId/customer-units/externalCustomerUnitId/cap")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.setCustomerUnitCapByExternalId({
+                externalId: "externalId",
+                externalCustomerUnitId: "externalCustomerUnitId",
+                body: {
+                    amount: 1.1,
+                },
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("endCustomerUnitCapByExternalId (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = {
+            externalCustomerUnitId: "tenant-a",
+            customerId: "cus_abc123",
+            creditsCurrencyId: "7f4f5d4c-55e9-4d5b-a3e7-c9eb3d2d01bf",
+            policy: {
+                amount: 10000,
+                frequency: "MONTHLY",
+                effectiveFrom: "2024-01-15T09:30:00Z",
+                effectiveUntil: "2024-01-15T09:30:00Z",
+                createdAt: "2024-01-15T09:30:00Z",
+                source: "api",
+            },
+            endedVersions: 1,
+        };
+        server
+            .mockEndpoint()
+            .delete("/customers/external/customer_123/customer-units/tenant-a/cap")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.customers.endCustomerUnitCapByExternalId({
+            externalId: "customer_123",
+            externalCustomerUnitId: "tenant-a",
+            creditsCurrencyId: "7f4f5d4c-55e9-4d5b-a3e7-c9eb3d2d01bf",
+        });
+        expect(response).toEqual({
+            externalCustomerUnitId: "tenant-a",
+            customerId: "cus_abc123",
+            creditsCurrencyId: "7f4f5d4c-55e9-4d5b-a3e7-c9eb3d2d01bf",
+            policy: {
+                amount: 10000,
+                frequency: "MONTHLY",
+                effectiveFrom: "2024-01-15T09:30:00Z",
+                effectiveUntil: "2024-01-15T09:30:00Z",
+                createdAt: "2024-01-15T09:30:00Z",
+                source: "api",
+            },
+            endedVersions: 1,
+        });
+    });
+
+    test("endCustomerUnitCapByExternalId (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .delete("/customers/external/externalId/customer-units/externalCustomerUnitId/cap")
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.endCustomerUnitCapByExternalId({
+                externalId: "externalId",
+                externalCustomerUnitId: "externalCustomerUnitId",
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("endCustomerUnitCapByExternalId (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .delete("/customers/external/externalId/customer-units/externalCustomerUnitId/cap")
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.endCustomerUnitCapByExternalId({
+                externalId: "externalId",
+                externalCustomerUnitId: "externalCustomerUnitId",
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("endCustomerUnitCapByExternalId (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .delete("/customers/external/externalId/customer-units/externalCustomerUnitId/cap")
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.endCustomerUnitCapByExternalId({
+                externalId: "externalId",
+                externalCustomerUnitId: "externalCustomerUnitId",
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("endCustomerUnitCapByExternalId (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .delete("/customers/external/externalId/customer-units/externalCustomerUnitId/cap")
+            .respondWith()
+            .statusCode(409)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.endCustomerUnitCapByExternalId({
+                externalId: "externalId",
+                externalCustomerUnitId: "externalCustomerUnitId",
+            });
+        }).rejects.toThrow(Paid.ConflictError);
+    });
+
+    test("endCustomerUnitCapByExternalId (6)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .delete("/customers/external/externalId/customer-units/externalCustomerUnitId/cap")
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.endCustomerUnitCapByExternalId({
+                externalId: "externalId",
+                externalCustomerUnitId: "externalCustomerUnitId",
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("getCustomerUnitCap (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = {
+            externalCustomerUnitId: "tenant-a",
+            customerId: "cus_abc123",
+            creditsCurrencyId: "7f4f5d4c-55e9-4d5b-a3e7-c9eb3d2d01bf",
+            policy: {
+                amount: 10000,
+                frequency: "MONTHLY",
+                effectiveFrom: "2024-01-15T09:30:00Z",
+                effectiveUntil: "2024-01-15T09:30:00Z",
+                createdAt: "2024-01-15T09:30:00Z",
+                source: "api",
+            },
+            currentPeriod: {
+                window: { start: "2024-01-15T09:30:00Z", end: "2024-01-15T09:30:00Z" },
+                used: 1.1,
+                remaining: 1.1,
+            },
+        };
+        server
+            .mockEndpoint()
+            .get("/customers/cus_abc123/customer-units/tenant-a/cap")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.customers.getCustomerUnitCap({
+            id: "cus_abc123",
+            externalCustomerUnitId: "tenant-a",
+            creditsCurrencyId: "7f4f5d4c-55e9-4d5b-a3e7-c9eb3d2d01bf",
+        });
+        expect(response).toEqual({
+            externalCustomerUnitId: "tenant-a",
+            customerId: "cus_abc123",
+            creditsCurrencyId: "7f4f5d4c-55e9-4d5b-a3e7-c9eb3d2d01bf",
+            policy: {
+                amount: 10000,
+                frequency: "MONTHLY",
+                effectiveFrom: "2024-01-15T09:30:00Z",
+                effectiveUntil: "2024-01-15T09:30:00Z",
+                createdAt: "2024-01-15T09:30:00Z",
+                source: "api",
+            },
+            currentPeriod: {
+                window: {
+                    start: "2024-01-15T09:30:00Z",
+                    end: "2024-01-15T09:30:00Z",
+                },
+                used: 1.1,
+                remaining: 1.1,
+            },
+        });
+    });
+
+    test("getCustomerUnitCap (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/id/customer-units/externalCustomerUnitId/cap")
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.getCustomerUnitCap({
+                id: "id",
+                externalCustomerUnitId: "externalCustomerUnitId",
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("getCustomerUnitCap (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/id/customer-units/externalCustomerUnitId/cap")
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.getCustomerUnitCap({
+                id: "id",
+                externalCustomerUnitId: "externalCustomerUnitId",
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("getCustomerUnitCap (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/id/customer-units/externalCustomerUnitId/cap")
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.getCustomerUnitCap({
+                id: "id",
+                externalCustomerUnitId: "externalCustomerUnitId",
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("getCustomerUnitCap (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/customers/id/customer-units/externalCustomerUnitId/cap")
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.getCustomerUnitCap({
+                id: "id",
+                externalCustomerUnitId: "externalCustomerUnitId",
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("setCustomerUnitCap (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { amount: 10000 };
+        const rawResponseBody = {
+            externalCustomerUnitId: "tenant-a",
+            customerId: "cus_abc123",
+            creditsCurrencyId: "7f4f5d4c-55e9-4d5b-a3e7-c9eb3d2d01bf",
+            policy: {
+                amount: 10000,
+                frequency: "MONTHLY",
+                effectiveFrom: "2024-01-15T09:30:00Z",
+                effectiveUntil: "null",
+                createdAt: "2024-01-15T09:30:00Z",
+                source: "api",
+            },
+            currentPeriod: {
+                window: { start: "2024-01-15T09:30:00Z", end: "2024-01-15T09:30:00Z" },
+                used: 1.1,
+                remaining: 1.1,
+            },
+        };
+        server
+            .mockEndpoint()
+            .put("/customers/cus_abc123/customer-units/tenant-a/cap")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.customers.setCustomerUnitCap({
+            id: "cus_abc123",
+            externalCustomerUnitId: "tenant-a",
+            body: {
+                amount: 10000,
+            },
+        });
+        expect(response).toEqual({
+            externalCustomerUnitId: "tenant-a",
+            customerId: "cus_abc123",
+            creditsCurrencyId: "7f4f5d4c-55e9-4d5b-a3e7-c9eb3d2d01bf",
+            policy: {
+                amount: 10000,
+                frequency: "MONTHLY",
+                effectiveFrom: "2024-01-15T09:30:00Z",
+                effectiveUntil: "null",
+                createdAt: "2024-01-15T09:30:00Z",
+                source: "api",
+            },
+            currentPeriod: {
+                window: {
+                    start: "2024-01-15T09:30:00Z",
+                    end: "2024-01-15T09:30:00Z",
+                },
+                used: 1.1,
+                remaining: 1.1,
+            },
+        });
+    });
+
+    test("setCustomerUnitCap (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { amount: 1.1 };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .put("/customers/id/customer-units/externalCustomerUnitId/cap")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.setCustomerUnitCap({
+                id: "id",
+                externalCustomerUnitId: "externalCustomerUnitId",
+                body: {
+                    amount: 1.1,
+                },
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("setCustomerUnitCap (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { amount: 1.1 };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .put("/customers/id/customer-units/externalCustomerUnitId/cap")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.setCustomerUnitCap({
+                id: "id",
+                externalCustomerUnitId: "externalCustomerUnitId",
+                body: {
+                    amount: 1.1,
+                },
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("setCustomerUnitCap (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { amount: 1.1 };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .put("/customers/id/customer-units/externalCustomerUnitId/cap")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.setCustomerUnitCap({
+                id: "id",
+                externalCustomerUnitId: "externalCustomerUnitId",
+                body: {
+                    amount: 1.1,
+                },
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("setCustomerUnitCap (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { amount: 1.1 };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .put("/customers/id/customer-units/externalCustomerUnitId/cap")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(409)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.setCustomerUnitCap({
+                id: "id",
+                externalCustomerUnitId: "externalCustomerUnitId",
+                body: {
+                    amount: 1.1,
+                },
+            });
+        }).rejects.toThrow(Paid.ConflictError);
+    });
+
+    test("setCustomerUnitCap (6)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { amount: 1.1 };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .put("/customers/id/customer-units/externalCustomerUnitId/cap")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.setCustomerUnitCap({
+                id: "id",
+                externalCustomerUnitId: "externalCustomerUnitId",
+                body: {
+                    amount: 1.1,
+                },
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("endCustomerUnitCap (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = {
+            externalCustomerUnitId: "tenant-a",
+            customerId: "cus_abc123",
+            creditsCurrencyId: "7f4f5d4c-55e9-4d5b-a3e7-c9eb3d2d01bf",
+            policy: {
+                amount: 10000,
+                frequency: "MONTHLY",
+                effectiveFrom: "2024-01-15T09:30:00Z",
+                effectiveUntil: "2024-01-15T09:30:00Z",
+                createdAt: "2024-01-15T09:30:00Z",
+                source: "api",
+            },
+            endedVersions: 1,
+        };
+        server
+            .mockEndpoint()
+            .delete("/customers/cus_abc123/customer-units/tenant-a/cap")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.customers.endCustomerUnitCap({
+            id: "cus_abc123",
+            externalCustomerUnitId: "tenant-a",
+            creditsCurrencyId: "7f4f5d4c-55e9-4d5b-a3e7-c9eb3d2d01bf",
+        });
+        expect(response).toEqual({
+            externalCustomerUnitId: "tenant-a",
+            customerId: "cus_abc123",
+            creditsCurrencyId: "7f4f5d4c-55e9-4d5b-a3e7-c9eb3d2d01bf",
+            policy: {
+                amount: 10000,
+                frequency: "MONTHLY",
+                effectiveFrom: "2024-01-15T09:30:00Z",
+                effectiveUntil: "2024-01-15T09:30:00Z",
+                createdAt: "2024-01-15T09:30:00Z",
+                source: "api",
+            },
+            endedVersions: 1,
+        });
+    });
+
+    test("endCustomerUnitCap (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .delete("/customers/id/customer-units/externalCustomerUnitId/cap")
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.endCustomerUnitCap({
+                id: "id",
+                externalCustomerUnitId: "externalCustomerUnitId",
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("endCustomerUnitCap (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .delete("/customers/id/customer-units/externalCustomerUnitId/cap")
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.endCustomerUnitCap({
+                id: "id",
+                externalCustomerUnitId: "externalCustomerUnitId",
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("endCustomerUnitCap (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .delete("/customers/id/customer-units/externalCustomerUnitId/cap")
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.endCustomerUnitCap({
+                id: "id",
+                externalCustomerUnitId: "externalCustomerUnitId",
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("endCustomerUnitCap (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .delete("/customers/id/customer-units/externalCustomerUnitId/cap")
+            .respondWith()
+            .statusCode(409)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.endCustomerUnitCap({
+                id: "id",
+                externalCustomerUnitId: "externalCustomerUnitId",
+            });
+        }).rejects.toThrow(Paid.ConflictError);
+    });
+
+    test("endCustomerUnitCap (6)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .delete("/customers/id/customer-units/externalCustomerUnitId/cap")
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customers.endCustomerUnitCap({
+                id: "id",
+                externalCustomerUnitId: "externalCustomerUnitId",
             });
         }).rejects.toThrow(Paid.InternalServerError);
     });

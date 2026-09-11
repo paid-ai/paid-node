@@ -4,6 +4,5 @@ export type { ListValueReceiptsRequest } from "./ListValueReceiptsRequest.js";
 export type { PublishValueReceiptBody } from "./PublishValueReceiptBody.js";
 export type { RefreshValueReceiptRequest } from "./RefreshValueReceiptRequest.js";
 export type { SealValueReceiptRequest } from "./SealValueReceiptRequest.js";
-export type { SyncValueReceiptRequest } from "./SyncValueReceiptRequest.js";
 export type { UnarchiveValueReceiptRequest } from "./UnarchiveValueReceiptRequest.js";
 export type { UnpublishValueReceiptRequest } from "./UnpublishValueReceiptRequest.js";

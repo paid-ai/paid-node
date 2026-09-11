@@ -21,101 +21,12 @@ export class ValueReceipts {
     }
 
     /**
-     * Find or create a value receipt by natural key (customer + product/order + dates), then populate it with current data inline. Returns the ID, status, and public URL. Posted (sealed) VRs are returned as-is without re-populating.
-     *
-     * @param {Paid.SyncValueReceiptRequest} request
-     * @param {ValueReceipts.RequestOptions} requestOptions - Request-specific configuration.
-     *
-     * @throws {@link Paid.BadRequestError}
-     * @throws {@link Paid.NotFoundError}
-     * @throws {@link Paid.InternalServerError}
-     *
-     * @example
-     *     await client.valueReceipts.syncValueReceipt({
-     *         startDate: "2024-01-15T09:30:00Z",
-     *         endDate: "2024-01-15T09:30:00Z"
-     *     })
-     */
-    public syncValueReceipt(
-        request: Paid.SyncValueReceiptRequest,
-        requestOptions?: ValueReceipts.RequestOptions,
-    ): core.HttpResponsePromise<Paid.ValueReceiptSyncResponse> {
-        return core.HttpResponsePromise.fromPromise(this.__syncValueReceipt(request, requestOptions));
-    }
-
-    private async __syncValueReceipt(
-        request: Paid.SyncValueReceiptRequest,
-        requestOptions?: ValueReceipts.RequestOptions,
-    ): Promise<core.WithRawResponse<Paid.ValueReceiptSyncResponse>> {
-        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
-            this._options?.headers,
-            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
-            requestOptions?.headers,
-        );
-        const _response = await core.fetcher({
-            url: core.url.join(
-                (await core.Supplier.get(this._options.baseUrl)) ??
-                    (await core.Supplier.get(this._options.environment)) ??
-                    environments.PaidEnvironment.Default,
-                "value-receipts/sync",
-            ),
-            method: "POST",
-            headers: _headers,
-            contentType: "application/json",
-            queryParameters: requestOptions?.queryParams,
-            requestType: "json",
-            body: request,
-            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
-            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
-            abortSignal: requestOptions?.abortSignal,
-        });
-        if (_response.ok) {
-            return { data: _response.body as Paid.ValueReceiptSyncResponse, rawResponse: _response.rawResponse };
-        }
-
-        if (_response.error.reason === "status-code") {
-            switch (_response.error.statusCode) {
-                case 400:
-                    throw new Paid.BadRequestError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
-                case 404:
-                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
-                case 500:
-                    throw new Paid.InternalServerError(
-                        _response.error.body as Paid.ErrorResponse,
-                        _response.rawResponse,
-                    );
-                default:
-                    throw new errors.PaidError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
-                        rawResponse: _response.rawResponse,
-                    });
-            }
-        }
-
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.PaidError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /value-receipts/sync.");
-            case "unknown":
-                throw new errors.PaidError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
-    }
-
-    /**
      * List value receipts for the organization
      *
      * @param {Paid.ListValueReceiptsRequest} request
      * @param {ValueReceipts.RequestOptions} requestOptions - Request-specific configuration.
      *
+     * @throws {@link Paid.ForbiddenError}
      * @throws {@link Paid.InternalServerError}
      *
      * @example
@@ -187,11 +98,10 @@ export class ValueReceipts {
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
-                    throw new Paid.InternalServerError(
-                        _response.error.body as Paid.ErrorResponse,
-                        _response.rawResponse,
-                    );
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,
@@ -219,11 +129,195 @@ export class ValueReceipts {
     }
 
     /**
+     * Creates a value receipt for a customer and date range, optionally scoped to a product or an order. Every call creates a receipt, so calling twice for the same period gives the customer two. The date range must have ended; a range with nothing delivered in it reports zero. Returns the receipt's ID and public URL.
+     *
+     * @param {Paid.SyncValueReceiptRequest} request
+     * @param {ValueReceipts.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.valueReceipts.createValueReceipt({
+     *         startDate: "2024-01-15T09:30:00Z",
+     *         endDate: "2024-01-15T09:30:00Z"
+     *     })
+     */
+    public createValueReceipt(
+        request: Paid.SyncValueReceiptRequest,
+        requestOptions?: ValueReceipts.RequestOptions,
+    ): core.HttpResponsePromise<Paid.ValueReceiptSyncResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__createValueReceipt(request, requestOptions));
+    }
+
+    private async __createValueReceipt(
+        request: Paid.SyncValueReceiptRequest,
+        requestOptions?: ValueReceipts.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.ValueReceiptSyncResponse>> {
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                "value-receipts/",
+            ),
+            method: "POST",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: request,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.ValueReceiptSyncResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /value-receipts/.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Deprecated — use POST /value-receipts. Returns the receipt this customer already has for the date range (200), refreshed with current data, and creates one only if there is none (201), so calling twice does not give the customer two receipts.
+     *
+     * @param {Paid.SyncValueReceiptRequest} request
+     * @param {ValueReceipts.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.ConflictError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.valueReceipts.syncValueReceipt({
+     *         startDate: "2024-01-15T09:30:00Z",
+     *         endDate: "2024-01-15T09:30:00Z"
+     *     })
+     */
+    public syncValueReceipt(
+        request: Paid.SyncValueReceiptRequest,
+        requestOptions?: ValueReceipts.RequestOptions,
+    ): core.HttpResponsePromise<Paid.ValueReceiptSyncResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__syncValueReceipt(request, requestOptions));
+    }
+
+    private async __syncValueReceipt(
+        request: Paid.SyncValueReceiptRequest,
+        requestOptions?: ValueReceipts.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.ValueReceiptSyncResponse>> {
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                "value-receipts/sync",
+            ),
+            method: "POST",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: request,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.ValueReceiptSyncResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 409:
+                    throw new Paid.ConflictError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /value-receipts/sync.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
      * Get a value receipt by ID, including its publish/share state.
      *
      * @param {Paid.GetValueReceiptByIdRequest} request
      * @param {ValueReceipts.RequestOptions} requestOptions - Request-specific configuration.
      *
+     * @throws {@link Paid.ForbiddenError}
      * @throws {@link Paid.NotFoundError}
      * @throws {@link Paid.InternalServerError}
      *
@@ -269,13 +363,12 @@ export class ValueReceipts {
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 404:
-                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
-                    throw new Paid.InternalServerError(
-                        _response.error.body as Paid.ErrorResponse,
-                        _response.rawResponse,
-                    );
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,
@@ -309,6 +402,7 @@ export class ValueReceipts {
      * @param {ValueReceipts.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
      * @throws {@link Paid.NotFoundError}
      * @throws {@link Paid.ConflictError}
      * @throws {@link Paid.InternalServerError}
@@ -359,16 +453,15 @@ export class ValueReceipts {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 400:
-                    throw new Paid.BadRequestError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 404:
-                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
                 case 409:
-                    throw new Paid.ConflictError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.ConflictError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
-                    throw new Paid.InternalServerError(
-                        _response.error.body as Paid.ErrorResponse,
-                        _response.rawResponse,
-                    );
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,
@@ -401,6 +494,7 @@ export class ValueReceipts {
      * @param {Paid.SealValueReceiptRequest} request
      * @param {ValueReceipts.RequestOptions} requestOptions - Request-specific configuration.
      *
+     * @throws {@link Paid.ForbiddenError}
      * @throws {@link Paid.NotFoundError}
      * @throws {@link Paid.ConflictError}
      * @throws {@link Paid.InternalServerError}
@@ -450,15 +544,14 @@ export class ValueReceipts {
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 404:
-                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
                 case 409:
-                    throw new Paid.ConflictError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.ConflictError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
-                    throw new Paid.InternalServerError(
-                        _response.error.body as Paid.ErrorResponse,
-                        _response.rawResponse,
-                    );
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,
@@ -491,6 +584,7 @@ export class ValueReceipts {
      * @param {Paid.ArchiveValueReceiptRequest} request
      * @param {ValueReceipts.RequestOptions} requestOptions - Request-specific configuration.
      *
+     * @throws {@link Paid.ForbiddenError}
      * @throws {@link Paid.NotFoundError}
      * @throws {@link Paid.InternalServerError}
      *
@@ -539,13 +633,12 @@ export class ValueReceipts {
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 404:
-                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
-                    throw new Paid.InternalServerError(
-                        _response.error.body as Paid.ErrorResponse,
-                        _response.rawResponse,
-                    );
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,
@@ -578,7 +671,9 @@ export class ValueReceipts {
      * @param {Paid.UnarchiveValueReceiptRequest} request
      * @param {ValueReceipts.RequestOptions} requestOptions - Request-specific configuration.
      *
+     * @throws {@link Paid.ForbiddenError}
      * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.ConflictError}
      * @throws {@link Paid.InternalServerError}
      *
      * @example
@@ -626,13 +721,14 @@ export class ValueReceipts {
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 404:
-                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 409:
+                    throw new Paid.ConflictError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
-                    throw new Paid.InternalServerError(
-                        _response.error.body as Paid.ErrorResponse,
-                        _response.rawResponse,
-                    );
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,
@@ -660,12 +756,14 @@ export class ValueReceipts {
     }
 
     /**
-     * Make a value receipt publicly accessible via URL.
+     * Make a value receipt publicly accessible via URL. An archived receipt is rejected with 409 — unarchive it first.
      *
      * @param {Paid.PublishValueReceiptBody} request
      * @param {ValueReceipts.RequestOptions} requestOptions - Request-specific configuration.
      *
+     * @throws {@link Paid.ForbiddenError}
      * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.ConflictError}
      * @throws {@link Paid.InternalServerError}
      *
      * @example
@@ -713,13 +811,14 @@ export class ValueReceipts {
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 404:
-                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 409:
+                    throw new Paid.ConflictError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
-                    throw new Paid.InternalServerError(
-                        _response.error.body as Paid.ErrorResponse,
-                        _response.rawResponse,
-                    );
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,
@@ -747,11 +846,12 @@ export class ValueReceipts {
     }
 
     /**
-     * Revoke public access to a value receipt.
+     * Revoke public access to a value receipt. Available for archived receipts too, so a live link can always be revoked.
      *
      * @param {Paid.UnpublishValueReceiptRequest} request
      * @param {ValueReceipts.RequestOptions} requestOptions - Request-specific configuration.
      *
+     * @throws {@link Paid.ForbiddenError}
      * @throws {@link Paid.NotFoundError}
      * @throws {@link Paid.InternalServerError}
      *
@@ -800,13 +900,12 @@ export class ValueReceipts {
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 404:
-                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
-                    throw new Paid.InternalServerError(
-                        _response.error.body as Paid.ErrorResponse,
-                        _response.rawResponse,
-                    );
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,

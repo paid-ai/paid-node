@@ -23,6 +23,8 @@ export interface CreateCheckoutRequest {
     collectAddress?: boolean;
     collectPhone?: boolean;
     singleUse?: boolean;
-    /** Lock checkout to a specific currency. Omit to allow all currencies supported by the selected plans. */
+    /** Lock checkout to a specific currency. Omit to allow all currencies supported by the selected plans. If the checkout is for a customer with an active subscription, the currency must match that subscription's currency — subscriptions cannot change currency. */
     currency?: string;
+    /** Additional informational pricing cards rendered alongside the plans. */
+    customCards?: Paid.CheckoutCustomCardInput[];
 }

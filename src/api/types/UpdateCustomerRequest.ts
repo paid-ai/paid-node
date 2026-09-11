@@ -9,7 +9,7 @@ export interface UpdateCustomerRequest {
     phone?: string;
     website?: string;
     externalId?: string | null;
-    billingAddress?: Paid.CustomerBillingAddress | null;
+    billingAddress?: Paid.CustomerBillingAddressInput | null;
     creationState?: Paid.CustomerCreationState;
     churnDate?: string | null;
     vatNumber?: string | null;

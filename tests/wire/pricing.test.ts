@@ -17,12 +17,18 @@ describe("Pricing", () => {
                     pricing: {
                         pricingType: "RecurringPerUnit",
                         chargeType: "chargeType",
-                        pricePoints: [{ currency: "currency", unitPrice: 1.1 }],
+                        pricePoints: [
+                            {
+                                currency: "currency",
+                                unitPrice: 1.1,
+                                tiers: [{ lowerBound: 0, tierBillingType: "perUnit", unitAmount: 10, upperBound: 100 }],
+                            },
+                        ],
                     },
                     creditBenefits: [
                         {
                             id: "id",
-                            creditsCurrencyId: "creditsCurrencyId",
+                            creditsCurrencyId: null,
                             amount: 1.1,
                             recipient: "recipient",
                             isInfiniteTotal: true,
@@ -49,13 +55,21 @@ describe("Pricing", () => {
                             {
                                 currency: "currency",
                                 unitPrice: 1.1,
+                                tiers: [
+                                    {
+                                        lowerBound: 0,
+                                        tierBillingType: "perUnit",
+                                        unitAmount: 10,
+                                        upperBound: 100,
+                                    },
+                                ],
                             },
                         ],
                     },
                     creditBenefits: [
                         {
                             id: "id",
-                            creditsCurrencyId: "creditsCurrencyId",
+                            creditsCurrencyId: null,
                             amount: 1.1,
                             recipient: "recipient",
                             isInfiniteTotal: true,
@@ -71,7 +85,7 @@ describe("Pricing", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/pricing/").respondWith().statusCode(404).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -85,7 +99,7 @@ describe("Pricing", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/pricing/").respondWith().statusCode(500).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -107,6 +121,7 @@ describe("Pricing", () => {
                 chargeType: "chargeType",
                 pricingModel: "pricingModel",
                 eventName: "eventName",
+                signalType: "activity",
                 billingFrequency: "billingFrequency",
                 billingType: "billingType",
                 creditsCurrencyId: "creditsCurrencyId",
@@ -114,7 +129,13 @@ describe("Pricing", () => {
                 unitValue: 1.1,
                 percentageValue: 1.1,
                 costPlusMultiplier: 1.1,
-                pricePoints: [{ currency: "currency", unitPrice: 1.1 }],
+                pricePoints: [
+                    {
+                        currency: "currency",
+                        unitPrice: 1.1,
+                        tiers: [{ lowerBound: 0, tierBillingType: "perUnit", unitAmount: 10, upperBound: 100 }],
+                    },
+                ],
             },
             creditBenefits: [
                 {
@@ -151,6 +172,7 @@ describe("Pricing", () => {
                 chargeType: "chargeType",
                 pricingModel: "pricingModel",
                 eventName: "eventName",
+                signalType: "activity",
                 billingFrequency: "billingFrequency",
                 billingType: "billingType",
                 creditsCurrencyId: "creditsCurrencyId",
@@ -162,6 +184,14 @@ describe("Pricing", () => {
                     {
                         currency: "currency",
                         unitPrice: 1.1,
+                        tiers: [
+                            {
+                                lowerBound: 0,
+                                tierBillingType: "perUnit",
+                                unitAmount: 10,
+                                upperBound: 100,
+                            },
+                        ],
                     },
                 ],
             },
@@ -187,7 +217,7 @@ describe("Pricing", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .get("/pricing/productAttributeId")
@@ -207,7 +237,7 @@ describe("Pricing", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .get("/pricing/productAttributeId")
@@ -230,7 +260,7 @@ describe("Pricing", () => {
             pricing: {
                 pricingType: "RecurringPerUnit",
                 billingFrequency: "Monthly",
-                pricePoints: [{ currency: "currency", unitPrice: 1.1 }],
+                pricePoints: [{ currency: "currency", unitPrice: 1 }],
             },
         };
         const rawResponseBody = {
@@ -241,6 +271,7 @@ describe("Pricing", () => {
                 chargeType: "chargeType",
                 pricingModel: "pricingModel",
                 eventName: "eventName",
+                signalType: "activity",
                 billingFrequency: "billingFrequency",
                 billingType: "billingType",
                 creditsCurrencyId: "creditsCurrencyId",
@@ -248,7 +279,13 @@ describe("Pricing", () => {
                 unitValue: 1.1,
                 percentageValue: 1.1,
                 costPlusMultiplier: 1.1,
-                pricePoints: [{ currency: "currency", unitPrice: 1.1 }],
+                pricePoints: [
+                    {
+                        currency: "currency",
+                        unitPrice: 1.1,
+                        tiers: [{ lowerBound: 0, tierBillingType: "perUnit", unitAmount: 10, upperBound: 100 }],
+                    },
+                ],
             },
             creditBenefits: [
                 {
@@ -283,7 +320,7 @@ describe("Pricing", () => {
                 pricePoints: [
                     {
                         currency: "currency",
-                        unitPrice: 1.1,
+                        unitPrice: 1,
                     },
                 ],
             },
@@ -296,6 +333,7 @@ describe("Pricing", () => {
                 chargeType: "chargeType",
                 pricingModel: "pricingModel",
                 eventName: "eventName",
+                signalType: "activity",
                 billingFrequency: "billingFrequency",
                 billingType: "billingType",
                 creditsCurrencyId: "creditsCurrencyId",
@@ -307,6 +345,14 @@ describe("Pricing", () => {
                     {
                         currency: "currency",
                         unitPrice: 1.1,
+                        tiers: [
+                            {
+                                lowerBound: 0,
+                                tierBillingType: "perUnit",
+                                unitAmount: 10,
+                                upperBound: 100,
+                            },
+                        ],
                     },
                 ],
             },
@@ -336,12 +382,12 @@ describe("Pricing", () => {
                 pricingType: "RecurringPerUnit",
                 billingFrequency: "Monthly",
                 pricePoints: [
-                    { currency: "x", unitPrice: 1.1 },
-                    { currency: "x", unitPrice: 1.1 },
+                    { currency: "x", unitPrice: 1 },
+                    { currency: "x", unitPrice: 1 },
                 ],
             },
         };
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .put("/pricing/productAttributeId")
@@ -360,11 +406,11 @@ describe("Pricing", () => {
                     pricePoints: [
                         {
                             currency: "x",
-                            unitPrice: 1.1,
+                            unitPrice: 1,
                         },
                         {
                             currency: "x",
-                            unitPrice: 1.1,
+                            unitPrice: 1,
                         },
                     ],
                 },
@@ -380,12 +426,12 @@ describe("Pricing", () => {
                 pricingType: "RecurringPerUnit",
                 billingFrequency: "Monthly",
                 pricePoints: [
-                    { currency: "x", unitPrice: 1.1 },
-                    { currency: "x", unitPrice: 1.1 },
+                    { currency: "x", unitPrice: 1 },
+                    { currency: "x", unitPrice: 1 },
                 ],
             },
         };
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .put("/pricing/productAttributeId")
@@ -404,11 +450,11 @@ describe("Pricing", () => {
                     pricePoints: [
                         {
                             currency: "x",
-                            unitPrice: 1.1,
+                            unitPrice: 1,
                         },
                         {
                             currency: "x",
-                            unitPrice: 1.1,
+                            unitPrice: 1,
                         },
                     ],
                 },
@@ -424,12 +470,12 @@ describe("Pricing", () => {
                 pricingType: "RecurringPerUnit",
                 billingFrequency: "Monthly",
                 pricePoints: [
-                    { currency: "x", unitPrice: 1.1 },
-                    { currency: "x", unitPrice: 1.1 },
+                    { currency: "x", unitPrice: 1 },
+                    { currency: "x", unitPrice: 1 },
                 ],
             },
         };
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .put("/pricing/productAttributeId")
@@ -448,11 +494,11 @@ describe("Pricing", () => {
                     pricePoints: [
                         {
                             currency: "x",
-                            unitPrice: 1.1,
+                            unitPrice: 1,
                         },
                         {
                             currency: "x",
-                            unitPrice: 1.1,
+                            unitPrice: 1,
                         },
                     ],
                 },

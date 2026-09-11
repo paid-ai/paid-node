@@ -2,14 +2,14 @@
 
 export interface CreditBenefitOutput {
     id: string;
-    creditsCurrencyId: string;
+    creditsCurrencyId: string | null;
     amount: number;
     recipient: string;
     isInfiniteTotal: boolean;
     allocationCadence: string;
-    creditGrantTiming?: string;
-    overageUnitPrice?: number;
-    rolloverAmount?: number;
-    rolloverDuration?: number;
-    rolloverDurationUnit?: string;
+    creditGrantTiming?: string | null;
+    overageUnitPrice?: number | null;
+    rolloverAmount?: number | null;
+    rolloverDuration?: number | null;
+    rolloverDurationUnit?: string | null;
 }

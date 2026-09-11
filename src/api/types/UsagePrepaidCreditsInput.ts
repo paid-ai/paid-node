@@ -4,9 +4,12 @@ import type * as Paid from "../index.js";
 
 export interface UsagePrepaidCreditsInput {
     eventName: string;
+    signalType?: UsagePrepaidCreditsInput.SignalType;
     creditsCurrencyId: string;
+    /** Credit amount, exact to at most 6 decimal places. */
     creditCost: number;
     unitValue?: number;
+    pricingInput?: UsagePrepaidCreditsInput.PricingInput;
     billingFrequency?: UsagePrepaidCreditsInput.BillingFrequency;
     billingFrequencyCustomMonths?: number;
     billingType?: UsagePrepaidCreditsInput.BillingType;
@@ -14,6 +17,25 @@ export interface UsagePrepaidCreditsInput {
 }
 
 export namespace UsagePrepaidCreditsInput {
+    export const SignalType = {
+        Activity: "activity",
+        Outcome: "outcome",
+    } as const;
+    export type SignalType = (typeof SignalType)[keyof typeof SignalType];
+
+    export interface PricingInput {
+        kind: PricingInput.Kind;
+        /** Key in the signal's data payload that supplies the quantity multiplied by creditCost — for a signal with data {"rooms": 3}, use rooms. Dots address nested fields, for example dimensions.pages. Defaults to the top-level quantity field. */
+        path?: string;
+    }
+
+    export namespace PricingInput {
+        export const Kind = {
+            SignalQuantity: "signalQuantity",
+        } as const;
+        export type Kind = (typeof Kind)[keyof typeof Kind];
+    }
+
     export const BillingFrequency = {
         Monthly: "Monthly",
         Quarterly: "Quarterly",

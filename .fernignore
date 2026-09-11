@@ -11,3 +11,6 @@ src/openai-wrapper/
 src/vercel-wrapper/
 src/integrations
 .github/workflows/ci.yml
+.fern/replay.lock
+.fern/replay.yml
+.gitattributes

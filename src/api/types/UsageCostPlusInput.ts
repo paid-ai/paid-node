@@ -4,6 +4,7 @@ import type * as Paid from "../index.js";
 
 export interface UsageCostPlusInput {
     costPlusMultiplier: number;
+    signalType?: UsageCostPlusInput.SignalType;
     billingFrequency?: UsageCostPlusInput.BillingFrequency;
     billingFrequencyCustomMonths?: number;
     billingType?: UsageCostPlusInput.BillingType;
@@ -11,6 +12,11 @@ export interface UsageCostPlusInput {
 }
 
 export namespace UsageCostPlusInput {
+    export const SignalType = {
+        Activity: "activity",
+        Outcome: "outcome",
+    } as const;
+    export type SignalType = (typeof SignalType)[keyof typeof SignalType];
     export const BillingFrequency = {
         Monthly: "Monthly",
         Quarterly: "Quarterly",

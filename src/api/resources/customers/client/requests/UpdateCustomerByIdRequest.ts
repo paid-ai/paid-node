@@ -5,11 +5,12 @@ import type * as Paid from "../../../../index.js";
 /**
  * @example
  *     {
- *         id: "id",
+ *         id: "cus_abc123",
  *         body: {}
  *     }
  */
 export interface UpdateCustomerByIdRequest {
+    /** Paid customer display id */
     id: string;
     body: Paid.UpdateCustomerRequest;
 }

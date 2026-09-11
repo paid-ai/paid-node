@@ -6,9 +6,11 @@ export interface CreditBalance {
     creditsCurrencyId: string;
     currencyName: string;
     currencyKey: string;
-    /** Effective spendable balance across all grants in this pool, rollover-capped during rollover windows. Equals sum(grants[].available). */
+    /** Effective spendable balance across all grants in this pool, rollover-capped during rollover windows. Equals sum(grants[].available). JSON number; exact within ±2^53 — balances are sums and can legitimately exceed it. */
     available: number;
+    /** JSON number; exact within ±2^53 — balances are sums and can legitimately exceed it. */
     used: number;
+    /** JSON number; exact within ±2^53 — balances are sums and can legitimately exceed it. */
     total: number;
     /** Aggregate min(periodStart) across grants in this pool. Does not correspond to any real billing period when grants overlap. Use grants[].periodStart instead. Will be removed in a future API version. */
     periodStart: string | null;

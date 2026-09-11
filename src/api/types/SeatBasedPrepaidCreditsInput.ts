@@ -4,6 +4,7 @@ import type * as Paid from "../index.js";
 
 export interface SeatBasedPrepaidCreditsInput {
     creditsCurrencyId: string;
+    /** Credit amount, exact to at most 6 decimal places. */
     creditCost: number;
     unitValue?: number;
     billingFrequency: SeatBasedPrepaidCreditsInput.BillingFrequency;

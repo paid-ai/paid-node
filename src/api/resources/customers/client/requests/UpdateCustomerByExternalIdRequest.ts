@@ -5,11 +5,12 @@ import type * as Paid from "../../../../index.js";
 /**
  * @example
  *     {
- *         externalId: "externalId",
+ *         externalId: "customer_123",
  *         body: {}
  *     }
  */
 export interface UpdateCustomerByExternalIdRequest {
+    /** Customer ID from the integrator's system, stored on Paid as `externalId`. */
     externalId: string;
     body: Paid.UpdateCustomerRequest;
 }

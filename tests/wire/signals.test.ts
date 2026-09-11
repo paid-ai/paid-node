@@ -5,6 +5,239 @@ import { PaidClient } from "../../src/Client";
 import { mockServerPool } from "../mock-server/MockServerPool";
 
 describe("Signals", () => {
+    test("listSignals (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = {
+            data: [
+                {
+                    id: "6890b0e2a6f2c30012f0a1b3",
+                    name: "email_sent",
+                    customerId: "customerId",
+                    externalCustomerId: "externalCustomerId",
+                    productId: "productId",
+                    externalProductId: "externalProductId",
+                    traceId: "traceId",
+                    data: { key: "value" },
+                    createdAt: "2024-01-15T09:30:00Z",
+                },
+            ],
+            pagination: { limit: 1, offset: 1, total: 1, hasMore: true },
+        };
+        server.mockEndpoint().get("/signals/").respondWith().statusCode(200).jsonBody(rawResponseBody).build();
+
+        const response = await client.signals.listSignals();
+        expect(response).toEqual({
+            data: [
+                {
+                    id: "6890b0e2a6f2c30012f0a1b3",
+                    name: "email_sent",
+                    customerId: "customerId",
+                    externalCustomerId: "externalCustomerId",
+                    productId: "productId",
+                    externalProductId: "externalProductId",
+                    traceId: "traceId",
+                    data: {
+                        key: "value",
+                    },
+                    createdAt: "2024-01-15T09:30:00Z",
+                },
+            ],
+            pagination: {
+                limit: 1,
+                offset: 1,
+                total: 1,
+                hasMore: true,
+            },
+        });
+    });
+
+    test("listSignals (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server.mockEndpoint().get("/signals/").respondWith().statusCode(400).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.signals.listSignals();
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("listSignals (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server.mockEndpoint().get("/signals/").respondWith().statusCode(403).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.signals.listSignals();
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("listSignals (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: "error" };
+        server.mockEndpoint().get("/signals/").respondWith().statusCode(408).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.signals.listSignals();
+        }).rejects.toThrow(Paid.RequestTimeoutError);
+    });
+
+    test("listSignals (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: "error" };
+        server.mockEndpoint().get("/signals/").respondWith().statusCode(429).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.signals.listSignals();
+        }).rejects.toThrow(Paid.TooManyRequestsError);
+    });
+
+    test("listSignals (6)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server.mockEndpoint().get("/signals/").respondWith().statusCode(500).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.signals.listSignals();
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("getSignalById (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = {
+            id: "6890b0e2a6f2c30012f0a1b3",
+            name: "email_sent",
+            customerId: "customerId",
+            externalCustomerId: "externalCustomerId",
+            productId: "productId",
+            externalProductId: "externalProductId",
+            traceId: "traceId",
+            data: { key: "value" },
+            createdAt: "2024-01-15T09:30:00Z",
+        };
+        server
+            .mockEndpoint()
+            .get("/signals/6890b0e2a6f2c30012f0a1b3")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.signals.getSignalById({
+            id: "6890b0e2a6f2c30012f0a1b3",
+        });
+        expect(response).toEqual({
+            id: "6890b0e2a6f2c30012f0a1b3",
+            name: "email_sent",
+            customerId: "customerId",
+            externalCustomerId: "externalCustomerId",
+            productId: "productId",
+            externalProductId: "externalProductId",
+            traceId: "traceId",
+            data: {
+                key: "value",
+            },
+            createdAt: "2024-01-15T09:30:00Z",
+        });
+    });
+
+    test("getSignalById (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server.mockEndpoint().get("/signals/id").respondWith().statusCode(400).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.signals.getSignalById({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("getSignalById (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server.mockEndpoint().get("/signals/id").respondWith().statusCode(403).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.signals.getSignalById({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("getSignalById (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server.mockEndpoint().get("/signals/id").respondWith().statusCode(404).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.signals.getSignalById({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("getSignalById (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: "error" };
+        server.mockEndpoint().get("/signals/id").respondWith().statusCode(408).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.signals.getSignalById({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.RequestTimeoutError);
+    });
+
+    test("getSignalById (6)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: "error" };
+        server.mockEndpoint().get("/signals/id").respondWith().statusCode(429).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.signals.getSignalById({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.TooManyRequestsError);
+    });
+
+    test("getSignalById (7)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server.mockEndpoint().get("/signals/id").respondWith().statusCode(500).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.signals.getSignalById({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
     test("createSignals (1)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
@@ -45,7 +278,7 @@ describe("Signals", () => {
                 { eventName: "x", customer: { customerId: "customerId" } },
             ],
         };
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .post("/signals/bulk")
@@ -84,7 +317,7 @@ describe("Signals", () => {
                 { eventName: "x", customer: { customerId: "customerId" } },
             ],
         };
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .post("/signals/bulk")
@@ -124,6 +357,45 @@ describe("Signals", () => {
             ],
         };
         const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .post("/signals/bulk")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(429)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.signals.createSignals({
+                signals: [
+                    {
+                        eventName: "x",
+                        customer: {
+                            customerId: "customerId",
+                        },
+                    },
+                    {
+                        eventName: "x",
+                        customer: {
+                            customerId: "customerId",
+                        },
+                    },
+                ],
+            });
+        }).rejects.toThrow(Paid.TooManyRequestsError);
+    });
+
+    test("createSignals (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {
+            signals: [
+                { eventName: "x", customer: { customerId: "customerId" } },
+                { eventName: "x", customer: { customerId: "customerId" } },
+            ],
+        };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .post("/signals/bulk")

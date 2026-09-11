@@ -1,3 +1,4 @@
+export type { ActivateOrderByIdRequest } from "./ActivateOrderByIdRequest.js";
 export type { BatchSeatAssignmentsRequest } from "./BatchSeatAssignmentsRequest.js";
 export type { CreateOrderRequest } from "./CreateOrderRequest.js";
 export type { DeleteOrderByIdRequest } from "./DeleteOrderByIdRequest.js";
