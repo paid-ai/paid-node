@@ -3,9 +3,10 @@
 /**
  * @example
  *     {
- *         id: "id"
+ *         id: "cus_abc123"
  *     }
  */
 export interface DeleteCustomerByIdRequest {
+    /** Paid customer display id */
     id: string;
 }

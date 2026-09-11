@@ -26,6 +26,7 @@ describe("Checkouts", () => {
                     collectPhone: true,
                     singleUse: true,
                     allowedCurrencies: ["allowedCurrencies"],
+                    customCards: [{ label: "label" }],
                     createdAt: "2024-01-15T09:30:00Z",
                     updatedAt: "2024-01-15T09:30:00Z",
                 },
@@ -58,6 +59,11 @@ describe("Checkouts", () => {
                     collectPhone: true,
                     singleUse: true,
                     allowedCurrencies: ["allowedCurrencies"],
+                    customCards: [
+                        {
+                            label: "label",
+                        },
+                    ],
                     createdAt: "2024-01-15T09:30:00Z",
                     updatedAt: "2024-01-15T09:30:00Z",
                 },
@@ -75,7 +81,7 @@ describe("Checkouts", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/checkouts/").respondWith().statusCode(400).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -87,7 +93,7 @@ describe("Checkouts", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/checkouts/").respondWith().statusCode(403).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -99,7 +105,7 @@ describe("Checkouts", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/checkouts/").respondWith().statusCode(500).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -115,7 +121,7 @@ describe("Checkouts", () => {
             id: "id",
             url: "url",
             status: "active",
-            products: [{ id: "id" }],
+            products: [{ id: "id", plans: [{ id: "id" }] }],
             customerId: "customerId",
             externalCustomerId: "externalCustomerId",
             successUrl: "successUrl",
@@ -126,6 +132,7 @@ describe("Checkouts", () => {
             collectPhone: true,
             singleUse: true,
             allowedCurrencies: ["allowedCurrencies"],
+            customCards: [{ label: "label", priceText: "priceText", buttonText: "buttonText", buttonUrl: "buttonUrl" }],
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
         };
@@ -153,6 +160,11 @@ describe("Checkouts", () => {
             products: [
                 {
                     id: "id",
+                    plans: [
+                        {
+                            id: "id",
+                        },
+                    ],
                 },
             ],
             customerId: "customerId",
@@ -167,6 +179,14 @@ describe("Checkouts", () => {
             collectPhone: true,
             singleUse: true,
             allowedCurrencies: ["allowedCurrencies"],
+            customCards: [
+                {
+                    label: "label",
+                    priceText: "priceText",
+                    buttonText: "buttonText",
+                    buttonUrl: "buttonUrl",
+                },
+            ],
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
         });
@@ -176,7 +196,7 @@ describe("Checkouts", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = { products: [{ id: "x" }, { id: "x" }], successUrl: "successUrl" };
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .post("/checkouts/")
@@ -205,7 +225,7 @@ describe("Checkouts", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = { products: [{ id: "x" }, { id: "x" }], successUrl: "successUrl" };
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .post("/checkouts/")
@@ -234,7 +254,7 @@ describe("Checkouts", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = { products: [{ id: "x" }, { id: "x" }], successUrl: "successUrl" };
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .post("/checkouts/")
@@ -263,7 +283,7 @@ describe("Checkouts", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = { products: [{ id: "x" }, { id: "x" }], successUrl: "successUrl" };
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .post("/checkouts/")
@@ -296,7 +316,7 @@ describe("Checkouts", () => {
             id: "id",
             url: "url",
             status: "active",
-            products: [{ id: "id" }],
+            products: [{ id: "id", plans: [{ id: "id" }] }],
             customerId: "customerId",
             externalCustomerId: "externalCustomerId",
             successUrl: "successUrl",
@@ -307,9 +327,11 @@ describe("Checkouts", () => {
             collectPhone: true,
             singleUse: true,
             allowedCurrencies: ["allowedCurrencies"],
+            customCards: [{ label: "label", priceText: "priceText", buttonText: "buttonText", buttonUrl: "buttonUrl" }],
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
             orderId: "orderId",
+            selectedProduct: { id: "id", plan: { id: "id", name: "name", externalId: "externalId" } },
         };
         server.mockEndpoint().get("/checkouts/id").respondWith().statusCode(200).jsonBody(rawResponseBody).build();
 
@@ -323,6 +345,11 @@ describe("Checkouts", () => {
             products: [
                 {
                     id: "id",
+                    plans: [
+                        {
+                            id: "id",
+                        },
+                    ],
                 },
             ],
             customerId: "customerId",
@@ -337,9 +364,25 @@ describe("Checkouts", () => {
             collectPhone: true,
             singleUse: true,
             allowedCurrencies: ["allowedCurrencies"],
+            customCards: [
+                {
+                    label: "label",
+                    priceText: "priceText",
+                    buttonText: "buttonText",
+                    buttonUrl: "buttonUrl",
+                },
+            ],
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
             orderId: "orderId",
+            selectedProduct: {
+                id: "id",
+                plan: {
+                    id: "id",
+                    name: "name",
+                    externalId: "externalId",
+                },
+            },
         });
     });
 
@@ -347,7 +390,7 @@ describe("Checkouts", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/checkouts/id").respondWith().statusCode(403).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -361,7 +404,7 @@ describe("Checkouts", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/checkouts/id").respondWith().statusCode(404).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -375,7 +418,7 @@ describe("Checkouts", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/checkouts/id").respondWith().statusCode(500).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -402,7 +445,7 @@ describe("Checkouts", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().delete("/checkouts/id").respondWith().statusCode(403).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -416,7 +459,7 @@ describe("Checkouts", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().delete("/checkouts/id").respondWith().statusCode(404).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -430,7 +473,7 @@ describe("Checkouts", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().delete("/checkouts/id").respondWith().statusCode(500).jsonBody(rawResponseBody).build();
 
         await expect(async () => {

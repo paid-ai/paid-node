@@ -2,15 +2,17 @@
 
 export interface CreditBenefitInput {
     creditsCurrencyId: string;
+    /** Credit amount, exact to at most 6 decimal places. */
     amount: number;
     recipient?: CreditBenefitInput.Recipient;
     isInfiniteTotal?: boolean;
     allocationCadence?: CreditBenefitInput.AllocationCadence;
-    creditGrantTiming?: CreditBenefitInput.CreditGrantTiming;
-    overageUnitPrice?: number;
-    rolloverAmount?: number;
-    rolloverDuration?: number;
-    rolloverDurationUnit?: string;
+    creditGrantTiming?: CreditBenefitInput.CreditGrantTiming | null;
+    overageUnitPrice?: number | null;
+    /** Credit amount, exact to at most 6 decimal places. */
+    rolloverAmount?: number | null;
+    rolloverDuration?: number | null;
+    rolloverDurationUnit?: string | null;
 }
 
 export namespace CreditBenefitInput {

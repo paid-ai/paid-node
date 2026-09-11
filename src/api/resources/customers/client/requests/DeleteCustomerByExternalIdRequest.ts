@@ -3,9 +3,10 @@
 /**
  * @example
  *     {
- *         externalId: "externalId"
+ *         externalId: "customer_123"
  *     }
  */
 export interface DeleteCustomerByExternalIdRequest {
+    /** Customer ID from the integrator's system, stored on Paid as `externalId`. */
     externalId: string;
 }

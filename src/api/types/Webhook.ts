@@ -16,6 +16,7 @@ export namespace Webhook {
     export const Name = {
         BillingInvoiceCreated: "billing-invoice-created",
         BillingInvoicePaid: "billing-invoice-paid",
+        BillingInvoicePosted: "billing-invoice-posted",
         BillingCheckoutCreated: "billing-checkout-created",
         BillingCheckoutCompleted: "billing-checkout-completed",
         BillingCheckoutExpired: "billing-checkout-expired",
@@ -23,6 +24,7 @@ export namespace Webhook {
         BillingPaymentFailed: "billing-payment-failed",
         BillingCreditsDepleted: "billing-credits-depleted",
         BillingOverageIncurred: "billing-overage-incurred",
+        BillingCreditCapReached: "billing-credit-cap-reached",
     } as const;
     export type Name = (typeof Name)[keyof typeof Name];
 }

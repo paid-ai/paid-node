@@ -5,4 +5,5 @@ export interface ValueReceiptSyncResponse {
     status: string;
     publicUrlToken: string;
     publicUrl: string;
+    generatedAt?: string | null;
 }

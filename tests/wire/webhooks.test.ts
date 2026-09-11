@@ -21,6 +21,7 @@ describe("Webhooks", () => {
                     lastStatus: "success",
                 },
             ],
+            signingSecretConfigured: true,
         };
         server.mockEndpoint().get("/webhooks/").respondWith().statusCode(200).jsonBody(rawResponseBody).build();
 
@@ -37,6 +38,7 @@ describe("Webhooks", () => {
                     lastStatus: "success",
                 },
             ],
+            signingSecretConfigured: true,
         });
     });
 
@@ -44,7 +46,7 @@ describe("Webhooks", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/webhooks/").respondWith().statusCode(403).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -56,7 +58,7 @@ describe("Webhooks", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/webhooks/").respondWith().statusCode(500).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -76,6 +78,7 @@ describe("Webhooks", () => {
             url: "url",
             lastSentAt: "2024-01-15T09:30:00Z",
             lastStatus: "success",
+            signingSecret: "signingSecret",
         };
         server
             .mockEndpoint()
@@ -97,6 +100,7 @@ describe("Webhooks", () => {
             url: "url",
             lastSentAt: "2024-01-15T09:30:00Z",
             lastStatus: "success",
+            signingSecret: "signingSecret",
         });
     });
 
@@ -104,7 +108,7 @@ describe("Webhooks", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .patch("/webhooks/billing-invoice-created")
@@ -125,7 +129,7 @@ describe("Webhooks", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .patch("/webhooks/billing-invoice-created")
@@ -146,7 +150,7 @@ describe("Webhooks", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .patch("/webhooks/billing-invoice-created")
@@ -167,7 +171,7 @@ describe("Webhooks", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .patch("/webhooks/billing-invoice-created")
@@ -210,7 +214,7 @@ describe("Webhooks", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .post("/webhooks/billing-invoice-created/test")
@@ -231,7 +235,7 @@ describe("Webhooks", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .post("/webhooks/billing-invoice-created/test")
@@ -252,7 +256,7 @@ describe("Webhooks", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .post("/webhooks/billing-invoice-created/test")
@@ -273,7 +277,7 @@ describe("Webhooks", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .post("/webhooks/billing-invoice-created/test")
@@ -287,6 +291,83 @@ describe("Webhooks", () => {
             return await client.webhooks.testWebhook({
                 webhookName: "billing-invoice-created",
             });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("rotateWebhookSecret (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { signingSecret: "signingSecret" };
+        server
+            .mockEndpoint()
+            .post("/webhooks/rotate-secret")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.webhooks.rotateWebhookSecret();
+        expect(response).toEqual({
+            signingSecret: "signingSecret",
+        });
+    });
+
+    test("rotateWebhookSecret (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/webhooks/rotate-secret")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.webhooks.rotateWebhookSecret();
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("rotateWebhookSecret (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/webhooks/rotate-secret")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.webhooks.rotateWebhookSecret();
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("rotateWebhookSecret (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/webhooks/rotate-secret")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.webhooks.rotateWebhookSecret();
         }).rejects.toThrow(Paid.InternalServerError);
     });
 });

@@ -44,7 +44,19 @@ export class Orders {
         request: Paid.ListOrdersRequest = {},
         requestOptions?: Orders.RequestOptions,
     ): Promise<core.WithRawResponse<Paid.OrderListResponse>> {
-        const { limit, offset } = request;
+        const {
+            limit,
+            offset,
+            customerId,
+            externalCustomerId,
+            externalId,
+            creationState,
+            status,
+            startDateFrom,
+            startDateTo,
+            endDateFrom,
+            endDateTo,
+        } = request;
         const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
         if (limit != null) {
             _queryParams.limit = limit.toString();
@@ -52,6 +64,42 @@ export class Orders {
 
         if (offset != null) {
             _queryParams.offset = offset.toString();
+        }
+
+        if (customerId != null) {
+            _queryParams.customerId = customerId;
+        }
+
+        if (externalCustomerId != null) {
+            _queryParams.externalCustomerId = externalCustomerId;
+        }
+
+        if (externalId != null) {
+            _queryParams.externalId = externalId;
+        }
+
+        if (creationState != null) {
+            _queryParams.creationState = creationState;
+        }
+
+        if (status != null) {
+            _queryParams.status = status;
+        }
+
+        if (startDateFrom != null) {
+            _queryParams.startDateFrom = startDateFrom;
+        }
+
+        if (startDateTo != null) {
+            _queryParams.startDateTo = startDateTo;
+        }
+
+        if (endDateFrom != null) {
+            _queryParams.endDateFrom = endDateFrom;
+        }
+
+        if (endDateTo != null) {
+            _queryParams.endDateTo = endDateTo;
         }
 
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
@@ -80,14 +128,11 @@ export class Orders {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 400:
-                    throw new Paid.BadRequestError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
                 case 403:
-                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
-                    throw new Paid.InternalServerError(
-                        _response.error.body as Paid.ErrorResponse,
-                        _response.rawResponse,
-                    );
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,
@@ -169,14 +214,11 @@ export class Orders {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 400:
-                    throw new Paid.BadRequestError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
                 case 403:
-                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
-                    throw new Paid.InternalServerError(
-                        _response.error.body as Paid.ErrorResponse,
-                        _response.rawResponse,
-                    );
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,
@@ -256,14 +298,11 @@ export class Orders {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 403:
-                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 404:
-                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
-                    throw new Paid.InternalServerError(
-                        _response.error.body as Paid.ErrorResponse,
-                        _response.rawResponse,
-                    );
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,
@@ -347,16 +386,13 @@ export class Orders {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 400:
-                    throw new Paid.BadRequestError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
                 case 403:
-                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 404:
-                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
-                    throw new Paid.InternalServerError(
-                        _response.error.body as Paid.ErrorResponse,
-                        _response.rawResponse,
-                    );
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,
@@ -436,14 +472,11 @@ export class Orders {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 403:
-                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 404:
-                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
-                    throw new Paid.InternalServerError(
-                        _response.error.body as Paid.ErrorResponse,
-                        _response.rawResponse,
-                    );
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,
@@ -462,6 +495,93 @@ export class Orders {
                 });
             case "timeout":
                 throw new errors.PaidTimeoutError("Timeout exceeded when calling DELETE /orders/{id}.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Activate a draft order by ID. Activation starts billing for the order using the same validation and side effects as the dashboard activation flow.
+     *
+     * @param {Paid.ActivateOrderByIdRequest} request
+     * @param {Orders.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.orders.activateOrderById({
+     *         id: "id"
+     *     })
+     */
+    public activateOrderById(
+        request: Paid.ActivateOrderByIdRequest,
+        requestOptions?: Orders.RequestOptions,
+    ): core.HttpResponsePromise<Paid.Order> {
+        return core.HttpResponsePromise.fromPromise(this.__activateOrderById(request, requestOptions));
+    }
+
+    private async __activateOrderById(
+        request: Paid.ActivateOrderByIdRequest,
+        requestOptions?: Orders.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.Order>> {
+        const { id } = request;
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `orders/${core.url.encodePathParam(id)}/activate`,
+            ),
+            method: "POST",
+            headers: _headers,
+            queryParameters: requestOptions?.queryParams,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.Order, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /orders/{id}/activate.");
             case "unknown":
                 throw new errors.PaidError({
                     message: _response.error.errorMessage,
@@ -532,14 +652,11 @@ export class Orders {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 403:
-                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 404:
-                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
-                    throw new Paid.InternalServerError(
-                        _response.error.body as Paid.ErrorResponse,
-                        _response.rawResponse,
-                    );
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,
@@ -637,16 +754,13 @@ export class Orders {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 400:
-                    throw new Paid.BadRequestError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
                 case 403:
-                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 404:
-                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
-                    throw new Paid.InternalServerError(
-                        _response.error.body as Paid.ErrorResponse,
-                        _response.rawResponse,
-                    );
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,
@@ -732,18 +846,15 @@ export class Orders {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 400:
-                    throw new Paid.BadRequestError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
                 case 403:
-                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 404:
-                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
                 case 409:
-                    throw new Paid.ConflictError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.ConflictError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
-                    throw new Paid.InternalServerError(
-                        _response.error.body as Paid.ErrorResponse,
-                        _response.rawResponse,
-                    );
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,
@@ -831,18 +942,15 @@ export class Orders {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 400:
-                    throw new Paid.BadRequestError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
                 case 403:
-                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 404:
-                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
                 case 409:
-                    throw new Paid.ConflictError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.ConflictError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
-                    throw new Paid.InternalServerError(
-                        _response.error.body as Paid.ErrorResponse,
-                        _response.rawResponse,
-                    );
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,

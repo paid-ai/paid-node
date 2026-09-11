@@ -11,6 +11,7 @@ export type PricingInput =
     | Paid.PricingInput.UsageGraduated
     | Paid.PricingInput.UsageVolume
     | Paid.PricingInput.UsagePrepaidCredits
+    | Paid.PricingInput.UsageBracketedPrepaidCredits
     | Paid.PricingInput.UsageCostPlus
     | Paid.PricingInput.OneTimePerUnit
     | Paid.PricingInput.SeatBasedPerUnit
@@ -49,6 +50,10 @@ export namespace PricingInput {
 
     export interface UsagePrepaidCredits extends Paid.UsagePrepaidCreditsInput {
         pricingType: "UsagePrepaidCredits";
+    }
+
+    export interface UsageBracketedPrepaidCredits extends Paid.UsageBracketedPrepaidCreditsInput {
+        pricingType: "UsageBracketedPrepaidCredits";
     }
 
     export interface UsageCostPlus extends Paid.UsageCostPlusInput {

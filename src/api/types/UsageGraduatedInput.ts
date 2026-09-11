@@ -4,6 +4,7 @@ import type * as Paid from "../index.js";
 
 export interface UsageGraduatedInput {
     eventName: string;
+    signalType?: UsageGraduatedInput.SignalType;
     billingFrequency?: UsageGraduatedInput.BillingFrequency;
     billingFrequencyCustomMonths?: number;
     billingType?: UsageGraduatedInput.BillingType;
@@ -11,6 +12,11 @@ export interface UsageGraduatedInput {
 }
 
 export namespace UsageGraduatedInput {
+    export const SignalType = {
+        Activity: "activity",
+        Outcome: "outcome",
+    } as const;
+    export type SignalType = (typeof SignalType)[keyof typeof SignalType];
     export const BillingFrequency = {
         Monthly: "Monthly",
         Quarterly: "Quarterly",

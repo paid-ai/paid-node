@@ -15,7 +15,7 @@ export interface CreateCustomerRequest {
     phone?: string;
     website?: string;
     externalId?: string | null;
-    billingAddress?: Paid.CustomerBillingAddress | null;
+    billingAddress?: Paid.CustomerBillingAddressInput | null;
     creationState?: Paid.CustomerCreationState;
     vatNumber?: string | null;
     metadata?: Record<string, unknown> | null;

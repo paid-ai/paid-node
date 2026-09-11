@@ -44,7 +44,7 @@ export class Products {
         request: Paid.ListProductsRequest = {},
         requestOptions?: Products.RequestOptions,
     ): Promise<core.WithRawResponse<Paid.ProductListResponse>> {
-        const { limit, offset } = request;
+        const { limit, offset, name, active, archived } = request;
         const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
         if (limit != null) {
             _queryParams.limit = limit.toString();
@@ -52,6 +52,18 @@ export class Products {
 
         if (offset != null) {
             _queryParams.offset = offset.toString();
+        }
+
+        if (name != null) {
+            _queryParams.name = name;
+        }
+
+        if (active != null) {
+            _queryParams.active = active.toString();
+        }
+
+        if (archived != null) {
+            _queryParams.archived = archived.toString();
         }
 
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
@@ -80,14 +92,11 @@ export class Products {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 400:
-                    throw new Paid.BadRequestError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
                 case 403:
-                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
-                    throw new Paid.InternalServerError(
-                        _response.error.body as Paid.ErrorResponse,
-                        _response.rawResponse,
-                    );
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,
@@ -115,7 +124,7 @@ export class Products {
     }
 
     /**
-     * Creates a new product for the organization
+     * Creates a new product for the organization. Products are created without pricing: to create product attributes and set their pricing, call the update product endpoint (updateProductById / updateProductByExternalId), which upserts productAttributes.
      *
      * @param {Paid.CreateProductRequest} request
      * @param {Products.RequestOptions} requestOptions - Request-specific configuration.
@@ -169,14 +178,11 @@ export class Products {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 400:
-                    throw new Paid.BadRequestError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
                 case 403:
-                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
-                    throw new Paid.InternalServerError(
-                        _response.error.body as Paid.ErrorResponse,
-                        _response.rawResponse,
-                    );
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,
@@ -204,7 +210,7 @@ export class Products {
     }
 
     /**
-     * Get a product by ID
+     * Get a product by ID, including its product attributes with pricing details
      *
      * @param {Paid.GetProductByIdRequest} request
      * @param {Products.RequestOptions} requestOptions - Request-specific configuration.
@@ -221,14 +227,14 @@ export class Products {
     public getProductById(
         request: Paid.GetProductByIdRequest,
         requestOptions?: Products.RequestOptions,
-    ): core.HttpResponsePromise<Paid.Product> {
+    ): core.HttpResponsePromise<Paid.ProductDetail> {
         return core.HttpResponsePromise.fromPromise(this.__getProductById(request, requestOptions));
     }
 
     private async __getProductById(
         request: Paid.GetProductByIdRequest,
         requestOptions?: Products.RequestOptions,
-    ): Promise<core.WithRawResponse<Paid.Product>> {
+    ): Promise<core.WithRawResponse<Paid.ProductDetail>> {
         const { id } = request;
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             this._options?.headers,
@@ -250,20 +256,17 @@ export class Products {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return { data: _response.body as Paid.Product, rawResponse: _response.rawResponse };
+            return { data: _response.body as Paid.ProductDetail, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 403:
-                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 404:
-                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
-                    throw new Paid.InternalServerError(
-                        _response.error.body as Paid.ErrorResponse,
-                        _response.rawResponse,
-                    );
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,
@@ -291,7 +294,7 @@ export class Products {
     }
 
     /**
-     * Update a product by ID
+     * Update a product by ID. Also creates and edits product attributes: productAttributes upserts attributes and sets their pricing (metering event, price points, credit brackets). This is the endpoint to use to add pricing to a product created without any.
      *
      * @param {Paid.UpdateProductByIdRequest} request
      * @param {Products.RequestOptions} requestOptions - Request-specific configuration.
@@ -310,14 +313,14 @@ export class Products {
     public updateProductById(
         request: Paid.UpdateProductByIdRequest,
         requestOptions?: Products.RequestOptions,
-    ): core.HttpResponsePromise<Paid.Product> {
+    ): core.HttpResponsePromise<Paid.ProductDetail> {
         return core.HttpResponsePromise.fromPromise(this.__updateProductById(request, requestOptions));
     }
 
     private async __updateProductById(
         request: Paid.UpdateProductByIdRequest,
         requestOptions?: Products.RequestOptions,
-    ): Promise<core.WithRawResponse<Paid.Product>> {
+    ): Promise<core.WithRawResponse<Paid.ProductDetail>> {
         const { id, body: _body } = request;
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             this._options?.headers,
@@ -342,22 +345,19 @@ export class Products {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return { data: _response.body as Paid.Product, rawResponse: _response.rawResponse };
+            return { data: _response.body as Paid.ProductDetail, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 400:
-                    throw new Paid.BadRequestError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
                 case 403:
-                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 404:
-                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
-                    throw new Paid.InternalServerError(
-                        _response.error.body as Paid.ErrorResponse,
-                        _response.rawResponse,
-                    );
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,
@@ -385,7 +385,7 @@ export class Products {
     }
 
     /**
-     * Get a product by external ID
+     * Get a product by external ID, including its product attributes with pricing details
      *
      * @param {Paid.GetProductByExternalIdRequest} request
      * @param {Products.RequestOptions} requestOptions - Request-specific configuration.
@@ -402,14 +402,14 @@ export class Products {
     public getProductByExternalId(
         request: Paid.GetProductByExternalIdRequest,
         requestOptions?: Products.RequestOptions,
-    ): core.HttpResponsePromise<Paid.Product> {
+    ): core.HttpResponsePromise<Paid.ProductDetail> {
         return core.HttpResponsePromise.fromPromise(this.__getProductByExternalId(request, requestOptions));
     }
 
     private async __getProductByExternalId(
         request: Paid.GetProductByExternalIdRequest,
         requestOptions?: Products.RequestOptions,
-    ): Promise<core.WithRawResponse<Paid.Product>> {
+    ): Promise<core.WithRawResponse<Paid.ProductDetail>> {
         const { externalId } = request;
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             this._options?.headers,
@@ -431,20 +431,17 @@ export class Products {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return { data: _response.body as Paid.Product, rawResponse: _response.rawResponse };
+            return { data: _response.body as Paid.ProductDetail, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 403:
-                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 404:
-                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
-                    throw new Paid.InternalServerError(
-                        _response.error.body as Paid.ErrorResponse,
-                        _response.rawResponse,
-                    );
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,
@@ -472,7 +469,7 @@ export class Products {
     }
 
     /**
-     * Update a product by external ID
+     * Update a product by external ID. Also creates and edits product attributes: productAttributes upserts attributes and sets their pricing (metering event, price points, credit brackets). This is the endpoint to use to add pricing to a product created without any.
      *
      * @param {Paid.UpdateProductByExternalIdRequest} request
      * @param {Products.RequestOptions} requestOptions - Request-specific configuration.
@@ -491,14 +488,14 @@ export class Products {
     public updateProductByExternalId(
         request: Paid.UpdateProductByExternalIdRequest,
         requestOptions?: Products.RequestOptions,
-    ): core.HttpResponsePromise<Paid.Product> {
+    ): core.HttpResponsePromise<Paid.ProductDetail> {
         return core.HttpResponsePromise.fromPromise(this.__updateProductByExternalId(request, requestOptions));
     }
 
     private async __updateProductByExternalId(
         request: Paid.UpdateProductByExternalIdRequest,
         requestOptions?: Products.RequestOptions,
-    ): Promise<core.WithRawResponse<Paid.Product>> {
+    ): Promise<core.WithRawResponse<Paid.ProductDetail>> {
         const { externalId, body: _body } = request;
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             this._options?.headers,
@@ -523,22 +520,19 @@ export class Products {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return { data: _response.body as Paid.Product, rawResponse: _response.rawResponse };
+            return { data: _response.body as Paid.ProductDetail, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 400:
-                    throw new Paid.BadRequestError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
                 case 403:
-                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 404:
-                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
-                    throw new Paid.InternalServerError(
-                        _response.error.body as Paid.ErrorResponse,
-                        _response.rawResponse,
-                    );
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,

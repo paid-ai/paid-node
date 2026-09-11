@@ -25,4 +25,6 @@ export interface UpdateOrderRequest {
     autoPostInvoices?: boolean;
     autoSendBillingEmails?: boolean;
     autoSendPaymentEmails?: boolean;
+    /** Purchase order number printed on invoices generated from this order. */
+    purchaseOrderReference?: string | null;
 }

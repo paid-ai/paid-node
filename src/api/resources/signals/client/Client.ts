@@ -21,6 +21,246 @@ export class Signals {
     }
 
     /**
+     * Returns ingested signals (usage events) for your organization, newest first. Filter by signal name, customer, product, and creation date range.
+     *
+     * @param {Paid.ListSignalsRequest} request
+     * @param {Signals.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.RequestTimeoutError}
+     * @throws {@link Paid.TooManyRequestsError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.signals.listSignals()
+     */
+    public listSignals(
+        request: Paid.ListSignalsRequest = {},
+        requestOptions?: Signals.RequestOptions,
+    ): core.HttpResponsePromise<Paid.SignalListResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__listSignals(request, requestOptions));
+    }
+
+    private async __listSignals(
+        request: Paid.ListSignalsRequest = {},
+        requestOptions?: Signals.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.SignalListResponse>> {
+        const {
+            limit,
+            offset,
+            signalName,
+            customerId,
+            externalCustomerId,
+            productId,
+            externalProductId,
+            createdAtFrom,
+            createdAtTo,
+        } = request;
+        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
+        if (limit != null) {
+            _queryParams.limit = limit.toString();
+        }
+
+        if (offset != null) {
+            _queryParams.offset = offset.toString();
+        }
+
+        if (signalName != null) {
+            _queryParams.signalName = signalName;
+        }
+
+        if (customerId != null) {
+            _queryParams.customerId = customerId;
+        }
+
+        if (externalCustomerId != null) {
+            _queryParams.externalCustomerId = externalCustomerId;
+        }
+
+        if (productId != null) {
+            _queryParams.productId = productId;
+        }
+
+        if (externalProductId != null) {
+            _queryParams.externalProductId = externalProductId;
+        }
+
+        if (createdAtFrom != null) {
+            _queryParams.createdAtFrom = createdAtFrom;
+        }
+
+        if (createdAtTo != null) {
+            _queryParams.createdAtTo = createdAtTo;
+        }
+
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                "signals/",
+            ),
+            method: "GET",
+            headers: _headers,
+            queryParameters: { ..._queryParams, ...requestOptions?.queryParams },
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.SignalListResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 408:
+                    throw new Paid.RequestTimeoutError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                case 429:
+                    throw new Paid.TooManyRequestsError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /signals/.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Get a single ingested signal (usage event) by its ID, including the data payload submitted at ingest.
+     *
+     * @param {Paid.GetSignalByIdRequest} request
+     * @param {Signals.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.RequestTimeoutError}
+     * @throws {@link Paid.TooManyRequestsError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.signals.getSignalById({
+     *         id: "6890b0e2a6f2c30012f0a1b3"
+     *     })
+     */
+    public getSignalById(
+        request: Paid.GetSignalByIdRequest,
+        requestOptions?: Signals.RequestOptions,
+    ): core.HttpResponsePromise<Paid.SignalListItem> {
+        return core.HttpResponsePromise.fromPromise(this.__getSignalById(request, requestOptions));
+    }
+
+    private async __getSignalById(
+        request: Paid.GetSignalByIdRequest,
+        requestOptions?: Signals.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.SignalListItem>> {
+        const { id } = request;
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `signals/${core.url.encodePathParam(id)}`,
+            ),
+            method: "GET",
+            headers: _headers,
+            queryParameters: requestOptions?.queryParams,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.SignalListItem, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 408:
+                    throw new Paid.RequestTimeoutError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                case 429:
+                    throw new Paid.TooManyRequestsError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /signals/{id}.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
      * Create multiple signals (usage events) in a single request. Each signal must include a customer attribution (either customerId or externalCustomerId) and a product attribution (either productId or externalProductId).
      *
      * @param {Paid.BulkSignalsRequest} request
@@ -28,6 +268,7 @@ export class Signals {
      *
      * @throws {@link Paid.BadRequestError}
      * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.TooManyRequestsError}
      * @throws {@link Paid.InternalServerError}
      *
      * @example
@@ -80,14 +321,16 @@ export class Signals {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 400:
-                    throw new Paid.BadRequestError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
                 case 403:
-                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
-                case 500:
-                    throw new Paid.InternalServerError(
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 429:
+                    throw new Paid.TooManyRequestsError(
                         _response.error.body as Paid.ErrorResponse,
                         _response.rawResponse,
                     );
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,

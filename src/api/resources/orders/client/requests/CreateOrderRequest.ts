@@ -28,4 +28,6 @@ export interface CreateOrderRequest {
     autoSendPaymentEmails?: boolean;
     lines?: Paid.CreateOrderLineRequest[];
     billingFrequencyOverride?: Paid.OrderBillingFrequencyOverride;
+    /** Purchase order number printed on invoices generated from this order. */
+    purchaseOrderReference?: string | null;
 }

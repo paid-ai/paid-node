@@ -32,4 +32,5 @@ export interface Order {
     version: number;
     billingFrequencyOverridden: boolean;
     billingFrequencyOverride?: Paid.OrderBillingFrequencyOverride;
+    purchaseOrderReference: string | null;
 }

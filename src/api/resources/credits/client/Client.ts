@@ -21,8 +21,9 @@ export class Credits {
     }
 
     /**
-     * List credit currencies for the organization
+     * List credit currencies for the organization. Includes active and archived currencies by default; use the status query parameter to filter.
      *
+     * @param {Paid.ListCreditCurrenciesRequest} request
      * @param {Credits.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @throws {@link Paid.ForbiddenError}
@@ -32,14 +33,22 @@ export class Credits {
      *     await client.credits.listCreditCurrencies()
      */
     public listCreditCurrencies(
+        request: Paid.ListCreditCurrenciesRequest = {},
         requestOptions?: Credits.RequestOptions,
     ): core.HttpResponsePromise<Paid.CreditCurrencyListResponse> {
-        return core.HttpResponsePromise.fromPromise(this.__listCreditCurrencies(requestOptions));
+        return core.HttpResponsePromise.fromPromise(this.__listCreditCurrencies(request, requestOptions));
     }
 
     private async __listCreditCurrencies(
+        request: Paid.ListCreditCurrenciesRequest = {},
         requestOptions?: Credits.RequestOptions,
     ): Promise<core.WithRawResponse<Paid.CreditCurrencyListResponse>> {
+        const { status } = request;
+        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
+        if (status != null) {
+            _queryParams.status = status;
+        }
+
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             this._options?.headers,
             mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
@@ -54,7 +63,7 @@ export class Credits {
             ),
             method: "GET",
             headers: _headers,
-            queryParameters: requestOptions?.queryParams,
+            queryParameters: { ..._queryParams, ...requestOptions?.queryParams },
             timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
             maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
             abortSignal: requestOptions?.abortSignal,
@@ -66,12 +75,9 @@ export class Credits {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 403:
-                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
-                    throw new Paid.InternalServerError(
-                        _response.error.body as Paid.ErrorResponse,
-                        _response.rawResponse,
-                    );
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,
@@ -90,6 +96,320 @@ export class Credits {
                 });
             case "timeout":
                 throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /credits/currencies.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Creates a credit currency for the organization.
+     *
+     * @param {Paid.CreateCreditCurrencyRequest} request
+     * @param {Credits.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.credits.createCreditCurrency({
+     *         name: "API Credits",
+     *         key: "api_credits",
+     *         description: "Credits consumed by API calls."
+     *     })
+     */
+    public createCreditCurrency(
+        request: Paid.CreateCreditCurrencyRequest,
+        requestOptions?: Credits.RequestOptions,
+    ): core.HttpResponsePromise<Paid.CreditCurrency> {
+        return core.HttpResponsePromise.fromPromise(this.__createCreditCurrency(request, requestOptions));
+    }
+
+    private async __createCreditCurrency(
+        request: Paid.CreateCreditCurrencyRequest,
+        requestOptions?: Credits.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.CreditCurrency>> {
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                "credits/currencies",
+            ),
+            method: "POST",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: request,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.CreditCurrency, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /credits/currencies.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * List credit ledger transactions (grants, spends, and pending grants) for the organization, newest first. Filter by customer, credit currency, type, order, or date range.
+     *
+     * @param {Paid.ListCreditTransactionsRequest} request
+     * @param {Credits.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.credits.listCreditTransactions()
+     */
+    public listCreditTransactions(
+        request: Paid.ListCreditTransactionsRequest = {},
+        requestOptions?: Credits.RequestOptions,
+    ): core.HttpResponsePromise<Paid.CreditTransactionListResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__listCreditTransactions(request, requestOptions));
+    }
+
+    private async __listCreditTransactions(
+        request: Paid.ListCreditTransactionsRequest = {},
+        requestOptions?: Credits.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.CreditTransactionListResponse>> {
+        const {
+            limit,
+            offset,
+            customerId,
+            externalCustomerId,
+            creditsCurrencyId,
+            creditCurrencyKey,
+            type: type_,
+            orderId,
+            createdAtFrom,
+            createdAtTo,
+        } = request;
+        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
+        if (limit != null) {
+            _queryParams.limit = limit.toString();
+        }
+
+        if (offset != null) {
+            _queryParams.offset = offset.toString();
+        }
+
+        if (customerId != null) {
+            _queryParams.customerId = customerId;
+        }
+
+        if (externalCustomerId != null) {
+            _queryParams.externalCustomerId = externalCustomerId;
+        }
+
+        if (creditsCurrencyId != null) {
+            _queryParams.creditsCurrencyId = creditsCurrencyId;
+        }
+
+        if (creditCurrencyKey != null) {
+            _queryParams.creditCurrencyKey = creditCurrencyKey;
+        }
+
+        if (type_ != null) {
+            _queryParams.type = type_;
+        }
+
+        if (orderId != null) {
+            _queryParams.orderId = orderId;
+        }
+
+        if (createdAtFrom != null) {
+            _queryParams.createdAtFrom = createdAtFrom;
+        }
+
+        if (createdAtTo != null) {
+            _queryParams.createdAtTo = createdAtTo;
+        }
+
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                "credits/transactions",
+            ),
+            method: "GET",
+            headers: _headers,
+            queryParameters: { ..._queryParams, ...requestOptions?.queryParams },
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.CreditTransactionListResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /credits/transactions.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Update a credit currency description or set its active/archive status.
+     *
+     * @param {Paid.UpdateCreditCurrencyRequest} request
+     * @param {Credits.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.credits.updateCreditCurrencyById({
+     *         id: "7f4f5d4c-55e9-4d5b-a3e7-c9eb3d2d01bf",
+     *         description: "Credits consumed by developer API calls.",
+     *         status: "archived"
+     *     })
+     */
+    public updateCreditCurrencyById(
+        request: Paid.UpdateCreditCurrencyRequest,
+        requestOptions?: Credits.RequestOptions,
+    ): core.HttpResponsePromise<Paid.CreditCurrency> {
+        return core.HttpResponsePromise.fromPromise(this.__updateCreditCurrencyById(request, requestOptions));
+    }
+
+    private async __updateCreditCurrencyById(
+        request: Paid.UpdateCreditCurrencyRequest,
+        requestOptions?: Credits.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.CreditCurrency>> {
+        const { id, ..._body } = request;
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `credits/currencies/${core.url.encodePathParam(id)}`,
+            ),
+            method: "PUT",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: _body,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.CreditCurrency, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling PUT /credits/currencies/{id}.");
             case "unknown":
                 throw new errors.PaidError({
                     message: _response.error.errorMessage,

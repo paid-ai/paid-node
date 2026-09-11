@@ -17,8 +17,11 @@ export interface CheckoutDetails {
     collectPhone: boolean;
     singleUse: boolean;
     allowedCurrencies: string[];
+    /** Additional informational pricing cards rendered alongside the plans. */
+    customCards?: Paid.CheckoutCustomCard[];
     createdAt: string;
     updatedAt: string;
     /** The resulting order ID once checkout has completed. Null until an order is created. */
     orderId: string | null;
+    selectedProduct: Paid.CheckoutSelectedProduct | null;
 }

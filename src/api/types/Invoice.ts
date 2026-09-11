@@ -27,10 +27,13 @@ export interface Invoice {
     createdAt: string;
     updatedAt: string;
     paymentLink?: string | null;
+    /** Always null. The disputes feature is removed. Will be removed in a future API version. */
     disputeLink?: string | null;
     publicUrlToken?: string | null;
     taxExempt: boolean;
     billingContactId?: string | null;
+    /** Purchase order reference stamped on this invoice. */
+    purchaseOrderReference?: string | null;
 }
 
 export namespace Invoice {

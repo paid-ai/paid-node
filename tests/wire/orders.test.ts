@@ -41,6 +41,7 @@ describe("Orders", () => {
                     version: 1,
                     billingFrequencyOverridden: true,
                     billingFrequencyOverride: { frequency: "monthly" },
+                    purchaseOrderReference: "purchaseOrderReference",
                 },
             ],
             pagination: { limit: 1, offset: 1, total: 1, hasMore: true },
@@ -84,6 +85,7 @@ describe("Orders", () => {
                     billingFrequencyOverride: {
                         frequency: "monthly",
                     },
+                    purchaseOrderReference: "purchaseOrderReference",
                 },
             ],
             pagination: {
@@ -99,7 +101,7 @@ describe("Orders", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/orders/").respondWith().statusCode(400).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -111,7 +113,7 @@ describe("Orders", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/orders/").respondWith().statusCode(403).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -123,7 +125,7 @@ describe("Orders", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/orders/").respondWith().statusCode(500).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -165,6 +167,7 @@ describe("Orders", () => {
             version: 1,
             billingFrequencyOverridden: true,
             billingFrequencyOverride: { frequency: "monthly", customMonths: 1 },
+            purchaseOrderReference: "purchaseOrderReference",
         };
         server
             .mockEndpoint()
@@ -213,6 +216,7 @@ describe("Orders", () => {
                 frequency: "monthly",
                 customMonths: 1,
             },
+            purchaseOrderReference: "purchaseOrderReference",
         });
     });
 
@@ -220,7 +224,7 @@ describe("Orders", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = { customerId: "customerId" };
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .post("/orders/")
@@ -241,7 +245,7 @@ describe("Orders", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = { customerId: "customerId" };
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .post("/orders/")
@@ -262,7 +266,7 @@ describe("Orders", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = { customerId: "customerId" };
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .post("/orders/")
@@ -313,6 +317,7 @@ describe("Orders", () => {
             version: 1,
             billingFrequencyOverridden: true,
             billingFrequencyOverride: { frequency: "monthly", customMonths: 1 },
+            purchaseOrderReference: "purchaseOrderReference",
         };
         server.mockEndpoint().get("/orders/id").respondWith().statusCode(200).jsonBody(rawResponseBody).build();
 
@@ -354,6 +359,7 @@ describe("Orders", () => {
                 frequency: "monthly",
                 customMonths: 1,
             },
+            purchaseOrderReference: "purchaseOrderReference",
         });
     });
 
@@ -361,7 +367,7 @@ describe("Orders", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/orders/id").respondWith().statusCode(403).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -375,7 +381,7 @@ describe("Orders", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/orders/id").respondWith().statusCode(404).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -389,7 +395,7 @@ describe("Orders", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/orders/id").respondWith().statusCode(500).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -433,6 +439,7 @@ describe("Orders", () => {
             version: 1,
             billingFrequencyOverridden: true,
             billingFrequencyOverride: { frequency: "monthly", customMonths: 1 },
+            purchaseOrderReference: "purchaseOrderReference",
         };
         server
             .mockEndpoint()
@@ -481,6 +488,7 @@ describe("Orders", () => {
                 frequency: "monthly",
                 customMonths: 1,
             },
+            purchaseOrderReference: "purchaseOrderReference",
         });
     });
 
@@ -488,7 +496,7 @@ describe("Orders", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .put("/orders/id")
@@ -509,7 +517,7 @@ describe("Orders", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .put("/orders/id")
@@ -530,7 +538,7 @@ describe("Orders", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .put("/orders/id")
@@ -551,7 +559,7 @@ describe("Orders", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .put("/orders/id")
@@ -585,7 +593,7 @@ describe("Orders", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().delete("/orders/id").respondWith().statusCode(403).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -599,7 +607,7 @@ describe("Orders", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().delete("/orders/id").respondWith().statusCode(404).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -613,11 +621,177 @@ describe("Orders", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().delete("/orders/id").respondWith().statusCode(500).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
             return await client.orders.deleteOrderById({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("activateOrderById (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = {
+            id: "id",
+            customerId: "customerId",
+            billingCustomerId: "billingCustomerId",
+            billingContactIds: ["billingContactIds"],
+            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
+            endDate: "2024-01-15T09:30:00Z",
+            name: "name",
+            startDate: "2024-01-15T09:30:00Z",
+            subscriptionTerms: 1,
+            billedAmountNoTax: 1.1,
+            billedTax: 1.1,
+            estimatedTax: 1.1,
+            orderAmount: 1.1,
+            pendingBillingAmount: 1.1,
+            totalAmount: 1.1,
+            totalBilledAmount: 1.1,
+            creationState: "draft",
+            paymentTerms: "paymentTerms",
+            number: 1.1,
+            metadata: { key: "value" },
+            showPaymentLink: true,
+            showBankDetails: true,
+            autoPostInvoices: true,
+            autoSendBillingEmails: true,
+            autoSendPaymentEmails: true,
+            version: 1,
+            billingFrequencyOverridden: true,
+            billingFrequencyOverride: { frequency: "monthly", customMonths: 1 },
+            purchaseOrderReference: "purchaseOrderReference",
+        };
+        server
+            .mockEndpoint()
+            .post("/orders/id/activate")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.orders.activateOrderById({
+            id: "id",
+        });
+        expect(response).toEqual({
+            id: "id",
+            customerId: "customerId",
+            billingCustomerId: "billingCustomerId",
+            billingContactIds: ["billingContactIds"],
+            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
+            endDate: "2024-01-15T09:30:00Z",
+            name: "name",
+            startDate: "2024-01-15T09:30:00Z",
+            subscriptionTerms: 1,
+            billedAmountNoTax: 1.1,
+            billedTax: 1.1,
+            estimatedTax: 1.1,
+            orderAmount: 1.1,
+            pendingBillingAmount: 1.1,
+            totalAmount: 1.1,
+            totalBilledAmount: 1.1,
+            creationState: "draft",
+            paymentTerms: "paymentTerms",
+            number: 1.1,
+            metadata: {
+                key: "value",
+            },
+            showPaymentLink: true,
+            showBankDetails: true,
+            autoPostInvoices: true,
+            autoSendBillingEmails: true,
+            autoSendPaymentEmails: true,
+            version: 1,
+            billingFrequencyOverridden: true,
+            billingFrequencyOverride: {
+                frequency: "monthly",
+                customMonths: 1,
+            },
+            purchaseOrderReference: "purchaseOrderReference",
+        });
+    });
+
+    test("activateOrderById (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/orders/id/activate")
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.orders.activateOrderById({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("activateOrderById (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/orders/id/activate")
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.orders.activateOrderById({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("activateOrderById (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/orders/id/activate")
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.orders.activateOrderById({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("activateOrderById (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/orders/id/activate")
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.orders.activateOrderById({
                 id: "id",
             });
         }).rejects.toThrow(Paid.InternalServerError);
@@ -636,6 +810,7 @@ describe("Orders", () => {
                     description: "description",
                     startDate: "2024-01-15T09:30:00Z",
                     endDate: "2024-01-15T09:30:00Z",
+                    lineType: "STANDARD",
                 },
             ],
             pagination: { limit: 1, offset: 1, total: 1, hasMore: true },
@@ -654,6 +829,7 @@ describe("Orders", () => {
                     description: "description",
                     startDate: "2024-01-15T09:30:00Z",
                     endDate: "2024-01-15T09:30:00Z",
+                    lineType: "STANDARD",
                 },
             ],
             pagination: {
@@ -669,7 +845,7 @@ describe("Orders", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/orders/id/lines").respondWith().statusCode(403).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -683,7 +859,7 @@ describe("Orders", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/orders/id/lines").respondWith().statusCode(404).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -697,7 +873,7 @@ describe("Orders", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/orders/id/lines").respondWith().statusCode(500).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -759,7 +935,7 @@ describe("Orders", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/orders/id/seats").respondWith().statusCode(400).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -773,7 +949,7 @@ describe("Orders", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/orders/id/seats").respondWith().statusCode(403).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -787,7 +963,7 @@ describe("Orders", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/orders/id/seats").respondWith().statusCode(404).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -801,7 +977,7 @@ describe("Orders", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/orders/id/seats").respondWith().statusCode(500).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -856,7 +1032,7 @@ describe("Orders", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = { userExternalId: null };
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .put("/orders/id/seats/seatId")
@@ -879,7 +1055,7 @@ describe("Orders", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = { userExternalId: null };
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .put("/orders/id/seats/seatId")
@@ -902,7 +1078,7 @@ describe("Orders", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = { userExternalId: null };
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .put("/orders/id/seats/seatId")
@@ -925,7 +1101,7 @@ describe("Orders", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = { userExternalId: null };
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .put("/orders/id/seats/seatId")
@@ -948,7 +1124,7 @@ describe("Orders", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = { userExternalId: null };
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .put("/orders/id/seats/seatId")
@@ -1029,7 +1205,7 @@ describe("Orders", () => {
                 { seatId: "x", userExternalId: null },
             ],
         };
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .post("/orders/id/seat-assignments")
@@ -1065,7 +1241,7 @@ describe("Orders", () => {
                 { seatId: "x", userExternalId: null },
             ],
         };
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .post("/orders/id/seat-assignments")
@@ -1101,7 +1277,7 @@ describe("Orders", () => {
                 { seatId: "x", userExternalId: null },
             ],
         };
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .post("/orders/id/seat-assignments")
@@ -1137,7 +1313,7 @@ describe("Orders", () => {
                 { seatId: "x", userExternalId: null },
             ],
         };
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .post("/orders/id/seat-assignments")
@@ -1173,7 +1349,7 @@ describe("Orders", () => {
                 { seatId: "x", userExternalId: null },
             ],
         };
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .post("/orders/id/seat-assignments")

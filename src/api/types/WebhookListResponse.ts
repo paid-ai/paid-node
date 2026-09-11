@@ -4,4 +4,6 @@ import type * as Paid from "../index.js";
 
 export interface WebhookListResponse {
     data: Paid.Webhook[];
+    /** True when the organization has generated a webhook signing secret at least once. */
+    signingSecretConfigured: boolean;
 }

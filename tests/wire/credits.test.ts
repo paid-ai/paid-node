@@ -12,10 +12,11 @@ describe("Credits", () => {
         const rawResponseBody = {
             data: [
                 {
-                    id: "id",
-                    name: "name",
-                    key: "key",
-                    description: "description",
+                    id: "7f4f5d4c-55e9-4d5b-a3e7-c9eb3d2d01bf",
+                    name: "API Credits",
+                    key: "api_credits",
+                    status: "active",
+                    description: "Credits consumed by API calls.",
                     archivedAt: "2024-01-15T09:30:00Z",
                     createdAt: "2024-01-15T09:30:00Z",
                     updatedAt: "2024-01-15T09:30:00Z",
@@ -34,10 +35,11 @@ describe("Credits", () => {
         expect(response).toEqual({
             data: [
                 {
-                    id: "id",
-                    name: "name",
-                    key: "key",
-                    description: "description",
+                    id: "7f4f5d4c-55e9-4d5b-a3e7-c9eb3d2d01bf",
+                    name: "API Credits",
+                    key: "api_credits",
+                    status: "active",
+                    description: "Credits consumed by API calls.",
                     archivedAt: "2024-01-15T09:30:00Z",
                     createdAt: "2024-01-15T09:30:00Z",
                     updatedAt: "2024-01-15T09:30:00Z",
@@ -50,7 +52,7 @@ describe("Credits", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .get("/credits/currencies")
@@ -68,7 +70,7 @@ describe("Credits", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .get("/credits/currencies")
@@ -79,6 +81,360 @@ describe("Credits", () => {
 
         await expect(async () => {
             return await client.credits.listCreditCurrencies();
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("createCreditCurrency (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {
+            name: "API Credits",
+            key: "api_credits",
+            description: "Credits consumed by API calls.",
+        };
+        const rawResponseBody = {
+            id: "7f4f5d4c-55e9-4d5b-a3e7-c9eb3d2d01bf",
+            name: "API Credits",
+            key: "api_credits",
+            status: "active",
+            description: "Credits consumed by API calls.",
+            archivedAt: "2024-01-15T09:30:00Z",
+            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
+        };
+        server
+            .mockEndpoint()
+            .post("/credits/currencies")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.credits.createCreditCurrency({
+            name: "API Credits",
+            key: "api_credits",
+            description: "Credits consumed by API calls.",
+        });
+        expect(response).toEqual({
+            id: "7f4f5d4c-55e9-4d5b-a3e7-c9eb3d2d01bf",
+            name: "API Credits",
+            key: "api_credits",
+            status: "active",
+            description: "Credits consumed by API calls.",
+            archivedAt: "2024-01-15T09:30:00Z",
+            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
+        });
+    });
+
+    test("createCreditCurrency (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { name: "x", key: "x" };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/credits/currencies")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.credits.createCreditCurrency({
+                name: "x",
+                key: "x",
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("createCreditCurrency (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { name: "x", key: "x" };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/credits/currencies")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.credits.createCreditCurrency({
+                name: "x",
+                key: "x",
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("createCreditCurrency (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { name: "x", key: "x" };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/credits/currencies")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.credits.createCreditCurrency({
+                name: "x",
+                key: "x",
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("listCreditTransactions (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = {
+            data: [
+                {
+                    id: "9c5f7a1e-3b2d-4e8f-9a0b-1c2d3e4f5a6b",
+                    customer: { id: "cus_abc123", externalId: "customer-123" },
+                    creditCurrency: { key: "api_credits", name: "API Credits" },
+                    type: "grant",
+                    amount: "-40.5",
+                    originCode: "purchased",
+                    eventName: "agent.api_call",
+                    signalId: "6890b0e2a6f2c30012f0a1b3",
+                    orderId: "ord_abc123",
+                    product: { id: "prod_abc123", externalId: null, name: "Agent API" },
+                    createdAt: "2024-01-15T09:30:00Z",
+                },
+            ],
+            pagination: { limit: 1, offset: 1, total: 1, hasMore: true },
+        };
+        server
+            .mockEndpoint()
+            .get("/credits/transactions")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.credits.listCreditTransactions();
+        expect(response).toEqual({
+            data: [
+                {
+                    id: "9c5f7a1e-3b2d-4e8f-9a0b-1c2d3e4f5a6b",
+                    customer: {
+                        id: "cus_abc123",
+                        externalId: "customer-123",
+                    },
+                    creditCurrency: {
+                        key: "api_credits",
+                        name: "API Credits",
+                    },
+                    type: "grant",
+                    amount: "-40.5",
+                    originCode: "purchased",
+                    eventName: "agent.api_call",
+                    signalId: "6890b0e2a6f2c30012f0a1b3",
+                    orderId: "ord_abc123",
+                    product: {
+                        id: "prod_abc123",
+                        externalId: null,
+                        name: "Agent API",
+                    },
+                    createdAt: "2024-01-15T09:30:00Z",
+                },
+            ],
+            pagination: {
+                limit: 1,
+                offset: 1,
+                total: 1,
+                hasMore: true,
+            },
+        });
+    });
+
+    test("listCreditTransactions (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/credits/transactions")
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.credits.listCreditTransactions();
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("listCreditTransactions (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/credits/transactions")
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.credits.listCreditTransactions();
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("listCreditTransactions (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/credits/transactions")
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.credits.listCreditTransactions();
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("updateCreditCurrencyById (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { description: "Credits consumed by developer API calls.", status: "archived" };
+        const rawResponseBody = {
+            id: "7f4f5d4c-55e9-4d5b-a3e7-c9eb3d2d01bf",
+            name: "API Credits",
+            key: "api_credits",
+            status: "active",
+            description: "Credits consumed by API calls.",
+            archivedAt: "2024-01-15T09:30:00Z",
+            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
+        };
+        server
+            .mockEndpoint()
+            .put("/credits/currencies/7f4f5d4c-55e9-4d5b-a3e7-c9eb3d2d01bf")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.credits.updateCreditCurrencyById({
+            id: "7f4f5d4c-55e9-4d5b-a3e7-c9eb3d2d01bf",
+            description: "Credits consumed by developer API calls.",
+            status: "archived",
+        });
+        expect(response).toEqual({
+            id: "7f4f5d4c-55e9-4d5b-a3e7-c9eb3d2d01bf",
+            name: "API Credits",
+            key: "api_credits",
+            status: "active",
+            description: "Credits consumed by API calls.",
+            archivedAt: "2024-01-15T09:30:00Z",
+            createdAt: "2024-01-15T09:30:00Z",
+            updatedAt: "2024-01-15T09:30:00Z",
+        });
+    });
+
+    test("updateCreditCurrencyById (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .put("/credits/currencies/id")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.credits.updateCreditCurrencyById({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("updateCreditCurrencyById (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .put("/credits/currencies/id")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.credits.updateCreditCurrencyById({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("updateCreditCurrencyById (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .put("/credits/currencies/id")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.credits.updateCreditCurrencyById({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("updateCreditCurrencyById (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .put("/credits/currencies/id")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.credits.updateCreditCurrencyById({
+                id: "id",
+            });
         }).rejects.toThrow(Paid.InternalServerError);
     });
 });

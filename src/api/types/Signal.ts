@@ -5,6 +5,7 @@ import type * as Paid from "../index.js";
 export interface Signal {
     eventName: string;
     customer: Paid.CustomerAttribution;
+    customerUnit?: Paid.CustomerUnitAttribution;
     attribution?: Paid.Attribution;
     /** True event timestamp in RFC3339 format with timezone (e.g. 2026-01-31T23:00:00Z) */
     timestamp?: string;

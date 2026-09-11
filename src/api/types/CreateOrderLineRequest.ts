@@ -2,6 +2,9 @@
 
 import type * as Paid from "../index.js";
 
+/**
+ * When override `attributes` are omitted, the order will match the base product (or default plan if plans are configured).
+ */
 export interface CreateOrderLineRequest {
     productId: string;
     name?: string;
@@ -9,4 +12,5 @@ export interface CreateOrderLineRequest {
     startDate?: string;
     endDate?: string;
     attributes?: Paid.CreateOrderLineAttributeRequest[];
+    lineType?: Paid.WritableOrderLineType;
 }

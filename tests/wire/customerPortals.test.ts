@@ -43,7 +43,7 @@ describe("CustomerPortals", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .post("/customer-portals/")
@@ -62,7 +62,7 @@ describe("CustomerPortals", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .post("/customer-portals/")
@@ -81,7 +81,7 @@ describe("CustomerPortals", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .post("/customer-portals/")
@@ -100,7 +100,7 @@ describe("CustomerPortals", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .post("/customer-portals/")

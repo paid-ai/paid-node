@@ -48,7 +48,7 @@ describe("Costs", () => {
                 { type: "cost", customer: { customerId: "customerId" }, amount: 1.1, currency: "foo" },
             ],
         };
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .post("/costs/bulk")
@@ -91,7 +91,7 @@ describe("Costs", () => {
                 { type: "cost", customer: { customerId: "customerId" }, amount: 1.1, currency: "foo" },
             ],
         };
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .post("/costs/bulk")
@@ -134,7 +134,7 @@ describe("Costs", () => {
                 { type: "cost", customer: { customerId: "customerId" }, amount: 1.1, currency: "foo" },
             ],
         };
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .post("/costs/bulk")

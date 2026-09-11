@@ -38,10 +38,10 @@ describe("Invoices", () => {
                     createdAt: "2024-01-15T09:30:00Z",
                     updatedAt: "2024-01-15T09:30:00Z",
                     paymentLink: "paymentLink",
-                    disputeLink: "disputeLink",
                     publicUrlToken: "publicUrlToken",
                     taxExempt: true,
                     billingContactId: "billingContactId",
+                    purchaseOrderReference: "purchaseOrderReference",
                 },
             ],
             pagination: { limit: 1, offset: 1, total: 1, hasMore: true },
@@ -80,10 +80,10 @@ describe("Invoices", () => {
                     createdAt: "2024-01-15T09:30:00Z",
                     updatedAt: "2024-01-15T09:30:00Z",
                     paymentLink: "paymentLink",
-                    disputeLink: "disputeLink",
                     publicUrlToken: "publicUrlToken",
                     taxExempt: true,
                     billingContactId: "billingContactId",
+                    purchaseOrderReference: "purchaseOrderReference",
                 },
             ],
             pagination: {
@@ -99,7 +99,7 @@ describe("Invoices", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/invoices/").respondWith().statusCode(400).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -111,7 +111,7 @@ describe("Invoices", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/invoices/").respondWith().statusCode(403).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -123,7 +123,7 @@ describe("Invoices", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/invoices/").respondWith().statusCode(500).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -162,10 +162,10 @@ describe("Invoices", () => {
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
             paymentLink: "paymentLink",
-            disputeLink: "disputeLink",
             publicUrlToken: "publicUrlToken",
             taxExempt: true,
             billingContactId: "billingContactId",
+            purchaseOrderReference: "purchaseOrderReference",
         };
         server.mockEndpoint().get("/invoices/id").respondWith().statusCode(200).jsonBody(rawResponseBody).build();
 
@@ -201,10 +201,10 @@ describe("Invoices", () => {
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
             paymentLink: "paymentLink",
-            disputeLink: "disputeLink",
             publicUrlToken: "publicUrlToken",
             taxExempt: true,
             billingContactId: "billingContactId",
+            purchaseOrderReference: "purchaseOrderReference",
         });
     });
 
@@ -212,7 +212,7 @@ describe("Invoices", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/invoices/id").respondWith().statusCode(403).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -226,7 +226,7 @@ describe("Invoices", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/invoices/id").respondWith().statusCode(404).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -240,7 +240,7 @@ describe("Invoices", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/invoices/id").respondWith().statusCode(500).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -281,10 +281,10 @@ describe("Invoices", () => {
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
             paymentLink: "paymentLink",
-            disputeLink: "disputeLink",
             publicUrlToken: "publicUrlToken",
             taxExempt: true,
             billingContactId: "billingContactId",
+            purchaseOrderReference: "purchaseOrderReference",
         };
         server
             .mockEndpoint()
@@ -327,10 +327,10 @@ describe("Invoices", () => {
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
             paymentLink: "paymentLink",
-            disputeLink: "disputeLink",
             publicUrlToken: "publicUrlToken",
             taxExempt: true,
             billingContactId: "billingContactId",
+            purchaseOrderReference: "purchaseOrderReference",
         });
     });
 
@@ -338,7 +338,7 @@ describe("Invoices", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .put("/invoices/id")
@@ -359,7 +359,7 @@ describe("Invoices", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .put("/invoices/id")
@@ -380,7 +380,7 @@ describe("Invoices", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .put("/invoices/id")
@@ -401,7 +401,7 @@ describe("Invoices", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
             .put("/invoices/id")
@@ -488,7 +488,7 @@ describe("Invoices", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/invoices/id/lines").respondWith().statusCode(403).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -502,7 +502,7 @@ describe("Invoices", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/invoices/id/lines").respondWith().statusCode(404).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -516,7 +516,7 @@ describe("Invoices", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { error: "error" };
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/invoices/id/lines").respondWith().statusCode(500).jsonBody(rawResponseBody).build();
 
         await expect(async () => {

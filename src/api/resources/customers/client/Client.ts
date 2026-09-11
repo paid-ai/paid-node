@@ -44,7 +44,7 @@ export class Customers {
         request: Paid.ListCustomersRequest = {},
         requestOptions?: Customers.RequestOptions,
     ): Promise<core.WithRawResponse<Paid.CustomerListResponse>> {
-        const { limit, offset } = request;
+        const { limit, offset, name, status, creationState, createdAtFrom, createdAtTo, externalId } = request;
         const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
         if (limit != null) {
             _queryParams.limit = limit.toString();
@@ -52,6 +52,30 @@ export class Customers {
 
         if (offset != null) {
             _queryParams.offset = offset.toString();
+        }
+
+        if (name != null) {
+            _queryParams.name = name;
+        }
+
+        if (status != null) {
+            _queryParams.status = status;
+        }
+
+        if (creationState != null) {
+            _queryParams.creationState = creationState;
+        }
+
+        if (createdAtFrom != null) {
+            _queryParams.createdAtFrom = createdAtFrom;
+        }
+
+        if (createdAtTo != null) {
+            _queryParams.createdAtTo = createdAtTo;
+        }
+
+        if (externalId != null) {
+            _queryParams.externalId = externalId;
         }
 
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
@@ -80,14 +104,11 @@ export class Customers {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 400:
-                    throw new Paid.BadRequestError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
                 case 403:
-                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
-                    throw new Paid.InternalServerError(
-                        _response.error.body as Paid.ErrorResponse,
-                        _response.rawResponse,
-                    );
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,
@@ -169,14 +190,11 @@ export class Customers {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 400:
-                    throw new Paid.BadRequestError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
                 case 403:
-                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
-                    throw new Paid.InternalServerError(
-                        _response.error.body as Paid.ErrorResponse,
-                        _response.rawResponse,
-                    );
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,
@@ -204,7 +222,286 @@ export class Customers {
     }
 
     /**
-     * Get a customer by ID
+     * List alternate external identifiers that resolve to a customer by Paid display ID.
+     *
+     * @param {Paid.ListCustomerAliasesRequest} request
+     * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.customers.listCustomerAliases({
+     *         id: "cus_abc123"
+     *     })
+     */
+    public listCustomerAliases(
+        request: Paid.ListCustomerAliasesRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): core.HttpResponsePromise<Paid.CustomerAliasListResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__listCustomerAliases(request, requestOptions));
+    }
+
+    private async __listCustomerAliases(
+        request: Paid.ListCustomerAliasesRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.CustomerAliasListResponse>> {
+        const { id, limit, offset } = request;
+        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
+        if (limit != null) {
+            _queryParams.limit = limit.toString();
+        }
+
+        if (offset != null) {
+            _queryParams.offset = offset.toString();
+        }
+
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `customers/${core.url.encodePathParam(id)}/aliases`,
+            ),
+            method: "GET",
+            headers: _headers,
+            queryParameters: { ..._queryParams, ...requestOptions?.queryParams },
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.CustomerAliasListResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /customers/{id}/aliases.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Create an alternate external identifier for a customer by Paid display ID.
+     *
+     * @param {Paid.CreateCustomerAliasRequest} request
+     * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.ConflictError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.customers.createCustomerAlias({
+     *         id: "cus_abc123",
+     *         body: {
+     *             alias: "child-customer-1"
+     *         }
+     *     })
+     */
+    public createCustomerAlias(
+        request: Paid.CreateCustomerAliasRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): core.HttpResponsePromise<Paid.CustomerAlias> {
+        return core.HttpResponsePromise.fromPromise(this.__createCustomerAlias(request, requestOptions));
+    }
+
+    private async __createCustomerAlias(
+        request: Paid.CreateCustomerAliasRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.CustomerAlias>> {
+        const { id, body: _body } = request;
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `customers/${core.url.encodePathParam(id)}/aliases`,
+            ),
+            method: "POST",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: _body,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.CustomerAlias, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 409:
+                    throw new Paid.ConflictError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /customers/{id}/aliases.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Remove an alternate external identifier from a customer by Paid display ID.
+     *
+     * @param {Paid.DeleteCustomerAliasRequest} request
+     * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.customers.deleteCustomerAlias({
+     *         id: "cus_abc123",
+     *         alias: "child-customer-1"
+     *     })
+     */
+    public deleteCustomerAlias(
+        request: Paid.DeleteCustomerAliasRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): core.HttpResponsePromise<Paid.EmptyResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__deleteCustomerAlias(request, requestOptions));
+    }
+
+    private async __deleteCustomerAlias(
+        request: Paid.DeleteCustomerAliasRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.EmptyResponse>> {
+        const { id, alias } = request;
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `customers/${core.url.encodePathParam(id)}/aliases/${core.url.encodePathParam(alias)}`,
+            ),
+            method: "DELETE",
+            headers: _headers,
+            queryParameters: requestOptions?.queryParams,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.EmptyResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError(
+                    "Timeout exceeded when calling DELETE /customers/{id}/aliases/{alias}.",
+                );
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Get a customer by Paid display ID. Use the value returned as `customer.id`, for example `cus_abc123`. If you have your own customer ID, use `GET /api/v2/customers/external/{externalId}`.
      *
      * @param {Paid.GetCustomerByIdRequest} request
      * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
@@ -215,7 +512,7 @@ export class Customers {
      *
      * @example
      *     await client.customers.getCustomerById({
-     *         id: "id"
+     *         id: "cus_abc123"
      *     })
      */
     public getCustomerById(
@@ -256,14 +553,11 @@ export class Customers {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 403:
-                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 404:
-                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
-                    throw new Paid.InternalServerError(
-                        _response.error.body as Paid.ErrorResponse,
-                        _response.rawResponse,
-                    );
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,
@@ -291,7 +585,7 @@ export class Customers {
     }
 
     /**
-     * Update a customer by ID
+     * Update a customer by Paid display ID. Use the value returned as `customer.id`, for example `cus_abc123`. If you have your own customer ID, use `PUT /api/v2/customers/external/{externalId}`.
      *
      * @param {Paid.UpdateCustomerByIdRequest} request
      * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
@@ -303,7 +597,7 @@ export class Customers {
      *
      * @example
      *     await client.customers.updateCustomerById({
-     *         id: "id",
+     *         id: "cus_abc123",
      *         body: {}
      *     })
      */
@@ -348,16 +642,13 @@ export class Customers {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 400:
-                    throw new Paid.BadRequestError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
                 case 403:
-                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 404:
-                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
-                    throw new Paid.InternalServerError(
-                        _response.error.body as Paid.ErrorResponse,
-                        _response.rawResponse,
-                    );
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,
@@ -385,7 +676,7 @@ export class Customers {
     }
 
     /**
-     * Delete a customer by ID
+     * Delete a customer by Paid display ID. Use the value returned as `customer.id`, for example `cus_abc123`. If you have your own customer ID, use `DELETE /api/v2/customers/external/{externalId}`.
      *
      * @param {Paid.DeleteCustomerByIdRequest} request
      * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
@@ -397,7 +688,7 @@ export class Customers {
      *
      * @example
      *     await client.customers.deleteCustomerById({
-     *         id: "id"
+     *         id: "cus_abc123"
      *     })
      */
     public deleteCustomerById(
@@ -438,16 +729,13 @@ export class Customers {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 400:
-                    throw new Paid.BadRequestError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
                 case 403:
-                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 404:
-                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
-                    throw new Paid.InternalServerError(
-                        _response.error.body as Paid.ErrorResponse,
-                        _response.rawResponse,
-                    );
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,
@@ -475,6 +763,373 @@ export class Customers {
     }
 
     /**
+     * Get the current customer state by Paid display ID
+     *
+     * @param {Paid.GetCustomerStateByIdRequest} request
+     * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.customers.getCustomerStateById({
+     *         id: "cus_abc123"
+     *     })
+     */
+    public getCustomerStateById(
+        request: Paid.GetCustomerStateByIdRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): core.HttpResponsePromise<Paid.CustomerState> {
+        return core.HttpResponsePromise.fromPromise(this.__getCustomerStateById(request, requestOptions));
+    }
+
+    private async __getCustomerStateById(
+        request: Paid.GetCustomerStateByIdRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.CustomerState>> {
+        const { id } = request;
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `customers/${core.url.encodePathParam(id)}/state`,
+            ),
+            method: "GET",
+            headers: _headers,
+            queryParameters: requestOptions?.queryParams,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.CustomerState, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /customers/{id}/state.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * List alternate external identifiers that resolve to a customer by external ID.
+     *
+     * @param {Paid.ListCustomerAliasesByExternalIdRequest} request
+     * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.customers.listCustomerAliasesByExternalId({
+     *         externalId: "customer_123"
+     *     })
+     */
+    public listCustomerAliasesByExternalId(
+        request: Paid.ListCustomerAliasesByExternalIdRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): core.HttpResponsePromise<Paid.CustomerAliasListResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__listCustomerAliasesByExternalId(request, requestOptions));
+    }
+
+    private async __listCustomerAliasesByExternalId(
+        request: Paid.ListCustomerAliasesByExternalIdRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.CustomerAliasListResponse>> {
+        const { externalId, limit, offset } = request;
+        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
+        if (limit != null) {
+            _queryParams.limit = limit.toString();
+        }
+
+        if (offset != null) {
+            _queryParams.offset = offset.toString();
+        }
+
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `customers/external/${core.url.encodePathParam(externalId)}/aliases`,
+            ),
+            method: "GET",
+            headers: _headers,
+            queryParameters: { ..._queryParams, ...requestOptions?.queryParams },
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.CustomerAliasListResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError(
+                    "Timeout exceeded when calling GET /customers/external/{externalId}/aliases.",
+                );
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Create an alternate external identifier for a customer by external ID.
+     *
+     * @param {Paid.CreateCustomerAliasByExternalIdRequest} request
+     * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.ConflictError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.customers.createCustomerAliasByExternalId({
+     *         externalId: "customer_123",
+     *         body: {
+     *             alias: "child-customer-1"
+     *         }
+     *     })
+     */
+    public createCustomerAliasByExternalId(
+        request: Paid.CreateCustomerAliasByExternalIdRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): core.HttpResponsePromise<Paid.CustomerAlias> {
+        return core.HttpResponsePromise.fromPromise(this.__createCustomerAliasByExternalId(request, requestOptions));
+    }
+
+    private async __createCustomerAliasByExternalId(
+        request: Paid.CreateCustomerAliasByExternalIdRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.CustomerAlias>> {
+        const { externalId, body: _body } = request;
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `customers/external/${core.url.encodePathParam(externalId)}/aliases`,
+            ),
+            method: "POST",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: _body,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.CustomerAlias, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 409:
+                    throw new Paid.ConflictError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError(
+                    "Timeout exceeded when calling POST /customers/external/{externalId}/aliases.",
+                );
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Remove an alternate external identifier from a customer by external ID.
+     *
+     * @param {Paid.DeleteCustomerAliasByExternalIdRequest} request
+     * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.customers.deleteCustomerAliasByExternalId({
+     *         externalId: "customer_123",
+     *         alias: "child-customer-1"
+     *     })
+     */
+    public deleteCustomerAliasByExternalId(
+        request: Paid.DeleteCustomerAliasByExternalIdRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): core.HttpResponsePromise<Paid.EmptyResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__deleteCustomerAliasByExternalId(request, requestOptions));
+    }
+
+    private async __deleteCustomerAliasByExternalId(
+        request: Paid.DeleteCustomerAliasByExternalIdRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.EmptyResponse>> {
+        const { externalId, alias } = request;
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `customers/external/${core.url.encodePathParam(externalId)}/aliases/${core.url.encodePathParam(alias)}`,
+            ),
+            method: "DELETE",
+            headers: _headers,
+            queryParameters: requestOptions?.queryParams,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.EmptyResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError(
+                    "Timeout exceeded when calling DELETE /customers/external/{externalId}/aliases/{alias}.",
+                );
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
      * Get a customer by external ID
      *
      * @param {Paid.GetCustomerByExternalIdRequest} request
@@ -486,7 +1141,7 @@ export class Customers {
      *
      * @example
      *     await client.customers.getCustomerByExternalId({
-     *         externalId: "externalId"
+     *         externalId: "customer_123"
      *     })
      */
     public getCustomerByExternalId(
@@ -527,14 +1182,11 @@ export class Customers {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 403:
-                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 404:
-                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
-                    throw new Paid.InternalServerError(
-                        _response.error.body as Paid.ErrorResponse,
-                        _response.rawResponse,
-                    );
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,
@@ -576,7 +1228,7 @@ export class Customers {
      *
      * @example
      *     await client.customers.updateCustomerByExternalId({
-     *         externalId: "externalId",
+     *         externalId: "customer_123",
      *         body: {}
      *     })
      */
@@ -621,16 +1273,13 @@ export class Customers {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 400:
-                    throw new Paid.BadRequestError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
                 case 403:
-                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 404:
-                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
-                    throw new Paid.InternalServerError(
-                        _response.error.body as Paid.ErrorResponse,
-                        _response.rawResponse,
-                    );
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,
@@ -672,7 +1321,7 @@ export class Customers {
      *
      * @example
      *     await client.customers.deleteCustomerByExternalId({
-     *         externalId: "externalId"
+     *         externalId: "customer_123"
      *     })
      */
     public deleteCustomerByExternalId(
@@ -713,16 +1362,13 @@ export class Customers {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 400:
-                    throw new Paid.BadRequestError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
                 case 403:
-                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 404:
-                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
-                    throw new Paid.InternalServerError(
-                        _response.error.body as Paid.ErrorResponse,
-                        _response.rawResponse,
-                    );
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,
@@ -752,7 +1398,93 @@ export class Customers {
     }
 
     /**
-     * Get current customer credit balances grouped by currency
+     * Primary integration endpoint for agents and programmatic clients using their own customer IDs. Use the value you stored on `customer.externalId`, for example `customer_123`.
+     *
+     * @param {Paid.GetCustomerStateByExternalIdRequest} request
+     * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.customers.getCustomerStateByExternalId({
+     *         externalId: "customer_123"
+     *     })
+     */
+    public getCustomerStateByExternalId(
+        request: Paid.GetCustomerStateByExternalIdRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): core.HttpResponsePromise<Paid.CustomerState> {
+        return core.HttpResponsePromise.fromPromise(this.__getCustomerStateByExternalId(request, requestOptions));
+    }
+
+    private async __getCustomerStateByExternalId(
+        request: Paid.GetCustomerStateByExternalIdRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.CustomerState>> {
+        const { externalId } = request;
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `customers/external/${core.url.encodePathParam(externalId)}/state`,
+            ),
+            method: "GET",
+            headers: _headers,
+            queryParameters: requestOptions?.queryParams,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.CustomerState, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError(
+                    "Timeout exceeded when calling GET /customers/external/{externalId}/state.",
+                );
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Get current customer credit balances grouped by currency for a Paid customer display ID. Use the value returned as `customer.id`, for example `cus_abc123`. If you have your own customer ID, use `/api/v2/customers/external/{externalId}/credits/balances`.
      *
      * @param {Paid.GetCustomerCreditBalancesRequest} request
      * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
@@ -763,7 +1495,7 @@ export class Customers {
      *
      * @example
      *     await client.customers.getCustomerCreditBalances({
-     *         id: "id"
+     *         id: "cus_abc123"
      *     })
      */
     public getCustomerCreditBalances(
@@ -804,14 +1536,11 @@ export class Customers {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 403:
-                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 404:
-                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
-                    throw new Paid.InternalServerError(
-                        _response.error.body as Paid.ErrorResponse,
-                        _response.rawResponse,
-                    );
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,
@@ -841,6 +1570,102 @@ export class Customers {
     }
 
     /**
+     * Immediately grant credits to a customer using an active credit currency key.
+     *
+     * @param {Paid.GrantCustomerCreditsRequest} request
+     * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.customers.grantCustomerCredits({
+     *         id: "cus_abc123",
+     *         body: {
+     *             creditCurrencyKey: "api_credits",
+     *             amount: 10000,
+     *             startsAt: "2026-06-05T12:00:00Z",
+     *             expiresAt: "2026-12-31T23:59:59Z"
+     *         }
+     *     })
+     */
+    public grantCustomerCredits(
+        request: Paid.GrantCustomerCreditsRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): core.HttpResponsePromise<Paid.GrantCustomerCreditsResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__grantCustomerCredits(request, requestOptions));
+    }
+
+    private async __grantCustomerCredits(
+        request: Paid.GrantCustomerCreditsRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.GrantCustomerCreditsResponse>> {
+        const { id, body: _body } = request;
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `customers/${core.url.encodePathParam(id)}/credits/grants`,
+            ),
+            method: "POST",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: _body,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.GrantCustomerCreditsResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /customers/{id}/credits/grants.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
      * Get current customer credit balances grouped by currency, looked up by external ID
      *
      * @param {Paid.GetCustomerCreditBalancesByExternalIdRequest} request
@@ -852,7 +1677,7 @@ export class Customers {
      *
      * @example
      *     await client.customers.getCustomerCreditBalancesByExternalId({
-     *         externalId: "externalId"
+     *         externalId: "customer_123"
      *     })
      */
     public getCustomerCreditBalancesByExternalId(
@@ -895,14 +1720,11 @@ export class Customers {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 403:
-                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 404:
-                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
-                    throw new Paid.InternalServerError(
-                        _response.error.body as Paid.ErrorResponse,
-                        _response.rawResponse,
-                    );
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,
@@ -922,6 +1744,310 @@ export class Customers {
             case "timeout":
                 throw new errors.PaidTimeoutError(
                     "Timeout exceeded when calling GET /customers/external/{externalId}/credits/balances.",
+                );
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * List credit consumption that was recorded before a matching credit pool existed — for example usage that arrived before an invoice was paid or before a new period's credits were granted. Entries leave this list once they are applied to a pool or settled. Use the value returned as `customer.id`, for example `cus_abc123`. If you have your own customer ID, use `/api/v2/customers/external/{externalId}/credits/pending-consumption`.
+     *
+     * @param {Paid.ListCustomerPendingCreditConsumptionRequest} request
+     * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.customers.listCustomerPendingCreditConsumption({
+     *         id: "cus_abc123"
+     *     })
+     */
+    public listCustomerPendingCreditConsumption(
+        request: Paid.ListCustomerPendingCreditConsumptionRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): core.HttpResponsePromise<Paid.PendingCreditConsumptionListResponse> {
+        return core.HttpResponsePromise.fromPromise(
+            this.__listCustomerPendingCreditConsumption(request, requestOptions),
+        );
+    }
+
+    private async __listCustomerPendingCreditConsumption(
+        request: Paid.ListCustomerPendingCreditConsumptionRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.PendingCreditConsumptionListResponse>> {
+        const { id, limit, offset } = request;
+        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
+        if (limit != null) {
+            _queryParams.limit = limit.toString();
+        }
+
+        if (offset != null) {
+            _queryParams.offset = offset.toString();
+        }
+
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `customers/${core.url.encodePathParam(id)}/credits/pending-consumption`,
+            ),
+            method: "GET",
+            headers: _headers,
+            queryParameters: { ..._queryParams, ...requestOptions?.queryParams },
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return {
+                data: _response.body as Paid.PendingCreditConsumptionListResponse,
+                rawResponse: _response.rawResponse,
+            };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError(
+                    "Timeout exceeded when calling GET /customers/{id}/credits/pending-consumption.",
+                );
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * List credit consumption recorded before a matching credit pool existed, for a customer looked up by external ID.
+     *
+     * @param {Paid.ListCustomerPendingCreditConsumptionByExternalIdRequest} request
+     * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.customers.listCustomerPendingCreditConsumptionByExternalId({
+     *         externalId: "customer_123"
+     *     })
+     */
+    public listCustomerPendingCreditConsumptionByExternalId(
+        request: Paid.ListCustomerPendingCreditConsumptionByExternalIdRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): core.HttpResponsePromise<Paid.PendingCreditConsumptionListResponse> {
+        return core.HttpResponsePromise.fromPromise(
+            this.__listCustomerPendingCreditConsumptionByExternalId(request, requestOptions),
+        );
+    }
+
+    private async __listCustomerPendingCreditConsumptionByExternalId(
+        request: Paid.ListCustomerPendingCreditConsumptionByExternalIdRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.PendingCreditConsumptionListResponse>> {
+        const { externalId, limit, offset } = request;
+        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
+        if (limit != null) {
+            _queryParams.limit = limit.toString();
+        }
+
+        if (offset != null) {
+            _queryParams.offset = offset.toString();
+        }
+
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `customers/external/${core.url.encodePathParam(externalId)}/credits/pending-consumption`,
+            ),
+            method: "GET",
+            headers: _headers,
+            queryParameters: { ..._queryParams, ...requestOptions?.queryParams },
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return {
+                data: _response.body as Paid.PendingCreditConsumptionListResponse,
+                rawResponse: _response.rawResponse,
+            };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError(
+                    "Timeout exceeded when calling GET /customers/external/{externalId}/credits/pending-consumption.",
+                );
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Immediately grant credits to a customer looked up by external ID using an active credit currency key.
+     *
+     * @param {Paid.GrantCustomerCreditsByExternalIdRequest} request
+     * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.customers.grantCustomerCreditsByExternalId({
+     *         externalId: "customer_123",
+     *         body: {
+     *             creditCurrencyKey: "api_credits",
+     *             amount: 10000,
+     *             startsAt: "2026-06-05T12:00:00Z",
+     *             expiresAt: "2026-12-31T23:59:59Z"
+     *         }
+     *     })
+     */
+    public grantCustomerCreditsByExternalId(
+        request: Paid.GrantCustomerCreditsByExternalIdRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): core.HttpResponsePromise<Paid.GrantCustomerCreditsResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__grantCustomerCreditsByExternalId(request, requestOptions));
+    }
+
+    private async __grantCustomerCreditsByExternalId(
+        request: Paid.GrantCustomerCreditsByExternalIdRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.GrantCustomerCreditsResponse>> {
+        const { externalId, body: _body } = request;
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `customers/external/${core.url.encodePathParam(externalId)}/credits/grants`,
+            ),
+            method: "POST",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: _body,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.GrantCustomerCreditsResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError(
+                    "Timeout exceeded when calling POST /customers/external/{externalId}/credits/grants.",
                 );
             case "unknown":
                 throw new errors.PaidError({
@@ -989,16 +2115,13 @@ export class Customers {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 400:
-                    throw new Paid.BadRequestError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
                 case 403:
-                    throw new Paid.ForbiddenError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 404:
-                    throw new Paid.NotFoundError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
-                    throw new Paid.InternalServerError(
-                        _response.error.body as Paid.ErrorResponse,
-                        _response.rawResponse,
-                    );
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,
@@ -1018,6 +2141,1568 @@ export class Customers {
             case "timeout":
                 throw new errors.PaidTimeoutError(
                     "Timeout exceeded when calling PUT /customers/{customerExternalId}/users/{userExternalId}.",
+                );
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Lists the customer's units as a flat list, newest last; assemble the tree from `parentExternalId` (`null` on the root unit, `isRoot: true`). Deleted units are hidden unless `status=DELETED` is given. Filter by `externalType`, or by `parentExternalId` for one level of the tree. Addresses the customer by your external customer id.
+     *
+     * @param {Paid.ListCustomerUnitsByExternalIdRequest} request
+     * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.customers.listCustomerUnitsByExternalId({
+     *         externalId: "customer_123",
+     *         parentExternalId: "dept-rnd"
+     *     })
+     */
+    public listCustomerUnitsByExternalId(
+        request: Paid.ListCustomerUnitsByExternalIdRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): core.HttpResponsePromise<Paid.CustomerUnitListResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__listCustomerUnitsByExternalId(request, requestOptions));
+    }
+
+    private async __listCustomerUnitsByExternalId(
+        request: Paid.ListCustomerUnitsByExternalIdRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.CustomerUnitListResponse>> {
+        const { externalId, limit, offset, status, externalType, parentExternalId } = request;
+        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
+        if (limit != null) {
+            _queryParams.limit = limit.toString();
+        }
+
+        if (offset != null) {
+            _queryParams.offset = offset.toString();
+        }
+
+        if (status != null) {
+            _queryParams.status = status;
+        }
+
+        if (externalType != null) {
+            _queryParams.externalType = externalType;
+        }
+
+        if (parentExternalId != null) {
+            _queryParams.parentExternalId = parentExternalId;
+        }
+
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `customers/external/${core.url.encodePathParam(externalId)}/customer-units`,
+            ),
+            method: "GET",
+            headers: _headers,
+            queryParameters: { ..._queryParams, ...requestOptions?.queryParams },
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.CustomerUnitListResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError(
+                    "Timeout exceeded when calling GET /customers/external/{externalId}/customer-units.",
+                );
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Creates a unit for this customer. `externalId` is your own key for it: required, unique within the customer and immutable; every unit route addresses the unit by it, and `name` defaults to it. Omit `parentExternalId` to create the customer's root unit (its first unit; `409 ROOT_EXISTS` if it already has one — a customer created with an external id usable as a unit key already has its root, keyed by that external id, so name it as the parent instead); otherwise the parent must exist (`409 PARENT_NOT_FOUND`) and be ACTIVE. Units are never created implicitly: a signal that names a unit before it exists is accepted and its spend attaches to the unit once you create it with that key. `409` also when the externalId is taken (`CUSTOMER_UNIT_EXISTS`), the tree would get too deep, or the customer is on seat-based billing. Addresses the customer by your external customer id.
+     *
+     * @param {Paid.CreateCustomerUnitByExternalIdRequest} request
+     * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.ConflictError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.customers.createCustomerUnitByExternalId({
+     *         externalId: "customer_123",
+     *         body: {
+     *             externalId: "team-research"
+     *         }
+     *     })
+     */
+    public createCustomerUnitByExternalId(
+        request: Paid.CreateCustomerUnitByExternalIdRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): core.HttpResponsePromise<Paid.CustomerUnit> {
+        return core.HttpResponsePromise.fromPromise(this.__createCustomerUnitByExternalId(request, requestOptions));
+    }
+
+    private async __createCustomerUnitByExternalId(
+        request: Paid.CreateCustomerUnitByExternalIdRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.CustomerUnit>> {
+        const { externalId, body: _body } = request;
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `customers/external/${core.url.encodePathParam(externalId)}/customer-units`,
+            ),
+            method: "POST",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: _body,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.CustomerUnit, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 409:
+                    throw new Paid.ConflictError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError(
+                    "Timeout exceeded when calling POST /customers/external/{externalId}/customer-units.",
+                );
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Returns one unit of this customer by its `externalId`, including a deleted one. `404` when the unit does not exist or belongs to another customer. Addresses the customer by your external customer id.
+     *
+     * @param {Paid.GetCustomerUnitByExternalIdRequest} request
+     * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.customers.getCustomerUnitByExternalId({
+     *         externalId: "customer_123",
+     *         externalCustomerUnitId: "team-research"
+     *     })
+     */
+    public getCustomerUnitByExternalId(
+        request: Paid.GetCustomerUnitByExternalIdRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): core.HttpResponsePromise<Paid.CustomerUnit> {
+        return core.HttpResponsePromise.fromPromise(this.__getCustomerUnitByExternalId(request, requestOptions));
+    }
+
+    private async __getCustomerUnitByExternalId(
+        request: Paid.GetCustomerUnitByExternalIdRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.CustomerUnit>> {
+        const { externalId, externalCustomerUnitId } = request;
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `customers/external/${core.url.encodePathParam(externalId)}/customer-units/${core.url.encodePathParam(externalCustomerUnitId)}`,
+            ),
+            method: "GET",
+            headers: _headers,
+            queryParameters: requestOptions?.queryParams,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.CustomerUnit, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError(
+                    "Timeout exceeded when calling GET /customers/external/{externalId}/customer-units/{externalCustomerUnitId}.",
+                );
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Soft-deletes a unit: it stays readable with `status: DELETED` and cannot be reactivated. Spend history that references it is kept, and signals that keep naming it are still attributed to it. `409` while the unit has ACTIVE children or a cap in force or scheduled; the root follows the same rules, and once it is deleted a new root can be created. Addresses the customer by your external customer id.
+     *
+     * @param {Paid.DeleteCustomerUnitByExternalIdRequest} request
+     * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.ConflictError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.customers.deleteCustomerUnitByExternalId({
+     *         externalId: "customer_123",
+     *         externalCustomerUnitId: "team-research"
+     *     })
+     */
+    public deleteCustomerUnitByExternalId(
+        request: Paid.DeleteCustomerUnitByExternalIdRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): core.HttpResponsePromise<Paid.CustomerUnit> {
+        return core.HttpResponsePromise.fromPromise(this.__deleteCustomerUnitByExternalId(request, requestOptions));
+    }
+
+    private async __deleteCustomerUnitByExternalId(
+        request: Paid.DeleteCustomerUnitByExternalIdRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.CustomerUnit>> {
+        const { externalId, externalCustomerUnitId } = request;
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `customers/external/${core.url.encodePathParam(externalId)}/customer-units/${core.url.encodePathParam(externalCustomerUnitId)}`,
+            ),
+            method: "DELETE",
+            headers: _headers,
+            queryParameters: requestOptions?.queryParams,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.CustomerUnit, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 409:
+                    throw new Paid.ConflictError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError(
+                    "Timeout exceeded when calling DELETE /customers/external/{externalId}/customer-units/{externalCustomerUnitId}.",
+                );
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Renames, re-types, re-parents or annotates a unit, the root included. `externalId` cannot change. Re-parenting (`parentExternalId`) moves the unit with everything under it. Spend already recorded keeps naming the unit it landed on; caps are evaluated on the current tree, so from the move on the unit's spend in the running cap period counts toward its new ancestors' caps and no longer toward the old ones. `409` for a deleted unit, a parent that does not exist or is not ACTIVE, a move of the root (`ROOT_UNIT_IMMOVABLE`), a move under the unit's own subtree, or a tree that would get too deep. Addresses the customer by your external customer id.
+     *
+     * @param {Paid.UpdateCustomerUnitByExternalIdRequest} request
+     * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.ConflictError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.customers.updateCustomerUnitByExternalId({
+     *         externalId: "customer_123",
+     *         externalCustomerUnitId: "team-research",
+     *         body: {}
+     *     })
+     */
+    public updateCustomerUnitByExternalId(
+        request: Paid.UpdateCustomerUnitByExternalIdRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): core.HttpResponsePromise<Paid.CustomerUnit> {
+        return core.HttpResponsePromise.fromPromise(this.__updateCustomerUnitByExternalId(request, requestOptions));
+    }
+
+    private async __updateCustomerUnitByExternalId(
+        request: Paid.UpdateCustomerUnitByExternalIdRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.CustomerUnit>> {
+        const { externalId, externalCustomerUnitId, body: _body } = request;
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `customers/external/${core.url.encodePathParam(externalId)}/customer-units/${core.url.encodePathParam(externalCustomerUnitId)}`,
+            ),
+            method: "PATCH",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: _body,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.CustomerUnit, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 409:
+                    throw new Paid.ConflictError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError(
+                    "Timeout exceeded when calling PATCH /customers/external/{externalId}/customer-units/{externalCustomerUnitId}.",
+                );
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Lists the customer's units as a flat list, newest last; assemble the tree from `parentExternalId` (`null` on the root unit, `isRoot: true`). Deleted units are hidden unless `status=DELETED` is given. Filter by `externalType`, or by `parentExternalId` for one level of the tree. Use the value returned as `customer.id`, for example `cus_abc123`; if you have your own customer ID, use the `/api/v2/customers/external/{externalId}/…` twin.
+     *
+     * @param {Paid.ListCustomerUnitsRequest} request
+     * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.customers.listCustomerUnits({
+     *         id: "cus_abc123",
+     *         parentExternalId: "dept-rnd"
+     *     })
+     */
+    public listCustomerUnits(
+        request: Paid.ListCustomerUnitsRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): core.HttpResponsePromise<Paid.CustomerUnitListResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__listCustomerUnits(request, requestOptions));
+    }
+
+    private async __listCustomerUnits(
+        request: Paid.ListCustomerUnitsRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.CustomerUnitListResponse>> {
+        const { id, limit, offset, status, externalType, parentExternalId } = request;
+        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
+        if (limit != null) {
+            _queryParams.limit = limit.toString();
+        }
+
+        if (offset != null) {
+            _queryParams.offset = offset.toString();
+        }
+
+        if (status != null) {
+            _queryParams.status = status;
+        }
+
+        if (externalType != null) {
+            _queryParams.externalType = externalType;
+        }
+
+        if (parentExternalId != null) {
+            _queryParams.parentExternalId = parentExternalId;
+        }
+
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `customers/${core.url.encodePathParam(id)}/customer-units`,
+            ),
+            method: "GET",
+            headers: _headers,
+            queryParameters: { ..._queryParams, ...requestOptions?.queryParams },
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.CustomerUnitListResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /customers/{id}/customer-units.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Creates a unit for this customer. `externalId` is your own key for it: required, unique within the customer and immutable; every unit route addresses the unit by it, and `name` defaults to it. Omit `parentExternalId` to create the customer's root unit (its first unit; `409 ROOT_EXISTS` if it already has one — a customer created with an external id usable as a unit key already has its root, keyed by that external id, so name it as the parent instead); otherwise the parent must exist (`409 PARENT_NOT_FOUND`) and be ACTIVE. Units are never created implicitly: a signal that names a unit before it exists is accepted and its spend attaches to the unit once you create it with that key. `409` also when the externalId is taken (`CUSTOMER_UNIT_EXISTS`), the tree would get too deep, or the customer is on seat-based billing. Use the value returned as `customer.id`, for example `cus_abc123`; if you have your own customer ID, use the `/api/v2/customers/external/{externalId}/…` twin.
+     *
+     * @param {Paid.CreateCustomerUnitRequest} request
+     * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.ConflictError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.customers.createCustomerUnit({
+     *         id: "cus_abc123",
+     *         body: {
+     *             externalId: "team-research"
+     *         }
+     *     })
+     */
+    public createCustomerUnit(
+        request: Paid.CreateCustomerUnitRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): core.HttpResponsePromise<Paid.CustomerUnit> {
+        return core.HttpResponsePromise.fromPromise(this.__createCustomerUnit(request, requestOptions));
+    }
+
+    private async __createCustomerUnit(
+        request: Paid.CreateCustomerUnitRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.CustomerUnit>> {
+        const { id, body: _body } = request;
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `customers/${core.url.encodePathParam(id)}/customer-units`,
+            ),
+            method: "POST",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: _body,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.CustomerUnit, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 409:
+                    throw new Paid.ConflictError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /customers/{id}/customer-units.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Returns one unit of this customer by its `externalId`, including a deleted one. `404` when the unit does not exist or belongs to another customer. Use the value returned as `customer.id`, for example `cus_abc123`; if you have your own customer ID, use the `/api/v2/customers/external/{externalId}/…` twin.
+     *
+     * @param {Paid.GetCustomerUnitRequest} request
+     * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.customers.getCustomerUnit({
+     *         id: "cus_abc123",
+     *         externalCustomerUnitId: "team-research"
+     *     })
+     */
+    public getCustomerUnit(
+        request: Paid.GetCustomerUnitRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): core.HttpResponsePromise<Paid.CustomerUnit> {
+        return core.HttpResponsePromise.fromPromise(this.__getCustomerUnit(request, requestOptions));
+    }
+
+    private async __getCustomerUnit(
+        request: Paid.GetCustomerUnitRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.CustomerUnit>> {
+        const { id, externalCustomerUnitId } = request;
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `customers/${core.url.encodePathParam(id)}/customer-units/${core.url.encodePathParam(externalCustomerUnitId)}`,
+            ),
+            method: "GET",
+            headers: _headers,
+            queryParameters: requestOptions?.queryParams,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.CustomerUnit, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError(
+                    "Timeout exceeded when calling GET /customers/{id}/customer-units/{externalCustomerUnitId}.",
+                );
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Soft-deletes a unit: it stays readable with `status: DELETED` and cannot be reactivated. Spend history that references it is kept, and signals that keep naming it are still attributed to it. `409` while the unit has ACTIVE children or a cap in force or scheduled; the root follows the same rules, and once it is deleted a new root can be created. Use the value returned as `customer.id`, for example `cus_abc123`; if you have your own customer ID, use the `/api/v2/customers/external/{externalId}/…` twin.
+     *
+     * @param {Paid.DeleteCustomerUnitRequest} request
+     * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.ConflictError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.customers.deleteCustomerUnit({
+     *         id: "cus_abc123",
+     *         externalCustomerUnitId: "team-research"
+     *     })
+     */
+    public deleteCustomerUnit(
+        request: Paid.DeleteCustomerUnitRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): core.HttpResponsePromise<Paid.CustomerUnit> {
+        return core.HttpResponsePromise.fromPromise(this.__deleteCustomerUnit(request, requestOptions));
+    }
+
+    private async __deleteCustomerUnit(
+        request: Paid.DeleteCustomerUnitRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.CustomerUnit>> {
+        const { id, externalCustomerUnitId } = request;
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `customers/${core.url.encodePathParam(id)}/customer-units/${core.url.encodePathParam(externalCustomerUnitId)}`,
+            ),
+            method: "DELETE",
+            headers: _headers,
+            queryParameters: requestOptions?.queryParams,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.CustomerUnit, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 409:
+                    throw new Paid.ConflictError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError(
+                    "Timeout exceeded when calling DELETE /customers/{id}/customer-units/{externalCustomerUnitId}.",
+                );
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Renames, re-types, re-parents or annotates a unit, the root included. `externalId` cannot change. Re-parenting (`parentExternalId`) moves the unit with everything under it. Spend already recorded keeps naming the unit it landed on; caps are evaluated on the current tree, so from the move on the unit's spend in the running cap period counts toward its new ancestors' caps and no longer toward the old ones. `409` for a deleted unit, a parent that does not exist or is not ACTIVE, a move of the root (`ROOT_UNIT_IMMOVABLE`), a move under the unit's own subtree, or a tree that would get too deep. Use the value returned as `customer.id`, for example `cus_abc123`; if you have your own customer ID, use the `/api/v2/customers/external/{externalId}/…` twin.
+     *
+     * @param {Paid.UpdateCustomerUnitRequest} request
+     * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.ConflictError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.customers.updateCustomerUnit({
+     *         id: "cus_abc123",
+     *         externalCustomerUnitId: "team-research",
+     *         body: {}
+     *     })
+     */
+    public updateCustomerUnit(
+        request: Paid.UpdateCustomerUnitRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): core.HttpResponsePromise<Paid.CustomerUnit> {
+        return core.HttpResponsePromise.fromPromise(this.__updateCustomerUnit(request, requestOptions));
+    }
+
+    private async __updateCustomerUnit(
+        request: Paid.UpdateCustomerUnitRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.CustomerUnit>> {
+        const { id, externalCustomerUnitId, body: _body } = request;
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `customers/${core.url.encodePathParam(id)}/customer-units/${core.url.encodePathParam(externalCustomerUnitId)}`,
+            ),
+            method: "PATCH",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: _body,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.CustomerUnit, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 409:
+                    throw new Paid.ConflictError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError(
+                    "Timeout exceeded when calling PATCH /customers/{id}/customer-units/{externalCustomerUnitId}.",
+                );
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Returns the cap in force on this customer unit for one credits currency, with usage in the current period when available. Select the currency with `creditsCurrencyId`; it may be omitted only when the organization has exactly one credits currency, which is then used and echoed back. `404` when the customer or the unit does not exist, or the unit has no cap in force for that currency. The usage figures are advisory: other spend may land between this read and the next burn. Addresses the customer by your external customer id.
+     *
+     * @param {Paid.GetCustomerUnitCapByExternalIdRequest} request
+     * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.customers.getCustomerUnitCapByExternalId({
+     *         externalId: "customer_123",
+     *         externalCustomerUnitId: "tenant-a",
+     *         creditsCurrencyId: "7f4f5d4c-55e9-4d5b-a3e7-c9eb3d2d01bf"
+     *     })
+     */
+    public getCustomerUnitCapByExternalId(
+        request: Paid.GetCustomerUnitCapByExternalIdRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): core.HttpResponsePromise<Paid.CustomerUnitCapResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__getCustomerUnitCapByExternalId(request, requestOptions));
+    }
+
+    private async __getCustomerUnitCapByExternalId(
+        request: Paid.GetCustomerUnitCapByExternalIdRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.CustomerUnitCapResponse>> {
+        const { externalId, externalCustomerUnitId, creditsCurrencyId } = request;
+        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
+        if (creditsCurrencyId != null) {
+            _queryParams.creditsCurrencyId = creditsCurrencyId;
+        }
+
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `customers/external/${core.url.encodePathParam(externalId)}/customer-units/${core.url.encodePathParam(externalCustomerUnitId)}/cap`,
+            ),
+            method: "GET",
+            headers: _headers,
+            queryParameters: { ..._queryParams, ...requestOptions?.queryParams },
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.CustomerUnitCapResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError(
+                    "Timeout exceeded when calling GET /customers/external/{externalId}/customer-units/{externalCustomerUnitId}/cap.",
+                );
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Sets the cap on this customer unit for one credits currency by recording a new cap version; earlier versions are kept and never modified, and the newest version wins where they overlap. The new version applies from `effectiveFrom` (default now) and its periods are anchored on that day of the month. Select the currency with `creditsCurrencyId` in the body; it may be omitted only when the organization has exactly one credits currency. A cap on the customer's root unit is the customer-wide cap. `404` when the customer or the unit does not exist. `409` for customers on seat-based billing. Addresses the customer by your external customer id.
+     *
+     * @param {Paid.SetCustomerUnitCapByExternalIdRequest} request
+     * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.ConflictError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.customers.setCustomerUnitCapByExternalId({
+     *         externalId: "customer_123",
+     *         externalCustomerUnitId: "tenant-a",
+     *         body: {
+     *             amount: 10000
+     *         }
+     *     })
+     */
+    public setCustomerUnitCapByExternalId(
+        request: Paid.SetCustomerUnitCapByExternalIdRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): core.HttpResponsePromise<Paid.CustomerUnitCapSetResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__setCustomerUnitCapByExternalId(request, requestOptions));
+    }
+
+    private async __setCustomerUnitCapByExternalId(
+        request: Paid.SetCustomerUnitCapByExternalIdRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.CustomerUnitCapSetResponse>> {
+        const { externalId, externalCustomerUnitId, body: _body } = request;
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `customers/external/${core.url.encodePathParam(externalId)}/customer-units/${core.url.encodePathParam(externalCustomerUnitId)}/cap`,
+            ),
+            method: "PUT",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: _body,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.CustomerUnitCapSetResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 409:
+                    throw new Paid.ConflictError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError(
+                    "Timeout exceeded when calling PUT /customers/external/{externalId}/customer-units/{externalCustomerUnitId}/cap.",
+                );
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Ends the cap on this customer unit for one credits currency by setting `effectiveUntil` to now on every open version — the one in force, older overlapping versions still open, and versions scheduled to start later — so nothing can resurface or activate afterwards; nothing is deleted and history is kept. Select the currency with `creditsCurrencyId`; it may be omitted only when the organization has exactly one credits currency. `404` when the customer or the unit does not exist, or there is no open version for that currency. Addresses the customer by your external customer id.
+     *
+     * @param {Paid.EndCustomerUnitCapByExternalIdRequest} request
+     * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.ConflictError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.customers.endCustomerUnitCapByExternalId({
+     *         externalId: "customer_123",
+     *         externalCustomerUnitId: "tenant-a",
+     *         creditsCurrencyId: "7f4f5d4c-55e9-4d5b-a3e7-c9eb3d2d01bf"
+     *     })
+     */
+    public endCustomerUnitCapByExternalId(
+        request: Paid.EndCustomerUnitCapByExternalIdRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): core.HttpResponsePromise<Paid.CustomerUnitCapEndResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__endCustomerUnitCapByExternalId(request, requestOptions));
+    }
+
+    private async __endCustomerUnitCapByExternalId(
+        request: Paid.EndCustomerUnitCapByExternalIdRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.CustomerUnitCapEndResponse>> {
+        const { externalId, externalCustomerUnitId, creditsCurrencyId } = request;
+        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
+        if (creditsCurrencyId != null) {
+            _queryParams.creditsCurrencyId = creditsCurrencyId;
+        }
+
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `customers/external/${core.url.encodePathParam(externalId)}/customer-units/${core.url.encodePathParam(externalCustomerUnitId)}/cap`,
+            ),
+            method: "DELETE",
+            headers: _headers,
+            queryParameters: { ..._queryParams, ...requestOptions?.queryParams },
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.CustomerUnitCapEndResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 409:
+                    throw new Paid.ConflictError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError(
+                    "Timeout exceeded when calling DELETE /customers/external/{externalId}/customer-units/{externalCustomerUnitId}/cap.",
+                );
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Returns the cap in force on this customer unit for one credits currency, with usage in the current period when available. Select the currency with `creditsCurrencyId`; it may be omitted only when the organization has exactly one credits currency, which is then used and echoed back. `404` when the customer or the unit does not exist, or the unit has no cap in force for that currency. The usage figures are advisory: other spend may land between this read and the next burn. Use the value returned as `customer.id`, for example `cus_abc123`; if you have your own customer ID, use the `/api/v2/customers/external/{externalId}/…` twin.
+     *
+     * @param {Paid.GetCustomerUnitCapRequest} request
+     * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.customers.getCustomerUnitCap({
+     *         id: "cus_abc123",
+     *         externalCustomerUnitId: "tenant-a",
+     *         creditsCurrencyId: "7f4f5d4c-55e9-4d5b-a3e7-c9eb3d2d01bf"
+     *     })
+     */
+    public getCustomerUnitCap(
+        request: Paid.GetCustomerUnitCapRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): core.HttpResponsePromise<Paid.CustomerUnitCapResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__getCustomerUnitCap(request, requestOptions));
+    }
+
+    private async __getCustomerUnitCap(
+        request: Paid.GetCustomerUnitCapRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.CustomerUnitCapResponse>> {
+        const { id, externalCustomerUnitId, creditsCurrencyId } = request;
+        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
+        if (creditsCurrencyId != null) {
+            _queryParams.creditsCurrencyId = creditsCurrencyId;
+        }
+
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `customers/${core.url.encodePathParam(id)}/customer-units/${core.url.encodePathParam(externalCustomerUnitId)}/cap`,
+            ),
+            method: "GET",
+            headers: _headers,
+            queryParameters: { ..._queryParams, ...requestOptions?.queryParams },
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.CustomerUnitCapResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError(
+                    "Timeout exceeded when calling GET /customers/{id}/customer-units/{externalCustomerUnitId}/cap.",
+                );
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Sets the cap on this customer unit for one credits currency by recording a new cap version; earlier versions are kept and never modified, and the newest version wins where they overlap. The new version applies from `effectiveFrom` (default now) and its periods are anchored on that day of the month. Select the currency with `creditsCurrencyId` in the body; it may be omitted only when the organization has exactly one credits currency. A cap on the customer's root unit is the customer-wide cap. `404` when the customer or the unit does not exist. `409` for customers on seat-based billing. Use the value returned as `customer.id`, for example `cus_abc123`; if you have your own customer ID, use the `/api/v2/customers/external/{externalId}/…` twin.
+     *
+     * @param {Paid.SetCustomerUnitCapRequest} request
+     * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.ConflictError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.customers.setCustomerUnitCap({
+     *         id: "cus_abc123",
+     *         externalCustomerUnitId: "tenant-a",
+     *         body: {
+     *             amount: 10000
+     *         }
+     *     })
+     */
+    public setCustomerUnitCap(
+        request: Paid.SetCustomerUnitCapRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): core.HttpResponsePromise<Paid.CustomerUnitCapSetResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__setCustomerUnitCap(request, requestOptions));
+    }
+
+    private async __setCustomerUnitCap(
+        request: Paid.SetCustomerUnitCapRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.CustomerUnitCapSetResponse>> {
+        const { id, externalCustomerUnitId, body: _body } = request;
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `customers/${core.url.encodePathParam(id)}/customer-units/${core.url.encodePathParam(externalCustomerUnitId)}/cap`,
+            ),
+            method: "PUT",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: _body,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.CustomerUnitCapSetResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 409:
+                    throw new Paid.ConflictError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError(
+                    "Timeout exceeded when calling PUT /customers/{id}/customer-units/{externalCustomerUnitId}/cap.",
+                );
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Ends the cap on this customer unit for one credits currency by setting `effectiveUntil` to now on every open version — the one in force, older overlapping versions still open, and versions scheduled to start later — so nothing can resurface or activate afterwards; nothing is deleted and history is kept. Select the currency with `creditsCurrencyId`; it may be omitted only when the organization has exactly one credits currency. `404` when the customer or the unit does not exist, or there is no open version for that currency. Use the value returned as `customer.id`, for example `cus_abc123`; if you have your own customer ID, use the `/api/v2/customers/external/{externalId}/…` twin.
+     *
+     * @param {Paid.EndCustomerUnitCapRequest} request
+     * @param {Customers.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.ConflictError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.customers.endCustomerUnitCap({
+     *         id: "cus_abc123",
+     *         externalCustomerUnitId: "tenant-a",
+     *         creditsCurrencyId: "7f4f5d4c-55e9-4d5b-a3e7-c9eb3d2d01bf"
+     *     })
+     */
+    public endCustomerUnitCap(
+        request: Paid.EndCustomerUnitCapRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): core.HttpResponsePromise<Paid.CustomerUnitCapEndResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__endCustomerUnitCap(request, requestOptions));
+    }
+
+    private async __endCustomerUnitCap(
+        request: Paid.EndCustomerUnitCapRequest,
+        requestOptions?: Customers.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.CustomerUnitCapEndResponse>> {
+        const { id, externalCustomerUnitId, creditsCurrencyId } = request;
+        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
+        if (creditsCurrencyId != null) {
+            _queryParams.creditsCurrencyId = creditsCurrencyId;
+        }
+
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `customers/${core.url.encodePathParam(id)}/customer-units/${core.url.encodePathParam(externalCustomerUnitId)}/cap`,
+            ),
+            method: "DELETE",
+            headers: _headers,
+            queryParameters: { ..._queryParams, ...requestOptions?.queryParams },
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.CustomerUnitCapEndResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 409:
+                    throw new Paid.ConflictError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError(
+                    "Timeout exceeded when calling DELETE /customers/{id}/customer-units/{externalCustomerUnitId}/cap.",
                 );
             case "unknown":
                 throw new errors.PaidError({

@@ -3,6 +3,7 @@
 import type * as Paid from "../index.js";
 
 export interface Customer {
+    /** Stable Paid customer display ID. Use this value as the `{id}` path parameter for customer routes, for example `GET /api/v2/customers/cus_abc123/state`. */
     id: string;
     name: string;
     legalName: string | null;
@@ -10,12 +11,24 @@ export interface Customer {
     phone: string;
     website: string;
     externalId: string | null;
-    billingAddress?: Paid.CustomerBillingAddress | null;
+    billingAddress: Paid.CustomerBillingAddressResponse | null;
     creationState: Paid.CustomerCreationState;
+    /** Customer status: churned when the customer is marked as churned, active otherwise. */
+    status: Customer.Status;
     churnDate: string | null;
     vatNumber: string | null;
     metadata: Record<string, unknown> | null;
-    defaultCurrency: string;
+    defaultCurrency: Paid.CurrencyCode;
+    connections: Paid.CustomerConnections;
     createdAt: string;
     updatedAt: string;
+}
+
+export namespace Customer {
+    /** Customer status: churned when the customer is marked as churned, active otherwise. */
+    export const Status = {
+        Active: "active",
+        Churned: "churned",
+    } as const;
+    export type Status = (typeof Status)[keyof typeof Status];
 }
