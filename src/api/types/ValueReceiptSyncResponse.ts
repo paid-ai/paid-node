@@ -2,6 +2,7 @@
 
 export interface ValueReceiptSyncResponse {
     id: string;
+    /** Always "posted". */
     status: string;
     publicUrlToken: string;
     publicUrl: string;

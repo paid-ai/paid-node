@@ -22,4 +22,10 @@ export interface GetCustomViewDataRequest {
     periodStart?: string;
     /** absolute override only: inclusive end date (YYYY-MM-DD). */
     periodEnd?: string;
+    /** Pass 'true' to also serve a DRAFT view, so you can check its real data before publishing. Without it a DRAFT returns 404. End-customer embeds and share links never serve a DRAFT. */
+    includeDraft?: Paid.GetCustomViewDataRequestIncludeDraft;
+    /** Unit selection for this request. Omit both unit parameters for all customer activity. Shared links instead use their saved starting selection when omitted; pass all to reset a shared link. */
+    unitMode?: Paid.GetCustomViewDataRequestUnitMode;
+    /** The unit's external ID. Required with direct or subtree, and omitted with all. */
+    unitExternalId?: string;
 }

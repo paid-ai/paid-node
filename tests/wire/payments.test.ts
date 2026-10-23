@@ -172,7 +172,7 @@ describe("Payments", () => {
     test("createPayment (2)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = { amount: 1, currency: "foo", paymentType: "creditCard" };
+        const rawRequestBody = { amount: 1, currency: "currency", paymentType: "creditCard" };
         const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
@@ -186,7 +186,7 @@ describe("Payments", () => {
         await expect(async () => {
             return await client.payments.createPayment({
                 amount: 1,
-                currency: "foo",
+                currency: "currency",
                 paymentType: "creditCard",
             });
         }).rejects.toThrow(Paid.BadRequestError);
@@ -195,7 +195,7 @@ describe("Payments", () => {
     test("createPayment (3)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = { amount: 1, currency: "foo", paymentType: "creditCard" };
+        const rawRequestBody = { amount: 1, currency: "currency", paymentType: "creditCard" };
         const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
@@ -209,7 +209,7 @@ describe("Payments", () => {
         await expect(async () => {
             return await client.payments.createPayment({
                 amount: 1,
-                currency: "foo",
+                currency: "currency",
                 paymentType: "creditCard",
             });
         }).rejects.toThrow(Paid.ForbiddenError);
@@ -218,7 +218,7 @@ describe("Payments", () => {
     test("createPayment (4)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = { amount: 1, currency: "foo", paymentType: "creditCard" };
+        const rawRequestBody = { amount: 1, currency: "currency", paymentType: "creditCard" };
         const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
@@ -232,7 +232,7 @@ describe("Payments", () => {
         await expect(async () => {
             return await client.payments.createPayment({
                 amount: 1,
-                currency: "foo",
+                currency: "currency",
                 paymentType: "creditCard",
             });
         }).rejects.toThrow(Paid.NotFoundError);
@@ -241,7 +241,7 @@ describe("Payments", () => {
     test("createPayment (5)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = { amount: 1, currency: "foo", paymentType: "creditCard" };
+        const rawRequestBody = { amount: 1, currency: "currency", paymentType: "creditCard" };
         const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
@@ -255,7 +255,7 @@ describe("Payments", () => {
         await expect(async () => {
             return await client.payments.createPayment({
                 amount: 1,
-                currency: "foo",
+                currency: "currency",
                 paymentType: "creditCard",
             });
         }).rejects.toThrow(Paid.InternalServerError);

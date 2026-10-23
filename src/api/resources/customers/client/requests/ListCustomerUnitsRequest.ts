@@ -14,7 +14,7 @@ export interface ListCustomerUnitsRequest {
     id: string;
     limit?: number;
     offset?: number;
-    /** Filter by status (default ACTIVE). */
+    /** Filter by status (default ACTIVE; drafts are listed only with DRAFT). */
     status?: Paid.ListCustomerUnitsRequestStatus;
     /** Filter by external type. */
     externalType?: string;

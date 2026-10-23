@@ -3,7 +3,7 @@
 import type * as Paid from "../index.js";
 
 export interface GrantCustomerCreditsResponse {
-    /** True when this request created a new grant. */
+    /** True when this request created a new grant. False when an earlier request with the same idempotencyKey already created it. */
     created: boolean;
     customer: Paid.CreditGrantCustomer;
     creditCurrency: Paid.CreditGrantCurrency;

@@ -9,4 +9,6 @@ export interface CreditGrantCreateRequest {
     startsAt?: string;
     /** When these credits expire, as an RFC3339 datetime with timezone. Omit or set null for credits that do not expire. */
     expiresAt?: string | null;
+    /** Unique key for this grant within your organization. A retry with the same key and request body returns the original grant with `created: false` instead of granting again. Reusing a key for a different customer or request body returns 409. */
+    idempotencyKey?: string;
 }

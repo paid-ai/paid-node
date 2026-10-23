@@ -381,7 +381,7 @@ export class CustomViewsExperimental {
     /**
      * ⚠️ **Experimental** — this endpoint may change or be removed without notice and is not subject to v2 backwards-compatibility guarantees. Do not build production-critical integrations against it yet.
      *
-     * Returns the view's name, status, query ids, and the author render bundle for the owning organization (DRAFT or PUBLISHED). Used by the trusted preview/embed frame to render the sandbox; the per-customer data is fetched separately via /:displayId/data.
+     * Returns the view's name, status, query ids, and the author render bundle for the owning organization. Only PUBLISHED views are returned; a DRAFT returns 404 (use getCustomViewAuthoring to read a DRAFT). Used by the trusted preview/embed frame to render the sandbox; the per-customer data is fetched separately via /:displayId/data.
      *
      * @param {Paid.GetCustomViewRequest} request
      * @param {CustomViewsExperimental.RequestOptions} requestOptions - Request-specific configuration.
@@ -467,7 +467,7 @@ export class CustomViewsExperimental {
     /**
      * ⚠️ **Experimental** — this endpoint may change or be removed without notice and is not subject to v2 backwards-compatibility guarantees. Do not build production-critical integrations against it yet.
      *
-     * Partially updates a view. Omitted fields are left unchanged. For REVISIONS, prefer the incremental fields — `bundleEdits` (exact search-and-replace on the stored render bundle) and `queryUpserts`/`queryRemovals` (per-query changes) — so you transmit only what changed instead of re-sending the whole payload. The full-replacement fields remain for rewrites: `renderBundle`, and `queries` (a FULL replacement of the query list — never drop queries the user didn't ask to remove). Replacement and incremental forms of the same aspect cannot be combined. The resulting SQL and bundle pass the same validation as createCustomView (SELECT-only, size cap, self-contained, paid:data listener). Works on DRAFT or PUBLISHED views — published embeds pick the change up on their next load.
+     * Partially updates a view. Omitted fields are left unchanged. For REVISIONS, prefer the incremental fields — `bundleEdits` (exact search-and-replace on the stored render bundle) and `queryUpserts`/`queryRemovals` (per-query changes) — so you transmit only what changed instead of re-sending the whole payload. The full-replacement fields remain for rewrites: `renderBundle`, and `queries` (a FULL replacement of the query list — never drop queries the user didn't ask to remove). Replacement and incremental forms of the same aspect cannot be combined. The resulting SQL and bundle pass the same validation as createCustomView (SELECT-only, size cap, self-contained, paid:data listener). Works on DRAFT or PUBLISHED views — published embeds pick the change up on their next load. If the queries or hierarchy setting change during validation, returns 409 CUSTOM_VIEW_UPDATE_CONFLICT; fetch the current authoring definition and reapply your changes before retrying.
      *
      * @param {Paid.UpdateCustomViewRequest} request
      * @param {CustomViewsExperimental.RequestOptions} requestOptions - Request-specific configuration.
@@ -475,6 +475,7 @@ export class CustomViewsExperimental {
      * @throws {@link Paid.BadRequestError}
      * @throws {@link Paid.ForbiddenError}
      * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.ConflictError}
      * @throws {@link Paid.InternalServerError}
      *
      * @example
@@ -528,6 +529,8 @@ export class CustomViewsExperimental {
                     throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 404:
                     throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 409:
+                    throw new Paid.ConflictError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
                     throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
@@ -561,7 +564,109 @@ export class CustomViewsExperimental {
     /**
      * ⚠️ **Experimental** — this endpoint may change or be removed without notice and is not subject to v2 backwards-compatibility guarantees. Do not build production-critical integrations against it yet.
      *
-     * Runs every stored query of the view on the read-only analytics database and returns the result sets keyed by query id. For a customer-scoped view (the default), the query is scoped to the caller's organization AND the given `customerId` (both enforced as ClickHouse row filters) — `customerId` is required. For an organization-scoped view, the data is org-wide (scoped only to the caller's organization) and `customerId` is ignored. The scope is enforced by the database — it cannot be widened by the stored SQL. If the view declares filters, pass per-request values as `filter_<name>` query parameters (e.g. `filter_region=eu`); undeclared names or disallowed values are rejected with 400. Filters narrow data within the scope — never widen it.
+     * Lists active customer units for a published customer-scoped view with hierarchyEnabled set to true. Hierarchy eligibility is independent of the requested page or usage; requires credit hierarchies to be enabled for the organization.
+     *
+     * @param {Paid.GetCustomViewCustomerUnitsRequest} request
+     * @param {CustomViewsExperimental.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.customViewsExperimental.getCustomViewCustomerUnits({
+     *         displayId: "displayId",
+     *         customerId: "cus_acme"
+     *     })
+     */
+    public getCustomViewCustomerUnits(
+        request: Paid.GetCustomViewCustomerUnitsRequest,
+        requestOptions?: CustomViewsExperimental.RequestOptions,
+    ): core.HttpResponsePromise<Paid.ViewCustomerUnitsResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__getCustomViewCustomerUnits(request, requestOptions));
+    }
+
+    private async __getCustomViewCustomerUnits(
+        request: Paid.GetCustomViewCustomerUnitsRequest,
+        requestOptions?: CustomViewsExperimental.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.ViewCustomerUnitsResponse>> {
+        const { displayId, limit, offset, customerId } = request;
+        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
+        if (limit != null) {
+            _queryParams.limit = limit.toString();
+        }
+
+        if (offset != null) {
+            _queryParams.offset = offset.toString();
+        }
+
+        _queryParams.customerId = customerId;
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `experimental/views/${core.url.encodePathParam(displayId)}/customer-units`,
+            ),
+            method: "GET",
+            headers: _headers,
+            queryParameters: { ..._queryParams, ...requestOptions?.queryParams },
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.ViewCustomerUnitsResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError(
+                    "Timeout exceeded when calling GET /experimental/views/{displayId}/customer-units.",
+                );
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * ⚠️ **Experimental** — this endpoint may change or be removed without notice and is not subject to v2 backwards-compatibility guarantees. Do not build production-critical integrations against it yet.
+     *
+     * Runs every stored query of the view on the read-only analytics database and returns the result sets keyed by query id. For a customer-scoped view (the default), the query is scoped to the caller's organization AND the given `customerId` (both enforced as ClickHouse row filters) — `customerId` is required. For an organization-scoped view, the data is org-wide (scoped only to the caller's organization) and `customerId` is ignored. The scope is enforced by the database — it cannot be widened by the stored SQL. If the view declares filters, pass per-request values as `filter_<name>` query parameters (e.g. `filter_region=eu`); undeclared names or disallowed values are rejected with 400. Filters narrow data within the scope — never widen it. Only PUBLISHED views are served by default; a DRAFT returns 404. To check a saved DRAFT's real data before publishing, pass `includeDraft=true`. Embeds and share links never serve a DRAFT.
      *
      * @param {Paid.GetCustomViewDataRequest} request
      * @param {CustomViewsExperimental.RequestOptions} requestOptions - Request-specific configuration.
@@ -570,6 +675,7 @@ export class CustomViewsExperimental {
      * @throws {@link Paid.ForbiddenError}
      * @throws {@link Paid.NotFoundError}
      * @throws {@link Paid.RequestTimeoutError}
+     * @throws {@link Paid.ConflictError}
      * @throws {@link Paid.TooManyRequestsError}
      * @throws {@link Paid.InternalServerError}
      *
@@ -589,7 +695,18 @@ export class CustomViewsExperimental {
         request: Paid.GetCustomViewDataRequest,
         requestOptions?: CustomViewsExperimental.RequestOptions,
     ): Promise<core.WithRawResponse<Paid.ViewDataResponse>> {
-        const { displayId, customerId, periodKind, periodUnit, periodAmount, periodStart, periodEnd } = request;
+        const {
+            displayId,
+            customerId,
+            periodKind,
+            periodUnit,
+            periodAmount,
+            periodStart,
+            periodEnd,
+            includeDraft,
+            unitMode,
+            unitExternalId,
+        } = request;
         const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
         if (customerId != null) {
             _queryParams.customerId = customerId;
@@ -613,6 +730,18 @@ export class CustomViewsExperimental {
 
         if (periodEnd != null) {
             _queryParams.periodEnd = periodEnd;
+        }
+
+        if (includeDraft != null) {
+            _queryParams.includeDraft = includeDraft;
+        }
+
+        if (unitMode != null) {
+            _queryParams.unitMode = unitMode;
+        }
+
+        if (unitExternalId != null) {
+            _queryParams.unitExternalId = unitExternalId;
         }
 
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
@@ -651,6 +780,8 @@ export class CustomViewsExperimental {
                         _response.error.body as Paid.ErrorResponse,
                         _response.rawResponse,
                     );
+                case 409:
+                    throw new Paid.ConflictError(_response.error.body as unknown, _response.rawResponse);
                 case 429:
                     throw new Paid.TooManyRequestsError(
                         _response.error.body as Paid.ErrorResponse,

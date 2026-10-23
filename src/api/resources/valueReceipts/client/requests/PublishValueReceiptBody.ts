@@ -8,5 +8,6 @@
  */
 export interface PublishValueReceiptBody {
     id: string;
+    /** When the public link stops working. Must be in the future, or the request fails with 409. Omit or set null for a link that does not expire. */
     publishExpiresAt?: string | null;
 }

@@ -238,11 +238,163 @@ describe("Signals", () => {
         }).rejects.toThrow(Paid.InternalServerError);
     });
 
+    test("getSignalsByIds (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { ids: ["6890b0e2a6f2c30012f0a1b3", "6890b0e2a6f2c30012f0a1b4"] };
+        const rawResponseBody = {
+            data: [
+                {
+                    id: "6890b0e2a6f2c30012f0a1b3",
+                    name: "email_sent",
+                    customerId: "customerId",
+                    externalCustomerId: "externalCustomerId",
+                    productId: "productId",
+                    externalProductId: "externalProductId",
+                    traceId: "traceId",
+                    data: { key: "value" },
+                    createdAt: "2024-01-15T09:30:00Z",
+                },
+            ],
+            notFound: ["notFound"],
+        };
+        server
+            .mockEndpoint()
+            .post("/signals/lookup")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.signals.getSignalsByIds({
+            ids: ["6890b0e2a6f2c30012f0a1b3", "6890b0e2a6f2c30012f0a1b4"],
+        });
+        expect(response).toEqual({
+            data: [
+                {
+                    id: "6890b0e2a6f2c30012f0a1b3",
+                    name: "email_sent",
+                    customerId: "customerId",
+                    externalCustomerId: "externalCustomerId",
+                    productId: "productId",
+                    externalProductId: "externalProductId",
+                    traceId: "traceId",
+                    data: {
+                        key: "value",
+                    },
+                    createdAt: "2024-01-15T09:30:00Z",
+                },
+            ],
+            notFound: ["notFound"],
+        });
+    });
+
+    test("getSignalsByIds (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { ids: ["ids", "ids"] };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/signals/lookup")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.signals.getSignalsByIds({
+                ids: ["ids", "ids"],
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("getSignalsByIds (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { ids: ["ids", "ids"] };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/signals/lookup")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.signals.getSignalsByIds({
+                ids: ["ids", "ids"],
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("getSignalsByIds (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { ids: ["ids", "ids"] };
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .post("/signals/lookup")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(429)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.signals.getSignalsByIds({
+                ids: ["ids", "ids"],
+            });
+        }).rejects.toThrow(Paid.TooManyRequestsError);
+    });
+
+    test("getSignalsByIds (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { ids: ["ids", "ids"] };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/signals/lookup")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.signals.getSignalsByIds({
+                ids: ["ids", "ids"],
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
     test("createSignals (1)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = { signals: [{ eventName: "eventName", customer: { customerId: "customerId" } }] };
-        const rawResponseBody = { ingested: 1, duplicates: 1, failed: 1 };
+        const rawRequestBody = {
+            signals: [
+                {
+                    eventName: "email_sent",
+                    customer: { externalCustomerId: "acme-corp" },
+                    attribution: { externalProductId: "email-agent" },
+                    timestamp: "2026-01-31T23:00:00Z",
+                    data: { recipients: 3 },
+                    idempotencyKey: "email_sent_msg_8f3a2c",
+                },
+                {
+                    eventName: "email_sent",
+                    customerUnit: { externalCustomerUnitId: "acme-marketing" },
+                    idempotencyKey: "email_sent_msg_9b41d7",
+                },
+            ],
+        };
+        const rawResponseBody = { ingested: 2, duplicates: 0, failed: 0 };
         server
             .mockEndpoint()
             .post("/signals/bulk")
@@ -255,29 +407,39 @@ describe("Signals", () => {
         const response = await client.signals.createSignals({
             signals: [
                 {
-                    eventName: "eventName",
+                    eventName: "email_sent",
                     customer: {
-                        customerId: "customerId",
+                        externalCustomerId: "acme-corp",
                     },
+                    attribution: {
+                        externalProductId: "email-agent",
+                    },
+                    timestamp: "2026-01-31T23:00:00Z",
+                    data: {
+                        recipients: 3,
+                    },
+                    idempotencyKey: "email_sent_msg_8f3a2c",
+                },
+                {
+                    eventName: "email_sent",
+                    customerUnit: {
+                        externalCustomerUnitId: "acme-marketing",
+                    },
+                    idempotencyKey: "email_sent_msg_9b41d7",
                 },
             ],
         });
         expect(response).toEqual({
-            ingested: 1,
-            duplicates: 1,
-            failed: 1,
+            ingested: 2,
+            duplicates: 0,
+            failed: 0,
         });
     });
 
     test("createSignals (2)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = {
-            signals: [
-                { eventName: "x", customer: { customerId: "customerId" } },
-                { eventName: "x", customer: { customerId: "customerId" } },
-            ],
-        };
+        const rawRequestBody = { signals: [{ eventName: "x" }, { eventName: "x" }] };
         const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
@@ -293,15 +455,9 @@ describe("Signals", () => {
                 signals: [
                     {
                         eventName: "x",
-                        customer: {
-                            customerId: "customerId",
-                        },
                     },
                     {
                         eventName: "x",
-                        customer: {
-                            customerId: "customerId",
-                        },
                     },
                 ],
             });
@@ -311,12 +467,7 @@ describe("Signals", () => {
     test("createSignals (3)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = {
-            signals: [
-                { eventName: "x", customer: { customerId: "customerId" } },
-                { eventName: "x", customer: { customerId: "customerId" } },
-            ],
-        };
+        const rawRequestBody = { signals: [{ eventName: "x" }, { eventName: "x" }] };
         const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
@@ -332,15 +483,9 @@ describe("Signals", () => {
                 signals: [
                     {
                         eventName: "x",
-                        customer: {
-                            customerId: "customerId",
-                        },
                     },
                     {
                         eventName: "x",
-                        customer: {
-                            customerId: "customerId",
-                        },
                     },
                 ],
             });
@@ -350,12 +495,7 @@ describe("Signals", () => {
     test("createSignals (4)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = {
-            signals: [
-                { eventName: "x", customer: { customerId: "customerId" } },
-                { eventName: "x", customer: { customerId: "customerId" } },
-            ],
-        };
+        const rawRequestBody = { signals: [{ eventName: "x" }, { eventName: "x" }] };
         const rawResponseBody = { error: "error" };
         server
             .mockEndpoint()
@@ -371,15 +511,9 @@ describe("Signals", () => {
                 signals: [
                     {
                         eventName: "x",
-                        customer: {
-                            customerId: "customerId",
-                        },
                     },
                     {
                         eventName: "x",
-                        customer: {
-                            customerId: "customerId",
-                        },
                     },
                 ],
             });
@@ -389,12 +523,7 @@ describe("Signals", () => {
     test("createSignals (5)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = {
-            signals: [
-                { eventName: "x", customer: { customerId: "customerId" } },
-                { eventName: "x", customer: { customerId: "customerId" } },
-            ],
-        };
+        const rawRequestBody = { signals: [{ eventName: "x" }, { eventName: "x" }] };
         const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
@@ -410,17 +539,551 @@ describe("Signals", () => {
                 signals: [
                     {
                         eventName: "x",
-                        customer: {
-                            customerId: "customerId",
-                        },
                     },
                     {
                         eventName: "x",
-                        customer: {
-                            customerId: "customerId",
+                    },
+                ],
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("createSignalSummaryExport (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { from: "2025-09-01", to: "2026-09-01" };
+        const rawResponseBody = {
+            id: "sse_5pZa1Kd8Nqx",
+            status: "pending",
+            spec: {
+                name: "name",
+                interval: "month",
+                signalNames: [{ name: "name", group: "workflow_run", slug: "runs" }],
+                dimensions: [
+                    {
+                        kind: "presence",
+                        path: "steps",
+                        appliesTo: ["appliesTo"],
+                        values: { true: { group: "group" }, false: { group: "group" } },
+                    },
+                ],
+                measures: [{ fn: "count", path: "steps" }],
+                columnNameTemplate: "{dim1}_{signal}_{dim2}",
+            },
+            columns: [{ name: "ticket_runs_1_step", signalGroup: "signalGroup", dimensionGroup: "dimensionGroup" }],
+            format: "json",
+            from: "2025-09-01",
+            to: "2026-09-01",
+            rowCount: 1,
+            downloadUrl: "downloadUrl",
+            expiresAt: "2024-01-15T09:30:00Z",
+            error: "error",
+            createdAt: "2024-01-15T09:30:00Z",
+            completedAt: "2024-01-15T09:30:00Z",
+        };
+        server
+            .mockEndpoint()
+            .post("/signals/summary/batch/")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.signals.createSignalSummaryExport({
+            from: "2025-09-01",
+            to: "2026-09-01",
+        });
+        expect(response).toEqual({
+            id: "sse_5pZa1Kd8Nqx",
+            status: "pending",
+            spec: {
+                name: "name",
+                interval: "month",
+                signalNames: [
+                    {
+                        name: "name",
+                        group: "workflow_run",
+                        slug: "runs",
+                    },
+                ],
+                dimensions: [
+                    {
+                        kind: "presence",
+                        path: "steps",
+                        appliesTo: ["appliesTo"],
+                        values: {
+                            true: {
+                                group: "group",
+                            },
+                            false: {
+                                group: "group",
+                            },
                         },
                     },
                 ],
+                measures: [
+                    {
+                        fn: "count",
+                        path: "steps",
+                    },
+                ],
+                columnNameTemplate: "{dim1}_{signal}_{dim2}",
+            },
+            columns: [
+                {
+                    name: "ticket_runs_1_step",
+                    signalGroup: "signalGroup",
+                    dimensionGroup: "dimensionGroup",
+                },
+            ],
+            format: "json",
+            from: "2025-09-01",
+            to: "2026-09-01",
+            rowCount: 1,
+            downloadUrl: "downloadUrl",
+            expiresAt: "2024-01-15T09:30:00Z",
+            error: "error",
+            createdAt: "2024-01-15T09:30:00Z",
+            completedAt: "2024-01-15T09:30:00Z",
+        });
+    });
+
+    test("createSignalSummaryExport (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { from: "from", to: "to" };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/signals/summary/batch/")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.signals.createSignalSummaryExport({
+                from: "from",
+                to: "to",
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("createSignalSummaryExport (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { from: "from", to: "to" };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/signals/summary/batch/")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.signals.createSignalSummaryExport({
+                from: "from",
+                to: "to",
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("createSignalSummaryExport (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { from: "from", to: "to" };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/signals/summary/batch/")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.signals.createSignalSummaryExport({
+                from: "from",
+                to: "to",
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("createSignalSummaryExport (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { from: "from", to: "to" };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/signals/summary/batch/")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(409)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.signals.createSignalSummaryExport({
+                from: "from",
+                to: "to",
+            });
+        }).rejects.toThrow(Paid.ConflictError);
+    });
+
+    test("createSignalSummaryExport (6)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { from: "from", to: "to" };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/signals/summary/batch/")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.signals.createSignalSummaryExport({
+                from: "from",
+                to: "to",
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("getSignalSummaryExport (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = {
+            id: "sse_5pZa1Kd8Nqx",
+            status: "pending",
+            spec: {
+                name: "name",
+                interval: "month",
+                signalNames: [{ name: "name", group: "workflow_run", slug: "runs" }],
+                dimensions: [
+                    {
+                        kind: "presence",
+                        path: "steps",
+                        appliesTo: ["appliesTo"],
+                        values: { true: { group: "group" }, false: { group: "group" } },
+                    },
+                ],
+                measures: [{ fn: "count", path: "steps" }],
+                columnNameTemplate: "{dim1}_{signal}_{dim2}",
+            },
+            columns: [{ name: "ticket_runs_1_step", signalGroup: "signalGroup", dimensionGroup: "dimensionGroup" }],
+            format: "json",
+            from: "2025-09-01",
+            to: "2026-09-01",
+            rowCount: 1,
+            downloadUrl: "downloadUrl",
+            expiresAt: "2024-01-15T09:30:00Z",
+            error: "error",
+            createdAt: "2024-01-15T09:30:00Z",
+            completedAt: "2024-01-15T09:30:00Z",
+        };
+        server
+            .mockEndpoint()
+            .get("/signals/summary/batch/sse_5pZa1Kd8Nqx")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.signals.getSignalSummaryExport({
+            id: "sse_5pZa1Kd8Nqx",
+        });
+        expect(response).toEqual({
+            id: "sse_5pZa1Kd8Nqx",
+            status: "pending",
+            spec: {
+                name: "name",
+                interval: "month",
+                signalNames: [
+                    {
+                        name: "name",
+                        group: "workflow_run",
+                        slug: "runs",
+                    },
+                ],
+                dimensions: [
+                    {
+                        kind: "presence",
+                        path: "steps",
+                        appliesTo: ["appliesTo"],
+                        values: {
+                            true: {
+                                group: "group",
+                            },
+                            false: {
+                                group: "group",
+                            },
+                        },
+                    },
+                ],
+                measures: [
+                    {
+                        fn: "count",
+                        path: "steps",
+                    },
+                ],
+                columnNameTemplate: "{dim1}_{signal}_{dim2}",
+            },
+            columns: [
+                {
+                    name: "ticket_runs_1_step",
+                    signalGroup: "signalGroup",
+                    dimensionGroup: "dimensionGroup",
+                },
+            ],
+            format: "json",
+            from: "2025-09-01",
+            to: "2026-09-01",
+            rowCount: 1,
+            downloadUrl: "downloadUrl",
+            expiresAt: "2024-01-15T09:30:00Z",
+            error: "error",
+            createdAt: "2024-01-15T09:30:00Z",
+            completedAt: "2024-01-15T09:30:00Z",
+        });
+    });
+
+    test("getSignalSummaryExport (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/signals/summary/batch/id")
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.signals.getSignalSummaryExport({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("getSignalSummaryExport (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/signals/summary/batch/id")
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.signals.getSignalSummaryExport({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("getSignalSummaryExport (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/signals/summary/batch/id")
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.signals.getSignalSummaryExport({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("getSignalSummaryExport (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/signals/summary/batch/id")
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.signals.getSignalSummaryExport({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("getSignalSummary (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = {
+            interval: "hour",
+            groupBy: "signalName",
+            dimensionKey: "team_id",
+            groups: { kept: 29, truncated: 0 },
+            data: [
+                {
+                    periodStart: "2024-01-15T09:30:00Z",
+                    periodEnd: "2024-01-15T09:30:00Z",
+                    groupKey: "team-onboarding",
+                    signalCount: 4213,
+                    quantityTotal: 5102,
+                },
+            ],
+            pagination: { limit: 1.1, hasMore: true, nextCursor: "nextCursor" },
+        };
+        server.mockEndpoint().get("/signals/summary/").respondWith().statusCode(200).jsonBody(rawResponseBody).build();
+
+        const response = await client.signals.getSignalSummary({
+            startDate: "2026-08-01",
+            endDate: "2026-08-31",
+            interval: "hour",
+            dimensionKey: "team_id",
+            limit: 1000,
+        });
+        expect(response).toEqual({
+            interval: "hour",
+            groupBy: "signalName",
+            dimensionKey: "team_id",
+            groups: {
+                kept: 29,
+                truncated: 0,
+            },
+            data: [
+                {
+                    periodStart: "2024-01-15T09:30:00Z",
+                    periodEnd: "2024-01-15T09:30:00Z",
+                    groupKey: "team-onboarding",
+                    signalCount: 4213,
+                    quantityTotal: 5102,
+                },
+            ],
+            pagination: {
+                limit: 1.1,
+                hasMore: true,
+                nextCursor: "nextCursor",
+            },
+        });
+    });
+
+    test("getSignalSummary (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server.mockEndpoint().get("/signals/summary/").respondWith().statusCode(400).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.signals.getSignalSummary({
+                startDate: "startDate",
+                endDate: "endDate",
+                interval: "hour",
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("getSignalSummary (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server.mockEndpoint().get("/signals/summary/").respondWith().statusCode(403).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.signals.getSignalSummary({
+                startDate: "startDate",
+                endDate: "endDate",
+                interval: "hour",
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("getSignalSummary (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server.mockEndpoint().get("/signals/summary/").respondWith().statusCode(404).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.signals.getSignalSummary({
+                startDate: "startDate",
+                endDate: "endDate",
+                interval: "hour",
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("getSignalSummary (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: "error" };
+        server.mockEndpoint().get("/signals/summary/").respondWith().statusCode(408).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.signals.getSignalSummary({
+                startDate: "startDate",
+                endDate: "endDate",
+                interval: "hour",
+            });
+        }).rejects.toThrow(Paid.RequestTimeoutError);
+    });
+
+    test("getSignalSummary (6)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: "error" };
+        server.mockEndpoint().get("/signals/summary/").respondWith().statusCode(429).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.signals.getSignalSummary({
+                startDate: "startDate",
+                endDate: "endDate",
+                interval: "hour",
+            });
+        }).rejects.toThrow(Paid.TooManyRequestsError);
+    });
+
+    test("getSignalSummary (7)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server.mockEndpoint().get("/signals/summary/").respondWith().statusCode(500).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.signals.getSignalSummary({
+                startDate: "startDate",
+                endDate: "endDate",
+                interval: "hour",
             });
         }).rejects.toThrow(Paid.InternalServerError);
     });

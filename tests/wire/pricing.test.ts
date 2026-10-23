@@ -127,6 +127,8 @@ describe("Pricing", () => {
                 creditsCurrencyId: "creditsCurrencyId",
                 creditCost: 1.1,
                 unitValue: 1.1,
+                overageUnitPrice: 1.1,
+                overageUnitPrices: { key: 1.1 },
                 percentageValue: 1.1,
                 costPlusMultiplier: 1.1,
                 pricePoints: [
@@ -178,6 +180,10 @@ describe("Pricing", () => {
                 creditsCurrencyId: "creditsCurrencyId",
                 creditCost: 1.1,
                 unitValue: 1.1,
+                overageUnitPrice: 1.1,
+                overageUnitPrices: {
+                    key: 1.1,
+                },
                 percentageValue: 1.1,
                 costPlusMultiplier: 1.1,
                 pricePoints: [
@@ -277,6 +283,8 @@ describe("Pricing", () => {
                 creditsCurrencyId: "creditsCurrencyId",
                 creditCost: 1.1,
                 unitValue: 1.1,
+                overageUnitPrice: 1.1,
+                overageUnitPrices: { key: 1.1 },
                 percentageValue: 1.1,
                 costPlusMultiplier: 1.1,
                 pricePoints: [
@@ -339,6 +347,10 @@ describe("Pricing", () => {
                 creditsCurrencyId: "creditsCurrencyId",
                 creditCost: 1.1,
                 unitValue: 1.1,
+                overageUnitPrice: 1.1,
+                overageUnitPrices: {
+                    key: 1.1,
+                },
                 percentageValue: 1.1,
                 costPlusMultiplier: 1.1,
                 pricePoints: [

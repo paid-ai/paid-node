@@ -18,6 +18,7 @@ export interface CreateCheckoutRequest {
     externalCustomerId?: string;
     successUrl: string;
     cancelUrl?: string;
+    /** When the checkout link expires. Must be in the future. Defaults to 24 hours after creation. */
     expiresAt?: string;
     metadata?: Record<string, unknown>;
     collectAddress?: boolean;

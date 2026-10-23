@@ -10,7 +10,8 @@ import type * as Paid from "../../../../index.js";
  *             creditCurrencyKey: "api_credits",
  *             amount: 10000,
  *             startsAt: "2026-06-05T12:00:00Z",
- *             expiresAt: "2026-12-31T23:59:59Z"
+ *             expiresAt: "2026-12-31T23:59:59Z",
+ *             idempotencyKey: "grant_acme_2026-06-05"
  *         }
  *     }
  */

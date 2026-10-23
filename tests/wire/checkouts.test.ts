@@ -474,6 +474,20 @@ describe("Checkouts", () => {
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         const rawResponseBody = { key: "value" };
+        server.mockEndpoint().delete("/checkouts/id").respondWith().statusCode(409).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.checkouts.archiveCheckout({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.ConflictError);
+    });
+
+    test("archiveCheckout (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().delete("/checkouts/id").respondWith().statusCode(500).jsonBody(rawResponseBody).build();
 
         await expect(async () => {

@@ -2,6 +2,7 @@
 
 export interface ValueReceiptSummary {
     id: string;
+    /** Always "posted": a value receipt is immutable from creation. */
     status: string;
     publicUrlToken: string;
     publicUrl: string;
