@@ -96,12 +96,13 @@ export class ValueModels {
     }
 
     /**
-     * Uploads a new value model version. Validates the content, creates a new version, archives the previous active version, syncs to ClickHouse, and triggers a backfill of all historical signals.
+     * Uploads a new value model version. Validates the content, creates a new version, archives the previous active version, and syncs to ClickHouse. This updates how value is calculated going forward — new signals are valued under the new model. It does NOT re-rate historical signals; run POST /api/v2/value-models/backfill to re-rate history as a separate, explicit action. Any unpublished draft saved in the Paid app is discarded. Send expectedActiveVersion to get a 409 instead of overwriting a version published since you read it.
      *
      * @param {Paid.ValueModelUploadRequest} request
      * @param {ValueModels.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ConflictError}
      * @throws {@link Paid.InternalServerError}
      *
      * @example
@@ -182,6 +183,8 @@ export class ValueModels {
             switch (_response.error.statusCode) {
                 case 400:
                     throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 409:
+                    throw new Paid.ConflictError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
                     throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
@@ -379,12 +382,13 @@ export class ValueModels {
     }
 
     /**
-     * Manually triggers a recalculation of all ClickHouse rows against the current value model.
+     * Manually triggers a recalculation of all ClickHouse rows against the current value model. Returns 422 when the backfill would scan more signals than the ceiling allows — that is deterministic, so retrying without narrowing the scope will not help.
      *
      * @param {Paid.RefreshValueModelBackfillRequest} request
      * @param {ValueModels.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.UnprocessableEntityError}
      * @throws {@link Paid.InternalServerError}
      *
      * @example
@@ -431,6 +435,11 @@ export class ValueModels {
             switch (_response.error.statusCode) {
                 case 404:
                     throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 422:
+                    throw new Paid.UnprocessableEntityError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
                 case 500:
                     throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:

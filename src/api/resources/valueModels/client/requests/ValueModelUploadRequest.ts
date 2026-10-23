@@ -44,4 +44,6 @@ export interface ValueModelUploadRequest {
     content: Paid.ValueModelContent;
     effectiveFrom?: string;
     effectiveTo?: string;
+    /** Optimistic concurrency guard: the active version this upload is based on. When supplied and it does not match the live active version, the upload fails with 409 instead of overwriting a concurrent change. */
+    expectedActiveVersion?: number;
 }

@@ -6,5 +6,6 @@ export type { GetOrderByIdRequest } from "./GetOrderByIdRequest.js";
 export type { GetOrderLinesRequest } from "./GetOrderLinesRequest.js";
 export type { ListOrderSeatsRequest } from "./ListOrderSeatsRequest.js";
 export type { ListOrdersRequest } from "./ListOrdersRequest.js";
+export type { ProvisionRequest } from "./ProvisionRequest.js";
 export type { UpdateOrderRequest } from "./UpdateOrderRequest.js";
 export type { UpdateSeatAssignmentRequest } from "./UpdateSeatAssignmentRequest.js";

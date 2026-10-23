@@ -292,13 +292,14 @@ export class Checkouts {
     }
 
     /**
-     * Archive a checkout by ID
+     * Archive a checkout by ID so it can no longer be paid. A completed (paid) checkout can't be archived and returns 409.
      *
      * @param {Paid.ArchiveCheckoutRequest} request
      * @param {Checkouts.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @throws {@link Paid.ForbiddenError}
      * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.ConflictError}
      * @throws {@link Paid.InternalServerError}
      *
      * @example
@@ -347,6 +348,8 @@ export class Checkouts {
                     throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 404:
                     throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 409:
+                    throw new Paid.ConflictError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
                     throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:

@@ -19,7 +19,7 @@ export interface CreateOrderRequest {
     creationState?: Paid.OrderCreationState;
     /** Day of month for billing anchor (1-31). Defaults to start date day if not provided. */
     billingAnchor?: number;
-    paymentTerms?: string;
+    paymentTerms?: CreateOrderRequest.PaymentTerms;
     externalId?: string;
     metadata?: Record<string, unknown>;
     currency?: string;
@@ -30,4 +30,16 @@ export interface CreateOrderRequest {
     billingFrequencyOverride?: Paid.OrderBillingFrequencyOverride;
     /** Purchase order number printed on invoices generated from this order. */
     purchaseOrderReference?: string | null;
+}
+
+export namespace CreateOrderRequest {
+    export const PaymentTerms = {
+        DueOnReceipt: "DueOnReceipt",
+        Net15: "Net15",
+        Net30: "Net30",
+        Net45: "Net45",
+        Net60: "Net60",
+        Net90: "Net90",
+    } as const;
+    export type PaymentTerms = (typeof PaymentTerms)[keyof typeof PaymentTerms];
 }

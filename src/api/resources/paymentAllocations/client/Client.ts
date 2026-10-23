@@ -126,7 +126,7 @@ export class PaymentAllocations {
     }
 
     /**
-     * Allocates a payment across one or more invoice lines. When an invoice becomes fully paid, its credit entitlements are processed.
+     * Allocates a payment across one or more invoice lines of posted invoices, in the payment's currency. When an invoice becomes fully paid, its credit entitlements are processed. Returns 409 when a concurrent allocation has already spent the balance.
      *
      * @param {Paid.CreatePaymentAllocationRequest} request
      * @param {PaymentAllocations.RequestOptions} requestOptions - Request-specific configuration.
@@ -134,6 +134,7 @@ export class PaymentAllocations {
      * @throws {@link Paid.BadRequestError}
      * @throws {@link Paid.ForbiddenError}
      * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.ConflictError}
      * @throws {@link Paid.InternalServerError}
      *
      * @example
@@ -190,6 +191,8 @@ export class PaymentAllocations {
                     throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 404:
                     throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 409:
+                    throw new Paid.ConflictError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
                     throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:

@@ -314,6 +314,124 @@ describe("Credits", () => {
         }).rejects.toThrow(Paid.InternalServerError);
     });
 
+    test("getCreditTransactionSummary (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = {
+            type: "grant",
+            groupBy: "eventName",
+            interval: "day",
+            data: [
+                {
+                    periodStart: "2024-01-15T09:30:00Z",
+                    periodEnd: "2024-01-15T09:30:00Z",
+                    groupKey: "agent.api_call",
+                    creditCurrency: { key: "api_credits", name: "API Credits" },
+                    credits: "1250.5",
+                    transactionCount: 42,
+                },
+            ],
+        };
+        server
+            .mockEndpoint()
+            .get("/credits/transactions/summary")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.credits.getCreditTransactionSummary({
+            createdAtFrom: "createdAtFrom",
+            groupBy: "eventName",
+            interval: "day",
+        });
+        expect(response).toEqual({
+            type: "grant",
+            groupBy: "eventName",
+            interval: "day",
+            data: [
+                {
+                    periodStart: "2024-01-15T09:30:00Z",
+                    periodEnd: "2024-01-15T09:30:00Z",
+                    groupKey: "agent.api_call",
+                    creditCurrency: {
+                        key: "api_credits",
+                        name: "API Credits",
+                    },
+                    credits: "1250.5",
+                    transactionCount: 42,
+                },
+            ],
+        });
+    });
+
+    test("getCreditTransactionSummary (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/credits/transactions/summary")
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.credits.getCreditTransactionSummary({
+                createdAtFrom: "createdAtFrom",
+                groupBy: "eventName",
+                interval: "day",
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("getCreditTransactionSummary (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/credits/transactions/summary")
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.credits.getCreditTransactionSummary({
+                createdAtFrom: "createdAtFrom",
+                groupBy: "eventName",
+                interval: "day",
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("getCreditTransactionSummary (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/credits/transactions/summary")
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.credits.getCreditTransactionSummary({
+                createdAtFrom: "createdAtFrom",
+                groupBy: "eventName",
+                interval: "day",
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
     test("updateCreditCurrencyById (1)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
