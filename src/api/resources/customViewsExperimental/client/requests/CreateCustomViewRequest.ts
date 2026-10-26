@@ -14,6 +14,10 @@ import type * as Paid from "../../../../index.js";
  *     }
  */
 export interface CreateCustomViewRequest {
+    /** Enable customer unit navigation for a customer-scoped view. Setting true requires customer hierarchies to be enabled for your organization, and every query must support unit selection. Existing views default to false. */
+    hierarchyEnabled?: boolean;
+    /** Send the customer's unit caps to the render bundle as `context.caps`. Needs `hierarchyEnabled` on a customer-scoped view. Turn it on only for views that draw cap usage: each load then reads cap usage from billing. Caps are spend policy, so an API key also needs `read:billing` to receive them in the data (they are left out otherwise) or to mint this view's embed token. Defaults to false. */
+    capsEnabled?: boolean;
     /** Human-readable view name (shown in preview + audit log). */
     name: string;
     /** Optional longer description of what the view shows. */

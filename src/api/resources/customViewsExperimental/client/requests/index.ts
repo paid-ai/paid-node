@@ -1,4 +1,5 @@
 export type { CreateCustomViewRequest } from "./CreateCustomViewRequest.js";
+export type { GetCustomViewCustomerUnitsRequest } from "./GetCustomViewCustomerUnitsRequest.js";
 export type { GetCustomViewDataRequest } from "./GetCustomViewDataRequest.js";
 export type { GetCustomViewEmbedTokenRequest } from "./GetCustomViewEmbedTokenRequest.js";
 export type { GetCustomViewRequest } from "./GetCustomViewRequest.js";

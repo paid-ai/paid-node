@@ -24,6 +24,8 @@ describe("Checkouts", () => {
                     metadata: { key: "value" },
                     collectAddress: true,
                     collectPhone: true,
+                    successTitle: "successTitle",
+                    successMessage: "successMessage",
                     singleUse: true,
                     allowedCurrencies: ["allowedCurrencies"],
                     customCards: [{ label: "label" }],
@@ -57,6 +59,8 @@ describe("Checkouts", () => {
                     },
                     collectAddress: true,
                     collectPhone: true,
+                    successTitle: "successTitle",
+                    successMessage: "successMessage",
                     singleUse: true,
                     allowedCurrencies: ["allowedCurrencies"],
                     customCards: [
@@ -130,6 +134,8 @@ describe("Checkouts", () => {
             metadata: { key: "value" },
             collectAddress: true,
             collectPhone: true,
+            successTitle: "successTitle",
+            successMessage: "successMessage",
             singleUse: true,
             allowedCurrencies: ["allowedCurrencies"],
             customCards: [{ label: "label", priceText: "priceText", buttonText: "buttonText", buttonUrl: "buttonUrl" }],
@@ -177,6 +183,8 @@ describe("Checkouts", () => {
             },
             collectAddress: true,
             collectPhone: true,
+            successTitle: "successTitle",
+            successMessage: "successMessage",
             singleUse: true,
             allowedCurrencies: ["allowedCurrencies"],
             customCards: [
@@ -325,6 +333,8 @@ describe("Checkouts", () => {
             metadata: { key: "value" },
             collectAddress: true,
             collectPhone: true,
+            successTitle: "successTitle",
+            successMessage: "successMessage",
             singleUse: true,
             allowedCurrencies: ["allowedCurrencies"],
             customCards: [{ label: "label", priceText: "priceText", buttonText: "buttonText", buttonUrl: "buttonUrl" }],
@@ -362,6 +372,8 @@ describe("Checkouts", () => {
             },
             collectAddress: true,
             collectPhone: true,
+            successTitle: "successTitle",
+            successMessage: "successMessage",
             singleUse: true,
             allowedCurrencies: ["allowedCurrencies"],
             customCards: [
@@ -470,6 +482,20 @@ describe("Checkouts", () => {
     });
 
     test("archiveCheckout (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server.mockEndpoint().delete("/checkouts/id").respondWith().statusCode(409).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.checkouts.archiveCheckout({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.ConflictError);
+    });
+
+    test("archiveCheckout (5)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 

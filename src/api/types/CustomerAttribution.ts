@@ -2,4 +2,7 @@
 
 import type * as Paid from "../index.js";
 
+/**
+ * The customer, by Paid ID (`customerId`) or by your external ID (`externalCustomerId`).
+ */
 export type CustomerAttribution = Paid.CustomerById | Paid.CustomerByExternalId;

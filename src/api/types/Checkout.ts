@@ -15,6 +15,10 @@ export interface Checkout {
     metadata: Record<string, unknown> | null;
     collectAddress: boolean;
     collectPhone: boolean;
+    /** Heading on the confirmation screen after checkout. Null when the checkout shows the default, "Payment successful". */
+    successTitle: string | null;
+    /** Text under the heading on the confirmation screen. Null when the checkout shows the default, "Thank you for your purchase!". */
+    successMessage: string | null;
     singleUse: boolean;
     allowedCurrencies: string[];
     /** Additional informational pricing cards rendered alongside the plans. */

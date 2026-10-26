@@ -123,6 +123,27 @@ describe("AnalyticsExperimental", () => {
             .post("/experimental/analytics/query")
             .jsonBody(rawRequestBody)
             .respondWith()
+            .statusCode(422)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.analyticsExperimental.executeExperimentalAnalyticsQuery({
+                query: "x",
+            });
+        }).rejects.toThrow(Paid.UnprocessableEntityError);
+    });
+
+    test("executeExperimentalAnalyticsQuery (6)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { query: "x" };
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .post("/experimental/analytics/query")
+            .jsonBody(rawRequestBody)
+            .respondWith()
             .statusCode(429)
             .jsonBody(rawResponseBody)
             .build();
@@ -134,7 +155,7 @@ describe("AnalyticsExperimental", () => {
         }).rejects.toThrow(Paid.TooManyRequestsError);
     });
 
-    test("executeExperimentalAnalyticsQuery (6)", async () => {
+    test("executeExperimentalAnalyticsQuery (7)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = { query: "x" };
@@ -213,7 +234,7 @@ describe("AnalyticsExperimental", () => {
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         const rawResponseBody = {
-            signals: [{ signalName: "signalName", paths: [{ path: "path", types: ["types"] }] }],
+            signals: [{ signalName: "signalName", paths: [{ path: "path", types: ["types"], declared: true }] }],
             meta: { fromDate: "fromDate", toDate: "toDate" },
         };
         server
@@ -233,6 +254,7 @@ describe("AnalyticsExperimental", () => {
                         {
                             path: "path",
                             types: ["types"],
+                            declared: true,
                         },
                     ],
                 },

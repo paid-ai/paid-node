@@ -936,7 +936,7 @@ await client.customers.listCustomers();
 <dl>
 <dd>
 
-Creates a new customer for the organization
+Creates a new customer for the organization. `externalId` shares one set of ids with customer unit ids and aliases, unique across the organization and ignoring letter case: an external id that another customer already holds as a unit id or alias, or as its external id in another case, is refused with `409 EXTERNAL_ID_IN_USE`. The same id in the same case is `400 DUPLICATE_EXTERNAL_ID`, as before.
 </dd>
 </dl>
 </dd>
@@ -1066,7 +1066,7 @@ await client.customers.listCustomerAliases({
 <dl>
 <dd>
 
-Create an alternate external identifier for a customer by Paid display ID.
+Create an alternate external identifier for a customer by Paid display ID. The alias shares one set of ids with customer external ids and unit ids, unique within the organization and ignoring letter case: an alias that another customer already holds as its external id, a unit id or an alias is refused with `409 EXTERNAL_ID_IN_USE` (an exact match keeps its older code, `ALIAS_CONFLICTS_WITH_CUSTOMER_EXTERNAL_ID` or `CUSTOMER_ALIAS_ALREADY_EXISTS`).
 </dd>
 </dl>
 </dd>
@@ -1265,7 +1265,7 @@ await client.customers.getCustomerById({
 <dl>
 <dd>
 
-Update a customer by Paid display ID. Use the value returned as `customer.id`, for example `cus_abc123`. If you have your own customer ID, use `PUT /api/v2/customers/external/{externalId}`.
+Update a customer by Paid display ID. Use the value returned as `customer.id`, for example `cus_abc123`. If you have your own customer ID, use `PUT /api/v2/customers/external/{externalId}`. Changing `externalId` follows the organization-wide id rule: a new id that another customer already holds as its external id, a unit id or an alias, ignoring letter case, is refused with `409 EXTERNAL_ID_IN_USE`; the same id in the same case stays `400 DUPLICATE_EXTERNAL_ID`. When the id changes, the previous id is kept as an alias of the customer, so signals that still use it keep resolving to it.
 </dd>
 </dl>
 </dd>
@@ -1331,7 +1331,7 @@ await client.customers.updateCustomerById({
 <dl>
 <dd>
 
-Delete a customer by Paid display ID. Use the value returned as `customer.id`, for example `cus_abc123`. If you have your own customer ID, use `DELETE /api/v2/customers/external/{externalId}`.
+Delete a customer by Paid display ID. Use the value returned as `customer.id`, for example `cus_abc123`. If you have your own customer ID, use `DELETE /api/v2/customers/external/{externalId}`. A customer that still has orders, invoices, payments, contacts, child customers or other linked records is not deleted: the request returns 409 `CUSTOMER_HAS_ASSOCIATIONS` and `details` lists what is linked.
 </dd>
 </dl>
 </dd>
@@ -1526,7 +1526,7 @@ await client.customers.listCustomerAliasesByExternalId({
 <dl>
 <dd>
 
-Create an alternate external identifier for a customer by external ID.
+Create an alternate external identifier for a customer by external ID. The alias shares one set of ids with customer external ids and unit ids, unique within the organization and ignoring letter case: an alias that another customer already holds as its external id, a unit id or an alias is refused with `409 EXTERNAL_ID_IN_USE` (an exact match keeps its older code, `ALIAS_CONFLICTS_WITH_CUSTOMER_EXTERNAL_ID` or `CUSTOMER_ALIAS_ALREADY_EXISTS`).
 </dd>
 </dl>
 </dd>
@@ -1725,7 +1725,7 @@ await client.customers.getCustomerByExternalId({
 <dl>
 <dd>
 
-Update a customer by external ID
+Update a customer by external ID. Changing `externalId` follows the organization-wide id rule: a new id that another customer already holds as its external id, a unit id or an alias, ignoring letter case, is refused with `409 EXTERNAL_ID_IN_USE`; the same id in the same case stays `400 DUPLICATE_EXTERNAL_ID`. When the id changes, the previous id is kept as an alias of the customer, so signals that still use it keep resolving to it.
 </dd>
 </dl>
 </dd>
@@ -1791,7 +1791,7 @@ await client.customers.updateCustomerByExternalId({
 <dl>
 <dd>
 
-Delete a customer by external ID
+Delete a customer by external ID. A customer that still has orders, invoices, payments, contacts, child customers or other linked records is not deleted: the request returns 409 `CUSTOMER_HAS_ASSOCIATIONS` and `details` lists what is linked.
 </dd>
 </dl>
 </dd>
@@ -2007,7 +2007,8 @@ await client.customers.grantCustomerCredits({
         creditCurrencyKey: "api_credits",
         amount: 10000,
         startsAt: "2026-06-05T12:00:00Z",
-        expiresAt: "2026-12-31T23:59:59Z"
+        expiresAt: "2026-12-31T23:59:59Z",
+        idempotencyKey: "grant_acme_2026-06-05"
     }
 });
 
@@ -2273,7 +2274,8 @@ await client.customers.grantCustomerCreditsByExternalId({
         creditCurrencyKey: "api_credits",
         amount: 10000,
         startsAt: "2026-06-05T12:00:00Z",
-        expiresAt: "2026-12-31T23:59:59Z"
+        expiresAt: "2026-12-31T23:59:59Z",
+        idempotencyKey: "grant_acme_2026-06-05"
     }
 });
 
@@ -2377,6 +2379,270 @@ await client.customers.upsertCustomerUserByExternalId({
 </dl>
 </details>
 
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">getCustomerFundingInstructions</a>({ ...params }) -> Paid.CustomerFundingInstructions</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Returns the virtual bank account (Stripe funding instructions) a customer can pay by bank transfer into, by Paid display ID.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.customers.getCustomerFundingInstructions({
+    id: "cus_abc123",
+    currency: "USD"
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.GetCustomerFundingInstructionsRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Customers.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">createCustomerFundingInstructions</a>({ ...params }) -> Paid.CustomerFundingInstructions</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Creates a dedicated virtual bank account for the customer to pay invoices by bank transfer, by Paid display ID. Returns the existing account if one already exists for the currency. Requires a live-mode organization with Stripe connected and Bank Transfers enabled on the Stripe account.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.customers.createCustomerFundingInstructions({
+    id: "cus_abc123",
+    body: {}
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.CreateCustomerFundingInstructionsRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Customers.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">getCustomerFundingInstructionsByExternalId</a>({ ...params }) -> Paid.CustomerFundingInstructions</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Returns the virtual bank account (Stripe funding instructions) a customer can pay by bank transfer into, by your external ID.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.customers.getCustomerFundingInstructionsByExternalId({
+    externalId: "externalId",
+    currency: "USD"
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.GetCustomerFundingInstructionsByExternalIdRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Customers.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">createCustomerFundingInstructionsByExternalId</a>({ ...params }) -> Paid.CustomerFundingInstructions</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Creates a dedicated virtual bank account for the customer to pay invoices by bank transfer, by your external ID. Returns the existing account if one already exists for the currency. Requires a live-mode organization with Stripe connected and Bank Transfers enabled on the Stripe account.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.customers.createCustomerFundingInstructionsByExternalId({
+    externalId: "externalId",
+    body: {}
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.CreateCustomerFundingInstructionsByExternalIdRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Customers.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
 <details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">listCustomerUnitsByExternalId</a>({ ...params }) -> Paid.CustomerUnitListResponse</code></summary>
 <dl>
 <dd>
@@ -2389,7 +2655,7 @@ await client.customers.upsertCustomerUserByExternalId({
 <dl>
 <dd>
 
-Lists the customer's units as a flat list, newest last; assemble the tree from `parentExternalId` (`null` on the root unit, `isRoot: true`). Deleted units are hidden unless `status=DELETED` is given. Filter by `externalType`, or by `parentExternalId` for one level of the tree. Addresses the customer by your external customer id.
+Lists the customer's units as a flat list, newest last; assemble the tree from `parentExternalId` (`null` on the root unit, `isRoot: true`). Deleted units are hidden unless `status=DELETED` is given, drafts unless `status=DRAFT`. Filter by `externalType`, or by `parentExternalId` for one level of the tree. Addresses the customer by your external customer id.
 </dd>
 </dl>
 </dd>
@@ -2455,7 +2721,7 @@ await client.customers.listCustomerUnitsByExternalId({
 <dl>
 <dd>
 
-Creates a unit for this customer. `externalId` is your own key for it: required, unique within the customer and immutable; every unit route addresses the unit by it, and `name` defaults to it. Omit `parentExternalId` to create the customer's root unit (its first unit; `409 ROOT_EXISTS` if it already has one — a customer created with an external id usable as a unit key already has its root, keyed by that external id, so name it as the parent instead); otherwise the parent must exist (`409 PARENT_NOT_FOUND`) and be ACTIVE. Units are never created implicitly: a signal that names a unit before it exists is accepted and its spend attaches to the unit once you create it with that key. `409` also when the externalId is taken (`CUSTOMER_UNIT_EXISTS`), the tree would get too deep, or the customer is on seat-based billing. Addresses the customer by your external customer id.
+Creates a unit for this customer. `externalId` is your own key for it: required, immutable, and unique within the organization (no other customer's unit id, external id or alias may be the same, ignoring letter case); every unit route addresses the unit by it, and `name` defaults to it. Omit `parentExternalId` to create the customer's root unit (its first unit; `409 ROOT_EXISTS` if it already has one — a customer created with an external id usable as a unit key already has its root, keyed by that external id, so name it as the parent instead); otherwise the parent must exist (`409 PARENT_NOT_FOUND`) and be ACTIVE. A create whose `externalId` is one of this customer's `DRAFT` units promotes the draft in place: same unit, same id, now ACTIVE with the request's name, type, metadata and parent (`parentExternalId` is required; a draft sits under the root). A signal that names a unit before it exists is accepted; with draft units enabled for your organization it creates a `DRAFT` unit under the customer's root that holds the key, and creating the unit with that key later promotes the draft; otherwise its spend attaches to the unit once you create it with that key. `409` also when the externalId is taken on this customer (`CUSTOMER_UNIT_EXISTS`) or by another customer of the organization (`EXTERNAL_ID_IN_USE`), the tree would get too deep, the customer is on seat-based billing, or a root unit is sent with `billable: false` (`ROOT_UNIT_ALWAYS_BILLABLE`). `403 FEATURE_NOT_ENABLED` for `billable: false` when non-billable units are not enabled for your organization. Addresses the customer by your external customer id.
 </dd>
 </dl>
 </dd>
@@ -2589,7 +2855,7 @@ await client.customers.getCustomerUnitByExternalId({
 <dl>
 <dd>
 
-Soft-deletes a unit: it stays readable with `status: DELETED` and cannot be reactivated. Spend history that references it is kept, and signals that keep naming it are still attributed to it. `409` while the unit has ACTIVE children or a cap in force or scheduled; the root follows the same rules, and once it is deleted a new root can be created. Addresses the customer by your external customer id.
+Soft-deletes a unit: it stays readable with `status: DELETED` and cannot be reactivated. Spend history that references it is kept, and signals that keep naming it are still attributed to it. A `DRAFT` unit is deleted the same way: it stays readable as DELETED, its key stays reserved, and spend already keyed to it stays its own. `409` while the unit has ACTIVE or DRAFT children or a cap in force or scheduled; the root follows the same rules, and once it is deleted a new root can be created. Addresses the customer by your external customer id.
 </dd>
 </dl>
 </dd>
@@ -2655,7 +2921,7 @@ await client.customers.deleteCustomerUnitByExternalId({
 <dl>
 <dd>
 
-Renames, re-types, re-parents or annotates a unit, the root included. `externalId` cannot change. Re-parenting (`parentExternalId`) moves the unit with everything under it. Spend already recorded keeps naming the unit it landed on; caps are evaluated on the current tree, so from the move on the unit's spend in the running cap period counts toward its new ancestors' caps and no longer toward the old ones. `409` for a deleted unit, a parent that does not exist or is not ACTIVE, a move of the root (`ROOT_UNIT_IMMOVABLE`), a move under the unit's own subtree, or a tree that would get too deep. Addresses the customer by your external customer id.
+Renames, re-types, re-parents or annotates a unit, the root included. `externalId` cannot change. Re-parenting (`parentExternalId`) moves the unit with everything under it. Spend already recorded keeps naming the unit it landed on; caps are evaluated on the current tree, so from the move on the unit's spend in the running cap period counts toward its new ancestors' caps and no longer toward the old ones. `billable` flips the unit's own setting; moving a unit under a non-billable one makes it non-billable in effect (`effectiveBillable`). `409` for a deleted unit (`CUSTOMER_UNIT_DELETED`), a draft (`CUSTOMER_UNIT_DRAFT`), a parent that does not exist or is not ACTIVE, a move of the root (`ROOT_UNIT_IMMOVABLE`), `billable: false` on the root (`ROOT_UNIT_ALWAYS_BILLABLE`), a move under the unit's own subtree, or a tree that would get too deep. `403 FEATURE_NOT_ENABLED` for `billable: false` when non-billable units are not enabled for your organization. Addresses the customer by your external customer id.
 </dd>
 </dl>
 </dd>
@@ -2710,6 +2976,208 @@ await client.customers.updateCustomerUnitByExternalId({
 </dl>
 </details>
 
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">listCustomerUnitAliasesByExternalId</a>({ ...params }) -> Paid.CustomerAliasListResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Lists the aliases that land signals on this unit. A customer-level alias (created on the customer routes) points at the customer's root unit, so it is listed under the root. Addresses the customer by your external customer id.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.customers.listCustomerUnitAliasesByExternalId({
+    externalId: "customer_123",
+    externalCustomerUnitId: "team-research"
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.ListCustomerUnitAliasesByExternalIdRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Customers.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">createCustomerUnitAliasByExternalId</a>({ ...params }) -> Paid.CustomerAlias</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Creates an alias that lands signals on this unit: a signal whose `externalCustomerId` is the alias resolves to this customer and, when it names no `customerUnit`, to this unit. The alias shares one set of ids with customer external ids and unit ids, unique within the organization and ignoring letter case: an alias another customer holds is refused with `409 EXTERNAL_ID_IN_USE`. Addresses the customer by your external customer id.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.customers.createCustomerUnitAliasByExternalId({
+    externalId: "customer_123",
+    externalCustomerUnitId: "team-research",
+    body: {
+        alias: "child-customer-1"
+    }
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.CreateCustomerUnitAliasByExternalIdRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Customers.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">deleteCustomerUnitAliasByExternalId</a>({ ...params }) -> Paid.DeleteCustomerUnitAliasByExternalIdResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Deletes an alias of this unit. Signals still sent with it then resolve to nothing again. Addresses the customer by your external customer id.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.customers.deleteCustomerUnitAliasByExternalId({
+    externalId: "customer_123",
+    externalCustomerUnitId: "team-research",
+    alias: "tenant-7-sandbox"
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.DeleteCustomerUnitAliasByExternalIdRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Customers.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
 <details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">listCustomerUnits</a>({ ...params }) -> Paid.CustomerUnitListResponse</code></summary>
 <dl>
 <dd>
@@ -2722,7 +3190,7 @@ await client.customers.updateCustomerUnitByExternalId({
 <dl>
 <dd>
 
-Lists the customer's units as a flat list, newest last; assemble the tree from `parentExternalId` (`null` on the root unit, `isRoot: true`). Deleted units are hidden unless `status=DELETED` is given. Filter by `externalType`, or by `parentExternalId` for one level of the tree. Use the value returned as `customer.id`, for example `cus_abc123`; if you have your own customer ID, use the `/api/v2/customers/external/{externalId}/…` twin.
+Lists the customer's units as a flat list, newest last; assemble the tree from `parentExternalId` (`null` on the root unit, `isRoot: true`). Deleted units are hidden unless `status=DELETED` is given, drafts unless `status=DRAFT`. Filter by `externalType`, or by `parentExternalId` for one level of the tree. Use the value returned as `customer.id`, for example `cus_abc123`; if you have your own customer ID, use the `/api/v2/customers/external/{externalId}/…` twin.
 </dd>
 </dl>
 </dd>
@@ -2788,7 +3256,7 @@ await client.customers.listCustomerUnits({
 <dl>
 <dd>
 
-Creates a unit for this customer. `externalId` is your own key for it: required, unique within the customer and immutable; every unit route addresses the unit by it, and `name` defaults to it. Omit `parentExternalId` to create the customer's root unit (its first unit; `409 ROOT_EXISTS` if it already has one — a customer created with an external id usable as a unit key already has its root, keyed by that external id, so name it as the parent instead); otherwise the parent must exist (`409 PARENT_NOT_FOUND`) and be ACTIVE. Units are never created implicitly: a signal that names a unit before it exists is accepted and its spend attaches to the unit once you create it with that key. `409` also when the externalId is taken (`CUSTOMER_UNIT_EXISTS`), the tree would get too deep, or the customer is on seat-based billing. Use the value returned as `customer.id`, for example `cus_abc123`; if you have your own customer ID, use the `/api/v2/customers/external/{externalId}/…` twin.
+Creates a unit for this customer. `externalId` is your own key for it: required, immutable, and unique within the organization (no other customer's unit id, external id or alias may be the same, ignoring letter case); every unit route addresses the unit by it, and `name` defaults to it. Omit `parentExternalId` to create the customer's root unit (its first unit; `409 ROOT_EXISTS` if it already has one — a customer created with an external id usable as a unit key already has its root, keyed by that external id, so name it as the parent instead); otherwise the parent must exist (`409 PARENT_NOT_FOUND`) and be ACTIVE. A create whose `externalId` is one of this customer's `DRAFT` units promotes the draft in place: same unit, same id, now ACTIVE with the request's name, type, metadata and parent (`parentExternalId` is required; a draft sits under the root). A signal that names a unit before it exists is accepted; with draft units enabled for your organization it creates a `DRAFT` unit under the customer's root that holds the key, and creating the unit with that key later promotes the draft; otherwise its spend attaches to the unit once you create it with that key. `409` also when the externalId is taken on this customer (`CUSTOMER_UNIT_EXISTS`) or by another customer of the organization (`EXTERNAL_ID_IN_USE`), the tree would get too deep, the customer is on seat-based billing, or a root unit is sent with `billable: false` (`ROOT_UNIT_ALWAYS_BILLABLE`). `403 FEATURE_NOT_ENABLED` for `billable: false` when non-billable units are not enabled for your organization. Use the value returned as `customer.id`, for example `cus_abc123`; if you have your own customer ID, use the `/api/v2/customers/external/{externalId}/…` twin.
 </dd>
 </dl>
 </dd>
@@ -2922,7 +3390,7 @@ await client.customers.getCustomerUnit({
 <dl>
 <dd>
 
-Soft-deletes a unit: it stays readable with `status: DELETED` and cannot be reactivated. Spend history that references it is kept, and signals that keep naming it are still attributed to it. `409` while the unit has ACTIVE children or a cap in force or scheduled; the root follows the same rules, and once it is deleted a new root can be created. Use the value returned as `customer.id`, for example `cus_abc123`; if you have your own customer ID, use the `/api/v2/customers/external/{externalId}/…` twin.
+Soft-deletes a unit: it stays readable with `status: DELETED` and cannot be reactivated. Spend history that references it is kept, and signals that keep naming it are still attributed to it. A `DRAFT` unit is deleted the same way: it stays readable as DELETED, its key stays reserved, and spend already keyed to it stays its own. `409` while the unit has ACTIVE or DRAFT children or a cap in force or scheduled; the root follows the same rules, and once it is deleted a new root can be created. Use the value returned as `customer.id`, for example `cus_abc123`; if you have your own customer ID, use the `/api/v2/customers/external/{externalId}/…` twin.
 </dd>
 </dl>
 </dd>
@@ -2988,7 +3456,7 @@ await client.customers.deleteCustomerUnit({
 <dl>
 <dd>
 
-Renames, re-types, re-parents or annotates a unit, the root included. `externalId` cannot change. Re-parenting (`parentExternalId`) moves the unit with everything under it. Spend already recorded keeps naming the unit it landed on; caps are evaluated on the current tree, so from the move on the unit's spend in the running cap period counts toward its new ancestors' caps and no longer toward the old ones. `409` for a deleted unit, a parent that does not exist or is not ACTIVE, a move of the root (`ROOT_UNIT_IMMOVABLE`), a move under the unit's own subtree, or a tree that would get too deep. Use the value returned as `customer.id`, for example `cus_abc123`; if you have your own customer ID, use the `/api/v2/customers/external/{externalId}/…` twin.
+Renames, re-types, re-parents or annotates a unit, the root included. `externalId` cannot change. Re-parenting (`parentExternalId`) moves the unit with everything under it. Spend already recorded keeps naming the unit it landed on; caps are evaluated on the current tree, so from the move on the unit's spend in the running cap period counts toward its new ancestors' caps and no longer toward the old ones. `billable` flips the unit's own setting; moving a unit under a non-billable one makes it non-billable in effect (`effectiveBillable`). `409` for a deleted unit (`CUSTOMER_UNIT_DELETED`), a draft (`CUSTOMER_UNIT_DRAFT`), a parent that does not exist or is not ACTIVE, a move of the root (`ROOT_UNIT_IMMOVABLE`), `billable: false` on the root (`ROOT_UNIT_ALWAYS_BILLABLE`), a move under the unit's own subtree, or a tree that would get too deep. `403 FEATURE_NOT_ENABLED` for `billable: false` when non-billable units are not enabled for your organization. Use the value returned as `customer.id`, for example `cus_abc123`; if you have your own customer ID, use the `/api/v2/customers/external/{externalId}/…` twin.
 </dd>
 </dl>
 </dd>
@@ -3024,6 +3492,936 @@ await client.customers.updateCustomerUnit({
 <dd>
 
 **request:** `Paid.UpdateCustomerUnitRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Customers.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">listCustomerUnitAliases</a>({ ...params }) -> Paid.CustomerAliasListResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Lists the aliases that land signals on this unit. A customer-level alias (created on the customer routes) points at the customer's root unit, so it is listed under the root. Use the value returned as `customer.id`, for example `cus_abc123`; if you have your own customer ID, use the `/api/v2/customers/external/{externalId}/…` twin.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.customers.listCustomerUnitAliases({
+    id: "cus_abc123",
+    externalCustomerUnitId: "team-research"
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.ListCustomerUnitAliasesRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Customers.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">createCustomerUnitAlias</a>({ ...params }) -> Paid.CustomerAlias</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Creates an alias that lands signals on this unit: a signal whose `externalCustomerId` is the alias resolves to this customer and, when it names no `customerUnit`, to this unit. The alias shares one set of ids with customer external ids and unit ids, unique within the organization and ignoring letter case: an alias another customer holds is refused with `409 EXTERNAL_ID_IN_USE`. Use the value returned as `customer.id`, for example `cus_abc123`; if you have your own customer ID, use the `/api/v2/customers/external/{externalId}/…` twin.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.customers.createCustomerUnitAlias({
+    id: "cus_abc123",
+    externalCustomerUnitId: "team-research",
+    body: {
+        alias: "child-customer-1"
+    }
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.CreateCustomerUnitAliasRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Customers.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">deleteCustomerUnitAlias</a>({ ...params }) -> Paid.DeleteCustomerUnitAliasResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Deletes an alias of this unit. Signals still sent with it then resolve to nothing again. Use the value returned as `customer.id`, for example `cus_abc123`; if you have your own customer ID, use the `/api/v2/customers/external/{externalId}/…` twin.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.customers.deleteCustomerUnitAlias({
+    id: "cus_abc123",
+    externalCustomerUnitId: "team-research",
+    alias: "tenant-7-sandbox"
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.DeleteCustomerUnitAliasRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Customers.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">getCustomerUnitByKey</a>({ ...params }) -> Paid.CustomerUnitByKey</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Returns a unit by its key without naming its customer. The answer carries the customer's ids (`customerId`, `customerExternalId`) so the customer routes are one hop away, but, like the create on this path, not Paid's unit id: a caller of these routes names units by key. The key is looked up across the organization ignoring letter case. When more than one unit carries it in another letter case (legacy duplicates across customers, or case variants on one customer), the exact spelling decides; when that does not single one out either, the answer is `409 CUSTOMER_UNIT_AMBIGUOUS`: use the customer's unit routes, where the key is exact.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.customers.getCustomerUnitByKey({
+    externalCustomerUnitId: "team-research"
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.GetCustomerUnitByKeyRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Customers.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">listCustomerUnitAliasesByKey</a>({ ...params }) -> Paid.CustomerAliasListResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Lists the aliases that land signals on this unit, without naming its customer. The key is looked up across the organization ignoring letter case. When more than one unit carries it in another letter case (legacy duplicates across customers, or case variants on one customer), the exact spelling decides; when that does not single one out either, the answer is `409 CUSTOMER_UNIT_AMBIGUOUS`: use the customer's unit routes, where the key is exact.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.customers.listCustomerUnitAliasesByKey({
+    externalCustomerUnitId: "team-research"
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.ListCustomerUnitAliasesByKeyRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Customers.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">createCustomerUnitAliasByKey</a>({ ...params }) -> Paid.CustomerAlias</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Creates an alias that lands signals on this unit, without naming its customer: a signal whose `externalCustomerId` is the alias resolves to the unit's customer and is attributed to this unit. The alias must be unique within the organization ignoring letter case (`409 EXTERNAL_ID_IN_USE`). The key is looked up across the organization ignoring letter case. When more than one unit carries it in another letter case (legacy duplicates across customers, or case variants on one customer), the exact spelling decides; when that does not single one out either, the answer is `409 CUSTOMER_UNIT_AMBIGUOUS`: use the customer's unit routes, where the key is exact.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.customers.createCustomerUnitAliasByKey({
+    externalCustomerUnitId: "team-research",
+    body: {
+        alias: "child-customer-1"
+    }
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.CreateCustomerUnitAliasByKeyRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Customers.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">deleteCustomerUnitAliasByKey</a>({ ...params }) -> Paid.DeleteCustomerUnitAliasByKeyResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Deletes an alias of this unit, without naming its customer. Signals still sent with it then resolve to nothing again. The key is looked up across the organization ignoring letter case. When more than one unit carries it in another letter case (legacy duplicates across customers, or case variants on one customer), the exact spelling decides; when that does not single one out either, the answer is `409 CUSTOMER_UNIT_AMBIGUOUS`: use the customer's unit routes, where the key is exact.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.customers.deleteCustomerUnitAliasByKey({
+    externalCustomerUnitId: "team-research",
+    alias: "tenant-7"
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.DeleteCustomerUnitAliasByKeyRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Customers.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">createCustomerUnitUnderParent</a>({ ...params }) -> Paid.CustomerUnitCreatedUnderParent</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Creates a unit by naming its parent alone; the customer is whoever the parent belongs to, so a caller that only knows its own ids never needs the customer routes. `parentExternalId` is looked up across the organization, ignoring letter case, among unit ids, customer external ids and aliases: a unit becomes the parent; a customer (by external id or alias) stands for the top of its tree, so the new unit goes under the root unit, or becomes the root when the customer has none. The parent is only ever named by your id, never by a Paid id, so a customer with no external id takes its units through the customer's unit routes. The answer carries the unit's `externalId` and its customer's ids, not Paid's unit id. `externalId` follows the same rules as on the customer-scoped create: required, immutable, unique within the organization ignoring letter case. `409 PARENT_NOT_FOUND` when nothing matches, `PARENT_NOT_ACTIVE` for a deleted or draft parent, `PARENT_AMBIGUOUS` when legacy rows let the id name more than one customer (use that customer's unit routes), `PARENT_CHANGED` when the reference pointed elsewhere by the time the create ran (send it again), and otherwise the customer-scoped create's 409s (`CUSTOMER_UNIT_EXISTS`, `EXTERNAL_ID_IN_USE`, `DEPTH_EXCEEDED`, `SEAT_BILLING`, and `ROOT_UNIT_ALWAYS_BILLABLE` for `billable: false` on a unit that would become the root). `403 FEATURE_NOT_ENABLED` for `billable: false` when non-billable units are not enabled for your organization.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.customers.createCustomerUnitUnderParent({
+    externalId: "team-research",
+    parentExternalId: "dept-rnd"
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.CustomerUnitCreateUnderParent` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Customers.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">listCustomerApiKeysByExternalId</a>({ ...params }) -> Paid.CustomerApiKeyList</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Lists this customer's API keys, newest first and paginated, revoked and expired ones included. The secret is never returned; `keyPrefix` and `last4` identify each key. Addresses the customer by your external customer id.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.customers.listCustomerApiKeysByExternalId({
+    externalId: "customer_123"
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.ListCustomerApiKeysByExternalIdRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Customers.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">createCustomerApiKeyByExternalId</a>({ ...params }) -> Paid.CustomerApiKeyCreated</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Creates an API key bound to this customer. The response carries the secret in `key`, returned only this once: store it immediately, as Paid keeps only its hash. The key acts for this customer alone: it can send signals for this customer through `POST /api/v2/signals/bulk`, and every other route refuses it. Requires `write:api-keys`, which full-access keys hold; a restricted key needs the scope granted explicitly. Addresses the customer by your external customer id.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.customers.createCustomerApiKeyByExternalId({
+    externalId: "customer_123",
+    body: {
+        name: "Tenant runtime (production)"
+    }
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.CreateCustomerApiKeyByExternalIdRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Customers.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">revokeCustomerApiKeyByExternalId</a>({ ...params }) -> Paid.CustomerApiKey</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Revokes one of this customer's keys, which then stops authenticating. Keys are never deleted: a revoked key stays listed with `revokedAt` set, and deleting the customer revokes its keys too. Revoking an already revoked key returns it unchanged. `404` when the key does not belong to this customer. Addresses the customer by your external customer id.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.customers.revokeCustomerApiKeyByExternalId({
+    externalId: "customer_123",
+    apiKeyId: "apiKeyId"
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.RevokeCustomerApiKeyByExternalIdRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Customers.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">listCustomerApiKeys</a>({ ...params }) -> Paid.CustomerApiKeyList</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Lists this customer's API keys, newest first and paginated, revoked and expired ones included. The secret is never returned; `keyPrefix` and `last4` identify each key. Use the value returned as `customer.id`, for example `cus_abc123`; if you have your own customer ID, use the `/api/v2/customers/external/{externalId}/…` twin.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.customers.listCustomerApiKeys({
+    id: "cus_abc123"
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.ListCustomerApiKeysRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Customers.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">createCustomerApiKey</a>({ ...params }) -> Paid.CustomerApiKeyCreated</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Creates an API key bound to this customer. The response carries the secret in `key`, returned only this once: store it immediately, as Paid keeps only its hash. The key acts for this customer alone: it can send signals for this customer through `POST /api/v2/signals/bulk`, and every other route refuses it. Requires `write:api-keys`, which full-access keys hold; a restricted key needs the scope granted explicitly. Use the value returned as `customer.id`, for example `cus_abc123`; if you have your own customer ID, use the `/api/v2/customers/external/{externalId}/…` twin.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.customers.createCustomerApiKey({
+    id: "cus_abc123",
+    body: {
+        name: "Tenant runtime (production)"
+    }
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.CreateCustomerApiKeyRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Customers.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">revokeCustomerApiKey</a>({ ...params }) -> Paid.CustomerApiKey</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Revokes one of this customer's keys, which then stops authenticating. Keys are never deleted: a revoked key stays listed with `revokedAt` set, and deleting the customer revokes its keys too. Revoking an already revoked key returns it unchanged. `404` when the key does not belong to this customer. Use the value returned as `customer.id`, for example `cus_abc123`; if you have your own customer ID, use the `/api/v2/customers/external/{externalId}/…` twin.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.customers.revokeCustomerApiKey({
+    id: "cus_abc123",
+    apiKeyId: "apiKeyId"
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.RevokeCustomerApiKeyRequest` 
     
 </dd>
 </dl>
@@ -3122,7 +4520,7 @@ await client.customers.getCustomerUnitCapByExternalId({
 <dl>
 <dd>
 
-Sets the cap on this customer unit for one credits currency by recording a new cap version; earlier versions are kept and never modified, and the newest version wins where they overlap. The new version applies from `effectiveFrom` (default now) and its periods are anchored on that day of the month. Select the currency with `creditsCurrencyId` in the body; it may be omitted only when the organization has exactly one credits currency. A cap on the customer's root unit is the customer-wide cap. `404` when the customer or the unit does not exist. `409` for customers on seat-based billing. Addresses the customer by your external customer id.
+Sets the cap on this customer unit for one credits currency. Returns `changed: false` without creating a version when the effective timeline is unchanged; otherwise records a new version, preserving earlier rows. The newest version wins where they overlap. `effectiveFrom` controls applicability; `schedule` defines monthly UTC boundaries independently. Omit schedule to inherit the version covering effectiveFrom, or use the creation-time UTC day if none applies. Select the currency with `creditsCurrencyId` in the body; it may be omitted only when the organization has exactly one credits currency. A cap covers the unit and every unit beneath it, so a cap on the customer's root unit covers every unit of that customer; spend from a signal that names no unit counts toward no cap. `404` when the customer or the unit does not exist. `409` for customers on seat-based billing, a deleted unit (`CUSTOMER_UNIT_DELETED`) or a draft (`CUSTOMER_UNIT_DRAFT`). Addresses the customer by your external customer id.
 </dd>
 </dl>
 </dd>
@@ -3246,6 +4644,75 @@ await client.customers.endCustomerUnitCapByExternalId({
 </dl>
 </details>
 
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">getCustomerUnitSpendByExternalId</a>({ ...params }) -> Paid.CustomerUnitSpendResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Returns the credits of one credits currency spent by this customer unit and every unit beneath it during a window, whether or not the unit has a cap. The window runs from `start` (inclusive) to `end` (exclusive), at most 366 days; omit both for the current calendar month (UTC). For a capped unit over its cap's current period, `spent` equals the cap's `used`. Spend from a signal that names no unit counts toward no unit. Select the currency with `creditsCurrencyId`; it may be omitted only when the organization has exactly one credits currency, which is then used and echoed back. `404` when the customer or the unit does not exist. Addresses the customer by your external customer id.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.customers.getCustomerUnitSpendByExternalId({
+    externalId: "customer_123",
+    externalCustomerUnitId: "tenant-a",
+    creditsCurrencyId: "7f4f5d4c-55e9-4d5b-a3e7-c9eb3d2d01bf",
+    start: "2026-10-01T00:00:00Z",
+    end: "2026-11-01T00:00:00Z"
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.GetCustomerUnitSpendByExternalIdRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Customers.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
 <details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">getCustomerUnitCap</a>({ ...params }) -> Paid.CustomerUnitCapResponse</code></summary>
 <dl>
 <dd>
@@ -3325,7 +4792,7 @@ await client.customers.getCustomerUnitCap({
 <dl>
 <dd>
 
-Sets the cap on this customer unit for one credits currency by recording a new cap version; earlier versions are kept and never modified, and the newest version wins where they overlap. The new version applies from `effectiveFrom` (default now) and its periods are anchored on that day of the month. Select the currency with `creditsCurrencyId` in the body; it may be omitted only when the organization has exactly one credits currency. A cap on the customer's root unit is the customer-wide cap. `404` when the customer or the unit does not exist. `409` for customers on seat-based billing. Use the value returned as `customer.id`, for example `cus_abc123`; if you have your own customer ID, use the `/api/v2/customers/external/{externalId}/…` twin.
+Sets the cap on this customer unit for one credits currency. Returns `changed: false` without creating a version when the effective timeline is unchanged; otherwise records a new version, preserving earlier rows. The newest version wins where they overlap. `effectiveFrom` controls applicability; `schedule` defines monthly UTC boundaries independently. Omit schedule to inherit the version covering effectiveFrom, or use the creation-time UTC day if none applies. Select the currency with `creditsCurrencyId` in the body; it may be omitted only when the organization has exactly one credits currency. A cap covers the unit and every unit beneath it, so a cap on the customer's root unit covers every unit of that customer; spend from a signal that names no unit counts toward no cap. `404` when the customer or the unit does not exist. `409` for customers on seat-based billing, a deleted unit (`CUSTOMER_UNIT_DELETED`) or a draft (`CUSTOMER_UNIT_DRAFT`). Use the value returned as `customer.id`, for example `cus_abc123`; if you have your own customer ID, use the `/api/v2/customers/external/{externalId}/…` twin.
 </dd>
 </dl>
 </dd>
@@ -3430,6 +4897,75 @@ await client.customers.endCustomerUnitCap({
 <dd>
 
 **request:** `Paid.EndCustomerUnitCapRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Customers.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">getCustomerUnitSpend</a>({ ...params }) -> Paid.CustomerUnitSpendResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Returns the credits of one credits currency spent by this customer unit and every unit beneath it during a window, whether or not the unit has a cap. The window runs from `start` (inclusive) to `end` (exclusive), at most 366 days; omit both for the current calendar month (UTC). For a capped unit over its cap's current period, `spent` equals the cap's `used`. Spend from a signal that names no unit counts toward no unit. Select the currency with `creditsCurrencyId`; it may be omitted only when the organization has exactly one credits currency, which is then used and echoed back. `404` when the customer or the unit does not exist. Use the value returned as `customer.id`, for example `cus_abc123`; if you have your own customer ID, use the `/api/v2/customers/external/{externalId}/…` twin.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.customers.getCustomerUnitSpend({
+    id: "cus_abc123",
+    externalCustomerUnitId: "tenant-a",
+    creditsCurrencyId: "7f4f5d4c-55e9-4d5b-a3e7-c9eb3d2d01bf",
+    start: "2026-10-01T00:00:00Z",
+    end: "2026-11-01T00:00:00Z"
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.GetCustomerUnitSpendRequest` 
     
 </dd>
 </dl>
@@ -3656,7 +5192,7 @@ await client.contacts.getContactById({
 <dl>
 <dd>
 
-Update a contact by its ID
+Update a contact by its ID. A contact can move to another customer only if no orders or invoices reference it; otherwise a different `customerId` returns 400 `CONTACT_CUSTOMER_IMMUTABLE`.
 </dd>
 </dl>
 </dd>
@@ -3722,7 +5258,7 @@ await client.contacts.updateContactById({
 <dl>
 <dd>
 
-Delete a contact by its ID
+Delete a contact by its ID. A contact referenced by an order or an unsettled invoice cannot be deleted (409 `CONTACT_HAS_ASSOCIATIONS`). Posted paid invoices, voided invoices and canceled invoices do not block deletion.
 </dd>
 </dl>
 </dd>
@@ -3852,7 +5388,7 @@ await client.contacts.getContactByExternalId({
 <dl>
 <dd>
 
-Update a contact by its external ID
+Update a contact by its external ID. A contact can move to another customer only if no orders or invoices reference it; otherwise a different `customerId` returns 400 `CONTACT_CUSTOMER_IMMUTABLE`.
 </dd>
 </dl>
 </dd>
@@ -3918,7 +5454,7 @@ await client.contacts.updateContactByExternalId({
 <dl>
 <dd>
 
-Delete a contact by its external ID
+Delete a contact by its external ID. A contact referenced by an order or an unsettled invoice cannot be deleted (409 `CONTACT_HAS_ASSOCIATIONS`). Posted paid invoices, voided invoices and canceled invoices do not block deletion.
 </dd>
 </dl>
 </dd>
@@ -4177,7 +5713,7 @@ await client.orders.getOrderById({
 <dl>
 <dd>
 
-Update an order by ID
+Update an order by ID. creationState must equal the order's current state; activate a draft order with POST /orders/{id}/activate.
 </dd>
 </dl>
 </dd>
@@ -4624,6 +6160,139 @@ await client.orders.batchOrderSeatAssignments({
 </dl>
 </details>
 
+<details><summary><code>client.orders.<a href="/src/api/resources/orders/client/Client.ts">upsertOrderByExternalId</a>({ ...params }) -> Paid.ProvisionResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Creates or updates a customer, an optional contact, the products on the order, and the order with its lines, in one call. Each record is matched by its `externalId`, so you can send the same deal again after it changes in your CRM. Returns 201 Created when the order is new, and 200 OK when an existing draft order with the same `externalId` was updated. Treat both as success. Re-provisioning an order that is already active returns 409 `ORDER_ALREADY_ACTIVE`; change an active order through the amendments API instead. Amounts are whole numbers in minor currency units (cents).
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.orders.upsertOrderByExternalId({
+    "idempotency-key": "deal_88213-2026-09-30T14:05:00Z",
+    externalReference: {
+        source: "standard",
+        metadata: {
+            "crmDealId": "deal_88213",
+            "crmAccountId": "acct_4410"
+        }
+    },
+    customer: {
+        externalId: "acct_4410",
+        name: "Northwind Logistics",
+        email: "billing@northwind.example",
+        billingAddress: {
+            line1: "200 Harbor Way",
+            city: "Seattle",
+            state: "WA",
+            zipCode: "98101",
+            country: "US"
+        }
+    },
+    order: {
+        externalId: "deal_88213",
+        name: "Northwind Logistics - Growth plan",
+        currency: "USD",
+        startDate: "2026-10-01T00:00:00.000Z",
+        lines: [{
+                externalId: "deal_88213_platform",
+                startDate: "2026-10-01T00:00:00.000Z",
+                product: {
+                    externalId: "growth_plan",
+                    name: "Growth plan",
+                    attributes: [{
+                            name: "Platform fee",
+                            pricing: {
+                                chargeType: "recurring",
+                                pricingModel: "perUnit",
+                                billingFrequency: "monthly",
+                                billingType: "advance",
+                                pricePoints: {
+                                    currency: "USD",
+                                    unitPrice: 49900
+                                }
+                            }
+                        }]
+                }
+            }, {
+                externalId: "deal_88213_launch_discount",
+                lineType: "CREDIT",
+                startDate: "2026-10-01T00:00:00.000Z",
+                endDate: "2027-01-01T00:00:00.000Z",
+                product: {
+                    externalId: "launch_discount",
+                    name: "Launch discount",
+                    attributes: [{
+                            name: "Launch discount",
+                            pricing: {
+                                chargeType: "recurring",
+                                pricingModel: "perUnit",
+                                billingFrequency: "monthly",
+                                billingType: "advance",
+                                pricePoints: {
+                                    currency: "USD",
+                                    unitPrice: 10000
+                                }
+                            }
+                        }]
+                }
+            }]
+    }
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.ProvisionRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Orders.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
 ## Invoices
 <details><summary><code>client.invoices.<a href="/src/api/resources/invoices/client/Client.ts">listInvoices</a>({ ...params }) -> Paid.InvoiceListResponse</code></summary>
 <dl>
@@ -5012,6 +6681,71 @@ await client.signals.getSignalById({
 </dl>
 </details>
 
+<details><summary><code>client.signals.<a href="/src/api/resources/signals/client/Client.ts">getSignalsByIds</a>({ ...params }) -> Paid.SignalLookupResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Fetch up to 500 ingested signals (usage events) by ID in one request, each with the data payload submitted at ingest. Use it to resolve the `signalId` values on a page of credit transactions, or the signals behind one run or ticket, instead of calling `GET /api/v2/signals/{id}` once per signal. Signals are returned in request order; IDs that match nothing in your organization are listed under `notFound` rather than failing the request. This is a read-only operation: it requires the `read:usage` scope and is not available to customer API keys.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.signals.getSignalsByIds({
+    ids: ["6890b0e2a6f2c30012f0a1b3", "6890b0e2a6f2c30012f0a1b4"]
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.SignalLookupRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Signals.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
 <details><summary><code>client.signals.<a href="/src/api/resources/signals/client/Client.ts">createSignals</a>({ ...params }) -> Paid.BulkSignalsResponse</code></summary>
 <dl>
 <dd>
@@ -5024,7 +6758,7 @@ await client.signals.getSignalById({
 <dl>
 <dd>
 
-Create multiple signals (usage events) in a single request. Each signal must include a customer attribution (either customerId or externalCustomerId) and a product attribution (either productId or externalProductId).
+Create multiple signals (usage events) in a single request. Each signal names its customer (`customerId` or `externalCustomerId`; an alias of the customer resolves too), its customer unit (`externalCustomerUnitId`: the unit's key, or an alias that points at a unit), or both, plus an optional product attribution (`productId` or `externalProductId`). A unit alone derives the customer from the unit. A unit sent with a customer must belong to it, else the batch is refused with `400 CUSTOMER_UNIT_MISMATCH`. A unit is never named by Paid's unit id. A key or alias that matches nothing is stored without a customer, keeping the id, so it can be pointed at a unit later. An identifier is matched as a unit key first, then a customer external id, then an alias. Unit attribution is enabled per organization: where it is not, a `customerUnit` sent next to a `customer` is accepted and ignored rather than checked, as before, while a unit named alone still derives its customer. Authenticate with your organization API key, or with a customer API key (prefixed `paid_ck_live_` or `paid_ck_test_`, created with `POST /api/v2/customers/{id}/api-keys`) so a customer's own runtime can report its usage without holding your organization key. A customer API key can call this endpoint only, and only for its own customer: if any signal names another customer, or one Paid does not know, the whole batch is refused with `403` `CUSTOMER_MISMATCH` and nothing is stored. Its idempotency keys are scoped to that customer. See [Send signals with a customer API key](/documentation/signals/send-signals-with-a-customer-api-key).
 </dd>
 </dl>
 </dd>
@@ -5041,10 +6775,24 @@ Create multiple signals (usage events) in a single request. Each signal must inc
 ```typescript
 await client.signals.createSignals({
     signals: [{
-            eventName: "eventName",
+            eventName: "email_sent",
             customer: {
-                customerId: "customerId"
-            }
+                externalCustomerId: "acme-corp"
+            },
+            attribution: {
+                externalProductId: "email-agent"
+            },
+            timestamp: "2026-01-31T23:00:00Z",
+            data: {
+                "recipients": 3
+            },
+            idempotencyKey: "email_sent_msg_8f3a2c"
+        }, {
+            eventName: "email_sent",
+            customerUnit: {
+                externalCustomerUnitId: "acme-marketing"
+            },
+            idempotencyKey: "email_sent_msg_9b41d7"
         }]
 });
 
@@ -5063,6 +6811,245 @@ await client.signals.createSignals({
 <dd>
 
 **request:** `Paid.BulkSignalsRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Signals.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.signals.<a href="/src/api/resources/signals/client/Client.ts">createSignalSummaryExport</a>({ ...params }) -> Paid.SignalSummaryExport</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Produces a usage summary file: one row per customer per month, with columns broken down by the signal payload fields you name. Choose `format` to get JSON or a wide CSV; JSON is the default. The export runs in the background, so this returns immediately with a pending export and the file appears on it once it succeeds. Give `spec` to describe the columns, or `copyFrom` with an earlier export's id to reuse that export's columns over a new window. The spec is stored on the export, so an old file can always be explained by the export that produced it. Signals are bucketed by month in UTC on their effective timestamp, the same basis billing uses, so the totals reconcile with invoices. One export runs per organization at a time.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.signals.createSignalSummaryExport({
+    spec: {
+        name: "Monthly workflow usage",
+        signalNames: [{
+                name: "workflow_run",
+                group: "Workflow runs",
+                slug: "runs"
+            }],
+        dimensions: [{
+                kind: "bands",
+                path: "steps",
+                appliesTo: ["workflow_run"],
+                brackets: [{
+                        from: 1,
+                        upTo: 10,
+                        slug: "1_10_steps",
+                        group: "1-10 steps"
+                    }, {
+                        upTo: null,
+                        slug: "11_plus_steps",
+                        group: "11+ steps"
+                    }]
+            }],
+        measures: [{
+                fn: "count"
+            }]
+    },
+    from: "2026-01-01",
+    to: "2026-04-01",
+    format: "csv"
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.CreateSignalSummaryExportRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Signals.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.signals.<a href="/src/api/resources/signals/client/Client.ts">getSignalSummaryExport</a>({ ...params }) -> Paid.SignalSummaryExport</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Returns one export with its status and the shape it ran. While it is succeeded and unexpired, each read issues a fresh short-lived download link.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.signals.getSignalSummaryExport({
+    id: "sse_5pZa1Kd8Nqx"
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.GetSignalSummaryExportRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Signals.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.signals.<a href="/src/api/resources/signals/client/Client.ts">getSignalSummary</a>({ ...params }) -> Paid.SignalSummaryResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Counts signals into period buckets. Use it to chart signal volume over time, split by signal name or by a signal-payload key such as team_id.
+
+Signals count against their effective timestamp in UTC. This is the same basis billing uses, so these figures reconcile with an invoice.
+
+The endpoint reads a pre-aggregated hourly rollup, not the raw signals. An hour is therefore the finest interval. One request may span at most 250 periods.
+
+A grouped request keeps the 100 groups with the most signals. It sums the rest under the key "other". Each period total stays complete, but a group inside "other" loses its own figure. Read groups.truncated to learn how many groups lost it. Zero means every group kept its own figure.
+
+Results are paged with limit and cursor. A page is never truncated in silence.
+
+To download the series as a file, call this endpoint over HTTP with format=csv. It returns the same points as a text/csv table with a single header row. A CSV cannot carry a cursor, so a result that does not fit one page returns 400 rather than a file that is missing rows.
+
+For a wide per-customer spreadsheet over arbitrary payload fields, use the batch export at /signals/summary/batch instead.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.signals.getSignalSummary({
+    startDate: "2026-08-01",
+    endDate: "2026-08-31",
+    interval: "day",
+    groupBy: "signalName",
+    limit: 1000
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.GetSignalSummaryRequest` 
     
 </dd>
 </dl>
@@ -5257,6 +7244,73 @@ await client.credits.listCreditTransactions();
 <dd>
 
 **request:** `Paid.ListCreditTransactionsRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `Credits.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.credits.<a href="/src/api/resources/credits/client/Client.ts">getCreditTransactionSummary</a>({ ...params }) -> Paid.CreditTransactionSummaryResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Aggregate credit ledger transactions of one type into period buckets grouped by a dimension, for charting credit consumption over time. Accepts the same filters as the transaction list and reads the same ledger, so bucket totals always match summing that list over the same filters and the same `type` — pass this endpoint's effective `type` (it defaults to `spend`) to the list, which has no default and otherwise returns every type.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.credits.getCreditTransactionSummary({
+    createdAtFrom: "createdAtFrom",
+    groupBy: "eventName",
+    interval: "day"
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.GetCreditTransactionSummaryRequest` 
     
 </dd>
 </dl>
@@ -5552,7 +7606,7 @@ await client.checkouts.getCheckout({
 <dl>
 <dd>
 
-Archive a checkout by ID
+Archive a checkout by ID so it can no longer be paid. A completed (paid) checkout can't be archived and returns 409.
 </dd>
 </dl>
 </dd>
@@ -5618,7 +7672,7 @@ await client.checkouts.archiveCheckout({
 <dl>
 <dd>
 
-Creates a portal session for the customer. Returns a short-lived URL to the customer portal.
+Deprecated — the customer portal is being retired, and this endpoint will be removed in a future release. It keeps working for existing integrations meanwhile: it creates a portal session for the customer and returns a short-lived URL to the customer portal. Contact Paid before building anything new on it.
 </dd>
 </dl>
 </dd>
@@ -5811,7 +7865,7 @@ await client.valueReceipts.createValueReceipt({
 <dl>
 <dd>
 
-Deprecated — use POST /value-receipts. Returns the receipt this customer already has for the date range (200), refreshed with current data, and creates one only if there is none (201), so calling twice does not give the customer two receipts.
+Deprecated — use POST /value-receipts. Returns the receipt this customer already has for the date range (200), and creates one only if there is none (201), so calling twice does not give the customer two receipts. A receipt does not change after it is created, so a repeated call reports the same figures. Create a new receipt to report the period again with newer data.
 </dd>
 </dl>
 </dd>
@@ -5942,7 +7996,7 @@ await client.valueReceipts.getValueReceiptById({
 <dl>
 <dd>
 
-Re-populate an existing draft value receipt with current data inline. Returns the slim sync response. Sealed VRs cannot be refreshed.
+Deprecated. A value receipt is immutable from creation, so it cannot be re-populated. A receipt you own answers 409, and one that does not exist or belongs to another organization answers 404. To get current data, create a new receipt for the period with `POST /value-receipts`.
 </dd>
 </dl>
 </dd>
@@ -6007,7 +8061,7 @@ await client.valueReceipts.refreshValueReceipt({
 <dl>
 <dd>
 
-Transition a draft value receipt to sealed (posted) status. Sealed VRs are immutable — they cannot be updated or re-populated.
+Deprecated. A value receipt is immutable from creation, so it is already sealed and this call has nothing to do. It answers 200 for any receipt the organization owns.
 </dd>
 </dl>
 </dd>
@@ -6137,7 +8191,7 @@ await client.valueReceipts.archiveValueReceipt({
 <dl>
 <dd>
 
-Restore an archived value receipt.
+Restore an archived value receipt. A receipt with no content, or one that failed to build, stays archived and answers 409. So does one whose period another value receipt now covers.
 </dd>
 </dl>
 </dd>
@@ -6202,7 +8256,7 @@ await client.valueReceipts.unarchiveValueReceipt({
 <dl>
 <dd>
 
-Make a value receipt publicly accessible via URL. An archived receipt is rejected with 409 — unarchive it first.
+Make a value receipt publicly accessible via URL. An archived receipt is rejected with 409 — unarchive it first. So is one with no content, which has nothing to show.
 </dd>
 </dl>
 </dd>
@@ -6309,6 +8363,143 @@ await client.valueReceipts.unpublishValueReceipt({
 <dd>
 
 **requestOptions:** `ValueReceipts.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+## DeliveredValue
+<details><summary><code>client.deliveredValue.<a href="/src/api/resources/deliveredValue/client/Client.ts">getDeliveredValue</a>({ ...params }) -> Paid.DeliveredValueResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Returns the value delivered to a customer over a period, computed live from your active value model on every call — per value metric: its definition, a display-ready calculation, the measured unit total, monetary total, and signal counts, plus a per-event signal breakdown. The same data a value receipt presents, without creating one — built for value dashboards and reporting. Figures always reflect the currently active value model. Shortly after you publish a model change, totals can still be priced under the previous model's rates.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.deliveredValue.getDeliveredValue({
+    externalCustomerId: "acme-corp",
+    startDate: "2026-08-01",
+    endDate: "2026-08-31"
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.GetDeliveredValueRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `DeliveredValue.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.deliveredValue.<a href="/src/api/resources/deliveredValue/client/Client.ts">getDeliveredValueSummary</a>({ ...params }) -> Paid.DeliveredValueSummaryResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Aggregates delivered value into period buckets for charting value over time, grouped by value metric, by a signal-payload key (for example, value delivered per team_id), or by the formula condition band that priced each row (for example, value delivered per workflow complexity). Any grouping can be narrowed to a single value metric, which is also what lets a dimension grouping state a unit total. Reads the same rows as GET /delivered-value, so summing every bucket's monetaryTotal matches that endpoint's total for the same customer and window. Figures always reflect the currently active value model. Shortly after you publish a model change, totals can still be priced under the previous model's rates. Grouping by band reads a figure recorded when the row was priced, so value delivered before this grouping existed reports under the "none" band until a value-model backfill re-derives it.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.deliveredValue.getDeliveredValueSummary({
+    externalCustomerId: "acme-corp",
+    startDate: "2026-08-01",
+    endDate: "2026-08-31",
+    groupBy: "valueMetric",
+    interval: "month"
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.GetDeliveredValueSummaryRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `DeliveredValue.RequestOptions` 
     
 </dd>
 </dl>
@@ -6863,7 +9054,7 @@ Runs a single ClickHouse SELECT (or WITH … SELECT) against your organization's
 
 Conventions: monetary amounts are minor units (cents — divide by 100 for the major unit); most are integers, but `fact_cost.cost_amount` is fractional cents (Decimal) since a single AI call usually costs less than a cent; 64-bit integers (counts, ids, amounts) are returned as JSON strings to preserve precision, so parse them client-side; Decimal columns (fractional cents, and credit amounts, which are counts of credits rather than cents and are never divided by 100) come back as JSON numbers instead, so a value beyond 2^53 is already rounded — select toString(col) when you need its exact digits. Query signal payloads via JSON paths, e.g. `SELECT data.country::String AS country, count() FROM fact_signal GROUP BY country`.
 
-Limits: 30 seconds of execution time and 10,000 result rows (truncation is flagged via `meta.truncated`). Prefer aggregates and a `created_at` date filter on large tables — this endpoint is for interactive analytics, not bulk export.
+Limits: 30 seconds of execution time and 10,000 result rows (truncation is flagged via `meta.truncated`). Queries exceeding the 4 GB memory allowance return HTTP 422 with code `QUERY_MEMORY_LIMIT_EXCEEDED`. Prefer aggregates and a `created_at` date filter on large tables — this endpoint is for interactive analytics, not bulk export.
 </dd>
 </dl>
 </dd>
@@ -6983,7 +9174,7 @@ await client.analytics.getAnalyticsSchema();
 <dl>
 <dd>
 
-Lists the JSON paths (and their observed types) present in the `data` payload of your signals within a time window (default: last 30 days), grouped by signal name. Use the returned paths in queries against `fact_signal`, e.g. `WHERE data.<path>::String = '...'`.
+Lists the JSON paths (and their observed types) present in the `data` payload of your signals within a time window (default: last 30 days), grouped by signal name. Use the returned paths in queries against `fact_signal`, e.g. `WHERE data.<path>::String = '...'`. Keys declared as grouping dimensions are marked `declared` with their `slot` and listed first. Where available, each path also carries `firstSeen`, `lastSeen` and a `signals` count; these span all time, and the window only selects which paths and types are returned.
 </dd>
 </dl>
 </dd>
@@ -7315,7 +9506,7 @@ await client.customViewsExperimental.updateCustomViewPeriod({
 
 ⚠️ **Experimental** — this endpoint may change or be removed without notice and is not subject to v2 backwards-compatibility guarantees. Do not build production-critical integrations against it yet.
 
-Returns the view's name, status, query ids, and the author render bundle for the owning organization (DRAFT or PUBLISHED). Used by the trusted preview/embed frame to render the sandbox; the per-customer data is fetched separately via /:displayId/data.
+Returns the view's name, status, query ids, and the author render bundle for the owning organization. Only PUBLISHED views are returned; a DRAFT returns 404 (use getCustomViewAuthoring to read a DRAFT). Used by the trusted preview/embed frame to render the sandbox; the per-customer data is fetched separately via /:displayId/data.
 </dd>
 </dl>
 </dd>
@@ -7382,7 +9573,7 @@ await client.customViewsExperimental.getCustomView({
 
 ⚠️ **Experimental** — this endpoint may change or be removed without notice and is not subject to v2 backwards-compatibility guarantees. Do not build production-critical integrations against it yet.
 
-Partially updates a view. Omitted fields are left unchanged. For REVISIONS, prefer the incremental fields — `bundleEdits` (exact search-and-replace on the stored render bundle) and `queryUpserts`/`queryRemovals` (per-query changes) — so you transmit only what changed instead of re-sending the whole payload. The full-replacement fields remain for rewrites: `renderBundle`, and `queries` (a FULL replacement of the query list — never drop queries the user didn't ask to remove). Replacement and incremental forms of the same aspect cannot be combined. The resulting SQL and bundle pass the same validation as createCustomView (SELECT-only, size cap, self-contained, paid:data listener). Works on DRAFT or PUBLISHED views — published embeds pick the change up on their next load.
+Partially updates a view. Omitted fields are left unchanged. For REVISIONS, prefer the incremental fields — `bundleEdits` (exact search-and-replace on the stored render bundle) and `queryUpserts`/`queryRemovals` (per-query changes) — so you transmit only what changed instead of re-sending the whole payload. The full-replacement fields remain for rewrites: `renderBundle`, and `queries` (a FULL replacement of the query list — never drop queries the user didn't ask to remove). Replacement and incremental forms of the same aspect cannot be combined. The resulting SQL and bundle pass the same validation as createCustomView (SELECT-only, size cap, self-contained, paid:data listener). Works on DRAFT or PUBLISHED views — published embeds pick the change up on their next load. If the queries or hierarchy setting change during validation, returns 409 CUSTOM_VIEW_UPDATE_CONFLICT; fetch the current authoring definition and reapply your changes before retrying.
 </dd>
 </dl>
 </dd>
@@ -7435,6 +9626,74 @@ await client.customViewsExperimental.updateCustomView({
 </dl>
 </details>
 
+<details><summary><code>client.customViewsExperimental.<a href="/src/api/resources/customViewsExperimental/client/Client.ts">getCustomViewCustomerUnits</a>({ ...params }) -> Paid.ViewCustomerUnitsResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+⚠️ **Experimental** — this endpoint may change or be removed without notice and is not subject to v2 backwards-compatibility guarantees. Do not build production-critical integrations against it yet.
+
+Lists active customer units for a published customer-scoped view with hierarchyEnabled set to true. Hierarchy eligibility is independent of the requested page or usage; requires credit hierarchies to be enabled for the organization.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.customViewsExperimental.getCustomViewCustomerUnits({
+    displayId: "displayId",
+    customerId: "cus_acme"
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Paid.GetCustomViewCustomerUnitsRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `CustomViewsExperimental.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
 <details><summary><code>client.customViewsExperimental.<a href="/src/api/resources/customViewsExperimental/client/Client.ts">getCustomViewData</a>({ ...params }) -> Paid.ViewDataResponse</code></summary>
 <dl>
 <dd>
@@ -7449,7 +9708,7 @@ await client.customViewsExperimental.updateCustomView({
 
 ⚠️ **Experimental** — this endpoint may change or be removed without notice and is not subject to v2 backwards-compatibility guarantees. Do not build production-critical integrations against it yet.
 
-Runs every stored query of the view on the read-only analytics database and returns the result sets keyed by query id. For a customer-scoped view (the default), the query is scoped to the caller's organization AND the given `customerId` (both enforced as ClickHouse row filters) — `customerId` is required. For an organization-scoped view, the data is org-wide (scoped only to the caller's organization) and `customerId` is ignored. The scope is enforced by the database — it cannot be widened by the stored SQL. If the view declares filters, pass per-request values as `filter_<name>` query parameters (e.g. `filter_region=eu`); undeclared names or disallowed values are rejected with 400. Filters narrow data within the scope — never widen it.
+Runs every stored query of the view on the read-only analytics database and returns the result sets keyed by query id. For a customer-scoped view (the default), the query is scoped to the caller's organization AND the given `customerId` (both enforced as ClickHouse row filters) — `customerId` is required. For an organization-scoped view, the data is org-wide (scoped only to the caller's organization) and `customerId` is ignored. The scope is enforced by the database — it cannot be widened by the stored SQL. If the view declares filters, pass per-request values as `filter_<name>` query parameters (e.g. `filter_region=eu`); undeclared names or disallowed values are rejected with 400. Filters narrow data within the scope — never widen it. Only PUBLISHED views are served by default; a DRAFT returns 404. To check a saved DRAFT's real data before publishing, pass `includeDraft=true`. Embeds and share links never serve a DRAFT.
 </dd>
 </dl>
 </dd>
@@ -7638,7 +9897,7 @@ await client.valueModels.getCurrentValueModel();
 <dl>
 <dd>
 
-Uploads a new value model version. Validates the content, creates a new version, archives the previous active version, syncs to ClickHouse, and triggers a backfill of all historical signals.
+Uploads a new value model version. Validates the content, creates a new version, archives the previous active version, and syncs to ClickHouse. This updates how value is calculated going forward — new signals are valued under the new model. It does NOT re-rate historical signals; run POST /api/v2/value-models/backfill to re-rate history as a separate, explicit action. Any unpublished draft saved in the Paid app is discarded. Send expectedActiveVersion to get a 409 instead of overwriting a version published since you read it.
 </dd>
 </dl>
 </dd>
@@ -7863,7 +10122,7 @@ await client.valueModels.getValueModelVersion({
 <dl>
 <dd>
 
-Manually triggers a recalculation of all ClickHouse rows against the current value model.
+Manually triggers a recalculation of all ClickHouse rows against the current value model. Returns 422 when the backfill would scan more signals than the ceiling allows — that is deterministic, so retrying without narrowing the scope will not help.
 </dd>
 </dl>
 </dd>
@@ -7990,7 +10249,7 @@ await client.valueMetrics.listValueMetrics();
 <dl>
 <dd>
 
-Adds one value metric — its unit, formula, signal binding and optional monetary conversion — to the value model. The signal must already exist: an event name your organization has sent, or one referenced by usage pricing on an active product. Publishes a new value model version and recalculates delivered value for historical signals.
+Adds one value metric — its unit, formula, signal binding and optional monetary conversion — to the value model. The signal must already exist: an event name your organization has sent, or one referenced by usage pricing on an active product. Publishes a new value model version that values NEW signals going forward; it does NOT recalculate historical delivered value. Re-rating history is a separate, explicit action (POST /api/v2/value-models/backfill).
 </dd>
 </dl>
 </dd>
@@ -8240,534 +10499,6 @@ await client.valueMetrics.updateValueMetric({
 <dd>
 
 **requestOptions:** `ValueMetrics.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-## CustomerGroups
-<details><summary><code>client.customerGroups.<a href="/src/api/resources/customerGroups/client/Client.ts">listCustomerGroups</a>({ ...params }) -> Paid.CustomerGroupListResponse</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-List all customer groups for the organization.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.customerGroups.listCustomerGroups();
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**request:** `Paid.ListCustomerGroupsRequest` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `CustomerGroups.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.customerGroups.<a href="/src/api/resources/customerGroups/client/Client.ts">createCustomerGroup</a>({ ...params }) -> Paid.CustomerGroupDetail</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-Create a new customer group. Names must be unique per org.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.customerGroups.createCustomerGroup({
-    name: "name"
-});
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**request:** `Paid.CreateCustomerGroupRequest` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `CustomerGroups.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.customerGroups.<a href="/src/api/resources/customerGroups/client/Client.ts">getCustomerGroup</a>({ ...params }) -> Paid.CustomerGroupDetail</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-Returns group details including member list (capped at 500).
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.customerGroups.getCustomerGroup({
-    id: "id"
-});
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**request:** `Paid.GetCustomerGroupRequest` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `CustomerGroups.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.customerGroups.<a href="/src/api/resources/customerGroups/client/Client.ts">deleteCustomerGroup</a>({ ...params }) -> Paid.CustomerGroupDeleteResponse</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-Deletes the group and unbinds all members. Unbound customers fall back to the base value model config.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.customerGroups.deleteCustomerGroup({
-    id: "id"
-});
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**request:** `Paid.DeleteCustomerGroupRequest` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `CustomerGroups.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.customerGroups.<a href="/src/api/resources/customerGroups/client/Client.ts">updateCustomerGroup</a>({ ...params }) -> Paid.CustomerGroupDetail</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-Update a customer group's name or description.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.customerGroups.updateCustomerGroup({
-    id: "id"
-});
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**request:** `Paid.UpdateCustomerGroupRequest` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `CustomerGroups.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.customerGroups.<a href="/src/api/resources/customerGroups/client/Client.ts">createCustomerGroupMembers</a>({ ...params }) -> Paid.AddMembersResponse</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-Additive. Adds customers to the group without removing existing members.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.customerGroups.createCustomerGroupMembers({
-    id: "id",
-    body: {
-        customerIds: ["customerIds"]
-    }
-});
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**request:** `Paid.CreateCustomerGroupMembersRequest` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `CustomerGroups.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.customerGroups.<a href="/src/api/resources/customerGroups/client/Client.ts">updateCustomerGroupMembers</a>({ ...params }) -> Paid.SetMembersResponse</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-Reconcile membership. The provided list is the complete desired membership. Customers not in the list are removed. Customers in the list but not currently in the group are added.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.customerGroups.updateCustomerGroupMembers({
-    id: "id",
-    body: {
-        customerIds: ["customerIds"]
-    }
-});
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**request:** `Paid.UpdateCustomerGroupMembersRequest` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `CustomerGroups.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.customerGroups.<a href="/src/api/resources/customerGroups/client/Client.ts">deleteCustomerGroupMembers</a>({ ...params }) -> Paid.RemoveMembersResponse</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-Removes specific customers from the group.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.customerGroups.deleteCustomerGroupMembers({
-    id: "id",
-    body: {
-        customerIds: ["customerIds"]
-    }
-});
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**request:** `Paid.DeleteCustomerGroupMembersRequest` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `CustomerGroups.RequestOptions` 
     
 </dd>
 </dl>
@@ -9380,7 +11111,7 @@ await client.paymentAllocations.listPaymentAllocations({
 <dl>
 <dd>
 
-Allocates a payment across one or more invoice lines. When an invoice becomes fully paid, its credit entitlements are processed.
+Allocates a payment across one or more invoice lines of posted invoices, in the payment's currency. When an invoice becomes fully paid, its credit entitlements are processed. Returns 409 when a concurrent allocation has already spent the balance.
 </dd>
 </dl>
 </dd>
@@ -9664,7 +11395,7 @@ Runs a single ClickHouse SELECT (or WITH … SELECT) against your organization's
 
 Conventions: monetary amounts are minor units (cents — divide by 100 for the major unit); most are integers, but `fact_cost.cost_amount` is fractional cents (Decimal) since a single AI call usually costs less than a cent; 64-bit integers (counts, ids, amounts) are returned as JSON strings to preserve precision, so parse them client-side; Decimal columns (fractional cents, and credit amounts, which are counts of credits rather than cents and are never divided by 100) come back as JSON numbers instead, so a value beyond 2^53 is already rounded — select toString(col) when you need its exact digits. Query signal payloads via JSON paths, e.g. `SELECT data.country::String AS country, count() FROM fact_signal GROUP BY country`.
 
-Limits: 30 seconds of execution time and 10,000 result rows (truncation is flagged via `meta.truncated`). Prefer aggregates and a `created_at` date filter on large tables — this endpoint is for interactive analytics, not bulk export.
+Limits: 30 seconds of execution time and 10,000 result rows (truncation is flagged via `meta.truncated`). Queries exceeding the 4 GB memory allowance return HTTP 422 with code `QUERY_MEMORY_LIMIT_EXCEEDED`. Prefer aggregates and a `created_at` date filter on large tables — this endpoint is for interactive analytics, not bulk export.
 </dd>
 </dl>
 </dd>
@@ -9788,7 +11519,7 @@ await client.analyticsExperimental.getExperimentalAnalyticsSchema();
 
 This experimental path is deprecated and is not supported for new integrations. Use `GET /api/v2/analytics/signals/metadata` instead; the old path remains available for existing integrations.
 
-Lists the JSON paths (and their observed types) present in the `data` payload of your signals within a time window (default: last 30 days), grouped by signal name. Use the returned paths in queries against `fact_signal`, e.g. `WHERE data.<path>::String = '...'`.
+Lists the JSON paths (and their observed types) present in the `data` payload of your signals within a time window (default: last 30 days), grouped by signal name. Use the returned paths in queries against `fact_signal`, e.g. `WHERE data.<path>::String = '...'`. Keys declared as grouping dimensions are marked `declared` with their `slot` and listed first. Where available, each path also carries `firstSeen`, `lastSeen` and a `signals` count; these span all time, and the window only selects which paths and types are returned.
 </dd>
 </dl>
 </dd>

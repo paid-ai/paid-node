@@ -3,9 +3,10 @@
 import type * as Paid from "../index.js";
 
 export interface CustomViewPreviewHarnessRequest {
+    context?: Paid.CustomViewDataContext;
     /** The raw, self-contained HTML render bundle to preview — the SAME string you would pass to createCustomView. Pass it verbatim; do NOT escape `</script>`, backticks, or quotes yourself (that is exactly what this endpoint does for you). */
     renderBundle: string;
-    /** Optional sample data keyed by query id (as getCustomViewData returns it), e.g. `{ "usage": [{ "day": "2026-01-01", "signals": "42" }] }`. Delivered to the bundle via the same `paid:data` message the real embed sends. Omit to preview the empty state. If these rows are fabricated (a data-restricted org), also set `sampleData: true` so the harness is marked with a sample-data banner. */
+    /** Optional sample data keyed by query id (the `data` field of a getCustomViewData response), e.g. `{ "usage": [{ "day": "2026-01-01", "signals": "42" }] }`. Delivered to the bundle via the same `paid:data` message the real embed sends. Omit to preview the empty state. If these rows are fabricated (a data-restricted org), also set `sampleData: true` so the harness is marked with a sample-data banner. */
     data?: Record<string, Record<string, unknown>[]>;
     /** For data-restricted orgs (API key without read:analytics, so the real data endpoints are blocked): a per-query column contract, keyed by query id, describing the columns each SQL returns. The server fabricates deterministic sample rows from it — no query runs, so no customer data is used — and marks the preview as sample data. Mutually exclusive with `data`. */
     synthetic?: Record<string, Paid.CustomViewPreviewHarnessColumn[]>;

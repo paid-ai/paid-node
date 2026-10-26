@@ -225,6 +225,7 @@ export class Credits {
             creditCurrencyKey,
             type: type_,
             orderId,
+            eventName,
             createdAtFrom,
             createdAtTo,
         } = request;
@@ -259,6 +260,10 @@ export class Credits {
 
         if (orderId != null) {
             _queryParams.orderId = orderId;
+        }
+
+        if (eventName != null) {
+            _queryParams.eventName = eventName;
         }
 
         if (createdAtFrom != null) {
@@ -318,6 +323,143 @@ export class Credits {
                 });
             case "timeout":
                 throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /credits/transactions.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Aggregate credit ledger transactions of one type into period buckets grouped by a dimension, for charting credit consumption over time. Accepts the same filters as the transaction list and reads the same ledger, so bucket totals always match summing that list over the same filters and the same `type` — pass this endpoint's effective `type` (it defaults to `spend`) to the list, which has no default and otherwise returns every type.
+     *
+     * @param {Paid.GetCreditTransactionSummaryRequest} request
+     * @param {Credits.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.credits.getCreditTransactionSummary({
+     *         createdAtFrom: "createdAtFrom",
+     *         groupBy: "eventName",
+     *         interval: "day"
+     *     })
+     */
+    public getCreditTransactionSummary(
+        request: Paid.GetCreditTransactionSummaryRequest,
+        requestOptions?: Credits.RequestOptions,
+    ): core.HttpResponsePromise<Paid.CreditTransactionSummaryResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__getCreditTransactionSummary(request, requestOptions));
+    }
+
+    private async __getCreditTransactionSummary(
+        request: Paid.GetCreditTransactionSummaryRequest,
+        requestOptions?: Credits.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.CreditTransactionSummaryResponse>> {
+        const {
+            customerId,
+            externalCustomerId,
+            creditsCurrencyId,
+            creditCurrencyKey,
+            type: type_,
+            orderId,
+            eventName,
+            createdAtFrom,
+            createdAtTo,
+            groupBy,
+            interval,
+        } = request;
+        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
+        if (customerId != null) {
+            _queryParams.customerId = customerId;
+        }
+
+        if (externalCustomerId != null) {
+            _queryParams.externalCustomerId = externalCustomerId;
+        }
+
+        if (creditsCurrencyId != null) {
+            _queryParams.creditsCurrencyId = creditsCurrencyId;
+        }
+
+        if (creditCurrencyKey != null) {
+            _queryParams.creditCurrencyKey = creditCurrencyKey;
+        }
+
+        if (type_ != null) {
+            _queryParams.type = type_;
+        }
+
+        if (orderId != null) {
+            _queryParams.orderId = orderId;
+        }
+
+        if (eventName != null) {
+            _queryParams.eventName = eventName;
+        }
+
+        _queryParams.createdAtFrom = createdAtFrom;
+        if (createdAtTo != null) {
+            _queryParams.createdAtTo = createdAtTo;
+        }
+
+        _queryParams.groupBy = groupBy;
+        _queryParams.interval = interval;
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                "credits/transactions/summary",
+            ),
+            method: "GET",
+            headers: _headers,
+            queryParameters: { ..._queryParams, ...requestOptions?.queryParams },
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return {
+                data: _response.body as Paid.CreditTransactionSummaryResponse,
+                rawResponse: _response.rawResponse,
+            };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /credits/transactions/summary.");
             case "unknown":
                 throw new errors.PaidError({
                     message: _response.error.errorMessage,

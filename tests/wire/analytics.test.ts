@@ -123,6 +123,27 @@ describe("Analytics", () => {
             .post("/analytics/query")
             .jsonBody(rawRequestBody)
             .respondWith()
+            .statusCode(422)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.analytics.executeAnalyticsQuery({
+                query: "x",
+            });
+        }).rejects.toThrow(Paid.UnprocessableEntityError);
+    });
+
+    test("executeAnalyticsQuery (6)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { query: "x" };
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .post("/analytics/query")
+            .jsonBody(rawRequestBody)
+            .respondWith()
             .statusCode(429)
             .jsonBody(rawResponseBody)
             .build();
@@ -134,7 +155,7 @@ describe("Analytics", () => {
         }).rejects.toThrow(Paid.TooManyRequestsError);
     });
 
-    test("executeAnalyticsQuery (6)", async () => {
+    test("executeAnalyticsQuery (7)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = { query: "x" };
@@ -201,7 +222,7 @@ describe("Analytics", () => {
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         const rawResponseBody = {
-            signals: [{ signalName: "signalName", paths: [{ path: "path", types: ["types"] }] }],
+            signals: [{ signalName: "signalName", paths: [{ path: "path", types: ["types"], declared: true }] }],
             meta: { fromDate: "fromDate", toDate: "toDate" },
         };
         server
@@ -221,6 +242,7 @@ describe("Analytics", () => {
                         {
                             path: "path",
                             types: ["types"],
+                            declared: true,
                         },
                     ],
                 },

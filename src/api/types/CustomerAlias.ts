@@ -5,6 +5,8 @@ export interface CustomerAlias {
     alias: string;
     /** Paid customer display ID this alias resolves to. */
     customerId: string;
+    /** Your id of the customer unit signals carrying this alias land on: the unit the alias was created under, or the customer's root unit for a customer-level alias. `null` only while the customer has no root unit. */
+    customerUnitExternalId: string | null;
     name: string | null;
     description: string | null;
     createdAt: string;
