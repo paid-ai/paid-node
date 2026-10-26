@@ -51,7 +51,12 @@ describe("ValueModels", () => {
                         rows: [{ segmentValues: { key: "value" }, variables: { key: 1.1 } }],
                     },
                 ],
-                overrides: [{ id: "id", label: "label", scope: {} }],
+                overrides: [{ id: "id", label: "label", scope: { customerIds: ["customerIds"] } }],
+                groupingKeys: [{ id: "id", field: "field", displayName: "displayName" }],
+                flows: [{ id: "id", name: "name", groupingKeyId: "groupingKeyId", value: "value" }],
+                actions: [
+                    { eventName: "eventName", name: "name", fields: [{ key: "key", label: "label", type: "text" }] },
+                ],
             },
             createdAt: "2024-01-15T09:30:00Z",
             activatedAt: "2024-01-15T09:30:00Z",
@@ -134,7 +139,37 @@ describe("ValueModels", () => {
                     {
                         id: "id",
                         label: "label",
-                        scope: {},
+                        scope: {
+                            customerIds: ["customerIds"],
+                        },
+                    },
+                ],
+                groupingKeys: [
+                    {
+                        id: "id",
+                        field: "field",
+                        displayName: "displayName",
+                    },
+                ],
+                flows: [
+                    {
+                        id: "id",
+                        name: "name",
+                        groupingKeyId: "groupingKeyId",
+                        value: "value",
+                    },
+                ],
+                actions: [
+                    {
+                        eventName: "eventName",
+                        name: "name",
+                        fields: [
+                            {
+                                key: "key",
+                                label: "label",
+                                type: "text",
+                            },
+                        ],
                     },
                 ],
             },
@@ -247,7 +282,12 @@ describe("ValueModels", () => {
                         rows: [{ segmentValues: { key: "value" }, variables: { key: 1.1 } }],
                     },
                 ],
-                overrides: [{ id: "id", label: "label", scope: {} }],
+                overrides: [{ id: "id", label: "label", scope: { customerIds: ["customerIds"] } }],
+                groupingKeys: [{ id: "id", field: "field", displayName: "displayName" }],
+                flows: [{ id: "id", name: "name", groupingKeyId: "groupingKeyId", value: "value" }],
+                actions: [
+                    { eventName: "eventName", name: "name", fields: [{ key: "key", label: "label", type: "text" }] },
+                ],
             },
             createdAt: "2024-01-15T09:30:00Z",
             activatedAt: "2024-01-15T09:30:00Z",
@@ -381,7 +421,37 @@ describe("ValueModels", () => {
                     {
                         id: "id",
                         label: "label",
-                        scope: {},
+                        scope: {
+                            customerIds: ["customerIds"],
+                        },
+                    },
+                ],
+                groupingKeys: [
+                    {
+                        id: "id",
+                        field: "field",
+                        displayName: "displayName",
+                    },
+                ],
+                flows: [
+                    {
+                        id: "id",
+                        name: "name",
+                        groupingKeyId: "groupingKeyId",
+                        value: "value",
+                    },
+                ],
+                actions: [
+                    {
+                        eventName: "eventName",
+                        name: "name",
+                        fields: [
+                            {
+                                key: "key",
+                                label: "label",
+                                type: "text",
+                            },
+                        ],
                     },
                 ],
             },
@@ -606,6 +676,219 @@ describe("ValueModels", () => {
     });
 
     test("updateValueModel (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {
+            content: {
+                currency: "x",
+                valueTypes: [
+                    {
+                        slug: "x",
+                        name: "x",
+                        calculationTimeline: [
+                            {
+                                effectiveFrom: "2024-01-15T09:30:00Z",
+                                calculation: {
+                                    unit: { type: "monetary" },
+                                    formulaIds: ["formulaIds", "formulaIds"],
+                                    signalEventNames: ["signalEventNames", "signalEventNames"],
+                                    segmentTableIds: ["segmentTableIds", "segmentTableIds"],
+                                    overrideIds: ["overrideIds", "overrideIds"],
+                                },
+                            },
+                            {
+                                effectiveFrom: "2024-01-15T09:30:00Z",
+                                calculation: {
+                                    unit: { type: "monetary" },
+                                    formulaIds: ["formulaIds", "formulaIds"],
+                                    signalEventNames: ["signalEventNames", "signalEventNames"],
+                                    segmentTableIds: ["segmentTableIds", "segmentTableIds"],
+                                    overrideIds: ["overrideIds", "overrideIds"],
+                                },
+                            },
+                        ],
+                    },
+                    {
+                        slug: "x",
+                        name: "x",
+                        calculationTimeline: [
+                            {
+                                effectiveFrom: "2024-01-15T09:30:00Z",
+                                calculation: {
+                                    unit: { type: "monetary" },
+                                    formulaIds: ["formulaIds", "formulaIds"],
+                                    signalEventNames: ["signalEventNames", "signalEventNames"],
+                                    segmentTableIds: ["segmentTableIds", "segmentTableIds"],
+                                    overrideIds: ["overrideIds", "overrideIds"],
+                                },
+                            },
+                            {
+                                effectiveFrom: "2024-01-15T09:30:00Z",
+                                calculation: {
+                                    unit: { type: "monetary" },
+                                    formulaIds: ["formulaIds", "formulaIds"],
+                                    signalEventNames: ["signalEventNames", "signalEventNames"],
+                                    segmentTableIds: ["segmentTableIds", "segmentTableIds"],
+                                    overrideIds: ["overrideIds", "overrideIds"],
+                                },
+                            },
+                        ],
+                    },
+                ],
+                formulas: [
+                    {
+                        id: "x",
+                        valueTypeSlug: "x",
+                        label: "x",
+                        variables: [
+                            { id: "x", label: "x" },
+                            { id: "x", label: "x" },
+                        ],
+                        expression: "x",
+                    },
+                    {
+                        id: "x",
+                        valueTypeSlug: "x",
+                        label: "x",
+                        variables: [
+                            { id: "x", label: "x" },
+                            { id: "x", label: "x" },
+                        ],
+                        expression: "x",
+                    },
+                ],
+                signals: [
+                    { eventName: "x", label: "x" },
+                    { eventName: "x", label: "x" },
+                ],
+            },
+        };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .put("/value-models/")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(409)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.valueModels.updateValueModel({
+                content: {
+                    currency: "x",
+                    valueTypes: [
+                        {
+                            slug: "x",
+                            name: "x",
+                            calculationTimeline: [
+                                {
+                                    effectiveFrom: "2024-01-15T09:30:00Z",
+                                    calculation: {
+                                        unit: {
+                                            type: "monetary",
+                                        },
+                                        formulaIds: ["formulaIds", "formulaIds"],
+                                        signalEventNames: ["signalEventNames", "signalEventNames"],
+                                        segmentTableIds: ["segmentTableIds", "segmentTableIds"],
+                                        overrideIds: ["overrideIds", "overrideIds"],
+                                    },
+                                },
+                                {
+                                    effectiveFrom: "2024-01-15T09:30:00Z",
+                                    calculation: {
+                                        unit: {
+                                            type: "monetary",
+                                        },
+                                        formulaIds: ["formulaIds", "formulaIds"],
+                                        signalEventNames: ["signalEventNames", "signalEventNames"],
+                                        segmentTableIds: ["segmentTableIds", "segmentTableIds"],
+                                        overrideIds: ["overrideIds", "overrideIds"],
+                                    },
+                                },
+                            ],
+                        },
+                        {
+                            slug: "x",
+                            name: "x",
+                            calculationTimeline: [
+                                {
+                                    effectiveFrom: "2024-01-15T09:30:00Z",
+                                    calculation: {
+                                        unit: {
+                                            type: "monetary",
+                                        },
+                                        formulaIds: ["formulaIds", "formulaIds"],
+                                        signalEventNames: ["signalEventNames", "signalEventNames"],
+                                        segmentTableIds: ["segmentTableIds", "segmentTableIds"],
+                                        overrideIds: ["overrideIds", "overrideIds"],
+                                    },
+                                },
+                                {
+                                    effectiveFrom: "2024-01-15T09:30:00Z",
+                                    calculation: {
+                                        unit: {
+                                            type: "monetary",
+                                        },
+                                        formulaIds: ["formulaIds", "formulaIds"],
+                                        signalEventNames: ["signalEventNames", "signalEventNames"],
+                                        segmentTableIds: ["segmentTableIds", "segmentTableIds"],
+                                        overrideIds: ["overrideIds", "overrideIds"],
+                                    },
+                                },
+                            ],
+                        },
+                    ],
+                    formulas: [
+                        {
+                            id: "x",
+                            valueTypeSlug: "x",
+                            label: "x",
+                            variables: [
+                                {
+                                    id: "x",
+                                    label: "x",
+                                },
+                                {
+                                    id: "x",
+                                    label: "x",
+                                },
+                            ],
+                            expression: "x",
+                        },
+                        {
+                            id: "x",
+                            valueTypeSlug: "x",
+                            label: "x",
+                            variables: [
+                                {
+                                    id: "x",
+                                    label: "x",
+                                },
+                                {
+                                    id: "x",
+                                    label: "x",
+                                },
+                            ],
+                            expression: "x",
+                        },
+                    ],
+                    signals: [
+                        {
+                            eventName: "x",
+                            label: "x",
+                        },
+                        {
+                            eventName: "x",
+                            label: "x",
+                        },
+                    ],
+                },
+            });
+        }).rejects.toThrow(Paid.ConflictError);
+    });
+
+    test("updateValueModel (4)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {
@@ -932,7 +1215,12 @@ describe("ValueModels", () => {
                         rows: [{ segmentValues: { key: "value" }, variables: { key: 1.1 } }],
                     },
                 ],
-                overrides: [{ id: "id", label: "label", scope: {} }],
+                overrides: [{ id: "id", label: "label", scope: { customerIds: ["customerIds"] } }],
+                groupingKeys: [{ id: "id", field: "field", displayName: "displayName" }],
+                flows: [{ id: "id", name: "name", groupingKeyId: "groupingKeyId", value: "value" }],
+                actions: [
+                    { eventName: "eventName", name: "name", fields: [{ key: "key", label: "label", type: "text" }] },
+                ],
             },
             createdAt: "2024-01-15T09:30:00Z",
             activatedAt: "2024-01-15T09:30:00Z",
@@ -1023,7 +1311,37 @@ describe("ValueModels", () => {
                     {
                         id: "id",
                         label: "label",
-                        scope: {},
+                        scope: {
+                            customerIds: ["customerIds"],
+                        },
+                    },
+                ],
+                groupingKeys: [
+                    {
+                        id: "id",
+                        field: "field",
+                        displayName: "displayName",
+                    },
+                ],
+                flows: [
+                    {
+                        id: "id",
+                        name: "name",
+                        groupingKeyId: "groupingKeyId",
+                        value: "value",
+                    },
+                ],
+                actions: [
+                    {
+                        eventName: "eventName",
+                        name: "name",
+                        fields: [
+                            {
+                                key: "key",
+                                label: "label",
+                                type: "text",
+                            },
+                        ],
                     },
                 ],
             },
@@ -1115,6 +1433,25 @@ describe("ValueModels", () => {
     });
 
     test("refreshValueModelBackfill (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .post("/value-models/backfill")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(422)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.valueModels.refreshValueModelBackfill();
+        }).rejects.toThrow(Paid.UnprocessableEntityError);
+    });
+
+    test("refreshValueModelBackfill (4)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};

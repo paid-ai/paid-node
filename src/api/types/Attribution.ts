@@ -2,4 +2,7 @@
 
 import type * as Paid from "../index.js";
 
+/**
+ * The product this usage is for, by Paid ID or by your external ID. Optional.
+ */
 export type Attribution = Paid.ProductById | Paid.ProductByExternalId;

@@ -476,6 +476,20 @@ describe("Contacts", () => {
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         const rawResponseBody = { key: "value" };
+        server.mockEndpoint().delete("/contacts/id").respondWith().statusCode(409).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.contacts.deleteContactById({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.ConflictError);
+    });
+
+    test("deleteContactById (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().delete("/contacts/id").respondWith().statusCode(500).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -793,6 +807,26 @@ describe("Contacts", () => {
     });
 
     test("deleteContactByExternalId (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .delete("/contacts/external/externalId")
+            .respondWith()
+            .statusCode(409)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.contacts.deleteContactByExternalId({
+                externalId: "externalId",
+            });
+        }).rejects.toThrow(Paid.ConflictError);
+    });
+
+    test("deleteContactByExternalId (5)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 

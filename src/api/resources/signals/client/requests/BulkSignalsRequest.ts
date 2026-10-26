@@ -6,10 +6,24 @@ import type * as Paid from "../../../../index.js";
  * @example
  *     {
  *         signals: [{
- *                 eventName: "eventName",
+ *                 eventName: "email_sent",
  *                 customer: {
- *                     customerId: "customerId"
- *                 }
+ *                     externalCustomerId: "acme-corp"
+ *                 },
+ *                 attribution: {
+ *                     externalProductId: "email-agent"
+ *                 },
+ *                 timestamp: "2026-01-31T23:00:00Z",
+ *                 data: {
+ *                     "recipients": 3
+ *                 },
+ *                 idempotencyKey: "email_sent_msg_8f3a2c"
+ *             }, {
+ *                 eventName: "email_sent",
+ *                 customerUnit: {
+ *                     externalCustomerUnitId: "acme-marketing"
+ *                 },
+ *                 idempotencyKey: "email_sent_msg_9b41d7"
  *             }]
  *     }
  */

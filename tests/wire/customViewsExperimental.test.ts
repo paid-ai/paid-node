@@ -12,6 +12,8 @@ describe("CustomViewsExperimental", () => {
         const rawResponseBody = {
             views: [
                 {
+                    hierarchyEnabled: true,
+                    capsEnabled: true,
                     displayId: "displayId",
                     name: "name",
                     description: "description",
@@ -35,6 +37,8 @@ describe("CustomViewsExperimental", () => {
         expect(response).toEqual({
             views: [
                 {
+                    hierarchyEnabled: true,
+                    capsEnabled: true,
                     displayId: "displayId",
                     name: "name",
                     description: "description",
@@ -102,6 +106,8 @@ describe("CustomViewsExperimental", () => {
             renderBundle: "<!doctype html><body>…</body>",
         };
         const rawResponseBody = {
+            hierarchyEnabled: true,
+            capsEnabled: true,
             displayId: "view_3kf9a2",
             name: "name",
             status: "DRAFT",
@@ -128,6 +134,8 @@ describe("CustomViewsExperimental", () => {
             renderBundle: "<!doctype html><body>\u2026</body>",
         });
         expect(response).toEqual({
+            hierarchyEnabled: true,
+            capsEnabled: true,
             displayId: "view_3kf9a2",
             name: "name",
             status: "DRAFT",
@@ -258,6 +266,8 @@ describe("CustomViewsExperimental", () => {
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
         const rawResponseBody = {
+            hierarchyEnabled: true,
+            capsEnabled: true,
             displayId: "view_3kf9a2",
             name: "name",
             status: "DRAFT",
@@ -277,6 +287,8 @@ describe("CustomViewsExperimental", () => {
             displayId: "displayId",
         });
         expect(response).toEqual({
+            hierarchyEnabled: true,
+            capsEnabled: true,
             displayId: "view_3kf9a2",
             name: "name",
             status: "DRAFT",
@@ -353,6 +365,8 @@ describe("CustomViewsExperimental", () => {
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = { period: { kind: "relative" } };
         const rawResponseBody = {
+            hierarchyEnabled: true,
+            capsEnabled: true,
             displayId: "view_3kf9a2",
             name: "name",
             status: "DRAFT",
@@ -375,6 +389,8 @@ describe("CustomViewsExperimental", () => {
             },
         });
         expect(response).toEqual({
+            hierarchyEnabled: true,
+            capsEnabled: true,
             displayId: "view_3kf9a2",
             name: "name",
             status: "DRAFT",
@@ -484,6 +500,8 @@ describe("CustomViewsExperimental", () => {
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         const rawResponseBody = {
+            hierarchyEnabled: true,
+            capsEnabled: true,
             displayId: "displayId",
             name: "name",
             description: "description",
@@ -506,6 +524,8 @@ describe("CustomViewsExperimental", () => {
             displayId: "displayId",
         });
         expect(response).toEqual({
+            hierarchyEnabled: true,
+            capsEnabled: true,
             displayId: "displayId",
             name: "name",
             description: "description",
@@ -594,6 +614,8 @@ describe("CustomViewsExperimental", () => {
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
         const rawResponseBody = {
+            hierarchyEnabled: true,
+            capsEnabled: true,
             displayId: "view_3kf9a2",
             name: "name",
             status: "DRAFT",
@@ -613,6 +635,8 @@ describe("CustomViewsExperimental", () => {
             displayId: "displayId",
         });
         expect(response).toEqual({
+            hierarchyEnabled: true,
+            capsEnabled: true,
             displayId: "view_3kf9a2",
             name: "name",
             status: "DRAFT",
@@ -694,6 +718,27 @@ describe("CustomViewsExperimental", () => {
             .patch("/experimental/views/displayId")
             .jsonBody(rawRequestBody)
             .respondWith()
+            .statusCode(409)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customViewsExperimental.updateCustomView({
+                displayId: "displayId",
+            });
+        }).rejects.toThrow(Paid.ConflictError);
+    });
+
+    test("updateCustomView (6)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .patch("/experimental/views/displayId")
+            .jsonBody(rawRequestBody)
+            .respondWith()
             .statusCode(500)
             .jsonBody(rawResponseBody)
             .build();
@@ -705,11 +750,183 @@ describe("CustomViewsExperimental", () => {
         }).rejects.toThrow(Paid.InternalServerError);
     });
 
+    test("getCustomViewCustomerUnits (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = {
+            hasHierarchy: true,
+            data: [
+                {
+                    externalId: "externalId",
+                    name: "name",
+                    externalType: "externalType",
+                    parentExternalId: "parentExternalId",
+                    isRoot: true,
+                    billable: true,
+                    effectiveBillable: true,
+                },
+            ],
+            pagination: { limit: 1, offset: 1, total: 1, hasMore: true },
+        };
+        server
+            .mockEndpoint()
+            .get("/experimental/views/displayId/customer-units")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.customViewsExperimental.getCustomViewCustomerUnits({
+            displayId: "displayId",
+            customerId: "cus_acme",
+        });
+        expect(response).toEqual({
+            hasHierarchy: true,
+            data: [
+                {
+                    externalId: "externalId",
+                    name: "name",
+                    externalType: "externalType",
+                    parentExternalId: "parentExternalId",
+                    isRoot: true,
+                    billable: true,
+                    effectiveBillable: true,
+                },
+            ],
+            pagination: {
+                limit: 1,
+                offset: 1,
+                total: 1,
+                hasMore: true,
+            },
+        });
+    });
+
+    test("getCustomViewCustomerUnits (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/experimental/views/displayId/customer-units")
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customViewsExperimental.getCustomViewCustomerUnits({
+                displayId: "displayId",
+                customerId: "x",
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("getCustomViewCustomerUnits (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/experimental/views/displayId/customer-units")
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customViewsExperimental.getCustomViewCustomerUnits({
+                displayId: "displayId",
+                customerId: "x",
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("getCustomViewCustomerUnits (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/experimental/views/displayId/customer-units")
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customViewsExperimental.getCustomViewCustomerUnits({
+                displayId: "displayId",
+                customerId: "x",
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("getCustomViewCustomerUnits (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/experimental/views/displayId/customer-units")
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customViewsExperimental.getCustomViewCustomerUnits({
+                displayId: "displayId",
+                customerId: "x",
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
     test("getCustomViewData (1)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
-        const rawResponseBody = { data: { key: [{ key: "value" }] } };
+        const rawResponseBody = {
+            context: {
+                version: 2,
+                unitSelection: { mode: "all" },
+                period: { kind: "relative", unit: "day", amount: 1, start: "2026-05-01", end: "2026-05-31" },
+                units: [
+                    {
+                        externalId: "externalId",
+                        name: "name",
+                        externalType: null,
+                        parentExternalId: null,
+                        isRoot: true,
+                        billable: true,
+                        effectiveBillable: true,
+                    },
+                ],
+                unitsTotal: 1,
+                unitsTruncated: true,
+                caps: [
+                    {
+                        amount: 10000,
+                        frequency: "MONTHLY",
+                        schedule: { type: "ANCHORED", anchorDay: 15 },
+                        externalId: "externalId",
+                        creditsCurrencyId: "creditsCurrencyId",
+                        creditsCurrencyKey: "creditsCurrencyKey",
+                        creditsCurrencyName: "creditsCurrencyName",
+                        currentPeriod: null,
+                    },
+                ],
+                capsTotal: 1,
+                capsTruncated: true,
+                capsUnavailable: true,
+            },
+            data: { key: [{ key: "value" }] },
+        };
         server
             .mockEndpoint()
             .get("/experimental/views/displayId/data")
@@ -722,6 +939,50 @@ describe("CustomViewsExperimental", () => {
             displayId: "displayId",
         });
         expect(response).toEqual({
+            context: {
+                version: 2,
+                unitSelection: {
+                    mode: "all",
+                },
+                period: {
+                    kind: "relative",
+                    unit: "day",
+                    amount: 1,
+                    start: "2026-05-01",
+                    end: "2026-05-31",
+                },
+                units: [
+                    {
+                        externalId: "externalId",
+                        name: "name",
+                        externalType: null,
+                        parentExternalId: null,
+                        isRoot: true,
+                        billable: true,
+                        effectiveBillable: true,
+                    },
+                ],
+                unitsTotal: 1,
+                unitsTruncated: true,
+                caps: [
+                    {
+                        amount: 10000,
+                        frequency: "MONTHLY",
+                        schedule: {
+                            type: "ANCHORED",
+                            anchorDay: 15,
+                        },
+                        externalId: "externalId",
+                        creditsCurrencyId: "creditsCurrencyId",
+                        creditsCurrencyKey: "creditsCurrencyKey",
+                        creditsCurrencyName: "creditsCurrencyName",
+                        currentPeriod: null,
+                    },
+                ],
+                capsTotal: 1,
+                capsTruncated: true,
+                capsUnavailable: true,
+            },
             data: {
                 key: [
                     {
@@ -816,6 +1077,26 @@ describe("CustomViewsExperimental", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/experimental/views/displayId/data")
+            .respondWith()
+            .statusCode(409)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.customViewsExperimental.getCustomViewData({
+                displayId: "displayId",
+            });
+        }).rejects.toThrow(Paid.ConflictError);
+    });
+
+    test("getCustomViewData (7)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
         const rawResponseBody = { error: "error" };
         server
             .mockEndpoint()
@@ -832,7 +1113,7 @@ describe("CustomViewsExperimental", () => {
         }).rejects.toThrow(Paid.TooManyRequestsError);
     });
 
-    test("getCustomViewData (7)", async () => {
+    test("getCustomViewData (8)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 

@@ -283,7 +283,7 @@ export class Contacts {
     }
 
     /**
-     * Update a contact by its ID
+     * Update a contact by its ID. A contact can move to another customer only if no orders or invoices reference it; otherwise a different `customerId` returns 400 `CONTACT_CUSTOMER_IMMUTABLE`.
      *
      * @param {Paid.UpdateContactByIdRequest} request
      * @param {Contacts.RequestOptions} requestOptions - Request-specific configuration.
@@ -374,13 +374,14 @@ export class Contacts {
     }
 
     /**
-     * Delete a contact by its ID
+     * Delete a contact by its ID. A contact referenced by an order or an unsettled invoice cannot be deleted (409 `CONTACT_HAS_ASSOCIATIONS`). Posted paid invoices, voided invoices and canceled invoices do not block deletion.
      *
      * @param {Paid.DeleteContactByIdRequest} request
      * @param {Contacts.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @throws {@link Paid.ForbiddenError}
      * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.ConflictError}
      * @throws {@link Paid.InternalServerError}
      *
      * @example
@@ -429,6 +430,8 @@ export class Contacts {
                     throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 404:
                     throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 409:
+                    throw new Paid.ConflictError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
                     throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
@@ -542,7 +545,7 @@ export class Contacts {
     }
 
     /**
-     * Update a contact by its external ID
+     * Update a contact by its external ID. A contact can move to another customer only if no orders or invoices reference it; otherwise a different `customerId` returns 400 `CONTACT_CUSTOMER_IMMUTABLE`.
      *
      * @param {Paid.UpdateContactByExternalIdRequest} request
      * @param {Contacts.RequestOptions} requestOptions - Request-specific configuration.
@@ -633,13 +636,14 @@ export class Contacts {
     }
 
     /**
-     * Delete a contact by its external ID
+     * Delete a contact by its external ID. A contact referenced by an order or an unsettled invoice cannot be deleted (409 `CONTACT_HAS_ASSOCIATIONS`). Posted paid invoices, voided invoices and canceled invoices do not block deletion.
      *
      * @param {Paid.DeleteContactByExternalIdRequest} request
      * @param {Contacts.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @throws {@link Paid.ForbiddenError}
      * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.ConflictError}
      * @throws {@link Paid.InternalServerError}
      *
      * @example
@@ -688,6 +692,8 @@ export class Contacts {
                     throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 404:
                     throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 409:
+                    throw new Paid.ConflictError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
                     throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:

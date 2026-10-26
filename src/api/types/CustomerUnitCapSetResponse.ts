@@ -9,6 +9,8 @@ export interface CustomerUnitCapSetResponse {
     customerId: string;
     /** The credits currency the cap was set on: the requested `creditsCurrencyId`, or the organization's only credits currency when it was omitted. */
     creditsCurrencyId: string;
-    policy: Paid.CustomerUnitCapOpenPolicy;
+    /** Whether this save created a policy version. False when the effective timeline was already identical. */
+    changed: boolean;
+    policy: Paid.CustomerUnitCapSavedPolicy;
     currentPeriod: Paid.CustomerUnitCapCurrentPeriod | null;
 }

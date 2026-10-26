@@ -21,6 +21,8 @@ export interface ListCreditTransactionsRequest {
     type?: Paid.ListCreditTransactionsRequestType;
     /** Filter by the order this transaction is linked to. */
     orderId?: string;
+    /** Filter by the usage event that produced the transaction (exact match, untrimmed). Transactions with no event (grants, invoice-void clawbacks, manual adjustments) never match. */
+    eventName?: string;
     /** Only transactions recorded on or after this date. Accepts an ISO 8601 date or date-time. Date-only values (e.g. 2026-06-30) are treated as UTC; date-times without an explicit timezone offset are ambiguous, so include one (e.g. 2026-06-30T00:00:00-05:00) when precision matters. */
     createdAtFrom?: string;
     /** Only transactions recorded on or before this date. Accepts an ISO 8601 date or date-time. Date-only values (e.g. 2026-06-30) are treated as UTC; date-times without an explicit timezone offset are ambiguous, so include one (e.g. 2026-06-30T00:00:00-05:00) when precision matters. */

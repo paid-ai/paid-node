@@ -261,7 +261,99 @@ export class Signals {
     }
 
     /**
-     * Create multiple signals (usage events) in a single request. Each signal must include a customer attribution (either customerId or externalCustomerId) and a product attribution (either productId or externalProductId).
+     * Fetch up to 500 ingested signals (usage events) by ID in one request, each with the data payload submitted at ingest. Use it to resolve the `signalId` values on a page of credit transactions, or the signals behind one run or ticket, instead of calling `GET /api/v2/signals/{id}` once per signal. Signals are returned in request order; IDs that match nothing in your organization are listed under `notFound` rather than failing the request. This is a read-only operation: it requires the `read:usage` scope and is not available to customer API keys.
+     *
+     * @param {Paid.SignalLookupRequest} request
+     * @param {Signals.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.TooManyRequestsError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.signals.getSignalsByIds({
+     *         ids: ["6890b0e2a6f2c30012f0a1b3", "6890b0e2a6f2c30012f0a1b4"]
+     *     })
+     */
+    public getSignalsByIds(
+        request: Paid.SignalLookupRequest,
+        requestOptions?: Signals.RequestOptions,
+    ): core.HttpResponsePromise<Paid.SignalLookupResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__getSignalsByIds(request, requestOptions));
+    }
+
+    private async __getSignalsByIds(
+        request: Paid.SignalLookupRequest,
+        requestOptions?: Signals.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.SignalLookupResponse>> {
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                "signals/lookup",
+            ),
+            method: "POST",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: request,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.SignalLookupResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 429:
+                    throw new Paid.TooManyRequestsError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /signals/lookup.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Create multiple signals (usage events) in a single request. Each signal names its customer (`customerId` or `externalCustomerId`; an alias of the customer resolves too), its customer unit (`externalCustomerUnitId`: the unit's key, or an alias that points at a unit), or both, plus an optional product attribution (`productId` or `externalProductId`). A unit alone derives the customer from the unit. A unit sent with a customer must belong to it, else the batch is refused with `400 CUSTOMER_UNIT_MISMATCH`. A unit is never named by Paid's unit id. A key or alias that matches nothing is stored without a customer, keeping the id, so it can be pointed at a unit later. An identifier is matched as a unit key first, then a customer external id, then an alias. Unit attribution is enabled per organization: where it is not, a `customerUnit` sent next to a `customer` is accepted and ignored rather than checked, as before, while a unit named alone still derives its customer. Authenticate with your organization API key, or with a customer API key (prefixed `paid_ck_live_` or `paid_ck_test_`, created with `POST /api/v2/customers/{id}/api-keys`) so a customer's own runtime can report its usage without holding your organization key. A customer API key can call this endpoint only, and only for its own customer: if any signal names another customer, or one Paid does not know, the whole batch is refused with `403` `CUSTOMER_MISMATCH` and nothing is stored. Its idempotency keys are scoped to that customer. See [Send signals with a customer API key](/documentation/signals/send-signals-with-a-customer-api-key).
      *
      * @param {Paid.BulkSignalsRequest} request
      * @param {Signals.RequestOptions} requestOptions - Request-specific configuration.
@@ -274,10 +366,24 @@ export class Signals {
      * @example
      *     await client.signals.createSignals({
      *         signals: [{
-     *                 eventName: "eventName",
+     *                 eventName: "email_sent",
      *                 customer: {
-     *                     customerId: "customerId"
-     *                 }
+     *                     externalCustomerId: "acme-corp"
+     *                 },
+     *                 attribution: {
+     *                     externalProductId: "email-agent"
+     *                 },
+     *                 timestamp: "2026-01-31T23:00:00Z",
+     *                 data: {
+     *                     "recipients": 3
+     *                 },
+     *                 idempotencyKey: "email_sent_msg_8f3a2c"
+     *             }, {
+     *                 eventName: "email_sent",
+     *                 customerUnit: {
+     *                     externalCustomerUnitId: "acme-marketing"
+     *                 },
+     *                 idempotencyKey: "email_sent_msg_9b41d7"
      *             }]
      *     })
      */
@@ -349,6 +455,351 @@ export class Signals {
                 });
             case "timeout":
                 throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /signals/bulk.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Produces a usage summary file: one row per customer per month, with columns broken down by the signal payload fields you name. Choose `format` to get JSON or a wide CSV; JSON is the default. The export runs in the background, so this returns immediately with a pending export and the file appears on it once it succeeds. Give `spec` to describe the columns, or `copyFrom` with an earlier export's id to reuse that export's columns over a new window. The spec is stored on the export, so an old file can always be explained by the export that produced it. Signals are bucketed by month in UTC on their effective timestamp, the same basis billing uses, so the totals reconcile with invoices. One export runs per organization at a time.
+     *
+     * @param {Paid.CreateSignalSummaryExportRequest} request
+     * @param {Signals.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.ConflictError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.signals.createSignalSummaryExport({
+     *         from: "2025-09-01",
+     *         to: "2026-09-01"
+     *     })
+     */
+    public createSignalSummaryExport(
+        request: Paid.CreateSignalSummaryExportRequest,
+        requestOptions?: Signals.RequestOptions,
+    ): core.HttpResponsePromise<Paid.SignalSummaryExport> {
+        return core.HttpResponsePromise.fromPromise(this.__createSignalSummaryExport(request, requestOptions));
+    }
+
+    private async __createSignalSummaryExport(
+        request: Paid.CreateSignalSummaryExportRequest,
+        requestOptions?: Signals.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.SignalSummaryExport>> {
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                "signals/summary/batch/",
+            ),
+            method: "POST",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: request,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.SignalSummaryExport, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 409:
+                    throw new Paid.ConflictError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /signals/summary/batch/.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Returns one export with its status and the shape it ran. While it is succeeded and unexpired, each read issues a fresh short-lived download link.
+     *
+     * @param {Paid.GetSignalSummaryExportRequest} request
+     * @param {Signals.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.signals.getSignalSummaryExport({
+     *         id: "sse_5pZa1Kd8Nqx"
+     *     })
+     */
+    public getSignalSummaryExport(
+        request: Paid.GetSignalSummaryExportRequest,
+        requestOptions?: Signals.RequestOptions,
+    ): core.HttpResponsePromise<Paid.SignalSummaryExport> {
+        return core.HttpResponsePromise.fromPromise(this.__getSignalSummaryExport(request, requestOptions));
+    }
+
+    private async __getSignalSummaryExport(
+        request: Paid.GetSignalSummaryExportRequest,
+        requestOptions?: Signals.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.SignalSummaryExport>> {
+        const { id } = request;
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `signals/summary/batch/${core.url.encodePathParam(id)}`,
+            ),
+            method: "GET",
+            headers: _headers,
+            queryParameters: requestOptions?.queryParams,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.SignalSummaryExport, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /signals/summary/batch/{id}.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Counts signals into period buckets. Use it to chart signal volume over time, split by signal name or by a signal-payload key such as team_id.
+     *
+     * Signals count against their effective timestamp in UTC. This is the same basis billing uses, so these figures reconcile with an invoice.
+     *
+     * The endpoint reads a pre-aggregated hourly rollup, not the raw signals. An hour is therefore the finest interval. One request may span at most 250 periods.
+     *
+     * A grouped request keeps the 100 groups with the most signals. It sums the rest under the key "other". Each period total stays complete, but a group inside "other" loses its own figure. Read groups.truncated to learn how many groups lost it. Zero means every group kept its own figure.
+     *
+     * Results are paged with limit and cursor. A page is never truncated in silence.
+     *
+     * For a wide per-customer spreadsheet over arbitrary payload fields, use the batch export at /signals/summary/batch instead.
+     *
+     * @param {Paid.GetSignalSummaryRequest} request
+     * @param {Signals.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.RequestTimeoutError}
+     * @throws {@link Paid.TooManyRequestsError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.signals.getSignalSummary({
+     *         startDate: "2026-08-01",
+     *         endDate: "2026-08-31",
+     *         interval: "hour",
+     *         dimensionKey: "team_id",
+     *         limit: 1000
+     *     })
+     */
+    public getSignalSummary(
+        request: Paid.GetSignalSummaryRequest,
+        requestOptions?: Signals.RequestOptions,
+    ): core.HttpResponsePromise<Paid.SignalSummaryResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__getSignalSummary(request, requestOptions));
+    }
+
+    private async __getSignalSummary(
+        request: Paid.GetSignalSummaryRequest,
+        requestOptions?: Signals.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.SignalSummaryResponse>> {
+        const {
+            startDate,
+            endDate,
+            interval,
+            customerId,
+            externalCustomerId,
+            signalNames,
+            groupBy,
+            dimensionKey,
+            format,
+            limit,
+            cursor,
+        } = request;
+        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
+        _queryParams.startDate = startDate;
+        _queryParams.endDate = endDate;
+        _queryParams.interval = interval;
+        if (customerId != null) {
+            _queryParams.customerId = customerId;
+        }
+
+        if (externalCustomerId != null) {
+            _queryParams.externalCustomerId = externalCustomerId;
+        }
+
+        if (signalNames != null) {
+            if (Array.isArray(signalNames)) {
+                _queryParams.signalNames = signalNames.map((item) => item);
+            } else {
+                _queryParams.signalNames = signalNames;
+            }
+        }
+
+        if (groupBy != null) {
+            _queryParams.groupBy = groupBy;
+        }
+
+        if (dimensionKey != null) {
+            _queryParams.dimensionKey = dimensionKey;
+        }
+
+        if (format != null) {
+            _queryParams.format = format;
+        }
+
+        if (limit != null) {
+            _queryParams.limit = limit.toString();
+        }
+
+        if (cursor != null) {
+            _queryParams.cursor = cursor;
+        }
+
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                "signals/summary/",
+            ),
+            method: "GET",
+            headers: _headers,
+            queryParameters: { ..._queryParams, ...requestOptions?.queryParams },
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.SignalSummaryResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 408:
+                    throw new Paid.RequestTimeoutError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                case 429:
+                    throw new Paid.TooManyRequestsError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling GET /signals/summary/.");
             case "unknown":
                 throw new errors.PaidError({
                     message: _response.error.errorMessage,

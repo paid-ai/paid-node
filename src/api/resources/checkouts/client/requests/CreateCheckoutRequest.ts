@@ -18,10 +18,15 @@ export interface CreateCheckoutRequest {
     externalCustomerId?: string;
     successUrl: string;
     cancelUrl?: string;
+    /** When the checkout link expires. Must be in the future. Defaults to 24 hours after creation. */
     expiresAt?: string;
     metadata?: Record<string, unknown>;
     collectAddress?: boolean;
     collectPhone?: boolean;
+    /** Heading on the confirmation screen the customer sees after completing checkout, shown instead of "Payment successful". Plain text, up to 80 characters. Omit it to keep the default. */
+    successTitle?: string;
+    /** Text under the heading on the confirmation screen, shown instead of "Thank you for your purchase!". Plain text, up to 500 characters. Omit it to keep the default. Right after checkout, the page still adds "You will be redirected shortly." before sending the customer to `successUrl`. */
+    successMessage?: string;
     singleUse?: boolean;
     /** Lock checkout to a specific currency. Omit to allow all currencies supported by the selected plans. If the checkout is for a customer with an active subscription, the currency must match that subscription's currency — subscriptions cannot change currency. */
     currency?: string;

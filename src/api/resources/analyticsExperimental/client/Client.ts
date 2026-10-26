@@ -27,7 +27,7 @@ export class AnalyticsExperimental {
      *
      * Conventions: monetary amounts are minor units (cents — divide by 100 for the major unit); most are integers, but `fact_cost.cost_amount` is fractional cents (Decimal) since a single AI call usually costs less than a cent; 64-bit integers (counts, ids, amounts) are returned as JSON strings to preserve precision, so parse them client-side; Decimal columns (fractional cents, and credit amounts, which are counts of credits rather than cents and are never divided by 100) come back as JSON numbers instead, so a value beyond 2^53 is already rounded — select toString(col) when you need its exact digits. Query signal payloads via JSON paths, e.g. `SELECT data.country::String AS country, count() FROM fact_signal GROUP BY country`.
      *
-     * Limits: 30 seconds of execution time and 10,000 result rows (truncation is flagged via `meta.truncated`). Prefer aggregates and a `created_at` date filter on large tables — this endpoint is for interactive analytics, not bulk export.
+     * Limits: 30 seconds of execution time and 10,000 result rows (truncation is flagged via `meta.truncated`). Queries exceeding the 4 GB memory allowance return HTTP 422 with code `QUERY_MEMORY_LIMIT_EXCEEDED`. Prefer aggregates and a `created_at` date filter on large tables — this endpoint is for interactive analytics, not bulk export.
      *
      * @param {Paid.AnalyticsQueryRequest} request
      * @param {AnalyticsExperimental.RequestOptions} requestOptions - Request-specific configuration.
@@ -35,6 +35,7 @@ export class AnalyticsExperimental {
      * @throws {@link Paid.BadRequestError}
      * @throws {@link Paid.ForbiddenError}
      * @throws {@link Paid.RequestTimeoutError}
+     * @throws {@link Paid.UnprocessableEntityError}
      * @throws {@link Paid.TooManyRequestsError}
      * @throws {@link Paid.InternalServerError}
      *
@@ -88,6 +89,11 @@ export class AnalyticsExperimental {
                     throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 408:
                     throw new Paid.RequestTimeoutError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                case 422:
+                    throw new Paid.UnprocessableEntityError(
                         _response.error.body as Paid.ErrorResponse,
                         _response.rawResponse,
                     );

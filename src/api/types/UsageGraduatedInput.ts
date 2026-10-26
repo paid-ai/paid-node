@@ -7,6 +7,7 @@ export interface UsageGraduatedInput {
     signalType?: UsageGraduatedInput.SignalType;
     billingFrequency?: UsageGraduatedInput.BillingFrequency;
     billingFrequencyCustomMonths?: number;
+    /** When usage is billed. Advance is supported only for the UsagePrepaidCredits and UsageBracketedPrepaidCredits pricing types; every other usage pricing type must use Arrears. */
     billingType?: UsageGraduatedInput.BillingType;
     pricePoints: Paid.TieredPricePoint[];
 }
@@ -25,6 +26,7 @@ export namespace UsageGraduatedInput {
         Custom: "Custom",
     } as const;
     export type BillingFrequency = (typeof BillingFrequency)[keyof typeof BillingFrequency];
+    /** When usage is billed. Advance is supported only for the UsagePrepaidCredits and UsageBracketedPrepaidCredits pricing types; every other usage pricing type must use Arrears. */
     export const BillingType = {
         Advance: "Advance",
         Arrears: "Arrears",

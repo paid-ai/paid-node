@@ -320,6 +320,43 @@ describe("PaymentAllocations", () => {
             .post("/payment-allocations/")
             .jsonBody(rawRequestBody)
             .respondWith()
+            .statusCode(409)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.paymentAllocations.createPaymentAllocation({
+                paymentId: "x",
+                allocations: [
+                    {
+                        invoiceLineId: "x",
+                        amount: 1,
+                    },
+                    {
+                        invoiceLineId: "x",
+                        amount: 1,
+                    },
+                ],
+            });
+        }).rejects.toThrow(Paid.ConflictError);
+    });
+
+    test("createPaymentAllocation (6)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {
+            paymentId: "x",
+            allocations: [
+                { invoiceLineId: "x", amount: 1 },
+                { invoiceLineId: "x", amount: 1 },
+            ],
+        };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/payment-allocations/")
+            .jsonBody(rawRequestBody)
+            .respondWith()
             .statusCode(500)
             .jsonBody(rawResponseBody)
             .build();

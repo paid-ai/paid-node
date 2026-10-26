@@ -330,7 +330,7 @@ export class Orders {
     }
 
     /**
-     * Update an order by ID
+     * Update an order by ID. creationState must equal the order's current state; activate a draft order with POST /orders/{id}/activate.
      *
      * @param {Paid.UpdateOrderRequest} request
      * @param {Orders.RequestOptions} requestOptions - Request-specific configuration.
@@ -969,6 +969,167 @@ export class Orders {
                 });
             case "timeout":
                 throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /orders/{id}/seat-assignments.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Creates or updates a customer, an optional contact, the products on the order, and the order with its lines, in one call. Each record is matched by its `externalId`, so you can send the same deal again after it changes in your CRM. Returns 201 Created when the order is new, and 200 OK when an existing draft order with the same `externalId` was updated. Treat both as success. Re-provisioning an order that is already active returns 409 `ORDER_ALREADY_ACTIVE`; change an active order through the amendments API instead. Amounts are whole numbers in minor currency units (cents).
+     *
+     * @param {Paid.ProvisionRequest} request
+     * @param {Orders.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.ConflictError}
+     * @throws {@link Paid.InternalServerError}
+     *
+     * @example
+     *     await client.orders.upsertOrderByExternalId({
+     *         "idempotency-key": "deal_88213-2026-09-30T14:05:00Z",
+     *         externalReference: {
+     *             source: "standard",
+     *             metadata: {
+     *                 "crmDealId": "deal_88213",
+     *                 "crmAccountId": "acct_4410"
+     *             }
+     *         },
+     *         customer: {
+     *             externalId: "acct_4410",
+     *             name: "Northwind Logistics",
+     *             email: "billing@northwind.example",
+     *             billingAddress: {
+     *                 line1: "200 Harbor Way",
+     *                 city: "Seattle",
+     *                 state: "WA",
+     *                 zipCode: "98101",
+     *                 country: "US"
+     *             }
+     *         },
+     *         order: {
+     *             externalId: "deal_88213",
+     *             name: "Northwind Logistics - Growth plan",
+     *             currency: "USD",
+     *             startDate: "2026-10-01T00:00:00.000Z",
+     *             lines: [{
+     *                     externalId: "deal_88213_platform",
+     *                     startDate: "2026-10-01T00:00:00.000Z",
+     *                     product: {
+     *                         externalId: "growth_plan",
+     *                         name: "Growth plan",
+     *                         attributes: [{
+     *                                 name: "Platform fee",
+     *                                 pricing: {
+     *                                     chargeType: "recurring",
+     *                                     pricingModel: "perUnit",
+     *                                     billingFrequency: "monthly",
+     *                                     billingType: "advance",
+     *                                     pricePoints: {
+     *                                         currency: "USD",
+     *                                         unitPrice: 49900
+     *                                     }
+     *                                 }
+     *                             }]
+     *                     }
+     *                 }, {
+     *                     externalId: "deal_88213_launch_discount",
+     *                     lineType: "CREDIT",
+     *                     startDate: "2026-10-01T00:00:00.000Z",
+     *                     endDate: "2027-01-01T00:00:00.000Z",
+     *                     product: {
+     *                         externalId: "launch_discount",
+     *                         name: "Launch discount",
+     *                         attributes: [{
+     *                                 name: "Launch discount",
+     *                                 pricing: {
+     *                                     chargeType: "recurring",
+     *                                     pricingModel: "perUnit",
+     *                                     billingFrequency: "monthly",
+     *                                     billingType: "advance",
+     *                                     pricePoints: {
+     *                                         currency: "USD",
+     *                                         unitPrice: 10000
+     *                                     }
+     *                                 }
+     *                             }]
+     *                     }
+     *                 }]
+     *         }
+     *     })
+     */
+    public upsertOrderByExternalId(
+        request: Paid.ProvisionRequest,
+        requestOptions?: Orders.RequestOptions,
+    ): core.HttpResponsePromise<Paid.ProvisionResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__upsertOrderByExternalId(request, requestOptions));
+    }
+
+    private async __upsertOrderByExternalId(
+        request: Paid.ProvisionRequest,
+        requestOptions?: Orders.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.ProvisionResponse>> {
+        const { "idempotency-key": idempotencyKey, ..._body } = request;
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({
+                Authorization: await this._getAuthorizationHeader(),
+                "idempotency-key": idempotencyKey,
+            }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                "provision/",
+            ),
+            method: "POST",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: _body,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.ProvisionResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 409:
+                    throw new Paid.ConflictError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /provision/.");
             case "unknown":
                 throw new errors.PaidError({
                     message: _response.error.errorMessage,

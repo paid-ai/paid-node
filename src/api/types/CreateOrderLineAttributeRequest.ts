@@ -15,12 +15,15 @@ export namespace CreateOrderLineAttributeRequest {
         pricingModel: Pricing.PricingModel;
         billingFrequency?: Pricing.BillingFrequency;
         billingFrequencyCustomMonths?: number;
+        /** When the charge is billed. A usage charge can use advance only with the prepaidCredits or bracketedPrepaidCredits pricing model; every other usage pricing model must use arrears. */
         billingType?: Pricing.BillingType;
         signalType?: Pricing.SignalType;
         creditsCurrencyId?: string;
         /** Credit amount, exact to at most 6 decimal places. */
         creditCost?: number;
         overageUnitPrice?: number;
+        /** Overage price per credit in the currency's minor units (40 is $0.40 for USD, ¥40 for JPY, 0.040 KWD for KWD), keyed by uppercase ISO 4217 currency code. On an invoice, an entry for the invoice currency on any of the order's pricing or credit benefits beats every overageUnitPrice; overageUnitPrice applies only when no holder has an entry for that currency. Writes keep the two consistent for the primary currency (the organization's default when the product is priced in it, else the product's only pricing currency; an order line's own currency): a map entry for it sets overageUnitPrice, winning when a write sends both, and an overageUnitPrice sent without the map updates an existing entry for it. A write that sends only overageUnitPrice never creates a map. */
+        overageUnitPrices?: Record<string, number | null> | null;
         /** Credit amount, exact to at most 6 decimal places. */
         creditRolloverAmount?: number;
         creditBenefits?: Pricing.CreditBenefits.Item[];
@@ -89,6 +92,7 @@ export namespace CreateOrderLineAttributeRequest {
             Custom: "custom",
         } as const;
         export type BillingFrequency = (typeof BillingFrequency)[keyof typeof BillingFrequency];
+        /** When the charge is billed. A usage charge can use advance only with the prepaidCredits or bracketedPrepaidCredits pricing model; every other usage pricing model must use arrears. */
         export const BillingType = {
             Advance: "advance",
             Arrears: "arrears",
@@ -108,6 +112,9 @@ export namespace CreateOrderLineAttributeRequest {
                 recipient?: Item.Recipient;
                 /** Credit amount, exact to at most 6 decimal places. */
                 amount: number;
+                overageUnitPrice?: number | null;
+                /** Overage price per credit in the currency's minor units (40 is $0.40 for USD, ¥40 for JPY, 0.040 KWD for KWD), keyed by uppercase ISO 4217 currency code. On an invoice, an entry for the invoice currency on any of the order's pricing or credit benefits beats every overageUnitPrice; overageUnitPrice applies only when no holder has an entry for that currency. Writes keep the two consistent for the primary currency (the organization's default when the product is priced in it, else the product's only pricing currency; an order line's own currency): a map entry for it sets overageUnitPrice, winning when a write sends both, and an overageUnitPrice sent without the map updates an existing entry for it. A write that sends only overageUnitPrice never creates a map. */
+                overageUnitPrices?: Record<string, number | null> | null;
                 /** Credit amount, exact to at most 6 decimal places. */
                 rolloverAmount?: number | null;
                 rolloverDuration?: number | null;
@@ -130,6 +137,8 @@ export namespace CreateOrderLineAttributeRequest {
                 export const AllocationCadence = {
                     Upfront: "upfront",
                     Monthly: "monthly",
+                    Quarterly: "quarterly",
+                    SemiAnnually: "semi_annually",
                 } as const;
                 export type AllocationCadence = (typeof AllocationCadence)[keyof typeof AllocationCadence];
                 export const CreditGrantTiming = {

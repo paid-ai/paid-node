@@ -3,6 +3,7 @@
 import type * as Paid from "../index.js";
 
 export interface UpdateContactRequest {
+    /** Destination customer ID. A contact can move only if no orders or invoices reference it. */
     customerId?: string;
     firstName?: string;
     lastName?: string;
