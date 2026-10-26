@@ -15,7 +15,7 @@ export interface CreditTransaction {
     originCode: string;
     /** Usage event that produced this spend. Null for grants and non-signal spends. */
     eventName: string | null;
-    /** ID of the usage signal that produced this spend, resolvable via `GET /api/v2/signals/{id}` (including the signal's data payload). Null for grants and non-signal spends. */
+    /** ID of the usage signal that produced this spend, resolvable via `GET /api/v2/signals/{id}`, or in bulk for a whole page via `POST /api/v2/signals/lookup` (both include the signal's data payload). Null for grants and non-signal spends. */
     signalId: string | null;
     /** Paid order display ID this transaction is linked to, if any. */
     orderId: string | null;

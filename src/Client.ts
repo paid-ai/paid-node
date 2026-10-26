@@ -7,10 +7,10 @@ import { Checkouts } from "./api/resources/checkouts/client/Client.js";
 import { Contacts } from "./api/resources/contacts/client/Client.js";
 import { Costs } from "./api/resources/costs/client/Client.js";
 import { Credits } from "./api/resources/credits/client/Client.js";
-import { CustomerGroups } from "./api/resources/customerGroups/client/Client.js";
 import { CustomerPortals } from "./api/resources/customerPortals/client/Client.js";
 import { Customers } from "./api/resources/customers/client/Client.js";
 import { CustomViewsExperimental } from "./api/resources/customViewsExperimental/client/Client.js";
+import { DeliveredValue } from "./api/resources/deliveredValue/client/Client.js";
 import { Invoices } from "./api/resources/invoices/client/Client.js";
 import { Orders } from "./api/resources/orders/client/Client.js";
 import { PaymentAllocations } from "./api/resources/paymentAllocations/client/Client.js";
@@ -47,6 +47,7 @@ export class PaidClient {
     protected _checkouts: Checkouts | undefined;
     protected _customerPortals: CustomerPortals | undefined;
     protected _valueReceipts: ValueReceipts | undefined;
+    protected _deliveredValue: DeliveredValue | undefined;
     protected _webhooks: Webhooks | undefined;
     protected _pricing: Pricing | undefined;
     protected _costs: Costs | undefined;
@@ -54,7 +55,6 @@ export class PaidClient {
     protected _customViewsExperimental: CustomViewsExperimental | undefined;
     protected _valueModels: ValueModels | undefined;
     protected _valueMetrics: ValueMetrics | undefined;
-    protected _customerGroups: CustomerGroups | undefined;
     protected _paymentMethods: PaymentMethods | undefined;
     protected _payments: Payments | undefined;
     protected _paymentAllocations: PaymentAllocations | undefined;
@@ -68,8 +68,8 @@ export class PaidClient {
                 {
                     "X-Fern-Language": "JavaScript",
                     "X-Fern-SDK-Name": "@paid-ai/paid-node",
-                    "X-Fern-SDK-Version": "1.8.0",
-                    "User-Agent": "@paid-ai/paid-node/1.8.0",
+                    "X-Fern-SDK-Version": "1.9.0",
+                    "User-Agent": "@paid-ai/paid-node/1.9.0",
                     "X-Fern-Runtime": core.RUNTIME.type,
                     "X-Fern-Runtime-Version": core.RUNTIME.version,
                 },
@@ -122,6 +122,10 @@ export class PaidClient {
         return (this._valueReceipts ??= new ValueReceipts(this._options));
     }
 
+    public get deliveredValue(): DeliveredValue {
+        return (this._deliveredValue ??= new DeliveredValue(this._options));
+    }
+
     public get webhooks(): Webhooks {
         return (this._webhooks ??= new Webhooks(this._options));
     }
@@ -148,10 +152,6 @@ export class PaidClient {
 
     public get valueMetrics(): ValueMetrics {
         return (this._valueMetrics ??= new ValueMetrics(this._options));
-    }
-
-    public get customerGroups(): CustomerGroups {
-        return (this._customerGroups ??= new CustomerGroups(this._options));
     }
 
     public get paymentMethods(): PaymentMethods {

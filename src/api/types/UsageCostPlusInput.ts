@@ -7,6 +7,7 @@ export interface UsageCostPlusInput {
     signalType?: UsageCostPlusInput.SignalType;
     billingFrequency?: UsageCostPlusInput.BillingFrequency;
     billingFrequencyCustomMonths?: number;
+    /** When usage is billed. Usage must use Arrears, prepaid credits included; to sell credits up front, add a credit benefit to a recurring, seat or one-time attribute. */
     billingType?: UsageCostPlusInput.BillingType;
     pricePoints?: Paid.SimplePricePoint[];
 }
@@ -25,6 +26,7 @@ export namespace UsageCostPlusInput {
         Custom: "Custom",
     } as const;
     export type BillingFrequency = (typeof BillingFrequency)[keyof typeof BillingFrequency];
+    /** When usage is billed. Usage must use Arrears, prepaid credits included; to sell credits up front, add a credit benefit to a recurring, seat or one-time attribute. */
     export const BillingType = {
         Advance: "Advance",
         Arrears: "Arrears",

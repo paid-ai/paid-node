@@ -1375,4 +1375,506 @@ describe("Orders", () => {
             });
         }).rejects.toThrow(Paid.InternalServerError);
     });
+
+    test("upsertOrderByExternalId (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {
+            externalReference: { source: "standard", metadata: { crmDealId: "deal_88213", crmAccountId: "acct_4410" } },
+            customer: {
+                externalId: "acct_4410",
+                name: "Northwind Logistics",
+                email: "billing@northwind.example",
+                billingAddress: {
+                    line1: "200 Harbor Way",
+                    city: "Seattle",
+                    state: "WA",
+                    zipCode: "98101",
+                    country: "US",
+                },
+            },
+            order: {
+                externalId: "deal_88213",
+                name: "Northwind Logistics - Growth plan",
+                currency: "USD",
+                startDate: "2026-10-01T00:00:00.000Z",
+                lines: [
+                    {
+                        externalId: "deal_88213_platform",
+                        startDate: "2026-10-01T00:00:00.000Z",
+                        product: {
+                            externalId: "growth_plan",
+                            name: "Growth plan",
+                            attributes: [
+                                {
+                                    name: "Platform fee",
+                                    pricing: {
+                                        chargeType: "recurring",
+                                        pricingModel: "perUnit",
+                                        billingFrequency: "monthly",
+                                        billingType: "advance",
+                                        pricePoints: { currency: "USD", unitPrice: 49900 },
+                                    },
+                                },
+                            ],
+                        },
+                    },
+                    {
+                        externalId: "deal_88213_launch_discount",
+                        lineType: "CREDIT",
+                        startDate: "2026-10-01T00:00:00.000Z",
+                        endDate: "2027-01-01T00:00:00.000Z",
+                        product: {
+                            externalId: "launch_discount",
+                            name: "Launch discount",
+                            attributes: [
+                                {
+                                    name: "Launch discount",
+                                    pricing: {
+                                        chargeType: "recurring",
+                                        pricingModel: "perUnit",
+                                        billingFrequency: "monthly",
+                                        billingType: "advance",
+                                        pricePoints: { currency: "USD", unitPrice: 10000 },
+                                    },
+                                },
+                            ],
+                        },
+                    },
+                ],
+            },
+        };
+        const rawResponseBody = {
+            status: "created",
+            createdAt: "2026-09-30T14:05:12.000Z",
+            customer: { id: "cus_7Qm2Lx9Pa", provisionStatus: "created", createdAt: "2026-09-30T14:05:12.000Z" },
+            order: {
+                id: "ord_3Vk8Ht1Zc",
+                provisionStatus: "created",
+                createdAt: "2026-09-30T14:05:12.000Z",
+                lines: [
+                    {
+                        id: "ordl_5Nw4Rb2Ye",
+                        externalId: "deal_88213_platform",
+                        provisionStatus: "created",
+                        createdAt: "2026-09-30T14:05:12.000Z",
+                        lineType: "STANDARD",
+                    },
+                    {
+                        id: "ordl_8Jp6Ts3Qd",
+                        externalId: "deal_88213_launch_discount",
+                        provisionStatus: "created",
+                        createdAt: "2026-09-30T14:05:12.000Z",
+                        lineType: "CREDIT",
+                    },
+                ],
+            },
+        };
+        server
+            .mockEndpoint()
+            .post("/provision/")
+            .header("idempotency-key", "deal_88213-2026-09-30T14:05:00Z")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.orders.upsertOrderByExternalId({
+            "idempotency-key": "deal_88213-2026-09-30T14:05:00Z",
+            externalReference: {
+                source: "standard",
+                metadata: {
+                    crmDealId: "deal_88213",
+                    crmAccountId: "acct_4410",
+                },
+            },
+            customer: {
+                externalId: "acct_4410",
+                name: "Northwind Logistics",
+                email: "billing@northwind.example",
+                billingAddress: {
+                    line1: "200 Harbor Way",
+                    city: "Seattle",
+                    state: "WA",
+                    zipCode: "98101",
+                    country: "US",
+                },
+            },
+            order: {
+                externalId: "deal_88213",
+                name: "Northwind Logistics - Growth plan",
+                currency: "USD",
+                startDate: "2026-10-01T00:00:00.000Z",
+                lines: [
+                    {
+                        externalId: "deal_88213_platform",
+                        startDate: "2026-10-01T00:00:00.000Z",
+                        product: {
+                            externalId: "growth_plan",
+                            name: "Growth plan",
+                            attributes: [
+                                {
+                                    name: "Platform fee",
+                                    pricing: {
+                                        chargeType: "recurring",
+                                        pricingModel: "perUnit",
+                                        billingFrequency: "monthly",
+                                        billingType: "advance",
+                                        pricePoints: {
+                                            currency: "USD",
+                                            unitPrice: 49900,
+                                        },
+                                    },
+                                },
+                            ],
+                        },
+                    },
+                    {
+                        externalId: "deal_88213_launch_discount",
+                        lineType: "CREDIT",
+                        startDate: "2026-10-01T00:00:00.000Z",
+                        endDate: "2027-01-01T00:00:00.000Z",
+                        product: {
+                            externalId: "launch_discount",
+                            name: "Launch discount",
+                            attributes: [
+                                {
+                                    name: "Launch discount",
+                                    pricing: {
+                                        chargeType: "recurring",
+                                        pricingModel: "perUnit",
+                                        billingFrequency: "monthly",
+                                        billingType: "advance",
+                                        pricePoints: {
+                                            currency: "USD",
+                                            unitPrice: 10000,
+                                        },
+                                    },
+                                },
+                            ],
+                        },
+                    },
+                ],
+            },
+        });
+        expect(response).toEqual({
+            status: "created",
+            createdAt: "2026-09-30T14:05:12.000Z",
+            customer: {
+                id: "cus_7Qm2Lx9Pa",
+                provisionStatus: "created",
+                createdAt: "2026-09-30T14:05:12.000Z",
+            },
+            order: {
+                id: "ord_3Vk8Ht1Zc",
+                provisionStatus: "created",
+                createdAt: "2026-09-30T14:05:12.000Z",
+                lines: [
+                    {
+                        id: "ordl_5Nw4Rb2Ye",
+                        externalId: "deal_88213_platform",
+                        provisionStatus: "created",
+                        createdAt: "2026-09-30T14:05:12.000Z",
+                        lineType: "STANDARD",
+                    },
+                    {
+                        id: "ordl_8Jp6Ts3Qd",
+                        externalId: "deal_88213_launch_discount",
+                        provisionStatus: "created",
+                        createdAt: "2026-09-30T14:05:12.000Z",
+                        lineType: "CREDIT",
+                    },
+                ],
+            },
+        });
+    });
+
+    test("upsertOrderByExternalId (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {
+            externalReference: { source: "salesforce" },
+            customer: { name: "name", externalId: "externalId" },
+            order: {
+                currency: "currency",
+                startDate: "2024-01-15T09:30:00Z",
+                externalId: "externalId",
+                lines: [
+                    {
+                        product: { name: "name", externalId: "externalId" },
+                        startDate: "2024-01-15T09:30:00Z",
+                        externalId: "externalId",
+                    },
+                    {
+                        product: { name: "name", externalId: "externalId" },
+                        startDate: "2024-01-15T09:30:00Z",
+                        externalId: "externalId",
+                    },
+                ],
+            },
+        };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/provision/")
+            .header("idempotency-key", "idempotencyKey")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.orders.upsertOrderByExternalId({
+                "idempotency-key": "idempotencyKey",
+                externalReference: {
+                    source: "salesforce",
+                },
+                customer: {
+                    name: "name",
+                    externalId: "externalId",
+                },
+                order: {
+                    currency: "currency",
+                    startDate: "2024-01-15T09:30:00Z",
+                    externalId: "externalId",
+                    lines: [
+                        {
+                            product: {
+                                name: "name",
+                                externalId: "externalId",
+                            },
+                            startDate: "2024-01-15T09:30:00Z",
+                            externalId: "externalId",
+                        },
+                        {
+                            product: {
+                                name: "name",
+                                externalId: "externalId",
+                            },
+                            startDate: "2024-01-15T09:30:00Z",
+                            externalId: "externalId",
+                        },
+                    ],
+                },
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("upsertOrderByExternalId (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {
+            externalReference: { source: "salesforce" },
+            customer: { name: "name", externalId: "externalId" },
+            order: {
+                currency: "currency",
+                startDate: "2024-01-15T09:30:00Z",
+                externalId: "externalId",
+                lines: [
+                    {
+                        product: { name: "name", externalId: "externalId" },
+                        startDate: "2024-01-15T09:30:00Z",
+                        externalId: "externalId",
+                    },
+                    {
+                        product: { name: "name", externalId: "externalId" },
+                        startDate: "2024-01-15T09:30:00Z",
+                        externalId: "externalId",
+                    },
+                ],
+            },
+        };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/provision/")
+            .header("idempotency-key", "idempotencyKey")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.orders.upsertOrderByExternalId({
+                "idempotency-key": "idempotencyKey",
+                externalReference: {
+                    source: "salesforce",
+                },
+                customer: {
+                    name: "name",
+                    externalId: "externalId",
+                },
+                order: {
+                    currency: "currency",
+                    startDate: "2024-01-15T09:30:00Z",
+                    externalId: "externalId",
+                    lines: [
+                        {
+                            product: {
+                                name: "name",
+                                externalId: "externalId",
+                            },
+                            startDate: "2024-01-15T09:30:00Z",
+                            externalId: "externalId",
+                        },
+                        {
+                            product: {
+                                name: "name",
+                                externalId: "externalId",
+                            },
+                            startDate: "2024-01-15T09:30:00Z",
+                            externalId: "externalId",
+                        },
+                    ],
+                },
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("upsertOrderByExternalId (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {
+            externalReference: { source: "salesforce" },
+            customer: { name: "name", externalId: "externalId" },
+            order: {
+                currency: "currency",
+                startDate: "2024-01-15T09:30:00Z",
+                externalId: "externalId",
+                lines: [
+                    {
+                        product: { name: "name", externalId: "externalId" },
+                        startDate: "2024-01-15T09:30:00Z",
+                        externalId: "externalId",
+                    },
+                    {
+                        product: { name: "name", externalId: "externalId" },
+                        startDate: "2024-01-15T09:30:00Z",
+                        externalId: "externalId",
+                    },
+                ],
+            },
+        };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/provision/")
+            .header("idempotency-key", "idempotencyKey")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(409)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.orders.upsertOrderByExternalId({
+                "idempotency-key": "idempotencyKey",
+                externalReference: {
+                    source: "salesforce",
+                },
+                customer: {
+                    name: "name",
+                    externalId: "externalId",
+                },
+                order: {
+                    currency: "currency",
+                    startDate: "2024-01-15T09:30:00Z",
+                    externalId: "externalId",
+                    lines: [
+                        {
+                            product: {
+                                name: "name",
+                                externalId: "externalId",
+                            },
+                            startDate: "2024-01-15T09:30:00Z",
+                            externalId: "externalId",
+                        },
+                        {
+                            product: {
+                                name: "name",
+                                externalId: "externalId",
+                            },
+                            startDate: "2024-01-15T09:30:00Z",
+                            externalId: "externalId",
+                        },
+                    ],
+                },
+            });
+        }).rejects.toThrow(Paid.ConflictError);
+    });
+
+    test("upsertOrderByExternalId (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {
+            externalReference: { source: "salesforce" },
+            customer: { name: "name", externalId: "externalId" },
+            order: {
+                currency: "currency",
+                startDate: "2024-01-15T09:30:00Z",
+                externalId: "externalId",
+                lines: [
+                    {
+                        product: { name: "name", externalId: "externalId" },
+                        startDate: "2024-01-15T09:30:00Z",
+                        externalId: "externalId",
+                    },
+                    {
+                        product: { name: "name", externalId: "externalId" },
+                        startDate: "2024-01-15T09:30:00Z",
+                        externalId: "externalId",
+                    },
+                ],
+            },
+        };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/provision/")
+            .header("idempotency-key", "idempotencyKey")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.orders.upsertOrderByExternalId({
+                "idempotency-key": "idempotencyKey",
+                externalReference: {
+                    source: "salesforce",
+                },
+                customer: {
+                    name: "name",
+                    externalId: "externalId",
+                },
+                order: {
+                    currency: "currency",
+                    startDate: "2024-01-15T09:30:00Z",
+                    externalId: "externalId",
+                    lines: [
+                        {
+                            product: {
+                                name: "name",
+                                externalId: "externalId",
+                            },
+                            startDate: "2024-01-15T09:30:00Z",
+                            externalId: "externalId",
+                        },
+                        {
+                            product: {
+                                name: "name",
+                                externalId: "externalId",
+                            },
+                            startDate: "2024-01-15T09:30:00Z",
+                            externalId: "externalId",
+                        },
+                    ],
+                },
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
 });

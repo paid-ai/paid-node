@@ -12,6 +12,6 @@ export interface UpdateWebhookRequest {
     webhookName: Paid.UpdateWebhookRequestWebhookName;
     /** Whether the webhook is enabled for delivery. */
     enabled?: boolean;
-    /** The HTTPS endpoint Paid should deliver this webhook to. Set to null to clear it while disabled. */
+    /** The HTTPS endpoint Paid should deliver this webhook to. It must use HTTPS and a public host: localhost, private networks (10.x, 172.16-31.x, 192.168.x), link-local addresses and .local names are rejected. Set to null to clear it while disabled. */
     url?: string | null;
 }

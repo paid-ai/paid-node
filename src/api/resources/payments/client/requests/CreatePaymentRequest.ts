@@ -17,7 +17,7 @@ export interface CreatePaymentRequest {
     externalCustomerId?: string;
     /** Payment amount in cents (minor currency units). */
     amount: number;
-    /** Three-letter ISO currency code. */
+    /** Three-letter ISO 4217 currency code. Lowercase is accepted and stored upper-cased. */
     currency: string;
     /** When the payment was made (ISO 8601). Defaults to the current time. */
     paymentDate?: string;
