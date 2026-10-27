@@ -106,7 +106,7 @@ export class Webhooks {
      *
      * @example
      *     await client.webhooks.updateWebhook({
-     *         webhookName: "billing-invoice-created"
+     *         webhookName: "billing-invoice-paid"
      *     })
      */
     public updateWebhook(
@@ -196,7 +196,7 @@ export class Webhooks {
      *
      * @example
      *     await client.webhooks.testWebhook({
-     *         webhookName: "billing-invoice-created"
+     *         webhookName: "billing-invoice-paid"
      *     })
      */
     public testWebhook(

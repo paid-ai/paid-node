@@ -14,7 +14,6 @@ export interface Webhook {
 
 export namespace Webhook {
     export const Name = {
-        BillingInvoiceCreated: "billing-invoice-created",
         BillingInvoicePaid: "billing-invoice-paid",
         BillingInvoicePosted: "billing-invoice-posted",
         BillingCheckoutCreated: "billing-checkout-created",
