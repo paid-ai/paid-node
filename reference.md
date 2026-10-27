@@ -1,5 +1,5 @@
 # Reference
-## Products
+## products
 <details><summary><code>client.products.<a href="/src/api/resources/products/client/Client.ts">listProducts</a>({ ...params }) -> Paid.ProductListResponse</code></summary>
 <dl>
 <dd>
@@ -390,7 +390,7 @@ await client.products.updateProductByExternalId({
 </dl>
 </details>
 
-## Plans
+## plans
 <details><summary><code>client.plans.<a href="/src/api/resources/plans/client/Client.ts">listPlans</a>({ ...params }) -> Paid.PlanListResponse</code></summary>
 <dl>
 <dd>
@@ -860,7 +860,7 @@ await client.plans.updatePlanByExternalId({
 </dl>
 </details>
 
-## Customers
+## customers
 <details><summary><code>client.customers.<a href="/src/api/resources/customers/client/Client.ts">listCustomers</a>({ ...params }) -> Paid.CustomerListResponse</code></summary>
 <dl>
 <dd>
@@ -4985,7 +4985,7 @@ await client.customers.getCustomerUnitSpend({
 </dl>
 </details>
 
-## Contacts
+## contacts
 <details><summary><code>client.contacts.<a href="/src/api/resources/contacts/client/Client.ts">listContacts</a>({ ...params }) -> Paid.ContactListResponse</code></summary>
 <dl>
 <dd>
@@ -5507,7 +5507,7 @@ await client.contacts.deleteContactByExternalId({
 </dl>
 </details>
 
-## Orders
+## orders
 <details><summary><code>client.orders.<a href="/src/api/resources/orders/client/Client.ts">listOrders</a>({ ...params }) -> Paid.OrderListResponse</code></summary>
 <dl>
 <dd>
@@ -6293,7 +6293,7 @@ await client.orders.upsertOrderByExternalId({
 </dl>
 </details>
 
-## Invoices
+## invoices
 <details><summary><code>client.invoices.<a href="/src/api/resources/invoices/client/Client.ts">listInvoices</a>({ ...params }) -> Paid.InvoiceListResponse</code></summary>
 <dl>
 <dd>
@@ -6552,7 +6552,7 @@ await client.invoices.getInvoiceLines({
 </dl>
 </details>
 
-## Signals
+## signals
 <details><summary><code>client.signals.<a href="/src/api/resources/signals/client/Client.ts">listSignals</a>({ ...params }) -> Paid.SignalListResponse</code></summary>
 <dl>
 <dd>
@@ -7069,7 +7069,7 @@ await client.signals.getSignalSummary({
 </dl>
 </details>
 
-## Credits
+## credits
 <details><summary><code>client.credits.<a href="/src/api/resources/credits/client/Client.ts">listCreditCurrencies</a>({ ...params }) -> Paid.CreditCurrencyListResponse</code></summary>
 <dl>
 <dd>
@@ -7397,7 +7397,7 @@ await client.credits.updateCreditCurrencyById({
 </dl>
 </details>
 
-## Checkouts
+## checkouts
 <details><summary><code>client.checkouts.<a href="/src/api/resources/checkouts/client/Client.ts">listCheckouts</a>({ ...params }) -> Paid.CheckoutListResponse</code></summary>
 <dl>
 <dd>
@@ -7659,7 +7659,7 @@ await client.checkouts.archiveCheckout({
 </dl>
 </details>
 
-## CustomerPortals
+## customer-portals
 <details><summary><code>client.customerPortals.<a href="/src/api/resources/customerPortals/client/Client.ts">createCustomerPortal</a>({ ...params }) -> Paid.CustomerPortal</code></summary>
 <dl>
 <dd>
@@ -7723,7 +7723,7 @@ await client.customerPortals.createCustomerPortal();
 </dl>
 </details>
 
-## ValueReceipts
+## value-receipts
 <details><summary><code>client.valueReceipts.<a href="/src/api/resources/valueReceipts/client/Client.ts">listValueReceipts</a>({ ...params }) -> Paid.ValueReceiptListResponse</code></summary>
 <dl>
 <dd>
@@ -8374,7 +8374,7 @@ await client.valueReceipts.unpublishValueReceipt({
 </dl>
 </details>
 
-## DeliveredValue
+## delivered-value
 <details><summary><code>client.deliveredValue.<a href="/src/api/resources/deliveredValue/client/Client.ts">getDeliveredValue</a>({ ...params }) -> Paid.DeliveredValueResponse</code></summary>
 <dl>
 <dd>
@@ -8511,7 +8511,7 @@ await client.deliveredValue.getDeliveredValueSummary({
 </dl>
 </details>
 
-## Webhooks
+## webhooks
 <details><summary><code>client.webhooks.<a href="/src/api/resources/webhooks/client/Client.ts">listWebhooks</a>() -> Paid.WebhookListResponse</code></summary>
 <dl>
 <dd>
@@ -8595,7 +8595,7 @@ Enable or disable a webhook and configure the destination URL for the authentica
 
 ```typescript
 await client.webhooks.updateWebhook({
-    webhookName: "billing-invoice-created"
+    webhookName: "billing-invoice-paid"
 });
 
 ```
@@ -8660,7 +8660,7 @@ Send a synthetic webhook delivery to the configured destination for this webhook
 
 ```typescript
 await client.webhooks.testWebhook({
-    webhookName: "billing-invoice-created"
+    webhookName: "billing-invoice-paid"
 });
 
 ```
@@ -8760,7 +8760,7 @@ await client.webhooks.rotateWebhookSecret();
 </dl>
 </details>
 
-## Pricing
+## pricing
 <details><summary><code>client.pricing.<a href="/src/api/resources/pricing/client/Client.ts">listPricing</a>({ ...params }) -> Paid.PricingListResponse</code></summary>
 <dl>
 <dd>
@@ -8964,7 +8964,7 @@ await client.pricing.updatePricing({
 </dl>
 </details>
 
-## Costs
+## costs
 <details><summary><code>client.costs.<a href="/src/api/resources/costs/client/Client.ts">createCosts</a>({ ...params }) -> Paid.CostIngestResponse</code></summary>
 <dl>
 <dd>
@@ -9037,7 +9037,7 @@ await client.costs.createCosts({
 </dl>
 </details>
 
-## Analytics
+## analytics
 <details><summary><code>client.analytics.<a href="/src/api/resources/analytics/client/Client.ts">executeAnalyticsQuery</a>({ ...params }) -> Paid.AnalyticsQueryResponse</code></summary>
 <dl>
 <dd>
@@ -9225,7 +9225,7 @@ await client.analytics.getSignalsMetadata();
 </dl>
 </details>
 
-## CustomViewsExperimental
+## custom-views-experimental
 <details><summary><code>client.customViewsExperimental.<a href="/src/api/resources/customViewsExperimental/client/Client.ts">listCustomViews</a>() -> Paid.CustomViewListResponse</code></summary>
 <dl>
 <dd>
@@ -9829,7 +9829,7 @@ await client.customViewsExperimental.getCustomViewEmbedToken({
 </dl>
 </details>
 
-## ValueModels
+## value-models
 <details><summary><code>client.valueModels.<a href="/src/api/resources/valueModels/client/Client.ts">getCurrentValueModel</a>() -> Paid.ValueModelDetail</code></summary>
 <dl>
 <dd>
@@ -10173,7 +10173,7 @@ await client.valueModels.refreshValueModelBackfill();
 </dl>
 </details>
 
-## ValueMetrics
+## value-metrics
 <details><summary><code>client.valueMetrics.<a href="/src/api/resources/valueMetrics/client/Client.ts">listValueMetrics</a>({ ...params }) -> Paid.ValueMetricListResponse</code></summary>
 <dl>
 <dd>
@@ -10510,7 +10510,7 @@ await client.valueMetrics.updateValueMetric({
 </dl>
 </details>
 
-## PaymentMethods
+## payment-methods
 <details><summary><code>client.paymentMethods.<a href="/src/api/resources/paymentMethods/client/Client.ts">listPaymentMethods</a>({ ...params }) -> Paid.PaymentMethodListResponse</code></summary>
 <dl>
 <dd>
@@ -10836,7 +10836,7 @@ await client.paymentMethods.updateDefaultPaymentMethod({
 </dl>
 </details>
 
-## Payments
+## payments
 <details><summary><code>client.payments.<a href="/src/api/resources/payments/client/Client.ts">listPayments</a>({ ...params }) -> Paid.PaymentListResponse</code></summary>
 <dl>
 <dd>
@@ -11032,7 +11032,7 @@ await client.payments.getPayment({
 </dl>
 </details>
 
-## PaymentAllocations
+## payment-allocations
 <details><summary><code>client.paymentAllocations.<a href="/src/api/resources/paymentAllocations/client/Client.ts">listPaymentAllocations</a>({ ...params }) -> Paid.PaymentAllocationListResponse</code></summary>
 <dl>
 <dd>
@@ -11168,7 +11168,7 @@ await client.paymentAllocations.createPaymentAllocation({
 </dl>
 </details>
 
-## Amendments
+## amendments
 <details><summary><code>client.amendments.<a href="/src/api/resources/amendments/client/Client.ts">getOrderAmendmentOptions</a>({ ...params }) -> Paid.AmendmentOptions</code></summary>
 <dl>
 <dd>
@@ -11376,7 +11376,7 @@ await client.amendments.executeOrderAmendment({
 </dl>
 </details>
 
-## AnalyticsExperimental
+## analytics-experimental
 <details><summary><code>client.analyticsExperimental.<a href="/src/api/resources/analyticsExperimental/client/Client.ts">executeExperimentalAnalyticsQuery</a>({ ...params }) -> Paid.AnalyticsQueryResponse</code></summary>
 <dl>
 <dd>

@@ -5,7 +5,7 @@ import type * as Paid from "../../../../index.js";
 /**
  * @example
  *     {
- *         webhookName: "billing-invoice-created"
+ *         webhookName: "billing-invoice-paid"
  *     }
  */
 export interface TestWebhookRequest {

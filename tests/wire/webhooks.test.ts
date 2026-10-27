@@ -13,7 +13,7 @@ describe("Webhooks", () => {
             data: [
                 {
                     id: "id",
-                    name: "billing-invoice-created",
+                    name: "billing-invoice-paid",
                     description: "description",
                     enabled: true,
                     url: "url",
@@ -30,7 +30,7 @@ describe("Webhooks", () => {
             data: [
                 {
                     id: "id",
-                    name: "billing-invoice-created",
+                    name: "billing-invoice-paid",
                     description: "description",
                     enabled: true,
                     url: "url",
@@ -72,7 +72,7 @@ describe("Webhooks", () => {
         const rawRequestBody = {};
         const rawResponseBody = {
             id: "id",
-            name: "billing-invoice-created",
+            name: "billing-invoice-paid",
             description: "description",
             enabled: true,
             url: "url",
@@ -82,7 +82,7 @@ describe("Webhooks", () => {
         };
         server
             .mockEndpoint()
-            .patch("/webhooks/billing-invoice-created")
+            .patch("/webhooks/billing-invoice-paid")
             .jsonBody(rawRequestBody)
             .respondWith()
             .statusCode(200)
@@ -90,11 +90,11 @@ describe("Webhooks", () => {
             .build();
 
         const response = await client.webhooks.updateWebhook({
-            webhookName: "billing-invoice-created",
+            webhookName: "billing-invoice-paid",
         });
         expect(response).toEqual({
             id: "id",
-            name: "billing-invoice-created",
+            name: "billing-invoice-paid",
             description: "description",
             enabled: true,
             url: "url",
@@ -111,7 +111,7 @@ describe("Webhooks", () => {
         const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
-            .patch("/webhooks/billing-invoice-created")
+            .patch("/webhooks/billing-invoice-paid")
             .jsonBody(rawRequestBody)
             .respondWith()
             .statusCode(400)
@@ -120,7 +120,7 @@ describe("Webhooks", () => {
 
         await expect(async () => {
             return await client.webhooks.updateWebhook({
-                webhookName: "billing-invoice-created",
+                webhookName: "billing-invoice-paid",
             });
         }).rejects.toThrow(Paid.BadRequestError);
     });
@@ -132,7 +132,7 @@ describe("Webhooks", () => {
         const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
-            .patch("/webhooks/billing-invoice-created")
+            .patch("/webhooks/billing-invoice-paid")
             .jsonBody(rawRequestBody)
             .respondWith()
             .statusCode(403)
@@ -141,7 +141,7 @@ describe("Webhooks", () => {
 
         await expect(async () => {
             return await client.webhooks.updateWebhook({
-                webhookName: "billing-invoice-created",
+                webhookName: "billing-invoice-paid",
             });
         }).rejects.toThrow(Paid.ForbiddenError);
     });
@@ -153,7 +153,7 @@ describe("Webhooks", () => {
         const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
-            .patch("/webhooks/billing-invoice-created")
+            .patch("/webhooks/billing-invoice-paid")
             .jsonBody(rawRequestBody)
             .respondWith()
             .statusCode(404)
@@ -162,7 +162,7 @@ describe("Webhooks", () => {
 
         await expect(async () => {
             return await client.webhooks.updateWebhook({
-                webhookName: "billing-invoice-created",
+                webhookName: "billing-invoice-paid",
             });
         }).rejects.toThrow(Paid.NotFoundError);
     });
@@ -174,7 +174,7 @@ describe("Webhooks", () => {
         const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
-            .patch("/webhooks/billing-invoice-created")
+            .patch("/webhooks/billing-invoice-paid")
             .jsonBody(rawRequestBody)
             .respondWith()
             .statusCode(500)
@@ -183,7 +183,7 @@ describe("Webhooks", () => {
 
         await expect(async () => {
             return await client.webhooks.updateWebhook({
-                webhookName: "billing-invoice-created",
+                webhookName: "billing-invoice-paid",
             });
         }).rejects.toThrow(Paid.InternalServerError);
     });
@@ -195,7 +195,7 @@ describe("Webhooks", () => {
         const rawResponseBody = { success: true };
         server
             .mockEndpoint()
-            .post("/webhooks/billing-invoice-created/test")
+            .post("/webhooks/billing-invoice-paid/test")
             .jsonBody(rawRequestBody)
             .respondWith()
             .statusCode(200)
@@ -203,7 +203,7 @@ describe("Webhooks", () => {
             .build();
 
         const response = await client.webhooks.testWebhook({
-            webhookName: "billing-invoice-created",
+            webhookName: "billing-invoice-paid",
         });
         expect(response).toEqual({
             success: true,
@@ -217,7 +217,7 @@ describe("Webhooks", () => {
         const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
-            .post("/webhooks/billing-invoice-created/test")
+            .post("/webhooks/billing-invoice-paid/test")
             .jsonBody(rawRequestBody)
             .respondWith()
             .statusCode(400)
@@ -226,7 +226,7 @@ describe("Webhooks", () => {
 
         await expect(async () => {
             return await client.webhooks.testWebhook({
-                webhookName: "billing-invoice-created",
+                webhookName: "billing-invoice-paid",
             });
         }).rejects.toThrow(Paid.BadRequestError);
     });
@@ -238,7 +238,7 @@ describe("Webhooks", () => {
         const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
-            .post("/webhooks/billing-invoice-created/test")
+            .post("/webhooks/billing-invoice-paid/test")
             .jsonBody(rawRequestBody)
             .respondWith()
             .statusCode(403)
@@ -247,7 +247,7 @@ describe("Webhooks", () => {
 
         await expect(async () => {
             return await client.webhooks.testWebhook({
-                webhookName: "billing-invoice-created",
+                webhookName: "billing-invoice-paid",
             });
         }).rejects.toThrow(Paid.ForbiddenError);
     });
@@ -259,7 +259,7 @@ describe("Webhooks", () => {
         const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
-            .post("/webhooks/billing-invoice-created/test")
+            .post("/webhooks/billing-invoice-paid/test")
             .jsonBody(rawRequestBody)
             .respondWith()
             .statusCode(404)
@@ -268,7 +268,7 @@ describe("Webhooks", () => {
 
         await expect(async () => {
             return await client.webhooks.testWebhook({
-                webhookName: "billing-invoice-created",
+                webhookName: "billing-invoice-paid",
             });
         }).rejects.toThrow(Paid.NotFoundError);
     });
@@ -280,7 +280,7 @@ describe("Webhooks", () => {
         const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
-            .post("/webhooks/billing-invoice-created/test")
+            .post("/webhooks/billing-invoice-paid/test")
             .jsonBody(rawRequestBody)
             .respondWith()
             .statusCode(500)
@@ -289,7 +289,7 @@ describe("Webhooks", () => {
 
         await expect(async () => {
             return await client.webhooks.testWebhook({
-                webhookName: "billing-invoice-created",
+                webhookName: "billing-invoice-paid",
             });
         }).rejects.toThrow(Paid.InternalServerError);
     });
