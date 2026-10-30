@@ -16,7 +16,9 @@ export interface CreateCheckoutRequest {
     customerId?: string;
     /** External customer identifier. Creates the customer on first use, resolves to the existing customer on subsequent uses. */
     externalCustomerId?: string;
+    /** Where the customer goes after paying. `{CHECKOUT_ID}` is replaced with this checkout's ID when it's created, and `{CHECKOUT_SESSION_ID}` with the customer's own checkout session ID (`cs_…`) when they start paying, so on a reusable checkout each customer returns with their own. */
     successUrl: string;
+    /** Where the customer goes if they leave without paying. Takes the same `{CHECKOUT_ID}` and `{CHECKOUT_SESSION_ID}` placeholders as `successUrl`. */
     cancelUrl?: string;
     /** When the checkout link expires. Must be in the future. Defaults to 24 hours after creation. */
     expiresAt?: string;
