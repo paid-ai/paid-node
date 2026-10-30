@@ -3,7 +3,7 @@
 import type * as Paid from "../index.js";
 
 /**
- * The product and plan the customer selected, once checkout completes. Null before completion.
+ * The product and plan the customer selected, once a single-use checkout completes. Null before completion, and always null on a reusable checkout (`singleUse: false`).
  */
 export interface CheckoutSelectedProduct {
     id: string;
