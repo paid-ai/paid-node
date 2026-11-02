@@ -50,6 +50,8 @@ export * from "./CheckoutPlanInput.js";
 export * from "./CheckoutProduct.js";
 export * from "./CheckoutProductInput.js";
 export * from "./CheckoutSelectedProduct.js";
+export * from "./CheckoutSession.js";
+export * from "./CheckoutSessionListResponse.js";
 export * from "./CheckoutStatus.js";
 export * from "./Contact.js";
 export * from "./ContactBillingAddress.js";

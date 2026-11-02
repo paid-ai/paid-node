@@ -3,6 +3,7 @@
 import { Amendments } from "./api/resources/amendments/client/Client.js";
 import { Analytics } from "./api/resources/analytics/client/Client.js";
 import { AnalyticsExperimental } from "./api/resources/analyticsExperimental/client/Client.js";
+import { CheckoutSessions } from "./api/resources/checkoutSessions/client/Client.js";
 import { Checkouts } from "./api/resources/checkouts/client/Client.js";
 import { Contacts } from "./api/resources/contacts/client/Client.js";
 import { Costs } from "./api/resources/costs/client/Client.js";
@@ -45,6 +46,7 @@ export class PaidClient {
     protected _signals: Signals | undefined;
     protected _credits: Credits | undefined;
     protected _checkouts: Checkouts | undefined;
+    protected _checkoutSessions: CheckoutSessions | undefined;
     protected _customerPortals: CustomerPortals | undefined;
     protected _valueReceipts: ValueReceipts | undefined;
     protected _deliveredValue: DeliveredValue | undefined;
@@ -68,8 +70,8 @@ export class PaidClient {
                 {
                     "X-Fern-Language": "JavaScript",
                     "X-Fern-SDK-Name": "@paid-ai/paid-node",
-                    "X-Fern-SDK-Version": "2.2.0",
-                    "User-Agent": "@paid-ai/paid-node/2.2.0",
+                    "X-Fern-SDK-Version": "2.3.0",
+                    "User-Agent": "@paid-ai/paid-node/2.3.0",
                     "X-Fern-Runtime": core.RUNTIME.type,
                     "X-Fern-Runtime-Version": core.RUNTIME.version,
                 },
@@ -112,6 +114,10 @@ export class PaidClient {
 
     public get checkouts(): Checkouts {
         return (this._checkouts ??= new Checkouts(this._options));
+    }
+
+    public get checkoutSessions(): CheckoutSessions {
+        return (this._checkoutSessions ??= new CheckoutSessions(this._options));
     }
 
     public get customerPortals(): CustomerPortals {
