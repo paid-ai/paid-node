@@ -27,5 +27,6 @@ export interface CheckoutDetails {
     updatedAt: string;
     /** The resulting order ID once a single-use checkout has completed. Null until an order is created, and always null on a reusable checkout (`singleUse: false`), where each payment creates its own order: use the `billing-checkout-completed` webhook to see each one. */
     orderId: string | null;
+    /** The product and plan the customer selected, once a single-use checkout completes. Null before completion, and always null on a reusable checkout (`singleUse: false`). */
     selectedProduct: Paid.CheckoutSelectedProduct | null;
 }
