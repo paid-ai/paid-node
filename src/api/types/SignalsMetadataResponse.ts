@@ -21,17 +21,13 @@ export namespace SignalsMetadataResponse {
                 export interface Item {
                     /** JSON path inside the signal `data` payload, usable in queries as e.g. `data.<path>::String`. */
                     path: string;
-                    /** ClickHouse dynamic types observed for this path within the window. */
+                    /** ClickHouse dynamic types observed for this path within the window's hours. */
                     types: string[];
                     /** True when this key is declared as a grouping dimension for your organization. Declared keys are listed first. */
                     declared: boolean;
                     /** The dimension slot a declared key fills. Present only when `declared` is true. */
                     slot?: Item.Slot;
-                    /** When a signal carrying this path was first received, across all time rather than only the window. Omitted when not available. */
-                    firstSeen?: string;
-                    /** When a signal carrying this path was last received, across all time rather than only the window. Omitted when not available. */
-                    lastSeen?: string;
-                    /** How many times a signal of this name has been received carrying this path, across all time rather than only the window. Each revision of an edited signal counts again and deleted signals stay counted, so read it as a measure of use rather than a count of distinct or live signals. Omitted when not available. */
+                    /** How many signals of this name received in the window's hours carried this path. Each revision of an edited signal counts again and deleted signals stay counted, so read it as a measure of use rather than a count of distinct or live signals. Omitted when not available. */
                     signals?: number;
                 }
 

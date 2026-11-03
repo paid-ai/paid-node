@@ -207,7 +207,7 @@ export class AnalyticsExperimental {
     /**
      * This experimental path is deprecated and is not supported for new integrations. Use `GET /api/v2/analytics/signals/metadata` instead; the old path remains available for existing integrations.
      *
-     * Lists the JSON paths (and their observed types) present in the `data` payload of your signals within a time window (default: last 30 days), grouped by signal name. Use the returned paths in queries against `fact_signal`, e.g. `WHERE data.<path>::String = '...'`. Keys declared as grouping dimensions are marked `declared` with their `slot` and listed first. Where available, each path also carries `firstSeen`, `lastSeen` and a `signals` count; these span all time, and the window only selects which paths and types are returned.
+     * Lists the JSON paths (and their observed types) present in the `data` payload of your signals within a time window (default: last 30 days), grouped by signal name. Use the returned paths in queries against `fact_signal`, e.g. `WHERE data.<path>::String = '...'`. Keys declared as grouping dimensions are marked `declared` with their `slot` and listed first. The window may be read in whole UTC hours: every hour from the one holding `fromDate` up to the one holding `toDate`, leaving that last hour out when `toDate` is exactly on the hour, so a path seen up to an hour outside the window can be listed. Each path carries a `signals` count of the signals in those hours that carried it only when the window was read in whole hours.
      *
      * @param {Paid.GetExperimentalSignalsMetadataRequest} request
      * @param {AnalyticsExperimental.RequestOptions} requestOptions - Request-specific configuration.
