@@ -3,7 +3,6 @@
 export const ListCustomerUnitsByExternalIdRequestStatus = {
     Active: "ACTIVE",
     Deleted: "DELETED",
-    Draft: "DRAFT",
 } as const;
 export type ListCustomerUnitsByExternalIdRequestStatus =
     (typeof ListCustomerUnitsByExternalIdRequestStatus)[keyof typeof ListCustomerUnitsByExternalIdRequestStatus];

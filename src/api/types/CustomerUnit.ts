@@ -13,7 +13,7 @@ export interface CustomerUnit {
     name: string;
     /** Your structural vocabulary for the unit. */
     externalType: string | null;
-    /** ACTIVE; DELETED after a soft delete (one-way); or DRAFT, a placeholder that holds the key for this customer until you create the unit with that key (which promotes it) or delete it (soft, the key stays reserved, as for any unit). A draft is never a parent and never carries a cap. */
+    /** ACTIVE, or DELETED after a soft delete (one-way). */
     status: CustomerUnit.Status;
     /** `externalId` of the parent unit; `null` only on the customer's root unit. */
     parentExternalId: string | null;
@@ -29,11 +29,10 @@ export interface CustomerUnit {
 }
 
 export namespace CustomerUnit {
-    /** ACTIVE; DELETED after a soft delete (one-way); or DRAFT, a placeholder that holds the key for this customer until you create the unit with that key (which promotes it) or delete it (soft, the key stays reserved, as for any unit). A draft is never a parent and never carries a cap. */
+    /** ACTIVE, or DELETED after a soft delete (one-way). */
     export const Status = {
         Active: "ACTIVE",
         Deleted: "DELETED",
-        Draft: "DRAFT",
     } as const;
     export type Status = (typeof Status)[keyof typeof Status];
 }
