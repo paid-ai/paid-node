@@ -13,7 +13,7 @@ export interface Signal {
     attribution?: Paid.Attribution;
     /** True event timestamp in RFC3339 format with timezone (e.g. 2026-01-31T23:00:00Z). Omit it to use the time Paid receives the signal. */
     timestamp?: string;
-    /** Your event data. The top-level keys `_derived`, `_dims` and `_billing`, and any top-level key starting with `_billing.`, are reserved for Paid: a batch in which any signal's `data` carries one is refused with `400 RESERVED_SIGNAL_DATA_FIELD`. */
+    /** Your event data. The top-level keys `_derived`, `_dims` and `_billing`, and any top-level key starting with `_derived.`, `_dims.` or `_billing.`, are reserved for Paid: a batch in which any signal's `data` carries one is refused with `400 RESERVED_SIGNAL_DATA_FIELD`. */
     data?: Record<string, unknown>;
     /** Your unique key for this event. A signal whose key was already sent, earlier or in the same batch, is skipped and counted in `duplicates` instead of `ingested`. */
     idempotencyKey?: string;
