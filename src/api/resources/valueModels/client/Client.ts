@@ -382,13 +382,12 @@ export class ValueModels {
     }
 
     /**
-     * Manually triggers a recalculation of all ClickHouse rows against the current value model. Returns 422 when the backfill would scan more signals than the ceiling allows — that is deterministic, so retrying without narrowing the scope will not help.
+     * Manually triggers a recalculation of all ClickHouse rows against the current value model.
      *
      * @param {Paid.RefreshValueModelBackfillRequest} request
      * @param {ValueModels.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @throws {@link Paid.NotFoundError}
-     * @throws {@link Paid.UnprocessableEntityError}
      * @throws {@link Paid.InternalServerError}
      *
      * @example
@@ -435,11 +434,6 @@ export class ValueModels {
             switch (_response.error.statusCode) {
                 case 404:
                     throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
-                case 422:
-                    throw new Paid.UnprocessableEntityError(
-                        _response.error.body as Paid.ErrorResponse,
-                        _response.rawResponse,
-                    );
                 case 500:
                     throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
