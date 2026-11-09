@@ -1337,25 +1337,6 @@ describe("ValueModels", () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
         const rawRequestBody = {};
-        const rawResponseBody = { error: "error" };
-        server
-            .mockEndpoint()
-            .post("/value-models/backfill")
-            .jsonBody(rawRequestBody)
-            .respondWith()
-            .statusCode(422)
-            .jsonBody(rawResponseBody)
-            .build();
-
-        await expect(async () => {
-            return await client.valueModels.refreshValueModelBackfill();
-        }).rejects.toThrow(Paid.UnprocessableEntityError);
-    });
-
-    test("refreshValueModelBackfill (4)", async () => {
-        const server = mockServerPool.createServer();
-        const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = {};
         const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
