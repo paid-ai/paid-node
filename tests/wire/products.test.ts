@@ -14,6 +14,7 @@ describe("Products", () => {
                 {
                     id: "id",
                     name: "name",
+                    displayName: "displayName",
                     description: "description",
                     createdAt: "2024-01-15T09:30:00Z",
                     updatedAt: "2024-01-15T09:30:00Z",
@@ -34,6 +35,7 @@ describe("Products", () => {
                 {
                     id: "id",
                     name: "name",
+                    displayName: "displayName",
                     description: "description",
                     createdAt: "2024-01-15T09:30:00Z",
                     updatedAt: "2024-01-15T09:30:00Z",
@@ -98,6 +100,7 @@ describe("Products", () => {
         const rawResponseBody = {
             id: "id",
             name: "name",
+            displayName: "displayName",
             description: "description",
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
@@ -122,6 +125,7 @@ describe("Products", () => {
         expect(response).toEqual({
             id: "id",
             name: "name",
+            displayName: "displayName",
             description: "description",
             createdAt: "2024-01-15T09:30:00Z",
             updatedAt: "2024-01-15T09:30:00Z",
@@ -205,6 +209,7 @@ describe("Products", () => {
         const rawResponseBody = {
             id: "prod_001",
             name: "API Pro",
+            displayName: "Pro plan",
             description: "Professional API plan",
             createdAt: "2025-01-01T00:00:00Z",
             updatedAt: "2025-01-15T00:00:00Z",
@@ -253,6 +258,7 @@ describe("Products", () => {
         expect(response).toEqual({
             id: "prod_001",
             name: "API Pro",
+            displayName: "Pro plan",
             description: "Professional API plan",
             createdAt: "2025-01-01T00:00:00Z",
             updatedAt: "2025-01-15T00:00:00Z",
@@ -351,6 +357,7 @@ describe("Products", () => {
         const rawResponseBody = {
             id: "prod_001",
             name: "API Pro",
+            displayName: "Pro plan",
             description: "Professional API plan",
             createdAt: "2025-01-01T00:00:00Z",
             updatedAt: "2025-01-15T00:00:00Z",
@@ -407,6 +414,7 @@ describe("Products", () => {
         expect(response).toEqual({
             id: "prod_001",
             name: "API Pro",
+            displayName: "Pro plan",
             description: "Professional API plan",
             createdAt: "2025-01-01T00:00:00Z",
             updatedAt: "2025-01-15T00:00:00Z",
@@ -551,6 +559,7 @@ describe("Products", () => {
         const rawResponseBody = {
             id: "prod_001",
             name: "API Pro",
+            displayName: "Pro plan",
             description: "Professional API plan",
             createdAt: "2025-01-01T00:00:00Z",
             updatedAt: "2025-01-15T00:00:00Z",
@@ -605,6 +614,7 @@ describe("Products", () => {
         expect(response).toEqual({
             id: "prod_001",
             name: "API Pro",
+            displayName: "Pro plan",
             description: "Professional API plan",
             createdAt: "2025-01-01T00:00:00Z",
             updatedAt: "2025-01-15T00:00:00Z",
@@ -721,6 +731,7 @@ describe("Products", () => {
         const rawResponseBody = {
             id: "prod_001",
             name: "API Pro",
+            displayName: "Pro plan",
             description: "Professional API plan",
             createdAt: "2025-01-01T00:00:00Z",
             updatedAt: "2025-01-15T00:00:00Z",
@@ -777,6 +788,7 @@ describe("Products", () => {
         expect(response).toEqual({
             id: "prod_001",
             name: "API Pro",
+            displayName: "Pro plan",
             description: "Professional API plan",
             createdAt: "2025-01-01T00:00:00Z",
             updatedAt: "2025-01-15T00:00:00Z",

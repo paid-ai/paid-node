@@ -4,6 +4,8 @@ import type * as Paid from "../index.js";
 
 export interface UpdateProductRequest {
     name?: string;
+    /** What your customers see on invoices, up to 250 characters. Omit it or send null to use the product name. */
+    displayName?: string | null;
     description?: string | null;
     active?: boolean;
     productCode?: string | null;

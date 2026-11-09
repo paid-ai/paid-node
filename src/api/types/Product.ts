@@ -3,6 +3,8 @@
 export interface Product {
     id: string;
     name: string;
+    /** What your customers see on invoices. Null means invoices show the product name. */
+    displayName: string | null;
     description: string | null;
     createdAt: string;
     updatedAt: string;
