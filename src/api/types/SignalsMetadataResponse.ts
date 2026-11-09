@@ -23,16 +23,16 @@ export namespace SignalsMetadataResponse {
                     path: string;
                     /** ClickHouse dynamic types observed for this path within the window's hours. */
                     types: string[];
-                    /** True when this key is declared as a grouping dimension for your organization. Declared keys are listed first. */
+                    /** True when a signal summary can be grouped by this key for your organization. Declared keys are listed first. */
                     declared: boolean;
-                    /** The dimension slot a declared key fills. Present only when `declared` is true. */
+                    /** Deprecated: no longer returned. Use `declared` to tell whether a summary can be grouped by this key. */
                     slot?: Item.Slot;
                     /** How many signals of this name received in the window's hours carried this path. Each revision of an edited signal counts again and deleted signals stay counted, so read it as a measure of use rather than a count of distinct or live signals. Omitted when not available. */
                     signals?: number;
                 }
 
                 export namespace Item {
-                    /** The dimension slot a declared key fills. Present only when `declared` is true. */
+                    /** Deprecated: no longer returned. Use `declared` to tell whether a summary can be grouped by this key. */
                     export const Slot = {
                         Dim1: "dim_1",
                         Dim2: "dim_2",
