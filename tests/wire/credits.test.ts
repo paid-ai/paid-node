@@ -209,6 +209,7 @@ describe("Credits", () => {
                     originCode: "purchased",
                     eventName: "agent.api_call",
                     signalId: "6890b0e2a6f2c30012f0a1b3",
+                    reversesTransactionId: "9c5f7a1e-3b2d-4e8f-9a0b-1c2d3e4f5a6b",
                     orderId: "ord_abc123",
                     product: { id: "prod_abc123", externalId: null, name: "Agent API" },
                     createdAt: "2024-01-15T09:30:00Z",
@@ -242,6 +243,7 @@ describe("Credits", () => {
                     originCode: "purchased",
                     eventName: "agent.api_call",
                     signalId: "6890b0e2a6f2c30012f0a1b3",
+                    reversesTransactionId: "9c5f7a1e-3b2d-4e8f-9a0b-1c2d3e4f5a6b",
                     orderId: "ord_abc123",
                     product: {
                         id: "prod_abc123",
