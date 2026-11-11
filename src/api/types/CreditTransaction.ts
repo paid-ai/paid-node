@@ -7,9 +7,9 @@ export interface CreditTransaction {
     id: string;
     customer: Paid.CreditTransactionCustomer;
     creditCurrency: Paid.CreditTransactionCurrency;
-    /** Transaction type: `grant` adds credits, `spend` consumes them (negative amount), `pendingGrant` records credits awaiting payment. */
+    /** Transaction type: `grant` adds credits, `spend` consumes them (negative amount), except a reversal, which is a `spend` with a positive amount that undoes an earlier spend, `pendingGrant` records credits awaiting payment. */
     type: CreditTransaction.Type;
-    /** Exact signed transaction amount in credits, as a decimal string: positive for grants, negative for spends. Exact at any magnitude, and at the full 6 decimal places. */
+    /** Exact signed transaction amount in credits, as a decimal string: positive for grants, negative for spends, except a reversal, which is a `spend` with a positive amount. Exact at any magnitude, and at the full 6 decimal places. */
     amount: string;
     /** Origin of the credit pool this transaction touched (e.g. `purchased`, or a custom label). `unknown` when the transaction is not linked to a pool with an origin. */
     originCode: string;
@@ -17,15 +17,17 @@ export interface CreditTransaction {
     eventName: string | null;
     /** ID of the usage signal that produced this spend, resolvable via `GET /api/v2/signals/{id}`, or in bulk for a whole page via `POST /api/v2/signals/lookup` (both include the signal's data payload). Null for grants and non-signal spends. */
     signalId: string | null;
+    /** ID of the spend transaction this row reverses: the `id` of that spend, which may be on another page or outside the date range of the same request. Set only on the reversal that undoes the spend of a voided signal (a `spend` row with a positive amount); null on every other row. A reversal undoes the spend, but does not by itself mean spendable credits were restored: credits that have already expired are not. */
+    reversesTransactionId: string | null;
     /** Paid order display ID this transaction is linked to, if any. */
     orderId: string | null;
     product: Paid.CreditTransactionProduct | null;
-    /** When the originating signal was recorded, or when the transaction was recorded if it has no signal. */
+    /** When the originating signal was recorded, or when the transaction was recorded if it has no signal. For a reversal, when the reversal was recorded: the time of the void, which is the date the list filters and orders it by. */
     createdAt: string;
 }
 
 export namespace CreditTransaction {
-    /** Transaction type: `grant` adds credits, `spend` consumes them (negative amount), `pendingGrant` records credits awaiting payment. */
+    /** Transaction type: `grant` adds credits, `spend` consumes them (negative amount), except a reversal, which is a `spend` with a positive amount that undoes an earlier spend, `pendingGrant` records credits awaiting payment. */
     export const Type = {
         Grant: "grant",
         Spend: "spend",
