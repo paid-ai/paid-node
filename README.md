@@ -111,8 +111,9 @@ const response = await client.signals.createSignals({
 console.log(response.ingested, response.duplicates, response.failed);
 ```
 
-The top-level `data` keys `_derived`, `_dims` and `_billing` are reserved for Paid; a batch that uses one
-is refused with `400 RESERVED_SIGNAL_DATA_FIELD`.
+The top-level `data` keys `_derived`, `_dims` and `_billing`, and any top-level key starting with
+`_derived.`, `_dims.` or `_billing.`, are reserved for Paid; a batch in which any signal uses one is
+refused with `400 RESERVED_SIGNAL_DATA_FIELD`.
 
 ## Manual Cost Tracking
 
