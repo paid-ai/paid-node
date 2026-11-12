@@ -15,6 +15,6 @@ export interface Signal {
     timestamp?: string;
     /** Your event data. The top-level keys `_derived`, `_dims` and `_billing`, and any top-level key starting with `_derived.`, `_dims.` or `_billing.`, are reserved for Paid: a batch in which any signal's `data` carries one is refused with `400 RESERVED_SIGNAL_DATA_FIELD`. */
     data?: Record<string, unknown>;
-    /** Your unique key for this event. A signal whose key was already sent, earlier or in the same batch, is skipped and counted in `duplicates` instead of `ingested`. */
+    /** Your unique key for this event. A signal whose key was already sent, earlier or in the same batch, is skipped and counted in `duplicates` instead of `ingested`. A resend of a key whose signal you voided is counted in `voided`, not in `duplicates`. */
     idempotencyKey?: string;
 }
