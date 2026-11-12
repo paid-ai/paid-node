@@ -29,8 +29,10 @@ export class Signals {
      * @throws {@link Paid.BadRequestError}
      * @throws {@link Paid.ForbiddenError}
      * @throws {@link Paid.RequestTimeoutError}
+     * @throws {@link Paid.UnprocessableEntityError}
      * @throws {@link Paid.TooManyRequestsError}
      * @throws {@link Paid.InternalServerError}
+     * @throws {@link Paid.ServiceUnavailableError}
      *
      * @example
      *     await client.signals.listSignals()
@@ -56,6 +58,7 @@ export class Signals {
             externalProductId,
             createdAtFrom,
             createdAtTo,
+            includeVoided,
         } = request;
         const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
         if (limit != null) {
@@ -94,6 +97,10 @@ export class Signals {
             _queryParams.createdAtTo = createdAtTo;
         }
 
+        if (includeVoided != null) {
+            _queryParams.includeVoided = includeVoided.toString();
+        }
+
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             this._options?.headers,
             mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
@@ -128,6 +135,11 @@ export class Signals {
                         _response.error.body as Paid.ErrorResponse,
                         _response.rawResponse,
                     );
+                case 422:
+                    throw new Paid.UnprocessableEntityError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
                 case 429:
                     throw new Paid.TooManyRequestsError(
                         _response.error.body as Paid.ErrorResponse,
@@ -135,6 +147,11 @@ export class Signals {
                     );
                 case 500:
                     throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                case 503:
+                    throw new Paid.ServiceUnavailableError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,
@@ -162,7 +179,7 @@ export class Signals {
     }
 
     /**
-     * Get a single ingested signal (usage event) by its ID, including the data payload submitted at ingest.
+     * Get a single ingested signal (usage event) by its ID, including the data payload submitted at ingest. A voided signal answers 404 unless the request passes `includeVoided=true`.
      *
      * @param {Paid.GetSignalByIdRequest} request
      * @param {Signals.RequestOptions} requestOptions - Request-specific configuration.
@@ -190,7 +207,12 @@ export class Signals {
         request: Paid.GetSignalByIdRequest,
         requestOptions?: Signals.RequestOptions,
     ): Promise<core.WithRawResponse<Paid.SignalListItem>> {
-        const { id } = request;
+        const { id, includeVoided } = request;
+        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
+        if (includeVoided != null) {
+            _queryParams.includeVoided = includeVoided.toString();
+        }
+
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             this._options?.headers,
             mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
@@ -205,7 +227,7 @@ export class Signals {
             ),
             method: "GET",
             headers: _headers,
-            queryParameters: requestOptions?.queryParams,
+            queryParameters: { ..._queryParams, ...requestOptions?.queryParams },
             timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
             maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
             abortSignal: requestOptions?.abortSignal,
@@ -287,6 +309,12 @@ export class Signals {
         request: Paid.SignalLookupRequest,
         requestOptions?: Signals.RequestOptions,
     ): Promise<core.WithRawResponse<Paid.SignalLookupResponse>> {
+        const { includeVoided, ..._body } = request;
+        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
+        if (includeVoided != null) {
+            _queryParams.includeVoided = includeVoided.toString();
+        }
+
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             this._options?.headers,
             mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
@@ -302,9 +330,9 @@ export class Signals {
             method: "POST",
             headers: _headers,
             contentType: "application/json",
-            queryParameters: requestOptions?.queryParams,
+            queryParameters: { ..._queryParams, ...requestOptions?.queryParams },
             requestType: "json",
-            body: request,
+            body: _body,
             timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
             maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
             abortSignal: requestOptions?.abortSignal,
@@ -455,6 +483,226 @@ export class Signals {
                 });
             case "timeout":
                 throw new errors.PaidTimeoutError("Timeout exceeded when calling POST /signals/bulk.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Early access. Voids one ingested signal by its ID, so it no longer counts as usage. Voiding a signal that is already voided answers 200 with the same void. An organization without signal voiding gets 404.
+     *
+     * @param {Paid.VoidSignalRequest} request
+     * @param {Signals.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.ConflictError}
+     * @throws {@link Paid.TooManyRequestsError}
+     * @throws {@link Paid.InternalServerError}
+     * @throws {@link Paid.BadGatewayError}
+     * @throws {@link Paid.ServiceUnavailableError}
+     *
+     * @example
+     *     await client.signals.voidSignal({
+     *         id: "6890b0e2a6f2c30012f0a1b3",
+     *         body: {}
+     *     })
+     */
+    public voidSignal(
+        request: Paid.VoidSignalRequest,
+        requestOptions?: Signals.RequestOptions,
+    ): core.HttpResponsePromise<Paid.SignalVoidResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__voidSignal(request, requestOptions));
+    }
+
+    private async __voidSignal(
+        request: Paid.VoidSignalRequest,
+        requestOptions?: Signals.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.SignalVoidResponse>> {
+        const { id, body: _body } = request;
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `signals/${core.url.encodePathParam(id)}/void`,
+            ),
+            method: "PUT",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: _body,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.SignalVoidResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 409:
+                    throw new Paid.ConflictError(_response.error.body as unknown, _response.rawResponse);
+                case 429:
+                    throw new Paid.TooManyRequestsError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                case 502:
+                    throw new Paid.BadGatewayError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 503:
+                    throw new Paid.ServiceUnavailableError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError("Timeout exceeded when calling PUT /signals/{id}/void.");
+            case "unknown":
+                throw new errors.PaidError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Early access. Voids one ingested signal by the idempotency key it was sent with, as voidSignal does by ID. The key is matched exactly as stored: a signal sent with a customer-scoped API key is stored under a namespaced key and is voided by its ID. A key that names no signal answers 404; a key that names more than one answers 409 and voids nothing. A signal whose key is `.` or `..` cannot be addressed by key: void it by ID. An organization without signal voiding gets 404.
+     *
+     * @param {Paid.VoidSignalByIdempotencyKeyRequest} request
+     * @param {Signals.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Paid.BadRequestError}
+     * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.ConflictError}
+     * @throws {@link Paid.TooManyRequestsError}
+     * @throws {@link Paid.InternalServerError}
+     * @throws {@link Paid.BadGatewayError}
+     * @throws {@link Paid.ServiceUnavailableError}
+     *
+     * @example
+     *     await client.signals.voidSignalByIdempotencyKey({
+     *         idempotencyKey: "idempotencyKey",
+     *         body: {}
+     *     })
+     */
+    public voidSignalByIdempotencyKey(
+        request: Paid.VoidSignalByIdempotencyKeyRequest,
+        requestOptions?: Signals.RequestOptions,
+    ): core.HttpResponsePromise<Paid.SignalVoidResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__voidSignalByIdempotencyKey(request, requestOptions));
+    }
+
+    private async __voidSignalByIdempotencyKey(
+        request: Paid.VoidSignalByIdempotencyKeyRequest,
+        requestOptions?: Signals.RequestOptions,
+    ): Promise<core.WithRawResponse<Paid.SignalVoidResponse>> {
+        const { idempotencyKey, body: _body } = request;
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ Authorization: await this._getAuthorizationHeader() }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PaidEnvironment.Default,
+                `signals/idempotency-key/${core.url.encodePathParam(idempotencyKey)}/void`,
+            ),
+            method: "PUT",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: _body,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Paid.SignalVoidResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 409:
+                    throw new Paid.ConflictError(_response.error.body as unknown, _response.rawResponse);
+                case 429:
+                    throw new Paid.TooManyRequestsError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                case 500:
+                    throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                case 502:
+                    throw new Paid.BadGatewayError(_response.error.body as Paid.ErrorResponse, _response.rawResponse);
+                case 503:
+                    throw new Paid.ServiceUnavailableError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                default:
+                    throw new errors.PaidError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.PaidError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.PaidTimeoutError(
+                    "Timeout exceeded when calling PUT /signals/idempotency-key/{idempotencyKey}/void.",
+                );
             case "unknown":
                 throw new errors.PaidError({
                     message: _response.error.errorMessage,

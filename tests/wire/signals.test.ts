@@ -21,6 +21,7 @@ describe("Signals", () => {
                     traceId: "traceId",
                     data: { key: "value" },
                     createdAt: "2024-01-15T09:30:00Z",
+                    voided: true,
                 },
             ],
             pagination: { limit: 1, offset: 1, total: 1, hasMore: true },
@@ -42,6 +43,7 @@ describe("Signals", () => {
                         key: "value",
                     },
                     createdAt: "2024-01-15T09:30:00Z",
+                    voided: true,
                 },
             ],
             pagination: {
@@ -94,6 +96,18 @@ describe("Signals", () => {
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         const rawResponseBody = { error: "error" };
+        server.mockEndpoint().get("/signals/").respondWith().statusCode(422).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.signals.listSignals();
+        }).rejects.toThrow(Paid.UnprocessableEntityError);
+    });
+
+    test("listSignals (6)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: "error" };
         server.mockEndpoint().get("/signals/").respondWith().statusCode(429).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -101,7 +115,7 @@ describe("Signals", () => {
         }).rejects.toThrow(Paid.TooManyRequestsError);
     });
 
-    test("listSignals (6)", async () => {
+    test("listSignals (7)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
@@ -111,6 +125,18 @@ describe("Signals", () => {
         await expect(async () => {
             return await client.signals.listSignals();
         }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("listSignals (8)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { error: "error" };
+        server.mockEndpoint().get("/signals/").respondWith().statusCode(503).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.signals.listSignals();
+        }).rejects.toThrow(Paid.ServiceUnavailableError);
     });
 
     test("getSignalById (1)", async () => {
@@ -127,6 +153,7 @@ describe("Signals", () => {
             traceId: "traceId",
             data: { key: "value" },
             createdAt: "2024-01-15T09:30:00Z",
+            voided: true,
         };
         server
             .mockEndpoint()
@@ -151,6 +178,7 @@ describe("Signals", () => {
                 key: "value",
             },
             createdAt: "2024-01-15T09:30:00Z",
+            voided: true,
         });
     });
 
@@ -254,6 +282,7 @@ describe("Signals", () => {
                     traceId: "traceId",
                     data: { key: "value" },
                     createdAt: "2024-01-15T09:30:00Z",
+                    voided: true,
                 },
             ],
             notFound: ["notFound"],
@@ -284,6 +313,7 @@ describe("Signals", () => {
                         key: "value",
                     },
                     createdAt: "2024-01-15T09:30:00Z",
+                    voided: true,
                 },
             ],
             notFound: ["notFound"],
@@ -394,7 +424,7 @@ describe("Signals", () => {
                 },
             ],
         };
-        const rawResponseBody = { ingested: 2, duplicates: 0, failed: 0 };
+        const rawResponseBody = { ingested: 2, duplicates: 0, failed: 0, voided: 0 };
         server
             .mockEndpoint()
             .post("/signals/bulk")
@@ -433,6 +463,7 @@ describe("Signals", () => {
             ingested: 2,
             duplicates: 0,
             failed: 0,
+            voided: 0,
         });
     });
 
@@ -546,6 +577,474 @@ describe("Signals", () => {
                 ],
             });
         }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("voidSignal (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = {
+            signalCorrectionId: "signalCorrectionId",
+            alreadyVoided: true,
+            factsReverted: 1,
+            pendingCancelled: 1,
+            cells: [
+                {
+                    orderLineAttributeId: "orderLineAttributeId",
+                    nextBillingDate: "2024-01-15T09:30:00Z",
+                    quantity: 1.1,
+                    nonBillable: true,
+                },
+            ],
+            credits: [
+                { creditsCurrencyId: "creditsCurrencyId", restored: "restored", forfeited: "forfeited", reversals: 1 },
+            ],
+        };
+        server
+            .mockEndpoint()
+            .put("/signals/6890b0e2a6f2c30012f0a1b3/void")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.signals.voidSignal({
+            id: "6890b0e2a6f2c30012f0a1b3",
+            body: {},
+        });
+        expect(response).toEqual({
+            signalCorrectionId: "signalCorrectionId",
+            alreadyVoided: true,
+            factsReverted: 1,
+            pendingCancelled: 1,
+            cells: [
+                {
+                    orderLineAttributeId: "orderLineAttributeId",
+                    nextBillingDate: "2024-01-15T09:30:00Z",
+                    quantity: 1.1,
+                    nonBillable: true,
+                },
+            ],
+            credits: [
+                {
+                    creditsCurrencyId: "creditsCurrencyId",
+                    restored: "restored",
+                    forfeited: "forfeited",
+                    reversals: 1,
+                },
+            ],
+        });
+    });
+
+    test("voidSignal (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .put("/signals/id/void")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.signals.voidSignal({
+                id: "id",
+                body: {},
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("voidSignal (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .put("/signals/id/void")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.signals.voidSignal({
+                id: "id",
+                body: {},
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("voidSignal (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .put("/signals/id/void")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.signals.voidSignal({
+                id: "id",
+                body: {},
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("voidSignal (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .put("/signals/id/void")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(409)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.signals.voidSignal({
+                id: "id",
+                body: {},
+            });
+        }).rejects.toThrow(Paid.ConflictError);
+    });
+
+    test("voidSignal (6)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .put("/signals/id/void")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(429)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.signals.voidSignal({
+                id: "id",
+                body: {},
+            });
+        }).rejects.toThrow(Paid.TooManyRequestsError);
+    });
+
+    test("voidSignal (7)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .put("/signals/id/void")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.signals.voidSignal({
+                id: "id",
+                body: {},
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("voidSignal (8)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .put("/signals/id/void")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(502)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.signals.voidSignal({
+                id: "id",
+                body: {},
+            });
+        }).rejects.toThrow(Paid.BadGatewayError);
+    });
+
+    test("voidSignal (9)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .put("/signals/id/void")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(503)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.signals.voidSignal({
+                id: "id",
+                body: {},
+            });
+        }).rejects.toThrow(Paid.ServiceUnavailableError);
+    });
+
+    test("voidSignalByIdempotencyKey (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = {
+            signalCorrectionId: "signalCorrectionId",
+            alreadyVoided: true,
+            factsReverted: 1,
+            pendingCancelled: 1,
+            cells: [
+                {
+                    orderLineAttributeId: "orderLineAttributeId",
+                    nextBillingDate: "2024-01-15T09:30:00Z",
+                    quantity: 1.1,
+                    nonBillable: true,
+                },
+            ],
+            credits: [
+                { creditsCurrencyId: "creditsCurrencyId", restored: "restored", forfeited: "forfeited", reversals: 1 },
+            ],
+        };
+        server
+            .mockEndpoint()
+            .put("/signals/idempotency-key/idempotencyKey/void")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.signals.voidSignalByIdempotencyKey({
+            idempotencyKey: "idempotencyKey",
+            body: {},
+        });
+        expect(response).toEqual({
+            signalCorrectionId: "signalCorrectionId",
+            alreadyVoided: true,
+            factsReverted: 1,
+            pendingCancelled: 1,
+            cells: [
+                {
+                    orderLineAttributeId: "orderLineAttributeId",
+                    nextBillingDate: "2024-01-15T09:30:00Z",
+                    quantity: 1.1,
+                    nonBillable: true,
+                },
+            ],
+            credits: [
+                {
+                    creditsCurrencyId: "creditsCurrencyId",
+                    restored: "restored",
+                    forfeited: "forfeited",
+                    reversals: 1,
+                },
+            ],
+        });
+    });
+
+    test("voidSignalByIdempotencyKey (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .put("/signals/idempotency-key/idempotencyKey/void")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.signals.voidSignalByIdempotencyKey({
+                idempotencyKey: "idempotencyKey",
+                body: {},
+            });
+        }).rejects.toThrow(Paid.BadRequestError);
+    });
+
+    test("voidSignalByIdempotencyKey (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .put("/signals/idempotency-key/idempotencyKey/void")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.signals.voidSignalByIdempotencyKey({
+                idempotencyKey: "idempotencyKey",
+                body: {},
+            });
+        }).rejects.toThrow(Paid.ForbiddenError);
+    });
+
+    test("voidSignalByIdempotencyKey (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .put("/signals/idempotency-key/idempotencyKey/void")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.signals.voidSignalByIdempotencyKey({
+                idempotencyKey: "idempotencyKey",
+                body: {},
+            });
+        }).rejects.toThrow(Paid.NotFoundError);
+    });
+
+    test("voidSignalByIdempotencyKey (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .put("/signals/idempotency-key/idempotencyKey/void")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(409)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.signals.voidSignalByIdempotencyKey({
+                idempotencyKey: "idempotencyKey",
+                body: {},
+            });
+        }).rejects.toThrow(Paid.ConflictError);
+    });
+
+    test("voidSignalByIdempotencyKey (6)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .put("/signals/idempotency-key/idempotencyKey/void")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(429)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.signals.voidSignalByIdempotencyKey({
+                idempotencyKey: "idempotencyKey",
+                body: {},
+            });
+        }).rejects.toThrow(Paid.TooManyRequestsError);
+    });
+
+    test("voidSignalByIdempotencyKey (7)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .put("/signals/idempotency-key/idempotencyKey/void")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.signals.voidSignalByIdempotencyKey({
+                idempotencyKey: "idempotencyKey",
+                body: {},
+            });
+        }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("voidSignalByIdempotencyKey (8)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .put("/signals/idempotency-key/idempotencyKey/void")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(502)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.signals.voidSignalByIdempotencyKey({
+                idempotencyKey: "idempotencyKey",
+                body: {},
+            });
+        }).rejects.toThrow(Paid.BadGatewayError);
+    });
+
+    test("voidSignalByIdempotencyKey (9)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .put("/signals/idempotency-key/idempotencyKey/void")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(503)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.signals.voidSignalByIdempotencyKey({
+                idempotencyKey: "idempotencyKey",
+                body: {},
+            });
+        }).rejects.toThrow(Paid.ServiceUnavailableError);
     });
 
     test("createSignalSummaryExport (1)", async () => {

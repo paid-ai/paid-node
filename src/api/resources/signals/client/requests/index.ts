@@ -5,3 +5,5 @@ export type { GetSignalSummaryExportRequest } from "./GetSignalSummaryExportRequ
 export type { GetSignalSummaryRequest } from "./GetSignalSummaryRequest.js";
 export type { ListSignalsRequest } from "./ListSignalsRequest.js";
 export type { SignalLookupRequest } from "./SignalLookupRequest.js";
+export type { VoidSignalByIdempotencyKeyRequest } from "./VoidSignalByIdempotencyKeyRequest.js";
+export type { VoidSignalRequest } from "./VoidSignalRequest.js";

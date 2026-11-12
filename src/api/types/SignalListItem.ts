@@ -19,4 +19,6 @@ export interface SignalListItem {
     data: Record<string, unknown> | null;
     /** When the signal was ingested (ISO 8601, UTC). */
     createdAt: string;
+    /** True when the signal was voided. A voided signal no longer counts as usage; it is kept. Present on every signal only when the read passes `includeVoided=true`, and only for an organization with signal voiding. */
+    voided?: boolean;
 }

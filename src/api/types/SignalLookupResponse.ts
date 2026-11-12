@@ -5,6 +5,6 @@ import type * as Paid from "../index.js";
 export interface SignalLookupResponse {
     /** The signals found, in the order their IDs were requested. Each item has the same shape as `GET /api/v2/signals/{id}`, including the data payload. */
     data: Paid.SignalListItem[];
-    /** Requested IDs that match no signal in your organization, in request order. Malformed IDs are reported here rather than rejected. */
+    /** Requested IDs that match no signal in your organization, in request order. Malformed IDs are reported here rather than rejected. A voided signal is reported here too unless the request passes `includeVoided=true`. */
     notFound: string[];
 }
