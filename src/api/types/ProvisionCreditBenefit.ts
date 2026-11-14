@@ -3,8 +3,10 @@
 export interface ProvisionCreditBenefit {
     /** The `key` of the credits currency. */
     creditsCurrencyKey: string;
-    /** Credits granted per allocation period. Must be greater than 0, with at most 6 decimal places. For an unlimited grant, set `isInfiniteTotal: true` and send any positive amount. */
-    amount: number;
+    /** Credits granted per allocation period. Must be greater than 0. For an unlimited grant, set `isInfiniteTotal: true` and send any positive amount. Up to 6 decimal places. Send this or `amountDecimal`; when both are sent they must be equal. */
+    amount?: number;
+    /** The same amount as `amount`, as an exact decimal string with up to 6 decimal places. Send this or `amount`; when both are sent they must be equal. Must be greater than 0. */
+    amountDecimal?: string;
     recipient?: ProvisionCreditBenefit.Recipient;
     isInfiniteTotal?: boolean;
     allocationCadence?: ProvisionCreditBenefit.AllocationCadence;
@@ -12,8 +14,10 @@ export interface ProvisionCreditBenefit {
     overageUnitPrice?: number | null;
     /** Overage price per credit in the currency's minor units (40 is $0.40 for USD, ¥40 for JPY, 0.040 KWD for KWD), keyed by uppercase ISO 4217 currency code. On an invoice, an entry for the invoice currency on any of the order's pricing or credit benefits beats every overageUnitPrice; overageUnitPrice applies only when no holder has an entry for that currency. Writes keep the two consistent for the primary currency (the organization's default when the product is priced in it, else the product's only pricing currency; an order line's own currency): a map entry for it sets overageUnitPrice, winning when a write sends both, and an overageUnitPrice sent without the map updates an existing entry for it. A write that sends only overageUnitPrice never creates a map. */
     overageUnitPrices?: Record<string, number | null> | null;
-    /** Credit amount, exact to at most 6 decimal places. */
+    /** Up to 6 decimal places. Send this or `rolloverAmountDecimal`; when both are sent they must be equal. */
     rolloverAmount?: number | null;
+    /** The same amount as `rolloverAmount`, as an exact decimal string with up to 6 decimal places. Send this or `rolloverAmount`; when both are sent they must be equal. */
+    rolloverAmountDecimal?: string | null;
     rolloverDuration?: number | null;
     rolloverDurationUnit?: ProvisionCreditBenefit.RolloverDurationUnit | null;
     /** When true, Paid adds a usage line to the order that draws down this credit currency: one credit for each signal whose event name is the `creditsCurrencyKey`. The line uses a product named `Paid Usage - <creditsCurrencyKey>`, with external ID `paid:usage:<creditsCurrencyKey>`, which Paid creates if it does not exist. An order gets one such line per credit currency, even when several benefits set this flag. */

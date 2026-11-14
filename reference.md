@@ -4538,9 +4538,7 @@ Sets the cap on this customer unit for one credits currency. Returns `changed: f
 await client.customers.setCustomerUnitCapByExternalId({
     externalId: "customer_123",
     externalCustomerUnitId: "tenant-a",
-    body: {
-        amount: 10000
-    }
+    body: {}
 });
 
 ```
@@ -4810,9 +4808,7 @@ Sets the cap on this customer unit for one credits currency. Returns `changed: f
 await client.customers.setCustomerUnitCap({
     id: "cus_abc123",
     externalCustomerUnitId: "tenant-a",
-    body: {
-        amount: 10000
-    }
+    body: {}
 });
 
 ```

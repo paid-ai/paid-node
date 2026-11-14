@@ -3,8 +3,10 @@
 import type * as Paid from "../index.js";
 
 export interface CustomerUnitCapSet {
-    /** The cap, in credits of the currency, per period. Must be positive. */
-    amount: number;
+    /** The cap, in credits of the currency, per period. Must be positive. Up to 6 decimal places. Send this or `amountDecimal`; when both are sent they must be equal. */
+    amount?: number;
+    /** The same amount as `amount`, as an exact decimal string with up to 6 decimal places. Send this or `amount`; when both are sent they must be equal. Must be positive. */
+    amountDecimal?: string;
     /** Monthly UTC periods, with boundaries defined by `schedule`. */
     frequency?: CustomerUnitCapSet.Frequency;
     schedule?: Paid.CustomerUnitCapScheduleInput;

@@ -3,8 +3,10 @@
 export interface CreditGrantCreateRequest {
     /** Stable machine-readable key for the active credit currency to grant. */
     creditCurrencyKey: string;
-    /** Number of credits to grant, exact to at most 6 decimal places. This is not a monetary amount. */
-    amount: number;
+    /** Number of credits to grant. This is not a monetary amount. Up to 6 decimal places. Send this or `amountDecimal`; when both are sent they must be equal. */
+    amount?: number;
+    /** The same amount as `amount`, as an exact decimal string with up to 6 decimal places. Send this or `amount`; when both are sent they must be equal. Exact at any magnitude the balance can hold. */
+    amountDecimal?: string;
     /** When these credits become spendable, as an RFC3339 datetime with timezone. Must be at or before the current server time. Defaults to the current server time when omitted. */
     startsAt?: string;
     /** When these credits expire, as an RFC3339 datetime with timezone. Omit or set null for credits that do not expire. */

@@ -5,8 +5,10 @@ export interface ProvisionOrderLineAttribute {
     quantity?: number;
     /** When omitted, the line uses the pricing of the product attribute with the same name, unchanged. This includes pricing models that this request cannot express. Send pricing only to override the catalog price for this order. */
     pricing?: ProvisionOrderLineAttribute.Pricing;
-    /** Overrides the credit amount on every credit benefit this attribute carries onto the order line. Paid grants creditAmount × quantity per allocation. When omitted, the product attribute's configured benefit amount applies. */
+    /** Overrides the credit amount on every credit benefit this attribute carries onto the order line. Paid grants creditAmount × quantity per allocation. When omitted, the product attribute's configured benefit amount applies. Send this or `creditAmountDecimal`; when both are sent they must be equal. */
     creditAmount?: number | null;
+    /** The same amount as `creditAmount`, as an exact decimal string with up to 6 decimal places. Send this or `creditAmount`; when both are sent they must be equal. */
+    creditAmountDecimal?: string | null;
     /** Overrides the overage unit price, in the currency's minor units, for credits consumed beyond the granted balance, on this attribute only: applied to every credit benefit this attribute carries onto the order line, or to the attribute's pricing when it carries no benefits, and it replaces this attribute's per-currency price for the order currency, so it is what this attribute bills in every currency. Other attributes on the order that price the same credits currency keep their own overage prices, and the invoice bills the highest entry for its currency across all of them. When omitted, the product attribute's configured overage applies; null clears it, so the attribute takes its order-currency per-currency price, or none if it has no map. */
     overageUnitPrice?: number | null;
     /** Overrides this attribute's per-currency overage prices, in each currency's minor units keyed by uppercase ISO 4217 currency code, wherever overageUnitPrice would land. An entry for the order currency also becomes the attribute's overageUnitPrice. Keys must be currencies the product is priced in. When omitted, the product attribute's configured per-currency prices apply; null removes them, leaving only the scalar overage. */

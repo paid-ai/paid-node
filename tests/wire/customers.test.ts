@@ -1083,6 +1083,7 @@ describe("Customers", () => {
                                     currencyName: "currencyName",
                                     currencyKey: "currencyKey",
                                     balance: 1.1,
+                                    balanceDecimal: "balanceDecimal",
                                 },
                             ],
                         },
@@ -1107,6 +1108,7 @@ describe("Customers", () => {
                         currencyName: "currencyName",
                         currencyKey: "currencyKey",
                         balance: 1.1,
+                        balanceDecimal: "balanceDecimal",
                     },
                 ],
             },
@@ -1172,6 +1174,7 @@ describe("Customers", () => {
                                     currencyName: "currencyName",
                                     currencyKey: "currencyKey",
                                     balance: 1.1,
+                                    balanceDecimal: "balanceDecimal",
                                 },
                             ],
                         },
@@ -1196,6 +1199,7 @@ describe("Customers", () => {
                         currencyName: "currencyName",
                         currencyKey: "currencyKey",
                         balance: 1.1,
+                        balanceDecimal: "balanceDecimal",
                     },
                 ],
             },
@@ -2125,6 +2129,7 @@ describe("Customers", () => {
                                     currencyName: "currencyName",
                                     currencyKey: "currencyKey",
                                     balance: 1.1,
+                                    balanceDecimal: "balanceDecimal",
                                 },
                             ],
                         },
@@ -2149,6 +2154,7 @@ describe("Customers", () => {
                         currencyName: "currencyName",
                         currencyKey: "currencyKey",
                         balance: 1.1,
+                        balanceDecimal: "balanceDecimal",
                     },
                 ],
             },
@@ -2214,6 +2220,7 @@ describe("Customers", () => {
                                     currencyName: "currencyName",
                                     currencyKey: "currencyKey",
                                     balance: 1.1,
+                                    balanceDecimal: "balanceDecimal",
                                 },
                             ],
                         },
@@ -2238,6 +2245,7 @@ describe("Customers", () => {
                         currencyName: "currencyName",
                         currencyKey: "currencyKey",
                         balance: 1.1,
+                        balanceDecimal: "balanceDecimal",
                     },
                 ],
             },
@@ -2316,8 +2324,11 @@ describe("Customers", () => {
                     currencyName: "currencyName",
                     currencyKey: "currencyKey",
                     available: 1.1,
+                    availableDecimal: "availableDecimal",
                     used: 1.1,
+                    usedDecimal: "usedDecimal",
                     total: 1.1,
+                    totalDecimal: "totalDecimal",
                     periodStart: "2024-01-15T09:30:00Z",
                     periodEnd: "2024-01-15T09:30:00Z",
                     rolloverEndDate: "2024-01-15T09:30:00Z",
@@ -2325,9 +2336,13 @@ describe("Customers", () => {
                     grants: [
                         {
                             available: 1.1,
+                            availableDecimal: "availableDecimal",
                             used: 1.1,
+                            usedDecimal: "usedDecimal",
                             total: 1.1,
+                            totalDecimal: "totalDecimal",
                             rolloverAmount: null,
+                            rolloverAmountDecimal: null,
                             periodStart: "2024-01-15T09:30:00Z",
                             periodEnd: null,
                             rolloverEndDate: null,
@@ -2356,8 +2371,11 @@ describe("Customers", () => {
                     currencyName: "currencyName",
                     currencyKey: "currencyKey",
                     available: 1.1,
+                    availableDecimal: "availableDecimal",
                     used: 1.1,
+                    usedDecimal: "usedDecimal",
                     total: 1.1,
+                    totalDecimal: "totalDecimal",
                     periodStart: "2024-01-15T09:30:00Z",
                     periodEnd: "2024-01-15T09:30:00Z",
                     rolloverEndDate: "2024-01-15T09:30:00Z",
@@ -2365,9 +2383,13 @@ describe("Customers", () => {
                     grants: [
                         {
                             available: 1.1,
+                            availableDecimal: "availableDecimal",
                             used: 1.1,
+                            usedDecimal: "usedDecimal",
                             total: 1.1,
+                            totalDecimal: "totalDecimal",
                             rolloverAmount: null,
+                            rolloverAmountDecimal: null,
                             periodStart: "2024-01-15T09:30:00Z",
                             periodEnd: null,
                             rolloverEndDate: null,
@@ -2506,7 +2528,7 @@ describe("Customers", () => {
     test("grantCustomerCredits (2)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = { creditCurrencyKey: "x", amount: 1.1 };
+        const rawRequestBody = { creditCurrencyKey: "x" };
         const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
@@ -2522,7 +2544,6 @@ describe("Customers", () => {
                 id: "id",
                 body: {
                     creditCurrencyKey: "x",
-                    amount: 1.1,
                 },
             });
         }).rejects.toThrow(Paid.BadRequestError);
@@ -2531,7 +2552,7 @@ describe("Customers", () => {
     test("grantCustomerCredits (3)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = { creditCurrencyKey: "x", amount: 1.1 };
+        const rawRequestBody = { creditCurrencyKey: "x" };
         const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
@@ -2547,7 +2568,6 @@ describe("Customers", () => {
                 id: "id",
                 body: {
                     creditCurrencyKey: "x",
-                    amount: 1.1,
                 },
             });
         }).rejects.toThrow(Paid.ForbiddenError);
@@ -2556,7 +2576,7 @@ describe("Customers", () => {
     test("grantCustomerCredits (4)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = { creditCurrencyKey: "x", amount: 1.1 };
+        const rawRequestBody = { creditCurrencyKey: "x" };
         const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
@@ -2572,7 +2592,6 @@ describe("Customers", () => {
                 id: "id",
                 body: {
                     creditCurrencyKey: "x",
-                    amount: 1.1,
                 },
             });
         }).rejects.toThrow(Paid.NotFoundError);
@@ -2581,7 +2600,7 @@ describe("Customers", () => {
     test("grantCustomerCredits (5)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = { creditCurrencyKey: "x", amount: 1.1 };
+        const rawRequestBody = { creditCurrencyKey: "x" };
         const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
@@ -2597,7 +2616,6 @@ describe("Customers", () => {
                 id: "id",
                 body: {
                     creditCurrencyKey: "x",
-                    amount: 1.1,
                 },
             });
         }).rejects.toThrow(Paid.ConflictError);
@@ -2606,7 +2624,7 @@ describe("Customers", () => {
     test("grantCustomerCredits (6)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = { creditCurrencyKey: "x", amount: 1.1 };
+        const rawRequestBody = { creditCurrencyKey: "x" };
         const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
@@ -2622,7 +2640,6 @@ describe("Customers", () => {
                 id: "id",
                 body: {
                     creditCurrencyKey: "x",
-                    amount: 1.1,
                 },
             });
         }).rejects.toThrow(Paid.InternalServerError);
@@ -2639,8 +2656,11 @@ describe("Customers", () => {
                     currencyName: "currencyName",
                     currencyKey: "currencyKey",
                     available: 1.1,
+                    availableDecimal: "availableDecimal",
                     used: 1.1,
+                    usedDecimal: "usedDecimal",
                     total: 1.1,
+                    totalDecimal: "totalDecimal",
                     periodStart: "2024-01-15T09:30:00Z",
                     periodEnd: "2024-01-15T09:30:00Z",
                     rolloverEndDate: "2024-01-15T09:30:00Z",
@@ -2648,9 +2668,13 @@ describe("Customers", () => {
                     grants: [
                         {
                             available: 1.1,
+                            availableDecimal: "availableDecimal",
                             used: 1.1,
+                            usedDecimal: "usedDecimal",
                             total: 1.1,
+                            totalDecimal: "totalDecimal",
                             rolloverAmount: null,
+                            rolloverAmountDecimal: null,
                             periodStart: "2024-01-15T09:30:00Z",
                             periodEnd: null,
                             rolloverEndDate: null,
@@ -2679,8 +2703,11 @@ describe("Customers", () => {
                     currencyName: "currencyName",
                     currencyKey: "currencyKey",
                     available: 1.1,
+                    availableDecimal: "availableDecimal",
                     used: 1.1,
+                    usedDecimal: "usedDecimal",
                     total: 1.1,
+                    totalDecimal: "totalDecimal",
                     periodStart: "2024-01-15T09:30:00Z",
                     periodEnd: "2024-01-15T09:30:00Z",
                     rolloverEndDate: "2024-01-15T09:30:00Z",
@@ -2688,9 +2715,13 @@ describe("Customers", () => {
                     grants: [
                         {
                             available: 1.1,
+                            availableDecimal: "availableDecimal",
                             used: 1.1,
+                            usedDecimal: "usedDecimal",
                             total: 1.1,
+                            totalDecimal: "totalDecimal",
                             rolloverAmount: null,
+                            rolloverAmountDecimal: null,
                             periodStart: "2024-01-15T09:30:00Z",
                             periodEnd: null,
                             rolloverEndDate: null,
@@ -3095,7 +3126,7 @@ describe("Customers", () => {
     test("grantCustomerCreditsByExternalId (2)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = { creditCurrencyKey: "x", amount: 1.1 };
+        const rawRequestBody = { creditCurrencyKey: "x" };
         const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
@@ -3111,7 +3142,6 @@ describe("Customers", () => {
                 externalId: "externalId",
                 body: {
                     creditCurrencyKey: "x",
-                    amount: 1.1,
                 },
             });
         }).rejects.toThrow(Paid.BadRequestError);
@@ -3120,7 +3150,7 @@ describe("Customers", () => {
     test("grantCustomerCreditsByExternalId (3)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = { creditCurrencyKey: "x", amount: 1.1 };
+        const rawRequestBody = { creditCurrencyKey: "x" };
         const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
@@ -3136,7 +3166,6 @@ describe("Customers", () => {
                 externalId: "externalId",
                 body: {
                     creditCurrencyKey: "x",
-                    amount: 1.1,
                 },
             });
         }).rejects.toThrow(Paid.ForbiddenError);
@@ -3145,7 +3174,7 @@ describe("Customers", () => {
     test("grantCustomerCreditsByExternalId (4)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = { creditCurrencyKey: "x", amount: 1.1 };
+        const rawRequestBody = { creditCurrencyKey: "x" };
         const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
@@ -3161,7 +3190,6 @@ describe("Customers", () => {
                 externalId: "externalId",
                 body: {
                     creditCurrencyKey: "x",
-                    amount: 1.1,
                 },
             });
         }).rejects.toThrow(Paid.NotFoundError);
@@ -3170,7 +3198,7 @@ describe("Customers", () => {
     test("grantCustomerCreditsByExternalId (5)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = { creditCurrencyKey: "x", amount: 1.1 };
+        const rawRequestBody = { creditCurrencyKey: "x" };
         const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
@@ -3186,7 +3214,6 @@ describe("Customers", () => {
                 externalId: "externalId",
                 body: {
                     creditCurrencyKey: "x",
-                    amount: 1.1,
                 },
             });
         }).rejects.toThrow(Paid.ConflictError);
@@ -3195,7 +3222,7 @@ describe("Customers", () => {
     test("grantCustomerCreditsByExternalId (6)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = { creditCurrencyKey: "x", amount: 1.1 };
+        const rawRequestBody = { creditCurrencyKey: "x" };
         const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
@@ -3211,7 +3238,6 @@ describe("Customers", () => {
                 externalId: "externalId",
                 body: {
                     creditCurrencyKey: "x",
-                    amount: 1.1,
                 },
             });
         }).rejects.toThrow(Paid.InternalServerError);
@@ -7864,6 +7890,7 @@ describe("Customers", () => {
             creditsCurrencyId: "7f4f5d4c-55e9-4d5b-a3e7-c9eb3d2d01bf",
             policy: {
                 amount: 10000,
+                amountDecimal: "10000",
                 frequency: "MONTHLY",
                 schedule: { type: "ANCHORED", anchorDay: 15 },
                 effectiveFrom: "2024-01-15T09:30:00Z",
@@ -7874,7 +7901,9 @@ describe("Customers", () => {
             currentPeriod: {
                 window: { start: "2024-01-15T09:30:00Z", end: "2024-01-15T09:30:00Z" },
                 used: 1.1,
+                usedDecimal: "usedDecimal",
                 remaining: 1.1,
+                remainingDecimal: "remainingDecimal",
             },
         };
         server
@@ -7896,6 +7925,7 @@ describe("Customers", () => {
             creditsCurrencyId: "7f4f5d4c-55e9-4d5b-a3e7-c9eb3d2d01bf",
             policy: {
                 amount: 10000,
+                amountDecimal: "10000",
                 frequency: "MONTHLY",
                 schedule: {
                     type: "ANCHORED",
@@ -7912,7 +7942,9 @@ describe("Customers", () => {
                     end: "2024-01-15T09:30:00Z",
                 },
                 used: 1.1,
+                usedDecimal: "usedDecimal",
                 remaining: 1.1,
+                remainingDecimal: "remainingDecimal",
             },
         });
     });
@@ -8004,7 +8036,7 @@ describe("Customers", () => {
     test("setCustomerUnitCapByExternalId (1)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = { amount: 10000 };
+        const rawRequestBody = {};
         const rawResponseBody = {
             externalCustomerUnitId: "tenant-a",
             customerId: "cus_abc123",
@@ -8012,6 +8044,7 @@ describe("Customers", () => {
             changed: true,
             policy: {
                 amount: 10000,
+                amountDecimal: "10000",
                 frequency: "MONTHLY",
                 schedule: { type: "ANCHORED", anchorDay: 15 },
                 effectiveFrom: "2024-01-15T09:30:00Z",
@@ -8022,7 +8055,9 @@ describe("Customers", () => {
             currentPeriod: {
                 window: { start: "2024-01-15T09:30:00Z", end: "2024-01-15T09:30:00Z" },
                 used: 1.1,
+                usedDecimal: "usedDecimal",
                 remaining: 1.1,
+                remainingDecimal: "remainingDecimal",
             },
         };
         server
@@ -8037,9 +8072,7 @@ describe("Customers", () => {
         const response = await client.customers.setCustomerUnitCapByExternalId({
             externalId: "customer_123",
             externalCustomerUnitId: "tenant-a",
-            body: {
-                amount: 10000,
-            },
+            body: {},
         });
         expect(response).toEqual({
             externalCustomerUnitId: "tenant-a",
@@ -8048,6 +8081,7 @@ describe("Customers", () => {
             changed: true,
             policy: {
                 amount: 10000,
+                amountDecimal: "10000",
                 frequency: "MONTHLY",
                 schedule: {
                     type: "ANCHORED",
@@ -8064,7 +8098,9 @@ describe("Customers", () => {
                     end: "2024-01-15T09:30:00Z",
                 },
                 used: 1.1,
+                usedDecimal: "usedDecimal",
                 remaining: 1.1,
+                remainingDecimal: "remainingDecimal",
             },
         });
     });
@@ -8072,7 +8108,7 @@ describe("Customers", () => {
     test("setCustomerUnitCapByExternalId (2)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = { amount: 1.1 };
+        const rawRequestBody = {};
         const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
@@ -8087,9 +8123,7 @@ describe("Customers", () => {
             return await client.customers.setCustomerUnitCapByExternalId({
                 externalId: "externalId",
                 externalCustomerUnitId: "externalCustomerUnitId",
-                body: {
-                    amount: 1.1,
-                },
+                body: {},
             });
         }).rejects.toThrow(Paid.BadRequestError);
     });
@@ -8097,7 +8131,7 @@ describe("Customers", () => {
     test("setCustomerUnitCapByExternalId (3)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = { amount: 1.1 };
+        const rawRequestBody = {};
         const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
@@ -8112,9 +8146,7 @@ describe("Customers", () => {
             return await client.customers.setCustomerUnitCapByExternalId({
                 externalId: "externalId",
                 externalCustomerUnitId: "externalCustomerUnitId",
-                body: {
-                    amount: 1.1,
-                },
+                body: {},
             });
         }).rejects.toThrow(Paid.ForbiddenError);
     });
@@ -8122,7 +8154,7 @@ describe("Customers", () => {
     test("setCustomerUnitCapByExternalId (4)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = { amount: 1.1 };
+        const rawRequestBody = {};
         const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
@@ -8137,9 +8169,7 @@ describe("Customers", () => {
             return await client.customers.setCustomerUnitCapByExternalId({
                 externalId: "externalId",
                 externalCustomerUnitId: "externalCustomerUnitId",
-                body: {
-                    amount: 1.1,
-                },
+                body: {},
             });
         }).rejects.toThrow(Paid.NotFoundError);
     });
@@ -8147,7 +8177,7 @@ describe("Customers", () => {
     test("setCustomerUnitCapByExternalId (5)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = { amount: 1.1 };
+        const rawRequestBody = {};
         const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
@@ -8162,9 +8192,7 @@ describe("Customers", () => {
             return await client.customers.setCustomerUnitCapByExternalId({
                 externalId: "externalId",
                 externalCustomerUnitId: "externalCustomerUnitId",
-                body: {
-                    amount: 1.1,
-                },
+                body: {},
             });
         }).rejects.toThrow(Paid.ConflictError);
     });
@@ -8172,7 +8200,7 @@ describe("Customers", () => {
     test("setCustomerUnitCapByExternalId (6)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = { amount: 1.1 };
+        const rawRequestBody = {};
         const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
@@ -8187,9 +8215,7 @@ describe("Customers", () => {
             return await client.customers.setCustomerUnitCapByExternalId({
                 externalId: "externalId",
                 externalCustomerUnitId: "externalCustomerUnitId",
-                body: {
-                    amount: 1.1,
-                },
+                body: {},
             });
         }).rejects.toThrow(Paid.InternalServerError);
     });
@@ -8204,6 +8230,7 @@ describe("Customers", () => {
             creditsCurrencyId: "7f4f5d4c-55e9-4d5b-a3e7-c9eb3d2d01bf",
             policy: {
                 amount: 10000,
+                amountDecimal: "10000",
                 frequency: "MONTHLY",
                 schedule: { type: "ANCHORED", anchorDay: 15 },
                 effectiveFrom: "2024-01-15T09:30:00Z",
@@ -8232,6 +8259,7 @@ describe("Customers", () => {
             creditsCurrencyId: "7f4f5d4c-55e9-4d5b-a3e7-c9eb3d2d01bf",
             policy: {
                 amount: 10000,
+                amountDecimal: "10000",
                 frequency: "MONTHLY",
                 schedule: {
                     type: "ANCHORED",
@@ -8361,6 +8389,7 @@ describe("Customers", () => {
             creditsCurrencyId: "7f4f5d4c-55e9-4d5b-a3e7-c9eb3d2d01bf",
             window: { start: "2024-01-15T09:30:00Z", end: "2024-01-15T09:30:00Z" },
             spent: 230,
+            spentDecimal: "230",
         };
         server
             .mockEndpoint()
@@ -8386,6 +8415,7 @@ describe("Customers", () => {
                 end: "2024-01-15T09:30:00Z",
             },
             spent: 230,
+            spentDecimal: "230",
         });
     });
 
@@ -8483,6 +8513,7 @@ describe("Customers", () => {
             creditsCurrencyId: "7f4f5d4c-55e9-4d5b-a3e7-c9eb3d2d01bf",
             policy: {
                 amount: 10000,
+                amountDecimal: "10000",
                 frequency: "MONTHLY",
                 schedule: { type: "ANCHORED", anchorDay: 15 },
                 effectiveFrom: "2024-01-15T09:30:00Z",
@@ -8493,7 +8524,9 @@ describe("Customers", () => {
             currentPeriod: {
                 window: { start: "2024-01-15T09:30:00Z", end: "2024-01-15T09:30:00Z" },
                 used: 1.1,
+                usedDecimal: "usedDecimal",
                 remaining: 1.1,
+                remainingDecimal: "remainingDecimal",
             },
         };
         server
@@ -8515,6 +8548,7 @@ describe("Customers", () => {
             creditsCurrencyId: "7f4f5d4c-55e9-4d5b-a3e7-c9eb3d2d01bf",
             policy: {
                 amount: 10000,
+                amountDecimal: "10000",
                 frequency: "MONTHLY",
                 schedule: {
                     type: "ANCHORED",
@@ -8531,7 +8565,9 @@ describe("Customers", () => {
                     end: "2024-01-15T09:30:00Z",
                 },
                 used: 1.1,
+                usedDecimal: "usedDecimal",
                 remaining: 1.1,
+                remainingDecimal: "remainingDecimal",
             },
         });
     });
@@ -8623,7 +8659,7 @@ describe("Customers", () => {
     test("setCustomerUnitCap (1)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = { amount: 10000 };
+        const rawRequestBody = {};
         const rawResponseBody = {
             externalCustomerUnitId: "tenant-a",
             customerId: "cus_abc123",
@@ -8631,6 +8667,7 @@ describe("Customers", () => {
             changed: true,
             policy: {
                 amount: 10000,
+                amountDecimal: "10000",
                 frequency: "MONTHLY",
                 schedule: { type: "ANCHORED", anchorDay: 15 },
                 effectiveFrom: "2024-01-15T09:30:00Z",
@@ -8641,7 +8678,9 @@ describe("Customers", () => {
             currentPeriod: {
                 window: { start: "2024-01-15T09:30:00Z", end: "2024-01-15T09:30:00Z" },
                 used: 1.1,
+                usedDecimal: "usedDecimal",
                 remaining: 1.1,
+                remainingDecimal: "remainingDecimal",
             },
         };
         server
@@ -8656,9 +8695,7 @@ describe("Customers", () => {
         const response = await client.customers.setCustomerUnitCap({
             id: "cus_abc123",
             externalCustomerUnitId: "tenant-a",
-            body: {
-                amount: 10000,
-            },
+            body: {},
         });
         expect(response).toEqual({
             externalCustomerUnitId: "tenant-a",
@@ -8667,6 +8704,7 @@ describe("Customers", () => {
             changed: true,
             policy: {
                 amount: 10000,
+                amountDecimal: "10000",
                 frequency: "MONTHLY",
                 schedule: {
                     type: "ANCHORED",
@@ -8683,7 +8721,9 @@ describe("Customers", () => {
                     end: "2024-01-15T09:30:00Z",
                 },
                 used: 1.1,
+                usedDecimal: "usedDecimal",
                 remaining: 1.1,
+                remainingDecimal: "remainingDecimal",
             },
         });
     });
@@ -8691,7 +8731,7 @@ describe("Customers", () => {
     test("setCustomerUnitCap (2)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = { amount: 1.1 };
+        const rawRequestBody = {};
         const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
@@ -8706,9 +8746,7 @@ describe("Customers", () => {
             return await client.customers.setCustomerUnitCap({
                 id: "id",
                 externalCustomerUnitId: "externalCustomerUnitId",
-                body: {
-                    amount: 1.1,
-                },
+                body: {},
             });
         }).rejects.toThrow(Paid.BadRequestError);
     });
@@ -8716,7 +8754,7 @@ describe("Customers", () => {
     test("setCustomerUnitCap (3)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = { amount: 1.1 };
+        const rawRequestBody = {};
         const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
@@ -8731,9 +8769,7 @@ describe("Customers", () => {
             return await client.customers.setCustomerUnitCap({
                 id: "id",
                 externalCustomerUnitId: "externalCustomerUnitId",
-                body: {
-                    amount: 1.1,
-                },
+                body: {},
             });
         }).rejects.toThrow(Paid.ForbiddenError);
     });
@@ -8741,7 +8777,7 @@ describe("Customers", () => {
     test("setCustomerUnitCap (4)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = { amount: 1.1 };
+        const rawRequestBody = {};
         const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
@@ -8756,9 +8792,7 @@ describe("Customers", () => {
             return await client.customers.setCustomerUnitCap({
                 id: "id",
                 externalCustomerUnitId: "externalCustomerUnitId",
-                body: {
-                    amount: 1.1,
-                },
+                body: {},
             });
         }).rejects.toThrow(Paid.NotFoundError);
     });
@@ -8766,7 +8800,7 @@ describe("Customers", () => {
     test("setCustomerUnitCap (5)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = { amount: 1.1 };
+        const rawRequestBody = {};
         const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
@@ -8781,9 +8815,7 @@ describe("Customers", () => {
             return await client.customers.setCustomerUnitCap({
                 id: "id",
                 externalCustomerUnitId: "externalCustomerUnitId",
-                body: {
-                    amount: 1.1,
-                },
+                body: {},
             });
         }).rejects.toThrow(Paid.ConflictError);
     });
@@ -8791,7 +8823,7 @@ describe("Customers", () => {
     test("setCustomerUnitCap (6)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = { amount: 1.1 };
+        const rawRequestBody = {};
         const rawResponseBody = { key: "value" };
         server
             .mockEndpoint()
@@ -8806,9 +8838,7 @@ describe("Customers", () => {
             return await client.customers.setCustomerUnitCap({
                 id: "id",
                 externalCustomerUnitId: "externalCustomerUnitId",
-                body: {
-                    amount: 1.1,
-                },
+                body: {},
             });
         }).rejects.toThrow(Paid.InternalServerError);
     });
@@ -8823,6 +8853,7 @@ describe("Customers", () => {
             creditsCurrencyId: "7f4f5d4c-55e9-4d5b-a3e7-c9eb3d2d01bf",
             policy: {
                 amount: 10000,
+                amountDecimal: "10000",
                 frequency: "MONTHLY",
                 schedule: { type: "ANCHORED", anchorDay: 15 },
                 effectiveFrom: "2024-01-15T09:30:00Z",
@@ -8851,6 +8882,7 @@ describe("Customers", () => {
             creditsCurrencyId: "7f4f5d4c-55e9-4d5b-a3e7-c9eb3d2d01bf",
             policy: {
                 amount: 10000,
+                amountDecimal: "10000",
                 frequency: "MONTHLY",
                 schedule: {
                     type: "ANCHORED",
@@ -8980,6 +9012,7 @@ describe("Customers", () => {
             creditsCurrencyId: "7f4f5d4c-55e9-4d5b-a3e7-c9eb3d2d01bf",
             window: { start: "2024-01-15T09:30:00Z", end: "2024-01-15T09:30:00Z" },
             spent: 230,
+            spentDecimal: "230",
         };
         server
             .mockEndpoint()
@@ -9005,6 +9038,7 @@ describe("Customers", () => {
                 end: "2024-01-15T09:30:00Z",
             },
             spent: 230,
+            spentDecimal: "230",
         });
     });
 
