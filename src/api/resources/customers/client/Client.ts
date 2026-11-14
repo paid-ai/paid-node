@@ -5277,9 +5277,7 @@ export class Customers {
      *     await client.customers.setCustomerUnitCapByExternalId({
      *         externalId: "customer_123",
      *         externalCustomerUnitId: "tenant-a",
-     *         body: {
-     *             amount: 10000
-     *         }
+     *         body: {}
      *     })
      */
     public setCustomerUnitCapByExternalId(
@@ -5677,9 +5675,7 @@ export class Customers {
      *     await client.customers.setCustomerUnitCap({
      *         id: "cus_abc123",
      *         externalCustomerUnitId: "tenant-a",
-     *         body: {
-     *             amount: 10000
-     *         }
+     *         body: {}
      *     })
      */
     public setCustomerUnitCap(

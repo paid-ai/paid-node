@@ -912,6 +912,7 @@ describe("CustomViewsExperimental", () => {
                 caps: [
                     {
                         amount: 10000,
+                        amountDecimal: "10000",
                         frequency: "MONTHLY",
                         schedule: { type: "ANCHORED", anchorDay: 15 },
                         externalId: "externalId",
@@ -967,6 +968,7 @@ describe("CustomViewsExperimental", () => {
                 caps: [
                     {
                         amount: 10000,
+                        amountDecimal: "10000",
                         frequency: "MONTHLY",
                         schedule: {
                             type: "ANCHORED",

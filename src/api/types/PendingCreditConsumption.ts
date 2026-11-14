@@ -5,7 +5,7 @@ import type * as Paid from "../index.js";
 export interface PendingCreditConsumption {
     /** Whole-credit projection of the credits consumed, truncated toward zero. May be 0 for a sub-unit consumption. Exact for values within ±2^53; see creditsDecimal for the exact value at any magnitude. This is not a monetary amount. */
     credits: number;
-    /** Exact number of credits consumed, as a decimal string. Exact at any magnitude, and at the full 6 decimal places. */
+    /** Exact number of credits consumed, as a decimal string. Exact at any magnitude and at every decimal place the value carries. */
     creditsDecimal: string;
     creditCurrency: Paid.PendingCreditConsumptionCurrency | null;
     /** Paid order display ID the consumption belongs to, if any. */

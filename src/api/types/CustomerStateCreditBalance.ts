@@ -4,5 +4,8 @@ export interface CustomerStateCreditBalance {
     creditsCurrencyId: string;
     currencyName: string;
     currencyKey: string;
+    /** JSON number, up to 6 decimal places, truncated toward zero; exact only within ±2^53. Use `balanceDecimal` for the exact value. */
     balance: number;
+    /** Exact value of `balance` as a decimal string, at any magnitude and every decimal place it carries. */
+    balanceDecimal: string;
 }

@@ -7,8 +7,12 @@ import type * as Paid from "../index.js";
  */
 export interface CustomerUnitCapCurrentPeriod {
     window: Paid.CustomerUnitCapPeriod;
-    /** Credits of this currency spent by this unit and its descendants during the window. JSON number; exact within ±2^53. */
+    /** Credits of this currency spent by this unit and its descendants during the window. JSON number, up to 6 decimal places, truncated toward zero; exact only within ±2^53. Use `usedDecimal` for the exact value. */
     used: number;
-    /** `amount - used`; negative once the cap is exceeded. Advisory: spend may land between this read and the next burn. */
+    /** Exact value of `used` as a decimal string, at any magnitude and every decimal place it carries. */
+    usedDecimal: string;
+    /** `amount - used`; negative once the cap is exceeded. Advisory: spend may land between this read and the next burn. JSON number, up to 6 decimal places, truncated toward zero; exact only within ±2^53. Use `remainingDecimal` for the exact value. */
     remaining: number;
+    /** Exact value of `remaining` as a decimal string, at any magnitude and every decimal place it carries. */
+    remainingDecimal: string;
 }

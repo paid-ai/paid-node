@@ -3,7 +3,7 @@
 export interface CreditGrantResult {
     /** Whole-credit projection of the amount granted, truncated toward zero. May be 0 for a sub-unit grant. Exact for values within ±2^53; see amountDecimal for the exact value at any magnitude. */
     amount: number;
-    /** Exact number of credits granted, as a decimal string. Exact at any magnitude, and at the full 6 decimal places. */
+    /** Exact number of credits granted, as a decimal string. Exact at any magnitude and at every decimal place the value carries. */
     amountDecimal: string;
     /** When these credits become spendable, as an RFC3339 datetime with timezone. */
     startsAt: string;

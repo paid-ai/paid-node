@@ -19,13 +19,17 @@ export namespace CreateOrderLineAttributeRequest {
         billingType?: Pricing.BillingType;
         signalType?: Pricing.SignalType;
         creditsCurrencyId?: string;
-        /** Credit amount, exact to at most 6 decimal places. */
+        /** Up to 6 decimal places. Send this or `creditCostDecimal`; when both are sent they must be equal. */
         creditCost?: number;
+        /** The same amount as `creditCost`, as an exact decimal string with up to 6 decimal places. Send this or `creditCost`; when both are sent they must be equal. */
+        creditCostDecimal?: string;
         overageUnitPrice?: number;
         /** Overage price per credit in the currency's minor units (40 is $0.40 for USD, ¥40 for JPY, 0.040 KWD for KWD), keyed by uppercase ISO 4217 currency code. On an invoice, an entry for the invoice currency on any of the order's pricing or credit benefits beats every overageUnitPrice; overageUnitPrice applies only when no holder has an entry for that currency. Writes keep the two consistent for the primary currency (the organization's default when the product is priced in it, else the product's only pricing currency; an order line's own currency): a map entry for it sets overageUnitPrice, winning when a write sends both, and an overageUnitPrice sent without the map updates an existing entry for it. A write that sends only overageUnitPrice never creates a map. */
         overageUnitPrices?: Record<string, number | null> | null;
-        /** Credit amount, exact to at most 6 decimal places. */
+        /** Up to 6 decimal places. Send this or `creditRolloverAmountDecimal`; when both are sent they must be equal. */
         creditRolloverAmount?: number;
+        /** The same amount as `creditRolloverAmount`, as an exact decimal string with up to 6 decimal places. Send this or `creditRolloverAmount`; when both are sent they must be equal. */
+        creditRolloverAmountDecimal?: string;
         creditBenefits?: Pricing.CreditBenefits.Item[];
         pricingInput?: Pricing.PricingInput;
         creditUnitBrackets?: Pricing.CreditUnitBrackets.Item[];
@@ -110,13 +114,17 @@ export namespace CreateOrderLineAttributeRequest {
                 id: string;
                 creditsCurrencyId?: string;
                 recipient?: Item.Recipient;
-                /** Credit amount, exact to at most 6 decimal places. */
-                amount: number;
+                /** Up to 6 decimal places. Send this or `amountDecimal`; when both are sent they must be equal. */
+                amount?: number;
+                /** The same amount as `amount`, as an exact decimal string with up to 6 decimal places. Send this or `amount`; when both are sent they must be equal. */
+                amountDecimal?: string;
                 overageUnitPrice?: number | null;
                 /** Overage price per credit in the currency's minor units (40 is $0.40 for USD, ¥40 for JPY, 0.040 KWD for KWD), keyed by uppercase ISO 4217 currency code. On an invoice, an entry for the invoice currency on any of the order's pricing or credit benefits beats every overageUnitPrice; overageUnitPrice applies only when no holder has an entry for that currency. Writes keep the two consistent for the primary currency (the organization's default when the product is priced in it, else the product's only pricing currency; an order line's own currency): a map entry for it sets overageUnitPrice, winning when a write sends both, and an overageUnitPrice sent without the map updates an existing entry for it. A write that sends only overageUnitPrice never creates a map. */
                 overageUnitPrices?: Record<string, number | null> | null;
-                /** Credit amount, exact to at most 6 decimal places. */
+                /** Up to 6 decimal places. Send this or `rolloverAmountDecimal`; when both are sent they must be equal. */
                 rolloverAmount?: number | null;
+                /** The same amount as `rolloverAmount`, as an exact decimal string with up to 6 decimal places. Send this or `rolloverAmount`; when both are sent they must be equal. */
+                rolloverAmountDecimal?: string | null;
                 rolloverDuration?: number | null;
                 rolloverDurationUnit?: Item.RolloverDurationUnit | null;
                 allocationCadence?: Item.AllocationCadence;
@@ -168,10 +176,14 @@ export namespace CreateOrderLineAttributeRequest {
         export namespace CreditUnitBrackets {
             export interface Item {
                 upTo: number | null;
-                /** Credit amount, exact to at most 6 decimal places. */
-                creditUnits: number;
-                /** Credits burned per unit in this band (graduated), instead of the flat creditUnits per signal. Brackets must be all flat or all graduated. Requires the graduated-credit-brackets flag. */
+                /** Up to 6 decimal places. Send this or `creditUnitsDecimal`; when both are sent they must be equal. */
+                creditUnits?: number;
+                /** The same amount as `creditUnits`, as an exact decimal string with up to 6 decimal places. Send this or `creditUnits`; when both are sent they must be equal. */
+                creditUnitsDecimal?: string;
+                /** Credits burned per unit in this band (graduated), instead of the flat creditUnits per signal. Brackets must be all flat or all graduated. Requires the graduated-credit-brackets flag. Up to 6 decimal places. Send this or `creditUnitsPerUnitDecimal`; when both are sent they must be equal. */
                 creditUnitsPerUnit?: number;
+                /** The same amount as `creditUnitsPerUnit`, as an exact decimal string with up to 6 decimal places. Send this or `creditUnitsPerUnit`; when both are sent they must be equal. */
+                creditUnitsPerUnitDecimal?: string;
             }
         }
     }
