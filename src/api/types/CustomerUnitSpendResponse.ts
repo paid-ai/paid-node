@@ -10,6 +10,8 @@ export interface CustomerUnitSpendResponse {
     /** The credits currency this response is about: the requested `creditsCurrencyId`, or the organization's only credits currency when it was omitted. */
     creditsCurrencyId: string;
     window: Paid.CustomerUnitSpendWindow;
-    /** Credits of this currency spent by this unit and every unit beneath it during the window, net of reversals. Counted whether or not the unit has a cap. JSON number; exact within ±2^53. */
+    /** Credits of this currency spent by this unit and every unit beneath it during the window, net of reversals. Counted whether or not the unit has a cap. JSON number, up to 6 decimal places, truncated toward zero; exact only within ±2^53. Use `spentDecimal` for the exact value. */
     spent: number;
+    /** Exact value of `spent` as a decimal string, at any magnitude and every decimal place it carries. */
+    spentDecimal: string;
 }

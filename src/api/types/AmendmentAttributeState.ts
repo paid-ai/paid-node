@@ -7,6 +7,10 @@ export interface AmendmentAttributeState {
     quantity: number;
     /** Unit price in cents. Absent when no single per-unit rate exists (tiered models). */
     unitPriceMinor?: number;
+    /** How many raw units unitPriceMinor or creditCost is quoted per, for a price per N raw units. Absent for a per-raw-unit price. */
+    unitSize?: number;
+    /** The priced unit's name ("GB"), when the price is per N raw units and names it. */
+    unitName?: string;
     /** Total in cents of this attribute's currency. */
     totalAmountMinor?: number;
     /** Credits burned per signal unit for credit-billed usage. */

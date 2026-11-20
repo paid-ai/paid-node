@@ -14,6 +14,8 @@ export interface Invoice {
     postedDate?: string | null;
     dueDate?: string | null;
     currency: string;
+    /** Decimals of this record's amounts, from the currency and how Paid stores it: 2 for USD (4999 is $49.99), and for JPY 2 while Paid stores yen in hundredths, then 0. Divide amounts by 10^currencyDecimals; never assume 100. */
+    currencyDecimals: number;
     taxAmount: number;
     taxRate: number;
     taxStatus: Invoice.TaxStatus;

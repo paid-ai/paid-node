@@ -12,6 +12,8 @@ export interface AddAttributeIntent {
     productAttributeId?: string;
     /** Name of the new line. */
     lineName: string;
+    /** Source of the supplied price. Linked attributes default to `catalog`. Set `custom` for an intentional override, including a free `0` price. */
+    priceSource?: AddAttributeIntent.PriceSource;
     /** Full pricing JSON. Prefer `addFromCatalog` or `newUnitPriceMinor` unless you are replacing the pricing shape. */
     pricing: Record<string, unknown>;
     quantity: number;
@@ -25,6 +27,12 @@ export interface AddAttributeIntent {
 }
 
 export namespace AddAttributeIntent {
+    /** Source of the supplied price. Linked attributes default to `catalog`. Set `custom` for an intentional override, including a free `0` price. */
+    export const PriceSource = {
+        Catalog: "catalog",
+        Custom: "custom",
+    } as const;
+    export type PriceSource = (typeof PriceSource)[keyof typeof PriceSource];
     /** How to charge the partial first period when adding an attribute mid-cycle. */
     export const ChargeStub = {
         None: "none",

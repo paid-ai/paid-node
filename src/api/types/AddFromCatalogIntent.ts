@@ -10,6 +10,8 @@ export interface AddFromCatalogIntent {
     quantity?: number;
     /** Override unit price. Only for per-unit pricing. Amount in cents (minor currency units). */
     unitPriceMinor?: number;
+    /** Exact custom order price in minor units, for flagged organizations and per-unit pricing. Takes precedence over unitPriceMinor. */
+    unitPriceDecimal?: string;
     /** How to charge the partial first period when adding an attribute mid-cycle. */
     chargeStub?: AddFromCatalogIntent.ChargeStub;
 }

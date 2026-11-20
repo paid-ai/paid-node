@@ -7,6 +7,7 @@ import type * as Paid from "../../../../index.js";
  *     {
  *         productId: "productId",
  *         groups: [{
+ *                 frequency: null,
  *                 planIds: ["planIds"]
  *             }]
  *     }

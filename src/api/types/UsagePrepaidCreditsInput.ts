@@ -6,10 +6,18 @@ export interface UsagePrepaidCreditsInput {
     eventName: string;
     signalType?: UsagePrepaidCreditsInput.SignalType;
     creditsCurrencyId: string;
-    /** Credit amount, exact to at most 6 decimal places. */
-    creditCost: number;
+    /** Up to 15 decimal places. Send this or `creditCostDecimal`; when both are sent they must be equal. */
+    creditCost?: number;
+    /** The same amount as `creditCost`, as an exact decimal string with up to 15 decimal places. Send this or `creditCost`; when both are sent they must be equal. */
+    creditCostDecimal?: string;
+    /** How many raw signal units one priced unit is made of. A price per CPU-hour over signals in microseconds carries 3600000000: the signal keeps its raw count, and the amount is rate × quantity ÷ unitSize, rounded once. Omit when the signal is already in the priced unit. */
+    unitSize?: number;
+    /** The priced unit's name, shown with converted quantities. */
+    unitName?: string;
     unitValue?: number;
     overageUnitPrice?: number;
+    /** Exact overage price per credit, keyed by currency, as decimal text in the currency’s smallest stored unit. Used instead of overageUnitPrices when present. Requires decimal pricing to be enabled. */
+    overageUnitPricesDecimal?: Record<string, string | null> | null;
     /** Overage price per credit in the currency's minor units (40 is $0.40 for USD, ¥40 for JPY, 0.040 KWD for KWD), keyed by uppercase ISO 4217 currency code. On an invoice, an entry for the invoice currency on any of the order's pricing or credit benefits beats every overageUnitPrice; overageUnitPrice applies only when no holder has an entry for that currency. Writes keep the two consistent for the primary currency (the organization's default when the product is priced in it, else the product's only pricing currency; an order line's own currency): a map entry for it sets overageUnitPrice, winning when a write sends both, and an overageUnitPrice sent without the map updates an existing entry for it. A write that sends only overageUnitPrice never creates a map. */
     overageUnitPrices?: Record<string, number | null> | null;
     pricingInput?: UsagePrepaidCreditsInput.PricingInput;

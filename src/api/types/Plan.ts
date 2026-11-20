@@ -6,6 +6,8 @@ export interface Plan {
     id: string;
     productId: string;
     name: string | null;
+    /** What your customers see for this plan on invoices, checkout and the customer portal. Null means they see the plan name. */
+    displayName: string | null;
     externalId: string | null;
     supportedCurrencies: string[];
     isDefault: boolean;

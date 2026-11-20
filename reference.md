@@ -560,6 +560,7 @@ Updates upgrade path ordering for plans within a product, grouped by billing fre
 await client.plans.updatePlanUpgradePath({
     productId: "productId",
     groups: [{
+            frequency: null,
             planIds: ["planIds"]
         }]
 });
@@ -4538,9 +4539,7 @@ Sets the cap on this customer unit for one credits currency. Returns `changed: f
 await client.customers.setCustomerUnitCapByExternalId({
     externalId: "customer_123",
     externalCustomerUnitId: "tenant-a",
-    body: {
-        amount: 10000
-    }
+    body: {}
 });
 
 ```
@@ -4810,9 +4809,7 @@ Sets the cap on this customer unit for one credits currency. Returns `changed: f
 await client.customers.setCustomerUnitCap({
     id: "cus_abc123",
     externalCustomerUnitId: "tenant-a",
-    body: {
-        amount: 10000
-    }
+    body: {}
 });
 
 ```
@@ -5583,7 +5580,7 @@ await client.orders.listOrders();
 <dl>
 <dd>
 
-Creates a new order for the organization
+Creates a new order for the organization. If draft pricing cannot be confirmed, returns 503 BILLING_UNAVAILABLE only after deleting the new draft. A retained draft returns 409 ORDER_RETAINED with its order id and externalId in details. Retrieve that order and check its state instead of repeating creation.
 </dd>
 </dl>
 </dd>
@@ -6055,7 +6052,8 @@ Assign or unassign a single seat on an order
 ```typescript
 await client.orders.updateOrderSeatAssignment({
     id: "id",
-    seatId: "seatId"
+    seatId: "seatId",
+    userExternalId: null
 });
 
 ```
@@ -6122,7 +6120,8 @@ Assign or unassign seats in batch for an order
 await client.orders.batchOrderSeatAssignments({
     id: "id",
     assignments: [{
-            seatId: "seatId"
+            seatId: "seatId",
+            userExternalId: null
         }]
 });
 
@@ -6172,7 +6171,7 @@ await client.orders.batchOrderSeatAssignments({
 <dl>
 <dd>
 
-Creates or updates a customer, an optional contact, the products on the order, and the order with its lines, in one call. Each record is matched by its `externalId`, so you can send the same deal again after it changes in your CRM. Returns 201 Created when the order is new, and 200 OK when an existing draft order with the same `externalId` was updated. Treat both as success. Re-provisioning an order that is already active returns 409 `ORDER_ALREADY_ACTIVE`; change an active order through the amendments API instead. Amounts are whole numbers in minor currency units (cents).
+Creates or updates a customer, an optional contact, the products on the order, and the order with its lines, in one call. Each record is matched by its `externalId`, so you can send the same deal again after it changes in your CRM. Returns 201 Created when the order is new, and 200 OK when an existing draft order with the same `externalId` was updated. Treat both as success. Re-provisioning an order that is already active returns 409 `ORDER_ALREADY_ACTIVE`; change an active order through the amendments API instead. A 503 `BILLING_UNAVAILABLE` means draft pricing could not be confirmed and any newly created draft was deleted; send the same request again with the same idempotency key. If a new draft is retained, returns 409 `ORDER_RETAINED` with its order id and externalId in `details`. Retrieve that order and check its state instead of repeating creation. Amounts are whole numbers in minor currency units (cents).
 </dd>
 </dl>
 </dd>
@@ -6842,7 +6841,7 @@ await client.signals.createSignals({
 <dl>
 <dd>
 
-Early access. Voids one ingested signal by its ID, so it no longer counts as usage. Voiding a signal that is already voided answers 200 with the same void. An organization without signal voiding gets 404.
+Early access. Voids one ingested signal by its ID, so it no longer counts as usage. Voiding a signal that is already voided answers 200 with the same void. An organization that has signal voiding turned off gets 404.
 </dd>
 </dl>
 </dd>
@@ -6908,7 +6907,7 @@ await client.signals.voidSignal({
 <dl>
 <dd>
 
-Early access. Voids one ingested signal by the idempotency key it was sent with, with the same result as voiding it by ID. The key is matched exactly as stored: a signal sent with a customer-scoped API key is stored under a namespaced key and is voided by its ID. A key that names no signal answers 404; a key that names more than one answers 409 and voids nothing. A signal whose key is `.` or `..` cannot be addressed by key: void it by ID. An organization without signal voiding gets 404.
+Early access. Voids one ingested signal by the idempotency key it was sent with, with the same result as voiding it by ID. The key is matched exactly as stored: a signal sent with a customer-scoped API key is stored under a namespaced key and is voided by its ID. A key that names no signal answers 404; a key that names more than one answers 409 and voids nothing. A signal whose key is `.` or `..` cannot be addressed by key: void it by ID. An organization that has signal voiding turned off gets 404.
 </dd>
 </dl>
 </dd>
@@ -9313,7 +9312,7 @@ await client.costs.createCosts({
 
 Runs a single ClickHouse SELECT (or WITH … SELECT) against your organization's analytics views. Before writing a query, call `getAnalyticsSchema` (GET /schema) for the available views and columns, and `getSignalsMetadata` (GET /signals/metadata) for the JSON paths inside `fact_signal.data`. Results are automatically scoped to your organization — no org filter is needed or possible. Only SELECT/WITH statements are accepted.
 
-Conventions: monetary amounts are minor units (cents — divide by 100 for the major unit); most are integers, but `fact_cost.cost_amount` is fractional cents (Decimal) since a single AI call usually costs less than a cent; 64-bit integers (counts, ids, amounts) are returned as JSON strings to preserve precision, so parse them client-side; Decimal columns (fractional cents, and credit amounts, which are counts of credits rather than cents and are never divided by 100) come back as JSON numbers instead, so a value beyond 2^53 is already rounded — select toString(col) when you need its exact digits. Query signal payloads via JSON paths, e.g. `SELECT data.country::String AS country, count() FROM fact_signal GROUP BY country`.
+Conventions: monetary amounts are in the currency's stored minor units (cents for USD — divide by 100 for the major unit). A currency listed in `meta.storedCurrencyDecimals` is stored at those decimals instead of its own: JPY at 2 means hundredths of a yen (divide by 100), at 0 whole yen; most are integers. The exceptions are `fact_cost.cost_amount` and `fact_delivered_value.delivered_value_cents`: always hundredths of `cost_currency` and `delivered_value_currency`, respectively (Decimal, possibly fractional), whatever `meta.storedCurrencyDecimals` says; 64-bit integers (counts, ids, amounts) are returned as JSON strings to preserve precision, so parse them client-side; Decimal columns (fractional cents, and credit amounts, which are counts of credits rather than cents and are never divided by 100) come back as JSON numbers instead, so a value beyond 2^53 is already rounded — select toString(col) when you need its exact digits. Query signal payloads via JSON paths, e.g. `SELECT data.country::String AS country, count() FROM fact_signal GROUP BY country`.
 
 Limits: 30 seconds of execution time and 10,000 result rows (truncation is flagged via `meta.truncated`). Queries exceeding the 4 GB memory allowance return HTTP 422 with code `QUERY_MEMORY_LIMIT_EXCEEDED`. Prefer aggregates and a `created_at` date filter on large tables — this endpoint is for interactive analytics, not bulk export.
 </dd>
@@ -11654,7 +11653,7 @@ This experimental path is deprecated and is not supported for new integrations. 
 
 Runs a single ClickHouse SELECT (or WITH … SELECT) against your organization's analytics views. Before writing a query, call `getAnalyticsSchema` (GET /schema) for the available views and columns, and `getSignalsMetadata` (GET /signals/metadata) for the JSON paths inside `fact_signal.data`. Results are automatically scoped to your organization — no org filter is needed or possible. Only SELECT/WITH statements are accepted.
 
-Conventions: monetary amounts are minor units (cents — divide by 100 for the major unit); most are integers, but `fact_cost.cost_amount` is fractional cents (Decimal) since a single AI call usually costs less than a cent; 64-bit integers (counts, ids, amounts) are returned as JSON strings to preserve precision, so parse them client-side; Decimal columns (fractional cents, and credit amounts, which are counts of credits rather than cents and are never divided by 100) come back as JSON numbers instead, so a value beyond 2^53 is already rounded — select toString(col) when you need its exact digits. Query signal payloads via JSON paths, e.g. `SELECT data.country::String AS country, count() FROM fact_signal GROUP BY country`.
+Conventions: monetary amounts are in the currency's stored minor units (cents for USD — divide by 100 for the major unit). A currency listed in `meta.storedCurrencyDecimals` is stored at those decimals instead of its own: JPY at 2 means hundredths of a yen (divide by 100), at 0 whole yen; most are integers. The exceptions are `fact_cost.cost_amount` and `fact_delivered_value.delivered_value_cents`: always hundredths of `cost_currency` and `delivered_value_currency`, respectively (Decimal, possibly fractional), whatever `meta.storedCurrencyDecimals` says; 64-bit integers (counts, ids, amounts) are returned as JSON strings to preserve precision, so parse them client-side; Decimal columns (fractional cents, and credit amounts, which are counts of credits rather than cents and are never divided by 100) come back as JSON numbers instead, so a value beyond 2^53 is already rounded — select toString(col) when you need its exact digits. Query signal payloads via JSON paths, e.g. `SELECT data.country::String AS country, count() FROM fact_signal GROUP BY country`.
 
 Limits: 30 seconds of execution time and 10,000 result rows (truncation is flagged via `meta.truncated`). Queries exceeding the 4 GB memory allowance return HTTP 422 with code `QUERY_MEMORY_LIMIT_EXCEEDED`. Prefer aggregates and a `created_at` date filter on large tables — this endpoint is for interactive analytics, not bulk export.
 </dd>

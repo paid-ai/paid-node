@@ -6,8 +6,10 @@ import type * as Paid from "../index.js";
  * A cap in force on one of the customer's units, as the customer unit cap read returns it. `used` covers the unit and every unit under it.
  */
 export interface CustomViewContextCap {
-    /** The cap, in credits of the currency. JSON number; exact within ±2^53. */
+    /** The cap, in credits of the currency. JSON number, up to 6 decimal places, truncated toward zero; exact only within ±2^53. Use `amountDecimal` for the exact value. */
     amount: number;
+    /** Exact value of `amount` as a decimal string, at any magnitude and every decimal place it carries. */
+    amountDecimal: string;
     /** Monthly UTC periods, with boundaries defined by `schedule`. */
     frequency: CustomViewContextCap.Frequency;
     schedule: Paid.CustomerUnitCapSchedule;

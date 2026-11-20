@@ -2,6 +2,8 @@
 
 export interface TieredPricePoint {
     currency: string;
+    /** Explicitly replace a stored decimal price with the submitted price. Requires the organization's sub-cent prices flag; omission preserves an unchanged stored decimal or refuses a rate change. */
+    unitPriceOrigin?: TieredPricePoint.UnitPriceOrigin;
     unitPrice: number;
     tiers: TieredPricePoint.Tiers.Item[];
     minQuantity?: number;
@@ -10,11 +12,20 @@ export interface TieredPricePoint {
 }
 
 export namespace TieredPricePoint {
+    /** Explicitly replace a stored decimal price with the submitted price. Requires the organization's sub-cent prices flag; omission preserves an unchanged stored decimal or refuses a rate change. */
+    export const UnitPriceOrigin = {
+        Custom: "custom",
+    } as const;
+    export type UnitPriceOrigin = (typeof UnitPriceOrigin)[keyof typeof UnitPriceOrigin];
     export type Tiers = Tiers.Item[];
 
     export namespace Tiers {
         export interface Item {
             flatAmount?: number;
+            /** The tier's flat amount as exact decimal text in the currency's minor unit, with at most 15 decimal places. When present it replaces the corresponding whole-number field. Only for volume or graduated pricing in organizations with sub-cent prices enabled. */
+            flatAmountDecimal?: string;
+            /** The tier's per-unit rate as exact decimal text in the currency's minor unit, with at most 15 decimal places. When present it replaces the corresponding whole-number field. Only for volume or graduated pricing in organizations with sub-cent prices enabled. */
+            unitAmountDecimal?: string;
             index?: number;
             lowerBound: number;
             number?: number;

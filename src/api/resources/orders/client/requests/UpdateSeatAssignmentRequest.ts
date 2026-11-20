@@ -4,7 +4,8 @@
  * @example
  *     {
  *         id: "id",
- *         seatId: "seatId"
+ *         seatId: "seatId",
+ *         userExternalId: null
  *     }
  */
 export interface UpdateSeatAssignmentRequest {

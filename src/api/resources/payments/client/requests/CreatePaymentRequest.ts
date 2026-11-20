@@ -15,7 +15,7 @@ export interface CreatePaymentRequest {
     customerId?: string;
     /** Your external customer ID the payment belongs to. */
     externalCustomerId?: string;
-    /** Payment amount in cents (minor currency units). */
+    /** Payment amount in stored minor units: cents for USD; for JPY, hundredths when currencyDecimals is 2 and whole yen when it is 0. */
     amount: number;
     /** Three-letter ISO 4217 currency code. Lowercase is accepted and stored upper-cased. */
     currency: string;

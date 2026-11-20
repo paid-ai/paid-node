@@ -3,6 +3,8 @@
 export interface CustomerApiKeyCreated {
     /** The key's id. */
     id: string;
+    /** The key's display id (`key_…`), for telling keys apart in lists and logs. It is not the secret and cannot authenticate. */
+    displayId: string | null;
     name: string;
     description: string | null;
     /** Display id (`cus_…`) of the customer the key acts for. */

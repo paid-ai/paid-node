@@ -9,7 +9,7 @@ export interface PaymentAllocation {
     invoiceId: string;
     /** The invoice line the amount was allocated to, as returned by the invoice lines endpoint. */
     invoiceLineId: string;
-    /** Allocated amount in cents (minor currency units). */
+    /** Allocated amount in the payment's stored minor units. Divide by 10^currencyDecimals from the payment response. */
     amount: number;
     /** Three-letter ISO currency code. */
     currency: string;

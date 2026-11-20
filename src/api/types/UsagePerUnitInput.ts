@@ -10,6 +10,10 @@ export interface UsagePerUnitInput {
     /** When usage is billed. Usage must use Arrears, prepaid credits included; to sell credits up front, add a credit benefit to a recurring, seat or one-time attribute. */
     billingType?: UsagePerUnitInput.BillingType;
     pricePoints: Paid.SimplePricePoint[];
+    /** How many raw signal units one priced unit is made of. A price per CPU-hour over signals in microseconds carries 3600000000: the signal keeps its raw count, and the amount is rate × quantity ÷ unitSize, rounded once. Omit when the signal is already in the priced unit. */
+    unitSize?: number;
+    /** The priced unit's name, shown with converted quantities. */
+    unitName?: string;
 }
 
 export namespace UsagePerUnitInput {
