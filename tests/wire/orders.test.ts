@@ -22,6 +22,8 @@ describe("Orders", () => {
                     name: "name",
                     startDate: "2024-01-15T09:30:00Z",
                     subscriptionTerms: 1,
+                    currency: "USD",
+                    currencyDecimals: 1,
                     billedAmountNoTax: 1.1,
                     billedTax: 1.1,
                     estimatedTax: 1.1,
@@ -62,6 +64,8 @@ describe("Orders", () => {
                     name: "name",
                     startDate: "2024-01-15T09:30:00Z",
                     subscriptionTerms: 1,
+                    currency: "USD",
+                    currencyDecimals: 1,
                     billedAmountNoTax: 1.1,
                     billedTax: 1.1,
                     estimatedTax: 1.1,
@@ -148,6 +152,8 @@ describe("Orders", () => {
             name: "name",
             startDate: "2024-01-15T09:30:00Z",
             subscriptionTerms: 1,
+            currency: "USD",
+            currencyDecimals: 1,
             billedAmountNoTax: 1.1,
             billedTax: 1.1,
             estimatedTax: 1.1,
@@ -192,6 +198,8 @@ describe("Orders", () => {
             name: "name",
             startDate: "2024-01-15T09:30:00Z",
             subscriptionTerms: 1,
+            currency: "USD",
+            currencyDecimals: 1,
             billedAmountNoTax: 1.1,
             billedTax: 1.1,
             estimatedTax: 1.1,
@@ -272,6 +280,27 @@ describe("Orders", () => {
             .post("/orders/")
             .jsonBody(rawRequestBody)
             .respondWith()
+            .statusCode(409)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.orders.createOrder({
+                customerId: "customerId",
+            });
+        }).rejects.toThrow(Paid.ConflictError);
+    });
+
+    test("createOrder (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { customerId: "customerId" };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/orders/")
+            .jsonBody(rawRequestBody)
+            .respondWith()
             .statusCode(500)
             .jsonBody(rawResponseBody)
             .build();
@@ -281,6 +310,27 @@ describe("Orders", () => {
                 customerId: "customerId",
             });
         }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("createOrder (6)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = { customerId: "customerId" };
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .post("/orders/")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(503)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.orders.createOrder({
+                customerId: "customerId",
+            });
+        }).rejects.toThrow(Paid.ServiceUnavailableError);
     });
 
     test("getOrderById (1)", async () => {
@@ -298,6 +348,8 @@ describe("Orders", () => {
             name: "name",
             startDate: "2024-01-15T09:30:00Z",
             subscriptionTerms: 1,
+            currency: "USD",
+            currencyDecimals: 1,
             billedAmountNoTax: 1.1,
             billedTax: 1.1,
             estimatedTax: 1.1,
@@ -335,6 +387,8 @@ describe("Orders", () => {
             name: "name",
             startDate: "2024-01-15T09:30:00Z",
             subscriptionTerms: 1,
+            currency: "USD",
+            currencyDecimals: 1,
             billedAmountNoTax: 1.1,
             billedTax: 1.1,
             estimatedTax: 1.1,
@@ -420,6 +474,8 @@ describe("Orders", () => {
             name: "name",
             startDate: "2024-01-15T09:30:00Z",
             subscriptionTerms: 1,
+            currency: "USD",
+            currencyDecimals: 1,
             billedAmountNoTax: 1.1,
             billedTax: 1.1,
             estimatedTax: 1.1,
@@ -464,6 +520,8 @@ describe("Orders", () => {
             name: "name",
             startDate: "2024-01-15T09:30:00Z",
             subscriptionTerms: 1,
+            currency: "USD",
+            currencyDecimals: 1,
             billedAmountNoTax: 1.1,
             billedTax: 1.1,
             estimatedTax: 1.1,
@@ -565,6 +623,27 @@ describe("Orders", () => {
             .put("/orders/id")
             .jsonBody(rawRequestBody)
             .respondWith()
+            .statusCode(409)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.orders.updateOrderById({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.ConflictError);
+    });
+
+    test("updateOrderById (6)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {};
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .put("/orders/id")
+            .jsonBody(rawRequestBody)
+            .respondWith()
             .statusCode(500)
             .jsonBody(rawResponseBody)
             .build();
@@ -622,6 +701,20 @@ describe("Orders", () => {
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         const rawResponseBody = { key: "value" };
+        server.mockEndpoint().delete("/orders/id").respondWith().statusCode(409).jsonBody(rawResponseBody).build();
+
+        await expect(async () => {
+            return await client.orders.deleteOrderById({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.ConflictError);
+    });
+
+    test("deleteOrderById (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
         server.mockEndpoint().delete("/orders/id").respondWith().statusCode(500).jsonBody(rawResponseBody).build();
 
         await expect(async () => {
@@ -646,6 +739,8 @@ describe("Orders", () => {
             name: "name",
             startDate: "2024-01-15T09:30:00Z",
             subscriptionTerms: 1,
+            currency: "USD",
+            currencyDecimals: 1,
             billedAmountNoTax: 1.1,
             billedTax: 1.1,
             estimatedTax: 1.1,
@@ -689,6 +784,8 @@ describe("Orders", () => {
             name: "name",
             startDate: "2024-01-15T09:30:00Z",
             subscriptionTerms: 1,
+            currency: "USD",
+            currencyDecimals: 1,
             billedAmountNoTax: 1.1,
             billedTax: 1.1,
             estimatedTax: 1.1,
@@ -778,6 +875,26 @@ describe("Orders", () => {
     });
 
     test("activateOrderById (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/orders/id/activate")
+            .respondWith()
+            .statusCode(409)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.orders.activateOrderById({
+                id: "id",
+            });
+        }).rejects.toThrow(Paid.ConflictError);
+    });
+
+    test("activateOrderById (6)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
@@ -990,7 +1107,7 @@ describe("Orders", () => {
     test("updateOrderSeatAssignment (1)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = {};
+        const rawRequestBody = { userExternalId: null };
         const rawResponseBody = {
             id: "id",
             orderId: "orderId",
@@ -1012,6 +1129,7 @@ describe("Orders", () => {
         const response = await client.orders.updateOrderSeatAssignment({
             id: "id",
             seatId: "seatId",
+            userExternalId: null,
         });
         expect(response).toEqual({
             id: "id",
@@ -1146,7 +1264,7 @@ describe("Orders", () => {
     test("batchOrderSeatAssignments (1)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = { assignments: [{ seatId: "seatId" }] };
+        const rawRequestBody = { assignments: [{ seatId: "seatId", userExternalId: null }] };
         const rawResponseBody = {
             data: [
                 {
@@ -1174,6 +1292,7 @@ describe("Orders", () => {
             assignments: [
                 {
                     seatId: "seatId",
+                    userExternalId: null,
                 },
             ],
         });
@@ -1876,5 +1995,77 @@ describe("Orders", () => {
                 },
             });
         }).rejects.toThrow(Paid.InternalServerError);
+    });
+
+    test("upsertOrderByExternalId (6)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PaidClient({ token: "test", environment: server.baseUrl });
+        const rawRequestBody = {
+            externalReference: { source: "salesforce" },
+            customer: { name: "name", externalId: "externalId" },
+            order: {
+                currency: "currency",
+                startDate: "2024-01-15T09:30:00Z",
+                externalId: "externalId",
+                lines: [
+                    {
+                        product: { name: "name", externalId: "externalId" },
+                        startDate: "2024-01-15T09:30:00Z",
+                        externalId: "externalId",
+                    },
+                    {
+                        product: { name: "name", externalId: "externalId" },
+                        startDate: "2024-01-15T09:30:00Z",
+                        externalId: "externalId",
+                    },
+                ],
+            },
+        };
+        const rawResponseBody = { error: "error" };
+        server
+            .mockEndpoint()
+            .post("/provision/")
+            .header("idempotency-key", "idempotencyKey")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(503)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.orders.upsertOrderByExternalId({
+                "idempotency-key": "idempotencyKey",
+                externalReference: {
+                    source: "salesforce",
+                },
+                customer: {
+                    name: "name",
+                    externalId: "externalId",
+                },
+                order: {
+                    currency: "currency",
+                    startDate: "2024-01-15T09:30:00Z",
+                    externalId: "externalId",
+                    lines: [
+                        {
+                            product: {
+                                name: "name",
+                                externalId: "externalId",
+                            },
+                            startDate: "2024-01-15T09:30:00Z",
+                            externalId: "externalId",
+                        },
+                        {
+                            product: {
+                                name: "name",
+                                externalId: "externalId",
+                            },
+                            startDate: "2024-01-15T09:30:00Z",
+                            externalId: "externalId",
+                        },
+                    ],
+                },
+            });
+        }).rejects.toThrow(Paid.ServiceUnavailableError);
     });
 });

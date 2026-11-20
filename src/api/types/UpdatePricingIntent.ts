@@ -5,7 +5,7 @@ export interface UpdatePricingIntent {
     orderLineAttributeId: string;
     /** New unit price. Prefer this over `newPricing` when you are only changing the rate. Amount in cents (minor currency units). */
     newUnitPriceMinor?: number;
-    /** Full pricing JSON. Prefer `addFromCatalog` or `newUnitPriceMinor` unless you are replacing the pricing shape. */
+    /** Full replacement pricing. Carry stored unitPriceDecimal values on copied rates. For flagged organizations an explicitly submitted unitPriceDecimal, including whole text or zero, selects a custom replacement. unitPrice alone never clears a saved decimal; an omitted decimal is kept only while rate-setting fields are unchanged. */
     newPricing?: Record<string, unknown>;
     /** Optional quantity change in the same intent. */
     newQuantity?: number;

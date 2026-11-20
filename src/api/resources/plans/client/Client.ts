@@ -241,6 +241,7 @@ export class Plans {
      *     await client.plans.updatePlanUpgradePath({
      *         productId: "productId",
      *         groups: [{
+     *                 frequency: null,
      *                 planIds: ["planIds"]
      *             }]
      *     })

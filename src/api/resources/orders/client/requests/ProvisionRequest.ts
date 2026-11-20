@@ -77,6 +77,7 @@ import type * as Paid from "../../../../index.js";
  *     }
  */
 export interface ProvisionRequest {
+    /** A unique key for this provision, such as the source record ID plus its last-modified time. Retrying with the same key and body returns the stored response with the `Idempotent-Replayed: true` header. The same key with a different body returns 409 `IDEMPOTENCY_KEY_CONFLICT`. */
     "idempotency-key": string;
     externalReference: Paid.ProvisionExternalReference;
     customer: Paid.ProvisionCustomer;

@@ -9,8 +9,10 @@ export interface AmendmentPlanCreditEffect {
     orderLineAttributeId?: string;
     /** When the effect applies. */
     at: string;
-    /** Credits ended or granted. Absent for infinite benefits. */
+    /** Credits ended or granted. Absent for infinite benefits. JSON number, up to 6 decimal places, truncated toward zero; exact only within ±2^53. Use `creditAmountDecimal` for the exact value. */
     creditAmount?: number;
+    /** Exact value of `creditAmount` as a decimal string, at any magnitude and every decimal place it carries. */
+    creditAmountDecimal?: string;
     /** True when the affected benefit is unlimited. */
     hasInfiniteCredits?: boolean;
     /** Accepts any additional properties */

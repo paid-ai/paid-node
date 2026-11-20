@@ -5,7 +5,8 @@
  *     {
  *         id: "id",
  *         assignments: [{
- *                 seatId: "seatId"
+ *                 seatId: "seatId",
+ *                 userExternalId: null
  *             }]
  *     }
  */

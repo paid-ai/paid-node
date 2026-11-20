@@ -24,7 +24,7 @@ export namespace ValueModelContent {
             longDescription?: string | null;
             sources?: Item.Sources.Item[] | null;
             /** Gates when this value type's number is published to a customer on a value receipt. Evaluated per customer, cumulative since their first signal for this value type, as of the receipt's end date. Until the threshold is met the receipt withholds the figure and shows a 'gathering data' state instead. At least one of minDataPoints or minMonths is required. */
-            maturation?: unknown | null;
+            maturation?: Item.Maturation | null;
             displayOrder?: number | null;
             color?: string | null;
             icon?: string | null;
@@ -137,6 +137,10 @@ export namespace ValueModelContent {
                 }
             }
 
+            /**
+             * Gates when this value type's number is published to a customer on a value receipt. Evaluated per customer, cumulative since their first signal for this value type, as of the receipt's end date. Until the threshold is met the receipt withholds the figure and shows a 'gathering data' state instead. At least one of minDataPoints or minMonths is required.
+             */
+            export type Maturation = unknown;
             export const Category = {
                 Hve: "hve",
                 Time: "time",

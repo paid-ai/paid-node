@@ -5,6 +5,10 @@ import type * as Paid from "../index.js";
 export interface ProductUsagePerUnitInput {
     eventName: string;
     signalType?: ProductUsagePerUnitInput.SignalType;
+    /** How many raw signal units one priced unit is made of. A price per CPU-hour over signals in microseconds carries 3600000000: the signal keeps its raw count, and the amount is rate × quantity ÷ unitSize, rounded once. Omit when the signal is already in the priced unit. */
+    unitSize?: number;
+    /** The priced unit's name, shown with converted quantities. */
+    unitName?: string;
     billingFrequency?: ProductUsagePerUnitInput.BillingFrequency;
     billingFrequencyCustomMonths?: number;
     /** When usage is billed. Usage must use Arrears, prepaid credits included; to sell credits up front, add a credit benefit to a recurring, seat or one-time attribute. */

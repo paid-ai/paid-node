@@ -8,6 +8,8 @@ export interface PlanPricing {
     chargeType: string;
     pricingModel: string;
     pricePoints: Record<string, unknown>[];
+    /** Exact overage price per credit, keyed by currency, as decimal text in the currency’s smallest stored unit. Used instead of overageUnitPrices when present. Requires decimal pricing to be enabled. */
+    overageUnitPricesDecimal?: Record<string, string | null> | null;
     /** Accepts any additional properties */
     [key: string]: any;
 }

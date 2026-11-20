@@ -15,6 +15,7 @@ describe("Plans", () => {
                     id: "id",
                     productId: "productId",
                     name: "name",
+                    displayName: "displayName",
                     externalId: "externalId",
                     supportedCurrencies: ["supportedCurrencies"],
                     isDefault: true,
@@ -28,8 +29,16 @@ describe("Plans", () => {
                             productAttributeId: "productAttributeId",
                             name: "name",
                             active: true,
-                            pricing: null,
-                            creditBenefits: [{ id: "id", amount: 1.1 }],
+                            pricing: {
+                                pricingType: null,
+                                chargeType: "chargeType",
+                                pricingModel: "pricingModel",
+                                pricePoints: [{ key: "value" }],
+                                overageUnitPricesDecimal: { USD: "0.4", JPY: "0.49" },
+                            },
+                            creditBenefits: [
+                                { id: "id", amount: 1.1, overageUnitPricesDecimal: { USD: "0.4", JPY: "0.49" } },
+                            ],
                         },
                     ],
                 },
@@ -45,6 +54,7 @@ describe("Plans", () => {
                     id: "id",
                     productId: "productId",
                     name: "name",
+                    displayName: "displayName",
                     externalId: "externalId",
                     supportedCurrencies: ["supportedCurrencies"],
                     isDefault: true,
@@ -58,11 +68,28 @@ describe("Plans", () => {
                             productAttributeId: "productAttributeId",
                             name: "name",
                             active: true,
-                            pricing: null,
+                            pricing: {
+                                pricingType: null,
+                                chargeType: "chargeType",
+                                pricingModel: "pricingModel",
+                                pricePoints: [
+                                    {
+                                        key: "value",
+                                    },
+                                ],
+                                overageUnitPricesDecimal: {
+                                    USD: "0.4",
+                                    JPY: "0.49",
+                                },
+                            },
                             creditBenefits: [
                                 {
                                     id: "id",
                                     amount: 1.1,
+                                    overageUnitPricesDecimal: {
+                                        USD: "0.4",
+                                        JPY: "0.49",
+                                    },
                                 },
                             ],
                         },
@@ -146,6 +173,7 @@ describe("Plans", () => {
             id: "id",
             productId: "productId",
             name: "name",
+            displayName: "displayName",
             externalId: "externalId",
             supportedCurrencies: ["supportedCurrencies"],
             isDefault: true,
@@ -164,8 +192,9 @@ describe("Plans", () => {
                         chargeType: "chargeType",
                         pricingModel: "pricingModel",
                         pricePoints: [{ key: "value" }],
+                        overageUnitPricesDecimal: { USD: "0.4", JPY: "0.49" },
                     },
-                    creditBenefits: [{ id: "id", amount: 1.1 }],
+                    creditBenefits: [{ id: "id", amount: 1.1, overageUnitPricesDecimal: { USD: "0.4", JPY: "0.49" } }],
                 },
             ],
         };
@@ -200,6 +229,7 @@ describe("Plans", () => {
             id: "id",
             productId: "productId",
             name: "name",
+            displayName: "displayName",
             externalId: "externalId",
             supportedCurrencies: ["supportedCurrencies"],
             isDefault: true,
@@ -222,11 +252,19 @@ describe("Plans", () => {
                                 key: "value",
                             },
                         ],
+                        overageUnitPricesDecimal: {
+                            USD: "0.4",
+                            JPY: "0.49",
+                        },
                     },
                     creditBenefits: [
                         {
                             id: "id",
                             amount: 1.1,
+                            overageUnitPricesDecimal: {
+                                USD: "0.4",
+                                JPY: "0.49",
+                            },
                         },
                     ],
                 },
@@ -569,13 +607,14 @@ describe("Plans", () => {
     test("updatePlanUpgradePath (1)", async () => {
         const server = mockServerPool.createServer();
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
-        const rawRequestBody = { productId: "productId", groups: [{ planIds: ["planIds"] }] };
+        const rawRequestBody = { productId: "productId", groups: [{ frequency: null, planIds: ["planIds"] }] };
         const rawResponseBody = {
             data: [
                 {
                     id: "id",
                     productId: "productId",
                     name: "name",
+                    displayName: "displayName",
                     externalId: "externalId",
                     supportedCurrencies: ["supportedCurrencies"],
                     isDefault: true,
@@ -589,8 +628,16 @@ describe("Plans", () => {
                             productAttributeId: "productAttributeId",
                             name: "name",
                             active: true,
-                            pricing: null,
-                            creditBenefits: [{ id: "id", amount: 1.1 }],
+                            pricing: {
+                                pricingType: null,
+                                chargeType: "chargeType",
+                                pricingModel: "pricingModel",
+                                pricePoints: [{ key: "value" }],
+                                overageUnitPricesDecimal: { USD: "0.4", JPY: "0.49" },
+                            },
+                            creditBenefits: [
+                                { id: "id", amount: 1.1, overageUnitPricesDecimal: { USD: "0.4", JPY: "0.49" } },
+                            ],
                         },
                     ],
                 },
@@ -609,6 +656,7 @@ describe("Plans", () => {
             productId: "productId",
             groups: [
                 {
+                    frequency: null,
                     planIds: ["planIds"],
                 },
             ],
@@ -619,6 +667,7 @@ describe("Plans", () => {
                     id: "id",
                     productId: "productId",
                     name: "name",
+                    displayName: "displayName",
                     externalId: "externalId",
                     supportedCurrencies: ["supportedCurrencies"],
                     isDefault: true,
@@ -632,11 +681,28 @@ describe("Plans", () => {
                             productAttributeId: "productAttributeId",
                             name: "name",
                             active: true,
-                            pricing: null,
+                            pricing: {
+                                pricingType: null,
+                                chargeType: "chargeType",
+                                pricingModel: "pricingModel",
+                                pricePoints: [
+                                    {
+                                        key: "value",
+                                    },
+                                ],
+                                overageUnitPricesDecimal: {
+                                    USD: "0.4",
+                                    JPY: "0.49",
+                                },
+                            },
                             creditBenefits: [
                                 {
                                     id: "id",
                                     amount: 1.1,
+                                    overageUnitPricesDecimal: {
+                                        USD: "0.4",
+                                        JPY: "0.49",
+                                    },
                                 },
                             ],
                         },
@@ -802,6 +868,7 @@ describe("Plans", () => {
             id: "id",
             productId: "productId",
             name: "name",
+            displayName: "displayName",
             externalId: "externalId",
             supportedCurrencies: ["supportedCurrencies"],
             isDefault: true,
@@ -820,8 +887,9 @@ describe("Plans", () => {
                         chargeType: "chargeType",
                         pricingModel: "pricingModel",
                         pricePoints: [{ key: "value" }],
+                        overageUnitPricesDecimal: { USD: "0.4", JPY: "0.49" },
                     },
-                    creditBenefits: [{ id: "id", amount: 1.1 }],
+                    creditBenefits: [{ id: "id", amount: 1.1, overageUnitPricesDecimal: { USD: "0.4", JPY: "0.49" } }],
                 },
             ],
         };
@@ -834,6 +902,7 @@ describe("Plans", () => {
             id: "id",
             productId: "productId",
             name: "name",
+            displayName: "displayName",
             externalId: "externalId",
             supportedCurrencies: ["supportedCurrencies"],
             isDefault: true,
@@ -856,11 +925,19 @@ describe("Plans", () => {
                                 key: "value",
                             },
                         ],
+                        overageUnitPricesDecimal: {
+                            USD: "0.4",
+                            JPY: "0.49",
+                        },
                     },
                     creditBenefits: [
                         {
                             id: "id",
                             amount: 1.1,
+                            overageUnitPricesDecimal: {
+                                USD: "0.4",
+                                JPY: "0.49",
+                            },
                         },
                     ],
                 },
@@ -918,6 +995,7 @@ describe("Plans", () => {
             id: "id",
             productId: "productId",
             name: "name",
+            displayName: "displayName",
             externalId: "externalId",
             supportedCurrencies: ["supportedCurrencies"],
             isDefault: true,
@@ -936,8 +1014,9 @@ describe("Plans", () => {
                         chargeType: "chargeType",
                         pricingModel: "pricingModel",
                         pricePoints: [{ key: "value" }],
+                        overageUnitPricesDecimal: { USD: "0.4", JPY: "0.49" },
                     },
-                    creditBenefits: [{ id: "id", amount: 1.1 }],
+                    creditBenefits: [{ id: "id", amount: 1.1, overageUnitPricesDecimal: { USD: "0.4", JPY: "0.49" } }],
                 },
             ],
         };
@@ -958,6 +1037,7 @@ describe("Plans", () => {
             id: "id",
             productId: "productId",
             name: "name",
+            displayName: "displayName",
             externalId: "externalId",
             supportedCurrencies: ["supportedCurrencies"],
             isDefault: true,
@@ -980,11 +1060,19 @@ describe("Plans", () => {
                                 key: "value",
                             },
                         ],
+                        overageUnitPricesDecimal: {
+                            USD: "0.4",
+                            JPY: "0.49",
+                        },
                     },
                     creditBenefits: [
                         {
                             id: "id",
                             amount: 1.1,
+                            overageUnitPricesDecimal: {
+                                USD: "0.4",
+                                JPY: "0.49",
+                            },
                         },
                     ],
                 },
@@ -1088,6 +1176,7 @@ describe("Plans", () => {
             id: "id",
             productId: "productId",
             name: "name",
+            displayName: "displayName",
             externalId: "externalId",
             supportedCurrencies: ["supportedCurrencies"],
             isDefault: true,
@@ -1106,8 +1195,9 @@ describe("Plans", () => {
                         chargeType: "chargeType",
                         pricingModel: "pricingModel",
                         pricePoints: [{ key: "value" }],
+                        overageUnitPricesDecimal: { USD: "0.4", JPY: "0.49" },
                     },
-                    creditBenefits: [{ id: "id", amount: 1.1 }],
+                    creditBenefits: [{ id: "id", amount: 1.1, overageUnitPricesDecimal: { USD: "0.4", JPY: "0.49" } }],
                 },
             ],
         };
@@ -1126,6 +1216,7 @@ describe("Plans", () => {
             id: "id",
             productId: "productId",
             name: "name",
+            displayName: "displayName",
             externalId: "externalId",
             supportedCurrencies: ["supportedCurrencies"],
             isDefault: true,
@@ -1148,11 +1239,19 @@ describe("Plans", () => {
                                 key: "value",
                             },
                         ],
+                        overageUnitPricesDecimal: {
+                            USD: "0.4",
+                            JPY: "0.49",
+                        },
                     },
                     creditBenefits: [
                         {
                             id: "id",
                             amount: 1.1,
+                            overageUnitPricesDecimal: {
+                                USD: "0.4",
+                                JPY: "0.49",
+                            },
                         },
                     ],
                 },
@@ -1228,6 +1327,7 @@ describe("Plans", () => {
             id: "id",
             productId: "productId",
             name: "name",
+            displayName: "displayName",
             externalId: "externalId",
             supportedCurrencies: ["supportedCurrencies"],
             isDefault: true,
@@ -1246,8 +1346,9 @@ describe("Plans", () => {
                         chargeType: "chargeType",
                         pricingModel: "pricingModel",
                         pricePoints: [{ key: "value" }],
+                        overageUnitPricesDecimal: { USD: "0.4", JPY: "0.49" },
                     },
-                    creditBenefits: [{ id: "id", amount: 1.1 }],
+                    creditBenefits: [{ id: "id", amount: 1.1, overageUnitPricesDecimal: { USD: "0.4", JPY: "0.49" } }],
                 },
             ],
         };
@@ -1268,6 +1369,7 @@ describe("Plans", () => {
             id: "id",
             productId: "productId",
             name: "name",
+            displayName: "displayName",
             externalId: "externalId",
             supportedCurrencies: ["supportedCurrencies"],
             isDefault: true,
@@ -1290,11 +1392,19 @@ describe("Plans", () => {
                                 key: "value",
                             },
                         ],
+                        overageUnitPricesDecimal: {
+                            USD: "0.4",
+                            JPY: "0.49",
+                        },
                     },
                     creditBenefits: [
                         {
                             id: "id",
                             amount: 1.1,
+                            overageUnitPricesDecimal: {
+                                USD: "0.4",
+                                JPY: "0.49",
+                            },
                         },
                     ],
                 },

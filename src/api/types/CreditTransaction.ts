@@ -9,7 +9,7 @@ export interface CreditTransaction {
     creditCurrency: Paid.CreditTransactionCurrency;
     /** Transaction type: `grant` adds credits, `spend` consumes them (negative amount), except a reversal, which is a `spend` with a positive amount that undoes an earlier spend, `pendingGrant` records credits awaiting payment. */
     type: CreditTransaction.Type;
-    /** Exact signed transaction amount in credits, as a decimal string: positive for grants, negative for spends, except a reversal, which is a `spend` with a positive amount. Exact at any magnitude, and at the full 6 decimal places. */
+    /** Exact signed transaction amount in credits, as a decimal string: positive for grants, negative for spends, except a reversal, which is a `spend` with a positive amount. Exact at any magnitude and at every decimal place the value carries. */
     amount: string;
     /** Origin of the credit pool this transaction touched (e.g. `purchased`, or a custom label). `unknown` when the transaction is not linked to a pool with an origin. */
     originCode: string;

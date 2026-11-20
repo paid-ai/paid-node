@@ -13,6 +13,10 @@ export interface Order {
     name: string;
     startDate: string;
     subscriptionTerms: number | null;
+    /** Three-letter ISO currency code of the order's amounts. */
+    currency: string;
+    /** Decimals of this order's amounts, from the currency and how Paid stores it: 2 for USD (4999 is $49.99); for JPY 2 while Paid stores yen in hundredths, then 0. Divide amounts by 10^currencyDecimals; never assume 100. */
+    currencyDecimals: number;
     billedAmountNoTax: number;
     billedTax: number;
     estimatedTax: number;

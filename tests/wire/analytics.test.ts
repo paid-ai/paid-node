@@ -14,7 +14,7 @@ describe("Analytics", () => {
         const rawResponseBody = {
             columns: [{ name: "name", type: "type" }],
             rows: [[{ key: "value" }]],
-            meta: { rowCount: 1, elapsedMs: 1.1, truncated: true },
+            meta: { rowCount: 1, elapsedMs: 1.1, truncated: true, storedCurrencyDecimals: { JPY: 2 } },
         };
         server
             .mockEndpoint()
@@ -46,6 +46,9 @@ describe("Analytics", () => {
                 rowCount: 1,
                 elapsedMs: 1.1,
                 truncated: true,
+                storedCurrencyDecimals: {
+                    JPY: 2,
+                },
             },
         });
     });

@@ -17,11 +17,22 @@ describe("Pricing", () => {
                     pricing: {
                         pricingType: "RecurringPerUnit",
                         chargeType: "chargeType",
+                        overageUnitPricesDecimal: { USD: "0.4", JPY: "0.49" },
                         pricePoints: [
                             {
                                 currency: "currency",
                                 unitPrice: 1.1,
-                                tiers: [{ lowerBound: 0, tierBillingType: "perUnit", unitAmount: 10, upperBound: 100 }],
+                                unitPriceDecimal: "0.025",
+                                tiers: [
+                                    {
+                                        flatAmountDecimal: "0.025",
+                                        unitAmountDecimal: "0.025",
+                                        lowerBound: 0,
+                                        tierBillingType: "perUnit",
+                                        unitAmount: 10,
+                                        upperBound: 100,
+                                    },
+                                ],
                             },
                         ],
                     },
@@ -33,6 +44,7 @@ describe("Pricing", () => {
                             recipient: "recipient",
                             isInfiniteTotal: true,
                             allocationCadence: "allocationCadence",
+                            overageUnitPricesDecimal: { USD: "0.4", JPY: "0.49" },
                         },
                     ],
                 },
@@ -51,12 +63,19 @@ describe("Pricing", () => {
                     pricing: {
                         pricingType: "RecurringPerUnit",
                         chargeType: "chargeType",
+                        overageUnitPricesDecimal: {
+                            USD: "0.4",
+                            JPY: "0.49",
+                        },
                         pricePoints: [
                             {
                                 currency: "currency",
                                 unitPrice: 1.1,
+                                unitPriceDecimal: "0.025",
                                 tiers: [
                                     {
+                                        flatAmountDecimal: "0.025",
+                                        unitAmountDecimal: "0.025",
                                         lowerBound: 0,
                                         tierBillingType: "perUnit",
                                         unitAmount: 10,
@@ -74,6 +93,10 @@ describe("Pricing", () => {
                             recipient: "recipient",
                             isInfiniteTotal: true,
                             allocationCadence: "allocationCadence",
+                            overageUnitPricesDecimal: {
+                                USD: "0.4",
+                                JPY: "0.49",
+                            },
                         },
                     ],
                 },
@@ -126,8 +149,11 @@ describe("Pricing", () => {
                 billingType: "billingType",
                 creditsCurrencyId: "creditsCurrencyId",
                 creditCost: 1.1,
+                unitSize: 1.1,
+                unitName: "unitName",
                 unitValue: 1.1,
                 overageUnitPrice: 1.1,
+                overageUnitPricesDecimal: { USD: "0.4", JPY: "0.49" },
                 overageUnitPrices: { key: 1.1 },
                 percentageValue: 1.1,
                 costPlusMultiplier: 1.1,
@@ -135,7 +161,17 @@ describe("Pricing", () => {
                     {
                         currency: "currency",
                         unitPrice: 1.1,
-                        tiers: [{ lowerBound: 0, tierBillingType: "perUnit", unitAmount: 10, upperBound: 100 }],
+                        unitPriceDecimal: "0.025",
+                        tiers: [
+                            {
+                                flatAmountDecimal: "0.025",
+                                unitAmountDecimal: "0.025",
+                                lowerBound: 0,
+                                tierBillingType: "perUnit",
+                                unitAmount: 10,
+                                upperBound: 100,
+                            },
+                        ],
                     },
                 ],
             },
@@ -149,6 +185,7 @@ describe("Pricing", () => {
                     allocationCadence: "allocationCadence",
                     creditGrantTiming: "creditGrantTiming",
                     overageUnitPrice: 1.1,
+                    overageUnitPricesDecimal: { USD: "0.4", JPY: "0.49" },
                     rolloverAmount: 1.1,
                     rolloverDuration: 1.1,
                     rolloverDurationUnit: "rolloverDurationUnit",
@@ -179,8 +216,14 @@ describe("Pricing", () => {
                 billingType: "billingType",
                 creditsCurrencyId: "creditsCurrencyId",
                 creditCost: 1.1,
+                unitSize: 1.1,
+                unitName: "unitName",
                 unitValue: 1.1,
                 overageUnitPrice: 1.1,
+                overageUnitPricesDecimal: {
+                    USD: "0.4",
+                    JPY: "0.49",
+                },
                 overageUnitPrices: {
                     key: 1.1,
                 },
@@ -190,8 +233,11 @@ describe("Pricing", () => {
                     {
                         currency: "currency",
                         unitPrice: 1.1,
+                        unitPriceDecimal: "0.025",
                         tiers: [
                             {
+                                flatAmountDecimal: "0.025",
+                                unitAmountDecimal: "0.025",
                                 lowerBound: 0,
                                 tierBillingType: "perUnit",
                                 unitAmount: 10,
@@ -211,6 +257,10 @@ describe("Pricing", () => {
                     allocationCadence: "allocationCadence",
                     creditGrantTiming: "creditGrantTiming",
                     overageUnitPrice: 1.1,
+                    overageUnitPricesDecimal: {
+                        USD: "0.4",
+                        JPY: "0.49",
+                    },
                     rolloverAmount: 1.1,
                     rolloverDuration: 1.1,
                     rolloverDurationUnit: "rolloverDurationUnit",
@@ -282,8 +332,11 @@ describe("Pricing", () => {
                 billingType: "billingType",
                 creditsCurrencyId: "creditsCurrencyId",
                 creditCost: 1.1,
+                unitSize: 1.1,
+                unitName: "unitName",
                 unitValue: 1.1,
                 overageUnitPrice: 1.1,
+                overageUnitPricesDecimal: { USD: "0.4", JPY: "0.49" },
                 overageUnitPrices: { key: 1.1 },
                 percentageValue: 1.1,
                 costPlusMultiplier: 1.1,
@@ -291,7 +344,17 @@ describe("Pricing", () => {
                     {
                         currency: "currency",
                         unitPrice: 1.1,
-                        tiers: [{ lowerBound: 0, tierBillingType: "perUnit", unitAmount: 10, upperBound: 100 }],
+                        unitPriceDecimal: "0.025",
+                        tiers: [
+                            {
+                                flatAmountDecimal: "0.025",
+                                unitAmountDecimal: "0.025",
+                                lowerBound: 0,
+                                tierBillingType: "perUnit",
+                                unitAmount: 10,
+                                upperBound: 100,
+                            },
+                        ],
                     },
                 ],
             },
@@ -305,6 +368,7 @@ describe("Pricing", () => {
                     allocationCadence: "allocationCadence",
                     creditGrantTiming: "creditGrantTiming",
                     overageUnitPrice: 1.1,
+                    overageUnitPricesDecimal: { USD: "0.4", JPY: "0.49" },
                     rolloverAmount: 1.1,
                     rolloverDuration: 1.1,
                     rolloverDurationUnit: "rolloverDurationUnit",
@@ -346,8 +410,14 @@ describe("Pricing", () => {
                 billingType: "billingType",
                 creditsCurrencyId: "creditsCurrencyId",
                 creditCost: 1.1,
+                unitSize: 1.1,
+                unitName: "unitName",
                 unitValue: 1.1,
                 overageUnitPrice: 1.1,
+                overageUnitPricesDecimal: {
+                    USD: "0.4",
+                    JPY: "0.49",
+                },
                 overageUnitPrices: {
                     key: 1.1,
                 },
@@ -357,8 +427,11 @@ describe("Pricing", () => {
                     {
                         currency: "currency",
                         unitPrice: 1.1,
+                        unitPriceDecimal: "0.025",
                         tiers: [
                             {
+                                flatAmountDecimal: "0.025",
+                                unitAmountDecimal: "0.025",
                                 lowerBound: 0,
                                 tierBillingType: "perUnit",
                                 unitAmount: 10,
@@ -378,6 +451,10 @@ describe("Pricing", () => {
                     allocationCadence: "allocationCadence",
                     creditGrantTiming: "creditGrantTiming",
                     overageUnitPrice: 1.1,
+                    overageUnitPricesDecimal: {
+                        USD: "0.4",
+                        JPY: "0.49",
+                    },
                     rolloverAmount: 1.1,
                     rolloverDuration: 1.1,
                     rolloverDurationUnit: "rolloverDurationUnit",

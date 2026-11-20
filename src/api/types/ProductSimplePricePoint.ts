@@ -2,7 +2,11 @@
 
 export interface ProductSimplePricePoint {
     currency: string;
+    /** Explicitly replace a stored decimal price with the submitted price. Requires the organization's sub-cent prices flag; omission preserves an unchanged stored decimal or refuses a rate change. */
+    unitPriceOrigin?: ProductSimplePricePoint.UnitPriceOrigin;
     unitPrice: number;
+    /** An exact per-unit price as decimal text in minor units, with at most 15 decimal places: `"0.025"` is 0.025¢ per unit. Set `unitPrice` to its whole-number fallback. Fractional prices require sub-cent prices enabled and are only for per-unit usage prices (including per-N), usage tier rates and flat amounts, overage price per credit, and credit units per unit. Flat recurring, one-time and seat prices have at most the currency’s decimals and must be whole minor units, including custom plan prices. Text exactly equal to the whole price is ordinary and is stored without decimal text. To replace a plan's stored fraction with a whole price, explicitly send its decimal text (such as `"500"`) with the flag enabled; omitting it preserves the rate or refuses an unsafe change. */
+    unitPriceDecimal?: string;
     tiers?: ProductSimplePricePoint.Tiers.Item[];
     minQuantity?: number;
     maxQuantity?: number;
@@ -10,11 +14,20 @@ export interface ProductSimplePricePoint {
 }
 
 export namespace ProductSimplePricePoint {
+    /** Explicitly replace a stored decimal price with the submitted price. Requires the organization's sub-cent prices flag; omission preserves an unchanged stored decimal or refuses a rate change. */
+    export const UnitPriceOrigin = {
+        Custom: "custom",
+    } as const;
+    export type UnitPriceOrigin = (typeof UnitPriceOrigin)[keyof typeof UnitPriceOrigin];
     export type Tiers = Tiers.Item[];
 
     export namespace Tiers {
         export interface Item {
             flatAmount?: number;
+            /** The tier's flat amount as exact decimal text in the currency's minor unit, with at most 15 decimal places. When present it replaces the corresponding whole-number field. Only for volume or graduated pricing in organizations with sub-cent prices enabled. */
+            flatAmountDecimal?: string;
+            /** The tier's per-unit rate as exact decimal text in the currency's minor unit, with at most 15 decimal places. When present it replaces the corresponding whole-number field. Only for volume or graduated pricing in organizations with sub-cent prices enabled. */
+            unitAmountDecimal?: string;
             index?: number;
             lowerBound: number;
             number?: number;

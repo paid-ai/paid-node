@@ -3,6 +3,8 @@
 import type * as Paid from "../index.js";
 
 export interface ViewDataResponse {
+    /** The decimals Paid stores each listed currency's amounts at, where they differ from the currency's own minor unit. Divide a listed currency's amounts by 10 to this power: `{ "JPY": 2 }` means yen are stored in hundredths (150000 is ¥1,500), `{ "JPY": 0 }` whole yen. A currency not listed uses its own minor unit. `fact_cost.cost_amount` and `fact_delivered_value.delivered_value_cents` are exceptions: always hundredths of `cost_currency` and `delivered_value_currency`, respectively (the major unit × 100), whatever this says. */
+    storedCurrencyDecimals: Record<string, number>;
     context?: Paid.CustomViewDataContext;
     /** Result sets keyed by query id. Each value is an array of row objects (column name → value); 64-bit integers are returned as JSON strings to preserve precision. */
     data: Record<string, Record<string, unknown>[]>;

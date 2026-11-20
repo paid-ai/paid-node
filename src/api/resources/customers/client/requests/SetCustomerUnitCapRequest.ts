@@ -7,9 +7,7 @@ import type * as Paid from "../../../../index.js";
  *     {
  *         id: "cus_abc123",
  *         externalCustomerUnitId: "tenant-a",
- *         body: {
- *             amount: 10000
- *         }
+ *         body: {}
  *     }
  */
 export interface SetCustomerUnitCapRequest {

@@ -11,14 +11,16 @@ export interface Payment {
     invoiceId: string | null;
     /** The order this payment relates to, when known. */
     orderId: string | null;
-    /** Payment amount in cents (minor currency units). */
+    /** Payment amount in stored minor units: cents for USD; for JPY, hundredths when currencyDecimals is 2 and whole yen when it is 0. */
     amount: number;
-    /** Portion of the amount already allocated to invoice lines, in cents. */
+    /** Portion allocated to invoice lines, in stored minor units described by currencyDecimals. */
     allocatedAmount: number;
-    /** Unallocated remainder of the payment, in cents. */
+    /** Unallocated remainder, in stored minor units described by currencyDecimals. */
     balance: number;
     /** Three-letter ISO currency code. */
     currency: string;
+    /** Decimals of this payment's amounts, from the currency and how Paid stores it: 2 for USD (4999 is $49.99); for JPY 2 while Paid stores yen in hundredths, then 0. Divide amounts by 10^currencyDecimals; never assume 100. */
+    currencyDecimals: number;
     /** When the payment was made. */
     paymentDate: string;
     /** How the payment was made, e.g. creditCard, bankTransfer, ach, cash, or check. */

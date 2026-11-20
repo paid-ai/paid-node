@@ -229,11 +229,22 @@ describe("Products", () => {
                         pricingModel: "PerUnit",
                         billingFrequency: "Monthly",
                         billingType: "Advance",
+                        overageUnitPricesDecimal: { USD: "0.4", JPY: "0.49" },
                         pricePoints: [
                             {
                                 currency: "USD",
                                 unitPrice: 99,
-                                tiers: [{ lowerBound: 0, tierBillingType: "perUnit", unitAmount: 10, upperBound: 100 }],
+                                unitPriceDecimal: "0.025",
+                                tiers: [
+                                    {
+                                        flatAmountDecimal: "0.025",
+                                        unitAmountDecimal: "0.025",
+                                        lowerBound: 0,
+                                        tierBillingType: "perUnit",
+                                        unitAmount: 10,
+                                        upperBound: 100,
+                                    },
+                                ],
                             },
                         ],
                     },
@@ -245,6 +256,7 @@ describe("Products", () => {
                             recipient: "organization",
                             isInfiniteTotal: false,
                             allocationCadence: "upfront",
+                            overageUnitPricesDecimal: { USD: "0.4", JPY: "0.49" },
                         },
                     ],
                 },
@@ -278,12 +290,19 @@ describe("Products", () => {
                         pricingModel: "PerUnit",
                         billingFrequency: "Monthly",
                         billingType: "Advance",
+                        overageUnitPricesDecimal: {
+                            USD: "0.4",
+                            JPY: "0.49",
+                        },
                         pricePoints: [
                             {
                                 currency: "USD",
                                 unitPrice: 99,
+                                unitPriceDecimal: "0.025",
                                 tiers: [
                                     {
+                                        flatAmountDecimal: "0.025",
+                                        unitAmountDecimal: "0.025",
                                         lowerBound: 0,
                                         tierBillingType: "perUnit",
                                         unitAmount: 10,
@@ -301,6 +320,10 @@ describe("Products", () => {
                             recipient: "organization",
                             isInfiniteTotal: false,
                             allocationCadence: "upfront",
+                            overageUnitPricesDecimal: {
+                                USD: "0.4",
+                                JPY: "0.49",
+                            },
                         },
                     ],
                 },
@@ -377,11 +400,22 @@ describe("Products", () => {
                         pricingModel: "PerUnit",
                         billingFrequency: "Monthly",
                         billingType: "Advance",
+                        overageUnitPricesDecimal: { USD: "0.4", JPY: "0.49" },
                         pricePoints: [
                             {
                                 currency: "USD",
                                 unitPrice: 99,
-                                tiers: [{ lowerBound: 0, tierBillingType: "perUnit", unitAmount: 10, upperBound: 100 }],
+                                unitPriceDecimal: "0.025",
+                                tiers: [
+                                    {
+                                        flatAmountDecimal: "0.025",
+                                        unitAmountDecimal: "0.025",
+                                        lowerBound: 0,
+                                        tierBillingType: "perUnit",
+                                        unitAmount: 10,
+                                        upperBound: 100,
+                                    },
+                                ],
                             },
                         ],
                     },
@@ -393,6 +427,7 @@ describe("Products", () => {
                             recipient: "organization",
                             isInfiniteTotal: false,
                             allocationCadence: "upfront",
+                            overageUnitPricesDecimal: { USD: "0.4", JPY: "0.49" },
                         },
                     ],
                 },
@@ -434,12 +469,19 @@ describe("Products", () => {
                         pricingModel: "PerUnit",
                         billingFrequency: "Monthly",
                         billingType: "Advance",
+                        overageUnitPricesDecimal: {
+                            USD: "0.4",
+                            JPY: "0.49",
+                        },
                         pricePoints: [
                             {
                                 currency: "USD",
                                 unitPrice: 99,
+                                unitPriceDecimal: "0.025",
                                 tiers: [
                                     {
+                                        flatAmountDecimal: "0.025",
+                                        unitAmountDecimal: "0.025",
                                         lowerBound: 0,
                                         tierBillingType: "perUnit",
                                         unitAmount: 10,
@@ -457,6 +499,10 @@ describe("Products", () => {
                             recipient: "organization",
                             isInfiniteTotal: false,
                             allocationCadence: "upfront",
+                            overageUnitPricesDecimal: {
+                                USD: "0.4",
+                                JPY: "0.49",
+                            },
                         },
                     ],
                 },
@@ -579,11 +625,22 @@ describe("Products", () => {
                         pricingModel: "PerUnit",
                         billingFrequency: "Monthly",
                         billingType: "Advance",
+                        overageUnitPricesDecimal: { USD: "0.4", JPY: "0.49" },
                         pricePoints: [
                             {
                                 currency: "USD",
                                 unitPrice: 99,
-                                tiers: [{ lowerBound: 0, tierBillingType: "perUnit", unitAmount: 10, upperBound: 100 }],
+                                unitPriceDecimal: "0.025",
+                                tiers: [
+                                    {
+                                        flatAmountDecimal: "0.025",
+                                        unitAmountDecimal: "0.025",
+                                        lowerBound: 0,
+                                        tierBillingType: "perUnit",
+                                        unitAmount: 10,
+                                        upperBound: 100,
+                                    },
+                                ],
                             },
                         ],
                     },
@@ -595,6 +652,7 @@ describe("Products", () => {
                             recipient: "organization",
                             isInfiniteTotal: false,
                             allocationCadence: "upfront",
+                            overageUnitPricesDecimal: { USD: "0.4", JPY: "0.49" },
                         },
                     ],
                 },
@@ -634,12 +692,19 @@ describe("Products", () => {
                         pricingModel: "PerUnit",
                         billingFrequency: "Monthly",
                         billingType: "Advance",
+                        overageUnitPricesDecimal: {
+                            USD: "0.4",
+                            JPY: "0.49",
+                        },
                         pricePoints: [
                             {
                                 currency: "USD",
                                 unitPrice: 99,
+                                unitPriceDecimal: "0.025",
                                 tiers: [
                                     {
+                                        flatAmountDecimal: "0.025",
+                                        unitAmountDecimal: "0.025",
                                         lowerBound: 0,
                                         tierBillingType: "perUnit",
                                         unitAmount: 10,
@@ -657,6 +722,10 @@ describe("Products", () => {
                             recipient: "organization",
                             isInfiniteTotal: false,
                             allocationCadence: "upfront",
+                            overageUnitPricesDecimal: {
+                                USD: "0.4",
+                                JPY: "0.49",
+                            },
                         },
                     ],
                 },
@@ -751,11 +820,22 @@ describe("Products", () => {
                         pricingModel: "PerUnit",
                         billingFrequency: "Monthly",
                         billingType: "Advance",
+                        overageUnitPricesDecimal: { USD: "0.4", JPY: "0.49" },
                         pricePoints: [
                             {
                                 currency: "USD",
                                 unitPrice: 99,
-                                tiers: [{ lowerBound: 0, tierBillingType: "perUnit", unitAmount: 10, upperBound: 100 }],
+                                unitPriceDecimal: "0.025",
+                                tiers: [
+                                    {
+                                        flatAmountDecimal: "0.025",
+                                        unitAmountDecimal: "0.025",
+                                        lowerBound: 0,
+                                        tierBillingType: "perUnit",
+                                        unitAmount: 10,
+                                        upperBound: 100,
+                                    },
+                                ],
                             },
                         ],
                     },
@@ -767,6 +847,7 @@ describe("Products", () => {
                             recipient: "organization",
                             isInfiniteTotal: false,
                             allocationCadence: "upfront",
+                            overageUnitPricesDecimal: { USD: "0.4", JPY: "0.49" },
                         },
                     ],
                 },
@@ -808,12 +889,19 @@ describe("Products", () => {
                         pricingModel: "PerUnit",
                         billingFrequency: "Monthly",
                         billingType: "Advance",
+                        overageUnitPricesDecimal: {
+                            USD: "0.4",
+                            JPY: "0.49",
+                        },
                         pricePoints: [
                             {
                                 currency: "USD",
                                 unitPrice: 99,
+                                unitPriceDecimal: "0.025",
                                 tiers: [
                                     {
+                                        flatAmountDecimal: "0.025",
+                                        unitAmountDecimal: "0.025",
                                         lowerBound: 0,
                                         tierBillingType: "perUnit",
                                         unitAmount: 10,
@@ -831,6 +919,10 @@ describe("Products", () => {
                             recipient: "organization",
                             isInfiniteTotal: false,
                             allocationCadence: "upfront",
+                            overageUnitPricesDecimal: {
+                                USD: "0.4",
+                                JPY: "0.49",
+                            },
                         },
                     ],
                 },

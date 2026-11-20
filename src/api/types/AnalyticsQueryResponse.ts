@@ -4,7 +4,7 @@ import type * as Paid from "../index.js";
 
 export interface AnalyticsQueryResponse {
     columns: Paid.AnalyticsColumn[];
-    /** Result rows; values are ordered to match `columns`. 64-bit integers (UInt64/Int64 — counts, sums, amounts in cents, ids) are returned as JSON strings to preserve precision; parse them client-side as needed. Decimal columns (fractional cents, and credit amounts and balances) are returned as JSON numbers rather than strings, so a value beyond 2^53 is already rounded in this response. Select toString(col) for exact digits. */
+    /** Result rows; values are ordered to match `columns`. 64-bit integers (UInt64/Int64 — counts, sums, amounts in the currency's stored minor units, ids) are returned as JSON strings to preserve precision; parse them client-side as needed. Decimal columns (fractional cents, and credit amounts and balances) are returned as JSON numbers rather than strings, so a value beyond 2^53 is already rounded in this response. Select toString(col) for exact digits. */
     rows: unknown[][];
     meta: AnalyticsQueryResponse.Meta;
 }
@@ -15,5 +15,7 @@ export namespace AnalyticsQueryResponse {
         elapsedMs: number;
         /** True when the result hit the row cap and was truncated. Narrow the query (shorter date range, LIMIT, coarser grouping) to see the rest. */
         truncated: boolean;
+        /** The decimals Paid stores each listed currency's amounts at, where they differ from the currency's own minor unit. Divide a listed currency's amounts by 10 to this power: `{ "JPY": 2 }` means yen are stored in hundredths (150000 is ¥1,500), `{ "JPY": 0 }` whole yen. A currency not listed uses its own minor unit. `fact_cost.cost_amount` and `fact_delivered_value.delivered_value_cents` are exceptions: always hundredths of `cost_currency` and `delivered_value_currency`, respectively (the major unit × 100), whatever this says. */
+        storedCurrencyDecimals: Record<string, number>;
     }
 }

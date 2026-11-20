@@ -160,14 +160,16 @@ export class Orders {
     }
 
     /**
-     * Creates a new order for the organization
+     * Creates a new order for the organization. If draft pricing cannot be confirmed, returns 503 BILLING_UNAVAILABLE only after deleting the new draft. A retained draft returns 409 ORDER_RETAINED with its order id and externalId in details. Retrieve that order and check its state instead of repeating creation.
      *
      * @param {Paid.CreateOrderRequest} request
      * @param {Orders.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @throws {@link Paid.BadRequestError}
      * @throws {@link Paid.ForbiddenError}
+     * @throws {@link Paid.ConflictError}
      * @throws {@link Paid.InternalServerError}
+     * @throws {@link Paid.ServiceUnavailableError}
      *
      * @example
      *     await client.orders.createOrder({
@@ -217,8 +219,15 @@ export class Orders {
                     throw new Paid.BadRequestError(_response.error.body as unknown, _response.rawResponse);
                 case 403:
                     throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 409:
+                    throw new Paid.ConflictError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
                     throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                case 503:
+                    throw new Paid.ServiceUnavailableError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,
@@ -338,6 +347,7 @@ export class Orders {
      * @throws {@link Paid.BadRequestError}
      * @throws {@link Paid.ForbiddenError}
      * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.ConflictError}
      * @throws {@link Paid.InternalServerError}
      *
      * @example
@@ -391,6 +401,8 @@ export class Orders {
                     throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 404:
                     throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 409:
+                    throw new Paid.ConflictError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
                     throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
@@ -427,6 +439,7 @@ export class Orders {
      *
      * @throws {@link Paid.ForbiddenError}
      * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.ConflictError}
      * @throws {@link Paid.InternalServerError}
      *
      * @example
@@ -475,6 +488,8 @@ export class Orders {
                     throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 404:
                     throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 409:
+                    throw new Paid.ConflictError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
                     throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
@@ -512,6 +527,7 @@ export class Orders {
      * @throws {@link Paid.BadRequestError}
      * @throws {@link Paid.ForbiddenError}
      * @throws {@link Paid.NotFoundError}
+     * @throws {@link Paid.ConflictError}
      * @throws {@link Paid.InternalServerError}
      *
      * @example
@@ -562,6 +578,8 @@ export class Orders {
                     throw new Paid.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
                 case 404:
                     throw new Paid.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 409:
+                    throw new Paid.ConflictError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
                     throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
@@ -802,7 +820,8 @@ export class Orders {
      * @example
      *     await client.orders.updateOrderSeatAssignment({
      *         id: "id",
-     *         seatId: "seatId"
+     *         seatId: "seatId",
+     *         userExternalId: null
      *     })
      */
     public updateOrderSeatAssignment(
@@ -897,7 +916,8 @@ export class Orders {
      *     await client.orders.batchOrderSeatAssignments({
      *         id: "id",
      *         assignments: [{
-     *                 seatId: "seatId"
+     *                 seatId: "seatId",
+     *                 userExternalId: null
      *             }]
      *     })
      */
@@ -978,7 +998,7 @@ export class Orders {
     }
 
     /**
-     * Creates or updates a customer, an optional contact, the products on the order, and the order with its lines, in one call. Each record is matched by its `externalId`, so you can send the same deal again after it changes in your CRM. Returns 201 Created when the order is new, and 200 OK when an existing draft order with the same `externalId` was updated. Treat both as success. Re-provisioning an order that is already active returns 409 `ORDER_ALREADY_ACTIVE`; change an active order through the amendments API instead. Amounts are whole numbers in minor currency units (cents).
+     * Creates or updates a customer, an optional contact, the products on the order, and the order with its lines, in one call. Each record is matched by its `externalId`, so you can send the same deal again after it changes in your CRM. Returns 201 Created when the order is new, and 200 OK when an existing draft order with the same `externalId` was updated. Treat both as success. Re-provisioning an order that is already active returns 409 `ORDER_ALREADY_ACTIVE`; change an active order through the amendments API instead. A 503 `BILLING_UNAVAILABLE` means draft pricing could not be confirmed and any newly created draft was deleted; send the same request again with the same idempotency key. If a new draft is retained, returns 409 `ORDER_RETAINED` with its order id and externalId in `details`. Retrieve that order and check its state instead of repeating creation. Amounts are whole numbers in minor currency units (cents).
      *
      * @param {Paid.ProvisionRequest} request
      * @param {Orders.RequestOptions} requestOptions - Request-specific configuration.
@@ -987,6 +1007,7 @@ export class Orders {
      * @throws {@link Paid.ForbiddenError}
      * @throws {@link Paid.ConflictError}
      * @throws {@link Paid.InternalServerError}
+     * @throws {@link Paid.ServiceUnavailableError}
      *
      * @example
      *     await client.orders.upsertOrderByExternalId({
@@ -1112,6 +1133,11 @@ export class Orders {
                     throw new Paid.ConflictError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
                     throw new Paid.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                case 503:
+                    throw new Paid.ServiceUnavailableError(
+                        _response.error.body as Paid.ErrorResponse,
+                        _response.rawResponse,
+                    );
                 default:
                     throw new errors.PaidError({
                         statusCode: _response.error.statusCode,

@@ -892,6 +892,7 @@ describe("CustomViewsExperimental", () => {
         const client = new PaidClient({ token: "test", environment: server.baseUrl });
 
         const rawResponseBody = {
+            storedCurrencyDecimals: { JPY: 2 },
             context: {
                 version: 2,
                 unitSelection: { mode: "all" },
@@ -912,6 +913,7 @@ describe("CustomViewsExperimental", () => {
                 caps: [
                     {
                         amount: 10000,
+                        amountDecimal: "10000",
                         frequency: "MONTHLY",
                         schedule: { type: "ANCHORED", anchorDay: 15 },
                         externalId: "externalId",
@@ -939,6 +941,9 @@ describe("CustomViewsExperimental", () => {
             displayId: "displayId",
         });
         expect(response).toEqual({
+            storedCurrencyDecimals: {
+                JPY: 2,
+            },
             context: {
                 version: 2,
                 unitSelection: {
@@ -967,6 +972,7 @@ describe("CustomViewsExperimental", () => {
                 caps: [
                     {
                         amount: 10000,
+                        amountDecimal: "10000",
                         frequency: "MONTHLY",
                         schedule: {
                             type: "ANCHORED",

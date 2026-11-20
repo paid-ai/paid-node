@@ -6,12 +6,18 @@ export interface CreditBalance {
     creditsCurrencyId: string;
     currencyName: string;
     currencyKey: string;
-    /** Effective spendable balance across all grants in this pool, rollover-capped during rollover windows. Equals sum(grants[].available). JSON number; exact within ±2^53 — balances are sums and can legitimately exceed it. */
+    /** Effective spendable balance across all grants in this pool, rollover-capped during rollover windows. Equals sum(grants[].availableDecimal). JSON number, up to 6 decimal places, truncated toward zero; exact only within ±2^53. Use `availableDecimal` for the exact value. */
     available: number;
-    /** JSON number; exact within ±2^53 — balances are sums and can legitimately exceed it. */
+    /** Exact value of `available` as a decimal string, at any magnitude and every decimal place it carries. */
+    availableDecimal: string;
+    /** JSON number, up to 6 decimal places, truncated toward zero; exact only within ±2^53. Use `usedDecimal` for the exact value. */
     used: number;
-    /** JSON number; exact within ±2^53 — balances are sums and can legitimately exceed it. */
+    /** Exact value of `used` as a decimal string, at any magnitude and every decimal place it carries. */
+    usedDecimal: string;
+    /** JSON number, up to 6 decimal places, truncated toward zero; exact only within ±2^53. Use `totalDecimal` for the exact value. */
     total: number;
+    /** Exact value of `total` as a decimal string, at any magnitude and every decimal place it carries. */
+    totalDecimal: string;
     /** Aggregate min(periodStart) across grants in this pool. Does not correspond to any real billing period when grants overlap. Use grants[].periodStart instead. Will be removed in a future API version. */
     periodStart: string | null;
     /** Aggregate max(periodEnd) across grants in this pool. Does not correspond to any real billing period when grants overlap. Use grants[].periodEnd or grants[].expiresAt instead. Will be removed in a future API version. */

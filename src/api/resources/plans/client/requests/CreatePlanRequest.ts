@@ -23,6 +23,8 @@ export interface CreatePlanRequest {
     /** Paid product ID, for example `prod_abc123` */
     productId: string;
     name?: string | null;
+    /** What your customers see for this plan on invoices, checkout and the customer portal, up to 250 characters. Omit it or send null to use the plan name. */
+    displayName?: string | null;
     /** Your stable identifier for this plan */
     externalId?: string | null;
     supportedCurrencies?: string[];

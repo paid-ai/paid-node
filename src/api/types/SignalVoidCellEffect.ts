@@ -7,6 +7,8 @@ export interface SignalVoidCellEffect {
     nextBillingDate: string;
     /** How much usage was taken back from this billing period, in the attribute's own usage units: the signal's net quantity there. */
     quantity: number;
+    /** The exact net usage taken back, as a decimal string. Use this field when every fractional digit matters; quantity is the numeric approximation for clients using floating-point numbers. */
+    quantityDecimal?: string;
     /** True when the usage taken back was tracked but never billed, because the signal's customer unit is not billable; false for billable usage. */
     nonBillable: boolean;
 }
